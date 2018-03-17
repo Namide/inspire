@@ -11,3 +11,23 @@ api/_old
 *.ntvs*
 *.njsproj
 *.sln
+
+# api
+*~
+*.diff
+*.patch
+.DS_Store
+.project
+.settings
+.idea
+api/storage/*.*
+api/storage/*/*
+api/config/*
+api/tests/*
+api/node_modules
+api/addons/
+api/defines.php
+!api/storage/*/index.html
+!api/storage/*/.htaccess
+!.gitignore
+!.gitkeep
