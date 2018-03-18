@@ -4,12 +4,20 @@ class Api
 {
     constructor()
     {
+        this.boards = null
+        this.posts = null
     }
 
     // /api/collections/get/posts
 
     getBoards(onLoad)
     {
+        if (this.boards)
+        {
+            console.log(this.boards)
+            return onLoad(this.boards)
+        }
+
         const init = {
             headers: {
                 'Accept': 'application/json, text/plain, */*',
@@ -31,11 +39,16 @@ class Api
         fetch(request/*, init*/)
             // .then(collection => console.log(collection))
             .then(collection => collection.json())
-            .then(onLoad)
+            .then(json => onLoad(this.boards = json))
     }
 
     getPosts(onLoad)
     {
+        if (this.posts)
+        {
+            return onLoad(this.posts)
+        }
+
         const init = {
             headers: {
                 'Accept': 'application/json, text/plain, */*',
@@ -57,7 +70,7 @@ class Api
         fetch(request/*, init*/)
             // .then(collection => console.log(collection))
             .then(collection => collection.json())
-            .then(onLoad)
+            .then(json => onLoad(this.posts = json))
     }
 }
 

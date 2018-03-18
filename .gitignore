@@ -29,5 +29,7 @@ admin/addons/
 admin/defines.php
 !admin/storage/*/index.html
 !admin/storage/*/.htaccess
+!admin/storage/collections
+!admin/storage/regions
 !.gitignore
 !.gitkeep

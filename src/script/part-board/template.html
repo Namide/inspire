@@ -1,0 +1,24 @@
+<article>
+    <h1>
+        {{ data.title }}
+    </h1>
+    <p>
+        {{ data.description }}
+    </p>
+    <ul>
+        <li v-for="type of data.types">
+            {{ type }}
+        </li>
+    </ul>
+    <ul>
+        <li v-for="tag of data.tags">
+            {{ tag }}
+        </li>
+    </ul>
+    <ul>
+        <li v-for="tag of data.excluded">
+            {{ tag }}
+        </li>
+    </ul>
+    <img v-if="data.thumb" :src="path(data.thumb.path)" :alt="data.title">
+</article>

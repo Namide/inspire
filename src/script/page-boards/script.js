@@ -1,31 +1,30 @@
 import api from '../utils/api'
-import PartPost from '../part-post'
+import PartBoard from '../part-board'
 
 export default
 {
     components:
     {
-        PartPost
+        PartBoard
     },
 
     data()
     {
         return {
-            posts: []
+            boards: []
         }
     },
 
     created()
     {
-        api.getBoards(this.onPosts)
+        api.getBoards(this.onBoards)
     },
 
     methods:
     {
-        onPosts(posts)
+        onBoards(boards)
         {
-            this._allPosts = posts.entries
-            this.posts = JSON.parse(JSON.stringify(posts.entries))
+            this.boards = JSON.parse(JSON.stringify(boards.entries))
         }
     }
 }

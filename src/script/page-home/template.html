@@ -1,3 +1,5 @@
 <div>
     <h2>Home page</h2>
+    <part-tags @update:tags="onFiltered"></part-tags>
+    <page-posts :filter-tags="filterTags"></page-posts>
 </div>
