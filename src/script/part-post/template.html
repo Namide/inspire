@@ -1,0 +1,20 @@
+<article>
+    <h1>
+        {{ data.title }}
+    </h1>
+    <time>
+        {{ data.date }}
+    </time>
+    <p>
+        {{ data.description }}
+    </p>
+    <span>
+        {{ data.score }}/5
+    </span>
+    <ul>
+        <li v-for="tag of data.tags">
+            {{ tag }}
+        </li>
+    </ul>
+    <img v-if="data.thumb" :src="path(data.thumb.path)" :alt="data.title">
+</article>

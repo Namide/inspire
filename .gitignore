@@ -3,7 +3,7 @@ node_modules/
 dist/
 npm-debug.log
 yarn-error.log
-api/_old
+admin/_old
 
 # Editor directories and files
 .idea
@@ -12,7 +12,7 @@ api/_old
 *.njsproj
 *.sln
 
-# api
+# admin
 *~
 *.diff
 *.patch
@@ -20,14 +20,14 @@ api/_old
 .project
 .settings
 .idea
-api/storage/*.*
-api/storage/*/*
-api/config/*
-api/tests/*
-api/node_modules
-api/addons/
-api/defines.php
-!api/storage/*/index.html
-!api/storage/*/.htaccess
+admin/storage/*.*
+admin/storage/*/*
+admin/config/*
+admin/tests/*
+admin/node_modules
+admin/addons/
+admin/defines.php
+!admin/storage/*/index.html
+!admin/storage/*/.htaccess
 !.gitignore
 !.gitkeep
