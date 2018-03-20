@@ -117,7 +117,7 @@
           ),
           1 => 
           array (
-            'type' => 'image',
+            'type' => 'asset',
             'label' => 'Image',
           ),
           2 => 
@@ -143,7 +143,7 @@
     array (
       'name' => 'thumb',
       'label' => 'Thumb',
-      'type' => 'image',
+      'type' => 'asset',
       'default' => '',
       'info' => '',
       'group' => '',
@@ -181,7 +181,7 @@
   'sortable' => true,
   'in_menu' => false,
   '_created' => 1521289897,
-  '_modified' => 1521306815,
+  '_modified' => 1521579792,
   'color' => '#D8334A',
   'acl' => 
   array (
