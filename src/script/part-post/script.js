@@ -22,12 +22,11 @@ export default
 
     created()
     {
-        
     },
 
     methods:
     {
-        path(path)
+        assets(path)
         {
             return config.api.url.assets + path
         }

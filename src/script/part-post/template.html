@@ -16,7 +16,7 @@
             {{ tag }}
         </li>
     </ul>
-    <img v-if="data.thumb" :src="path(data.thumb.path)" :alt="data.title">
+    <img v-if="data.thumb" :src="assets(data.thumb.path)" :alt="data.title">
 
     <template v-for="content of data.content">
         <template v-if="content.value.image">
