@@ -26,9 +26,9 @@ export default
 
     methods:
     {
-        path(relative)
+        image(relative)
         {
-            return config.assets.url + relative
+            return config.api.url.images + relative
         }
     }
 }

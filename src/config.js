@@ -3,12 +3,12 @@ class Config
     constructor()
     {
         this.api = {
-            url: 'http://localhost/inspire/admin/api/',
-            token: 'd66908b28464bf3a9cf97118c8debe'
-        }
-
-        this.assets = {
-            url: 'http://localhost/inspire'
+            url: {
+                root: 'http://localhost/inspire/admin/api/',
+                assets: 'http://localhost/inspire/admin/storage/uploads/',
+                images: 'http://localhost/inspire'
+            },
+            token: 'ba3bc648e6c004de47c5c594460a18',
         }
     }
 }

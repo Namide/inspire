@@ -1,4 +1,5 @@
 import config from '../../config'
+import api from '../utils/api'
 
 export default
 {
@@ -26,9 +27,9 @@ export default
 
     methods:
     {
-        path(relative)
+        path(path)
         {
-            return config.assets.url + relative
+            return config.api.url.assets + path
         }
     }
 }

@@ -20,7 +20,7 @@
 
     <template v-for="content of data.content">
         <template v-if="content.value.image">
-            <img :src="path(content.value.path)">
+            <img :src="assets(content.value.path)">
         </template>
     </template>
 
