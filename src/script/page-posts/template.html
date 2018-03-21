@@ -1,8 +1,4 @@
 <div>
     <h2>Posts</h2>
-    <ul>
-        <li v-for="post of posts" :key="post._id">
-            <part-post :data="post"></part-post>
-        </li>
-    </ul>
+    <part-post v-for="post of posts" :key="post._id" :data="post"></part-post>
 </div>

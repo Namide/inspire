@@ -1,18 +1,14 @@
 <main>
-    <h1>
+
+    <h1 class="title">
         Inspire
     </h1>
-    <ul>
-        <li>
-            <router-link to="/post">
-                Posts
-            </router-link>
-        </li>
-        <li>
-            <router-link to="/board">
-                Boards
-            </router-link>
-        </li>
-    </ul>
+
+    <nav class="nav">
+        <router-link to="/post" class="link">Posts</router-link>
+        <router-link to="/board" class="link">Boards</router-link>
+    </nav>
+
     <router-view></router-view>
+
 </main>

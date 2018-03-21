@@ -1,26 +1,26 @@
-<article>
-    <h1>
+<article class="post" :class="{ 'has-thumb': !!data.thumb }">
+    <h1 class="title">
         {{ data.title }}
     </h1>
-    <time>
+    <time class="time">
         {{ data.date }}
     </time>
-    <p>
+    <p class="description">
         {{ data.description }}
     </p>
-    <span>
+    <span class="score">
         {{ data.score }}/5
     </span>
-    <ul>
+    <ul class="tags">
         <li v-for="tag of data.tags">
             {{ tag }}
         </li>
     </ul>
     
-    <part-asset v-if="data.thumb" :data="data.thumb"></part-asset>
+    <part-asset v-if="data.thumb" :data="data.thumb" class="thumb"></part-asset>
 
     <template v-for="content of data.content">
-        <part-asset v-if="content.field.type == 'asset'" :data="content.value"></part-asset>
+        <part-asset v-if="content.field.type == 'asset'" :data="content.value" class="content"></part-asset>
     </template>
 
 </article>
