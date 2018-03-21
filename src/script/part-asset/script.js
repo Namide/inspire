@@ -1,24 +1,16 @@
 import config from '../../config'
 import api from '../utils/api'
-import PartAsset from '../part-asset'
 
 export default
 {
     components:
     {
-        PartAsset
+        
     },
 
     props:
     {
         data: { type: Object }
-    },
-
-    data()
-    {
-        return {
-            posts: []
-        }
     },
 
     created()
@@ -27,5 +19,14 @@ export default
 
     methods:
     {
+        path(path)
+        {
+            return config.api.url.assets + path
+        }
+
+        // image(relative)
+        // {
+        //     return config.api.url.images + relative
+        // }
     }
 }

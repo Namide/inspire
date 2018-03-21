@@ -28,7 +28,7 @@
     array (
       'name' => 'thumb',
       'label' => 'Thumb',
-      'type' => 'image',
+      'type' => 'asset',
       'default' => '',
       'info' => '',
       'group' => '',
@@ -101,7 +101,7 @@
   'sortable' => false,
   'in_menu' => false,
   '_created' => 1521388312,
-  '_modified' => 1521402105,
+  '_modified' => 1521618135,
   'color' => '#A0D468',
   'acl' => 
   array (

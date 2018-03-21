@@ -16,12 +16,11 @@
             {{ tag }}
         </li>
     </ul>
-    <img v-if="data.thumb" :src="assets(data.thumb.path)" :alt="data.title">
+    
+    <part-asset v-if="data.thumb" :data="data.thumb"></part-asset>
 
     <template v-for="content of data.content">
-        <template v-if="content.value.image">
-            <img :src="assets(content.value.path)">
-        </template>
+        <part-asset v-if="content.field.type == 'asset'" :data="content.value"></part-asset>
     </template>
 
 </article>

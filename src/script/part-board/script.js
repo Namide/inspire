@@ -1,10 +1,11 @@
 import config from '../../config'
+import PartAsset from '../part-asset'
 
 export default
 {
     components:
     {
-        
+        PartAsset
     },
 
     props:
@@ -26,9 +27,5 @@ export default
 
     methods:
     {
-        image(relative)
-        {
-            return config.api.url.images + relative
-        }
     }
 }
