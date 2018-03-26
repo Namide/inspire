@@ -21,6 +21,7 @@ export default
     {
         path(path)
         {
+            // api.getThumb(path, data => console.log(data))
             return config.api.url.assets + path
         }
 

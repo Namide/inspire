@@ -20,6 +20,7 @@ admin/_old
 .project
 .settings
 .idea
+content-save/
 admin/storage/*.*
 admin/storage/*/*
 admin/config/*

@@ -17,69 +17,14 @@
       'options' => 
       array (
       ),
-      'width' => '1-1',
-      'lst' => false,
+      'width' => '1-2',
+      'lst' => true,
       'acl' => 
       array (
       ),
       'required' => true,
     ),
     1 => 
-    array (
-      'name' => 'date',
-      'label' => 'Date',
-      'type' => 'date',
-      'default' => '',
-      'info' => 'Entry of the post',
-      'group' => '',
-      'localize' => false,
-      'options' => 
-      array (
-      ),
-      'width' => '1-1',
-      'lst' => true,
-      'acl' => 
-      array (
-      ),
-    ),
-    2 => 
-    array (
-      'name' => 'tags',
-      'label' => 'Tags',
-      'type' => 'tags',
-      'default' => '',
-      'info' => 'Simple and explicit tags',
-      'group' => '',
-      'localize' => false,
-      'options' => 
-      array (
-      ),
-      'width' => '1-1',
-      'lst' => true,
-      'acl' => 
-      array (
-      ),
-      'required' => true,
-    ),
-    3 => 
-    array (
-      'name' => 'score',
-      'label' => 'Score',
-      'type' => 'rating',
-      'default' => '',
-      'info' => 'Notation of the post',
-      'group' => '',
-      'localize' => false,
-      'options' => 
-      array (
-      ),
-      'width' => '1-1',
-      'lst' => true,
-      'acl' => 
-      array (
-      ),
-    ),
-    4 => 
     array (
       'name' => 'description',
       'label' => 'Description',
@@ -91,13 +36,50 @@
       'options' => 
       array (
       ),
-      'width' => '1-1',
+      'width' => '1-2',
       'lst' => false,
       'acl' => 
       array (
       ),
     ),
-    5 => 
+    2 => 
+    array (
+      'name' => 'date',
+      'label' => 'Date',
+      'type' => 'date',
+      'default' => '',
+      'info' => 'Entry of the post',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-2',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    3 => 
+    array (
+      'name' => 'tags',
+      'label' => 'Tags',
+      'type' => 'tags',
+      'default' => '',
+      'info' => 'Simple and explicit tags',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-2',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+      'required' => true,
+    ),
+    4 => 
     array (
       'name' => 'content',
       'label' => 'Content',
@@ -112,13 +94,13 @@
         array (
           0 => 
           array (
-            'type' => 'file',
-            'label' => 'Video',
+            'type' => 'text',
+            'label' => 'Link',
           ),
           1 => 
           array (
             'type' => 'asset',
-            'label' => 'Image',
+            'label' => 'Asset',
           ),
           2 => 
           array (
@@ -139,7 +121,7 @@
       ),
       'required' => true,
     ),
-    6 => 
+    5 => 
     array (
       'name' => 'thumb',
       'label' => 'Thumb',
@@ -151,14 +133,14 @@
       'options' => 
       array (
       ),
-      'width' => '1-1',
+      'width' => '1-2',
       'lst' => true,
       'acl' => 
       array (
       ),
       'required' => false,
     ),
-    7 => 
+    6 => 
     array (
       'name' => 'public',
       'label' => 'Public',
@@ -171,7 +153,25 @@
       array (
         'default' => true,
       ),
-      'width' => '1-1',
+      'width' => '1-2',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    7 => 
+    array (
+      'name' => 'score',
+      'label' => 'Score',
+      'type' => 'rating',
+      'default' => '',
+      'info' => 'Notation of the post',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-2',
       'lst' => true,
       'acl' => 
       array (
@@ -181,13 +181,20 @@
   'sortable' => true,
   'in_menu' => false,
   '_created' => 1521289897,
-  '_modified' => 1521579792,
+  '_modified' => 1521986549,
   'color' => '#D8334A',
   'acl' => 
   array (
     'public' => 
     array (
       'entries_view' => true,
+      'entries_create' => true,
+      'entries_edit' => true,
+      'entries_delete' => true,
+    ),
+    '' => 
+    array (
+      'collection_edit' => true,
     ),
   ),
   'rules' => 

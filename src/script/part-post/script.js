@@ -17,15 +17,27 @@ export default
     data()
     {
         return {
-            posts: []
+            posts: [],
+            postClass: {},
+            displayImage: false
         }
     },
 
     created()
     {
+        const isThumb = this.isThumb()
+        this.postClass = {
+            'is-thumb': isThumb,
+            'is-text': !isThumb
+        }
     },
 
     methods:
     {
+        isThumb()
+        {
+            return !!this.data.thumb
+                || !!this.data.content.find(content => content.field.type == 'asset')
+        }
     }
 }

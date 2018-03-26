@@ -1,30 +1,72 @@
-.post
-    position: relative
-    width: 25%
+// .post
+//     position: relative
+//     width: 25%
 
-.has-thumb
+// .has-thumb
+//     .title
+//         display: none
+
+// .time
+//     display: none
+
+// .description
+//     display: none
+
+// .score
+//     display: none
+
+// .tags
+//     display: none
+
+// .thumb
+//     /deep/ img
+//         width: 100%
+//         height: auto
+//         display: block
+
+// .has-thumb
+//     .content
+//         display: none
+
+$marg: 4px
+
+.is-thumb
+
+.is-text
+    display: flex
+    justify-content: space-between
+    margin-bottom: 4px
+
+    /deep/ .date, /deep/ .thumb
+        display: none
+    
+    .title, 
+        margin: $marg 16px
+
+    .description
+        margin: $marg
+    
     .title
-        display: none
+        font-size: 1em
+        white-space: nowrap
+        padding: 0
+    
+    .description
+        font-size: 1em
+        overflow: hidden
+        white-space: nowrap
+        margin-right: auto
 
-.time
-    display: none
+    .tags
+        list-style: none
+        display: flex
+        padding: 0
+        margin: 0
+        .tag
+            margin-left: 8px
+            background-color: #FFF
+            padding: $marg
+            white-space: nowrap
 
-.description
-    display: none
-
-.score
-    display: none
-
-.tags
-    display: none
-
-.thumb
-    /deep/ img
-        width: 100%
-        height: auto
-        display: block
-
-
-.has-thumb
-    .content
-        display: none
+    .score
+        margin: $marg 16px
