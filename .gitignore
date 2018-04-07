@@ -4,6 +4,12 @@ dist/
 npm-debug.log
 yarn-error.log
 
+admin/vendor
+admin/composer.lock
+admin/api/logs/development.log
+admin/api/config.php
+admin/api/configuration.php
+
 admin-cockpit/
 admin-directus/
 content-save/

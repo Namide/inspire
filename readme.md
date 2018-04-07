@@ -34,15 +34,27 @@ Module browser
 
 ### Setup
 
-[Cockpit CMS readme](/api/README.md)
+[Directus](https://getdirectus.com/)
+
+Install vendors
+
+```
+cd admin
+composer install
+```
+
+Create you database.
+
+Install the admin with the http path `/admin`.
+
+Use `Inspire` choice for `Initial schema` select box.
+
 
 ### Requirements
 
-- PHP >= 7.0
-- PDO + SQLite (or MongoDB)
-- GD extension
-- mod_rewrite enabled (on apache)
-
+- NGINX or Apache Server
+- MySQL 5.2+
+- PHP 5.6+ (curl, gd, finfo, pdo_mysql)
 
 ### TODO
 
