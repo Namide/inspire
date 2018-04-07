@@ -17,7 +17,6 @@ export default
     data()
     {
         return {
-            posts: [],
             postClass: {},
             displayImage: false
         }
@@ -37,7 +36,7 @@ export default
         isThumb()
         {
             return !!this.data.thumb
-                || !!this.data.content.find(content => content.field.type == 'asset')
+                || !!this.data.content_file
         }
     }
 }

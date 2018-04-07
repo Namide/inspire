@@ -1,7 +1,6 @@
 import RemoteInstance from 'directus-sdk-javascript/remote'
 import config from '../../config'
 
-
 class Api
 {
     constructor()
@@ -158,7 +157,7 @@ class Api
         // https://api.getdirectus.com/1.1/#Global_Parameters
         const params = {
             depth: 1,
-            limit: 1,
+            limit: 100,
             // offset: 1
 
             // https://api.getdirectus.com/1.1/#Get_Parameters
@@ -174,8 +173,8 @@ class Api
         }
 
         this.client.getItems('post', params)
-            .then(res => console.log(res))
-            .catch(err => console.log(err))
+            .then(res => onLoad(res))
+            .catch(err => console.error(err))
 
         /*fetch(request)
             .then(collection => collection.json())

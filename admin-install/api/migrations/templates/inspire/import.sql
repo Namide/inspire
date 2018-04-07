@@ -37,8 +37,7 @@ INSERT INTO `directus_preferences` (`id`, `user`, `table_name`, `title`, `column
 
 
 INSERT INTO `directus_privileges` (`id`, `table_name`, `allow_view`, `allow_add`, `allow_edit`, `allow_delete`, `allow_alter`, `group_id`, `read_field_blacklist`, `write_field_blacklist`, `nav_listed`, `status_id`) VALUES
-	(NULL, 'post', 2, 1, 2, 2, 1, 1, NULL, NULL, 1, NULL),
-	(NULL, 'group', 2, 1, 2, 2, 1, 1, NULL, NULL, 1, NULL),
+	(NULL, 'directus_files', 2, 0, 0, 0, 0, 2, NULL, NULL, 1, NULL),
 	(NULL, 'group', 2, 0, 0, 0, 0, 2, NULL, NULL, 1, NULL),
 	(NULL, 'post', 2, 0, 0, 0, 0, 2, NULL, NULL, 1, NULL);
 

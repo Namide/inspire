@@ -19,12 +19,10 @@ export default
 
     methods:
     {
-        path(path)
+        isImg()
         {
-            // api.getThumb(path, data => console.log(data))
-            return config.api.url.assets + path
+            return this.data.type == 'image/jpeg'
         }
-
         // image(relative)
         // {
         //     return config.api.url.images + relative

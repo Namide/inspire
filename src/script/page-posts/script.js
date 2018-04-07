@@ -36,9 +36,9 @@ export default
 
     methods:
     {
-        onPosts(posts)
+        onPosts({data, meta})
         {
-            const cleanTags = tag => tag.toLowerCase()
+            /*const cleanTags = tag => tag.toLowerCase()
 
             const filterTags = this.filterTags.map(cleanTags)
             const filter = post =>
@@ -49,10 +49,12 @@ export default
                         return false
             
                 return true
-            }
+            }*/
 
-            const filteredPosts = posts.entries.filter(filter)
-            this.posts.splice(0, this.posts.length, ...JSON.parse(JSON.stringify(filteredPosts)))
+            const cleanData = data => Object.assign(data, {tags: data.tags.split(',')})
+
+            const posts = data.map(cleanData)
+            this.posts.splice(0, this.posts.length, ...JSON.parse(JSON.stringify(posts)))
         }
     }
 }

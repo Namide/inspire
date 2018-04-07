@@ -23,9 +23,6 @@
     </span>
     
     <part-asset v-if="data.thumb" :data="data.thumb" class="thumb"></part-asset>
-
-    <!-- <template v-for="content of data.content">
-        <part-asset v-if="content.field.type == 'asset'" :data="content.value" class="content"></part-asset>
-    </template> -->
+    <part-asset v-else="data.content_file" :data="data.content_file.data" class="thumb"></part-asset>
 
 </article>
