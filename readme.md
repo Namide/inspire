@@ -42,3 +42,8 @@ Module browser
 - PDO + SQLite (or MongoDB)
 - GD extension
 - mod_rewrite enabled (on apache)
+
+
+### TODO
+
+Directus -> disable cors (for production)

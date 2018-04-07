@@ -1,4 +1,6 @@
+import RemoteInstance from 'directus-sdk-javascript/remote'
 import config from '../../config'
+
 
 class Api
 {
@@ -6,6 +8,14 @@ class Api
     {
         this.boards = null
         this.posts = null
+
+        this.client = new RemoteInstance({
+            url: config.api.url.root,
+            // accessToken: 'api-key-12345'
+            /*headers: {
+                'Access-Control-Allow-Origin': '*'
+            }*/
+        })
     }
 
     // /api/collections/get/posts
@@ -131,33 +141,46 @@ class Api
 
     getPosts(onLoad)
     {
-        if (this.posts)
-        {
-            return onLoad(this.posts)
-        }
+        // https://api.getdirectus.com/1.1/#API_Endpoints
 
-        const init = {
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-            },
-            method: 'GET',
-            mode: 'no-cors', // same-origin
-            cache: 'default'
-        }
+        /*const data = {
+            'limit': 1
+        }*/
         
         // /api/collections/collection/posts?token=d66908b28464bf3a9f97118c8debe
         // /api/collections/get
         // /api/collections/get/posts?token=d66908b28464bf3a9f97118c8debe
         // /api/collections/get/{collectionname}?token={yourtoken}
 
-        const url = config.api.url.root + 'collections/get/post?token=' + config.api.token
-        const request = new Request(url)
+        // const url = config.api.url.root + 'tables/post/rows'
+        // const request = new Request(url)
 
-        fetch(request/*, init*/)
-            // .then(collection => console.log(collection))
+        // https://api.getdirectus.com/1.1/#Global_Parameters
+        const params = {
+            depth: 1,
+            limit: 1,
+            // offset: 1
+
+            // https://api.getdirectus.com/1.1/#Get_Parameters
+            /* filters: {
+                tags: {
+                    in: '',
+                    nin: ,
+                    contains(),
+                    ncontains()
+                }
+            }*/
+            
+        }
+
+        this.client.getItems('post', params)
+            .then(res => console.log(res))
+            .catch(err => console.log(err))
+
+        /*fetch(request)
             .then(collection => collection.json())
-            .then(json => onLoad(this.posts = json))
+            .then(json => onLoad(this.posts = json))*/
+
     }
 }
 

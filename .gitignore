@@ -3,7 +3,11 @@ node_modules/
 dist/
 npm-debug.log
 yarn-error.log
-admin/_old
+
+admin-cockpit/
+admin-directus/
+content-save/
+
 
 # Editor directories and files
 .idea

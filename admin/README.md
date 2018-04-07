@@ -1,101 +1,124 @@
-# Cockpit Next
+<p align="center">
+<img src="https://camo.githubusercontent.com/ebf016c308b7472411bd951e5ee3c418a44c0755/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f662e636c2e6c792f6974656d732f33513238333030343348315931633146314b32442f64697265637475732d6c6f676f2d737461636b65642e706e67" alt="Directus Logo"/>
+</p>
 
-[![Backers on Open Collective](https://opencollective.com/cockpit/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/cockpit/sponsors/badge.svg)](#sponsors) [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/aheinze/cockpit)
+<p align="center">Open-Source Headless CMS & API</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
-* Homepage: [http://getcockpit.com](http://getcockpit.com)
-* Twitter: [@getcockpit](http://twitter.com/getcockpit)
-
-
-### Requirements
-
-* PHP >= 7.0
-* PDO + SQLite (or MongoDB)
-* GD extension
-* mod_rewrite enabled (on apache)
-
-make also sure that <code>$_SERVER['DOCUMENT_ROOT']</code> exists and is set correctly.
+<p align="center"><i>Directus is free and open-source and we like to keep it that way.<br>Please help us out by <a href="https://www.patreon.com/directus">supporting the project on Patreon!</a></i></p>
 
 
-### Installation
+## Description
+Directus is a free and open-source database API and 'headless' CMS. Unlike traditional CMS that encompass your entire project codebase, the decoupled approach of Directus offers an API and SDKs to connect your content to: websites, native apps, kiosks, IoT devices, or any other data-driven projects.
 
-1. Download Cockpit and put the cockpit folder in the root of your web project
-2. Make sure that the __/cockpit/storage__ folder and all its subfolders are writable
-3. Go to __/cockpit/install__ via Browser
-4. You're ready to use Cockpit :-)
+Directus makes no assumptions about how you should architect your database – giving you complete freedom to optimize structure and performance for projects of any size or complexity. Built on top of the API is our feature-rich admin webapp (CMS) which dynamically maps to your database's schema, instantly providing your users/clients with an intuitive interface for managing content.
 
-
-### Build (Only if you modify JS components)
-
-You need [nodejs](https://nodejs.org/) installed on your system.
-
-First run `npm install` to install development dependencies
-
-1. Run `npm run build` - For one-time build of styles and components
-2. Run `npm run watch` - For continuous build every time styles or components change
-
-### Dockerized Development
-
-You need docker installed on your system: https://www.docker.com.
-
-1. Run `npm run docker-init` to build the initial image.
-2. Run `npm run docker` to start an Apache environment suited for Cockpit on port 8080 (this folder mapped to /var/www/html).
+Learn more at [getdirectus.com](https://getdirectus.com), chat with us on [Slack](https://slack.getdirectus.com), and follow us on Twitter: [@directus](https://twitter.com/directus)
 
 
-## Backers
+## Installation
+Download the latest pre-built version from [our releases page](https://github.com/directus/directus/releases) or clone this repo and install the composer dependencies by running `composer install` from the root folder. 
 
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/cockpit#backer)]
+### Requirements:
+NGINX or Apache Server, MySQL 5.2+, PHP 5.6+ (curl, gd, finfo, pdo_mysql)
 
-<a href="https://opencollective.com/cockpit#backers" target="_blank"><img src="https://opencollective.com/cockpit/backers.svg?width=890"></a>
-
-
-## Sponsors
-
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/cockpit#sponsor)]
-
-<a href="https://opencollective.com/cockpit/sponsor/0/website" target="_blank"><img src="https://opencollective.com/cockpit/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/cockpit/sponsor/1/website" target="_blank"><img src="https://opencollective.com/cockpit/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/cockpit/sponsor/2/website" target="_blank"><img src="https://opencollective.com/cockpit/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/cockpit/sponsor/3/website" target="_blank"><img src="https://opencollective.com/cockpit/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/cockpit/sponsor/4/website" target="_blank"><img src="https://opencollective.com/cockpit/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/cockpit/sponsor/5/website" target="_blank"><img src="https://opencollective.com/cockpit/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/cockpit/sponsor/6/website" target="_blank"><img src="https://opencollective.com/cockpit/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/cockpit/sponsor/7/website" target="_blank"><img src="https://opencollective.com/cockpit/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/cockpit/sponsor/8/website" target="_blank"><img src="https://opencollective.com/cockpit/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/cockpit/sponsor/9/website" target="_blank"><img src="https://opencollective.com/cockpit/sponsor/9/avatar.svg"></a>
+### Database types
+While Directus has been abstracted to allow for different database adapters in the future, currently only MySQL is supported. PostgreSQL, SQLite, and MongoDB support are under development – and we hope to expand support for additional database types as we gain contributors.
 
 
+## Documentation
 
-### Copyright and license
+### Directus ADMIN
+The full documentation about using the admin Directus can be found over at [docs.getdirectus.com](https://docs.getdirectus.com).
 
-Copyright 2015 [Agentejo](http://www.agentejo.com) under the MIT license.
+You can find the source of this documentation in [our docs repo](https://github.com/directus/docs).
 
-The MIT License (MIT)
+### Directus API & SDKs
+Our full API reference can be found over at [api.getdirectus.com](https://api.getdirectus.com). Together with the endpoints and supported params, you can also find code examples for our supported SDKs.
 
-Copyright (c) 2015 Agentejo, http://agentejo.com
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-### 💐 SPONSORED BY
+You can find the source of this documentation in [our API docs repo](https://github.com/directus/api-docs).
 
 
-[![ginetta](https://user-images.githubusercontent.com/321047/29219315-f1594924-7eb7-11e7-9d58-4dcf3f0ad6d6.png)](https://www.ginetta.net)<br>
-We create websites and apps that click with users.
+## Help and Support
+
+### Reporting Bugs
+Think you've discovered a bug? First, read through our [docs](https://docs.getdirectus.com) to be sure – then submit a ticket to our [GitHub Issues](https://github.com/directus/directus/issues/new). And if you already know a good solution, we love [Pull Requests](https://github.com/directus/directus/pulls)! **For all security related issues, please chat with us directly through [getdirectus.com](https://getdirectus.com/).**
+
+### Requesting Features or Enhancements
+Use our [Feature Request Tool](https://request.getdirectus.com/) to request new features or vote on existing community suggestions.
+
+### Technical Support
+For support using Directus, please post questions with the `directus` tag on [Stack Overflow](https://stackoverflow.com/questions/tagged/directus).
+
+### Team and Community Chat
+If you're interested in discussing things with our core team or the Directus community, feel free to join us on [Slack](https://slack.getdirectus.com). This is _not_ a place for free/faster tech support.
 
 
-[![BrowserStack](https://user-images.githubusercontent.com/355427/27389060-9f716c82-569d-11e7-923c-bd5fe7f1c55a.png)](https://www.browserstack.com)<br>
-Live, Web-Based Browser Testing
+## Contributing to Directus
+First of all, thank you for taking the time to work on Directus!
+
+The following is a set of guidelines for contributing to Directus and its components. These are just guidelines, not strict rules. Feel free to propose changes to this and other documents in a pull request.
+
+### Financial Support
+[<img src="https://user-images.githubusercontent.com/522079/33287837-0218cbfc-d388-11e7-9fbe-36ff3261b61a.png" alt="Patreon" />](https://www.patreon.com/directus)
+
+### Pull Requests
+Pull requests are always welcome for every part of Directus. Please make sure to adhere to our [`.editorconfig`](http://editorconfig.org) rules and to lint your code with [XO](https://github.com/sindresorhus/xo).
+
+### Your First Code Contribution
+Unsure where to begin contributing to Directus? You can start by looking through the [`Beginner`](https://github.com/directus/directus/issues?q=is%3Aopen+is%3Aissue+label%3ABeginner), [`good first issue`](https://github.com/directus/directus/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and [`Help Wanted`](https://github.com/directus/directus/issues?q=is%3Aopen+is%3Aissue+label%3A%22Help+Wanted%22) issues. `Beginner` and `good first issue` issues are issues that often only require a few lines of code. `Help wanted` issues are a bit more involved than beginner issues.
+
+Want to help but have some trouble understanding the issue, ask us and we will help you to get you started.
+
+### Translations
+Directus has multilingual support – and we're looking for anyone interested in helping translate our [English default language file](https://github.com/directus/directus/blob/master/api/locales/en.json) into other languages. It's as easy as copying that `en.json` file and changing the values!
+
+PR any translations into [this Directory](https://github.com/directus/directus/tree/master/api/locales).
+
+Huge thanks to the following contributors!
+
+- 🇺🇸  [@benhaynes](https://github.com/benhaynes)
+- 🇫🇷  [@EmilienCo](https://github.com/EmilienCo) & [@JackNUMBER](https://github.com/JackNUMBER)
+- 🇪🇸  [@WellingGuzman](https://github.com/WellingGuzman)
+- 🇩🇪  [@katywings](https://github.com/katywings) & [@ymilhahn](https://github.com/ymilhahn)
+- 🇨🇳  [@TigerHix](https://github.com/TigerHix) & [@Gfast2](https://github.com/Gfast2)
+- 🇧🇷  [@michaelnagy](https://github.com/michaelnagy)
+- 🇮🇹  [@AeonZh](https://github.com/AeonZh)
+- 🇳🇱  [@rijkvanzanten](https://github.com/RijkvanZanten)
+- 🇯🇵  [@hokkaidobeard](https://github.com/hokkaidobeard)
+- 🇳🇴  [@franctic-aerobic](https://github.com/franctic-aerobic)
+
+
+## Public Roadmap
+_This is what we want to get done next:_
+
+### Q1 2018
+- Begin work on Directus v7.0 (moving from Backbone to Vue)
+- CMS App Decoupled from API
+- API 2.0 - Speed improvements, better relational filtering / querying, and increased i18n support
+- [Support for multiple databases (multitenant)](https://request.getdirectus.com/r/1)
+- [Digital Asset Management improvements](https://request.getdirectus.com/r/2)
+- [Web Hooks](https://request.getdirectus.com/r/9)
+
+### Q2 2018
+- [GraphQL endpoint](https://request.getdirectus.com/r/11)
+- [Support for PostgreSQL DBs](https://request.getdirectus.com/r/14)
+- Marketplace for easier distribution of interfaces / extensions
+- Updated Marketing site and SaaS platform
+
+
+## Team
+- Project Lead: [Ben Haynes](https://github.com/benhaynes)
+- Development Lead: [Welling Guzmán](https://github.com/wellingguzman)
+- Interface Lead: [Rijk van Zanten](https://github.com/rijkvanzanten)
+
+Key developers: [coolov](https://github.com/coolov), [freen](https://github.com/freen), [jel-massih](https://github.com/jel-massih), [Lasha](https://github.com/Lasha)
+
+Sponsors: Bas Jansen
+
+
+## Copyright, License, and Trademarks
+* Directus Core codebase released under the [GPLv3](http://www.gnu.org/copyleft/gpl.html) license.
+* Example Code, Design Previews, Demonstration Apps, Custom Extensions, Custom interfaces, and Documentation copyright 2018 [RANGER Studio LLC](http://rngr.org/).
+* RANGER Studio owns all Directus trademarks, service marks, and graphic logos on behalf of our project's community. The names of all Directus projects are trademarks of [RANGER Studio LLC](http://rngr.org/).
