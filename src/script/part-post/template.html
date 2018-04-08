@@ -1,4 +1,4 @@
-<article class="post" :class="postClass">
+<article class="post" :class="classData" :style="{ backgroundColor: '#' + data.content_file.data.colors.split(',')[0] }">
 
     <h1 class="title">
         {{ data.title }}
@@ -21,8 +21,7 @@
     <span class="score">
         {{ data.score }}/5
     </span>
-    
-    <part-asset v-if="data.thumb" :data="data.thumb" class="thumb"></part-asset>
-    <part-asset v-else="data.content_file" :data="data.content_file.data" class="thumb"></part-asset>
 
+    <div v-if="getThumb()" :style="{ 'background-image': 'url(' + getThumb().url + ')' }" class="thumb"></div>
+    
 </article>

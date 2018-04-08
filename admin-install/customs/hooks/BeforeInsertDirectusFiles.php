@@ -21,13 +21,9 @@ class BeforeInsertDirectusFiles implements HookInterface
     {
         // set the product sku before insert
         // $payload->set('sku', 'value');
-        // $payload->set('width', 666);
 
-        // $payload->data['color'] = 'FF0077';
-        // print_r($payload->getData());
         // print_r($payload->getData());
         // print_r($payload->toArray());
-
 
         $palette = Palette::fromFilename(BASE_PATH . '/storage/uploads/' . $payload->get('name'));
         $extractor = new ColorExtractor($palette);
@@ -36,10 +32,7 @@ class BeforeInsertDirectusFiles implements HookInterface
         $colors = implode(',', $colorsHex);
 
         $payload->set('colors', $colors);
-        // print_r($payload);
 
-
-        // make sure to return the payload
         return $payload;
     }
 }

@@ -1,12 +1,10 @@
 import config from '../../config'
 import api from '../utils/api'
-import PartAsset from '../part-asset'
 
 export default
 {
     components:
     {
-        PartAsset
     },
 
     props:
@@ -17,26 +15,43 @@ export default
     data()
     {
         return {
-            postClass: {},
-            displayImage: false
+            displayImage: false,
+            classData: []
         }
     },
 
     created()
     {
-        const isThumb = this.isThumb()
-        this.postClass = {
-            'is-thumb': isThumb,
-            'is-text': !isThumb
-        }
+        const size = this.getSize()
+
+        if (size[0] / size[1] >= 2.5)
+            this.classData.push('w3', 'h1')
+        else if (size[0] / size[1] >= 1.5)
+            this.classData.push('w2', 'h1')
+        else if (size[1] / size[0] >= 2.5)
+            this.classData.push('w1', 'h3')
+        else if (size[1] / size[0] >= 1.5)
+            this.classData.push('w1', 'h2')
+        else
+            this.classData.push('w2', 'h2')
+
+        console.log(this.getSize())
     },
 
     methods:
     {
-        isThumb()
+        getSize()
         {
-            return !!this.data.thumb
-                || !!this.data.content_file
+            const thumb = this.getThumb()
+            if (thumb)
+                return [thumb.width, thumb.height]
+
+            return [3, 1]
+        },
+
+        getThumb()
+        {
+            return this.data.thumb ? this.data.thumb.data : this.data.content_file ? this.data.content_file.data : null 
         }
     }
 }

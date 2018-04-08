@@ -31,13 +31,46 @@
 $marg: 4px
 
 .is-thumb
+    .date, .title, .description, .tags, .score
+        display: none
+
+    .post
+        grid-row-end: span 2
+        grid-column-end: span 2
+        position: relative
+
+    .post
+        &.w1
+            grid-row-end: span 1
+        &.w2
+            grid-row-end: span 2
+        &.w3
+            grid-row-end: span 3
+        &.h1
+            grid-column-end: span 1
+        &.h2
+            grid-column-end: span 2
+        &.h3
+            grid-column-end: span 3
+
+    .thumb
+        position: absolute
+        background-size: cover
+        background-position: center center
+        background-color: whitesmoke
+        top: 0
+        left: 0
+        width: 100%
+        height: 100%
+
 
 .is-text
-    display: flex
-    justify-content: space-between
-    margin-bottom: 4px
+    .post
+        display: flex
+        justify-content: space-between
+        margin-bottom: 4px
 
-    /deep/ .date, /deep/ .thumb
+    .date, .thumb
         display: none
     
     .title, 

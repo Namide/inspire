@@ -17,7 +17,8 @@ export default
     data()
     {
         return {
-            posts: []
+            posts: [],
+            displayMode: 'thumb'
         }
     },
 
@@ -50,6 +51,8 @@ export default
             
                 return true
             }*/
+
+            this.displayMode = 'thumb' // text
 
             const cleanData = data => Object.assign(data, {tags: data.tags.split(',')})
 
