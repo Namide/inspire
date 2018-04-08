@@ -38,20 +38,33 @@ $marg: 4px
         grid-row-end: span 2
         grid-column-end: span 2
         position: relative
+        overflow: hidden
 
     .post
         &.w1
-            grid-row-end: span 1
-        &.w2
-            grid-row-end: span 2
-        &.w3
-            grid-row-end: span 3
-        &.h1
             grid-column-end: span 1
-        &.h2
+        &.w2
             grid-column-end: span 2
-        &.h3
+        &.w3
             grid-column-end: span 3
+        &.w4
+            grid-column-end: span 4
+        &.w5
+            grid-column-end: span 5
+        &.w6
+            grid-column-end: span 6
+        &.h1
+            grid-row-end: span 1
+        &.h2
+            grid-row-end: span 2
+        &.h3
+            grid-row-end: span 3
+        &.h4
+            grid-row-end: span 4
+        &.h5
+            grid-row-end: span 5
+        &.h6
+            grid-row-end: span 6
 
     .thumb
         position: absolute
@@ -62,7 +75,20 @@ $marg: 4px
         left: 0
         width: 100%
         height: 100%
+        transition: opacity 1s, transform 1s cubic-bezier(.18,0,.12,.99)
 
+    .post:hover
+        .thumb
+            transform: scale(1.1) translateZ(0)
+            cursor: pointer
+
+
+// .thumbfade-enter-active, .thumbfade-leave-active
+//     transition: opacity 1s
+
+.thumbfade-enter, .thumbfade-leave-to
+    opacity: 0
+    transform: translateZ(0)
 
 .is-text
     .post

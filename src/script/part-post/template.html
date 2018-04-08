@@ -1,4 +1,4 @@
-<article class="post" :class="classData" :style="{ backgroundColor: '#' + data.content_file.data.colors.split(',')[0] }">
+<article class="post" :class="classData" :style="postStyle">
 
     <h1 class="title">
         {{ data.title }}
@@ -22,6 +22,8 @@
         {{ data.score }}/5
     </span>
 
-    <div v-if="getThumb()" :style="{ 'background-image': 'url(' + getThumb().url + ')' }" class="thumb"></div>
-    
+    <transition name="thumbfade">
+        <div v-if="isThumbLoaded && thumbStyle" :style="thumbStyle" class="thumb"></div>
+    </transition>
+
 </article>

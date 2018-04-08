@@ -4,8 +4,8 @@
 .posts
 
     &.is-thumb
-        --gutter: 10px
-        --columns: 6
+        --gutter: 4px
+        --columns: 12
         --width: 100vw
 
         display: grid
@@ -15,4 +15,25 @@
         // grid-auto-rows: minmax(100px, auto)
         align-content: start
         grid-auto-rows: calc( ( var(--width) - (var(--gutter) * (var(--columns) - 1))) / var(--columns))
-        grid-auto-flow: column dense // dense
+        grid-auto-flow: dense // dense
+
+    @media screen and (max-width: 1920px)
+        &.is-thumb
+            --columns: 8
+
+    @media screen and (max-width: 1280px)
+        &.is-thumb
+            --columns: 6
+
+    @media screen and (max-width: 1280px)
+        &.is-thumb
+            --columns: 6
+
+    @media screen and (max-width: 960px)
+        &.is-thumb
+            --columns: 4
+
+    @media screen and (max-width: 640px)
+        &.is-thumb
+            --columns: 2
+            

@@ -54,10 +54,23 @@ export default
 
             this.displayMode = 'thumb' // text
 
-            const cleanData = data => Object.assign(data, {tags: data.tags.split(',')})
+            const cleanData = data =>
+            {
+                const newData = JSON.parse(JSON.stringify(data))
+
+                newData.tags = data.tags.split(',')
+
+                if (data.thumb)
+                    newData.thumb.data.colors = data.thumb.data.colors.split(',').map(color => '#' + color)
+
+                if (data.content_file && data.content_file.data.colors)
+                    newData.content_file.data.colors = data.content_file.data.colors.split(',').map(color => '#' + color)
+
+                return newData
+            }
 
             const posts = data.map(cleanData)
-            this.posts.splice(0, this.posts.length, ...JSON.parse(JSON.stringify(posts)))
+            this.posts.splice(0, this.posts.length, ...posts)
         }
     }
 }

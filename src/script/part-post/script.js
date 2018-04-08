@@ -16,7 +16,11 @@ export default
     {
         return {
             displayImage: false,
-            classData: []
+            classData: [],
+            // isHidden: true,
+            postStyle: { },
+            thumbStyle: false,
+            isThumbLoaded: false
         }
     },
 
@@ -24,22 +28,91 @@ export default
     {
         const size = this.getSize()
 
-        if (size[0] / size[1] >= 2.5)
-            this.classData.push('w3', 'h1')
-        else if (size[0] / size[1] >= 1.5)
-            this.classData.push('w2', 'h1')
-        else if (size[1] / size[0] >= 2.5)
-            this.classData.push('w1', 'h3')
-        else if (size[1] / size[0] >= 1.5)
-            this.classData.push('w1', 'h2')
+        if (size[0] / size[1] > 2.5)
+            this.setSize(3, 1)
+        else if (size[0] / size[1] > 1.5)
+            this.setSize(2, 1)
+        else if (size[1] / size[0] > 2.5)
+            this.setSize(1, 3)
+        else if (size[1] / size[0] > 1.5)
+            this.setSize(1, 2)
         else
-            this.classData.push('w2', 'h2')
+            this.setSize(2, 2)
+        
+        if (this.getThumb())
+            this.postStyle = { 'background-color': this.getThumb().colors[0] } 
+    },
 
-        console.log(this.getSize())
+    mounted()
+    {
+        if (this.getThumb())
+            this.optimizeLoad()
     },
 
     methods:
     {
+        optimizeLoad()
+        {
+            const options = {
+                root: null,
+                rootMargin: '0px',
+                threshold: [0, 1]
+            }
+            
+            this._observer = new IntersectionObserver(this.onInOut, options)
+            this._observer.observe(this.$el)
+        },
+
+        onInOut(data)
+        {
+            if (data[0].intersectionRatio > 0)
+            {
+                if (!this.isThumbLoaded)
+                {
+                    this._thumb = new Image()
+                    this._thumb.onload = () =>
+                    {
+                        this.isThumbLoaded = true
+                    }
+                    this._thumb.src = this.getThumb().url
+                    if (this._thumb.complete)
+                    {
+                        this.isThumbLoaded = true
+                    }
+                }
+
+                this.thumbStyle = {
+                    'background-image': 'url(' + this.getThumb().url + ')'
+                }
+            }
+            else
+            {
+                if (this._thumb && !this.isThumbLoaded)
+                {
+                    this._thumb.src = null
+                    this._thumb = null
+                }
+                this.thumbStyle = false
+            }
+        },
+
+        setSize(w = 1, h = 1)
+        {
+            const areaMax = 12
+            const areaMin = 4
+            const area = w * h
+            const areaDo = this.data.score * (areaMax - areaMin) + areaMin
+
+            const sideMax = 6
+            const sideMin = 1
+
+            let mult = 1
+            while (w * (mult + 1) * h * (mult + 1) <= areaDo && Math.max(w * mult + 1, h * mult + 1) < sideMax)
+                mult++
+            
+            this.classData.push('w' + w * mult, 'h' + h * mult)
+        },
+
         getSize()
         {
             const thumb = this.getThumb()
