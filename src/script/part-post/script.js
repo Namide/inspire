@@ -9,7 +9,8 @@ export default
 
     props:
     {
-        data: { type: Object }
+        data: { type: Object },
+        displayMode: { type: String, default: 'text' }
     },
 
     data()
@@ -20,7 +21,8 @@ export default
             // isHidden: true,
             postStyle: { },
             thumbStyle: false,
-            isThumbLoaded: false
+            isThumbLoaded: false,
+            href: false
         }
     },
 
@@ -39,8 +41,11 @@ export default
         else
             this.setSize(2, 2)
         
-        if (this.getThumb())
-            this.postStyle = { 'background-color': this.getThumb().colors[0] } 
+        if (this.getThumb() && this.displayMode === 'thumb')
+            this.postStyle = { 'background-color': this.getThumb().colors[0] }
+
+        if (this.displayMode === 'text' && this.data.content_link)
+            this.href = this.data.content_link
     },
 
     mounted()

@@ -157,7 +157,7 @@ class Api
         // https://api.getdirectus.com/1.1/#Global_Parameters
         const params = {
             depth: 1,
-            limit: 100,
+            limit: 10000,
             // offset: 1
 
             // https://api.getdirectus.com/1.1/#Get_Parameters

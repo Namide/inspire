@@ -1,4 +1,4 @@
-<article class="post" :class="classData" :style="postStyle">
+<a :href="href" target="blank" class="post" :class="classData" :style="postStyle">
 
     <h1 class="title">
         {{ data.title }}
@@ -26,4 +26,4 @@
         <div v-if="isThumbLoaded && thumbStyle" :style="thumbStyle" class="thumb"></div>
     </transition>
 
-</article>
+</a>

@@ -52,7 +52,7 @@ export default
                 return true
             }*/
 
-            this.displayMode = 'thumb' // text
+            this.displayMode = 'text' // 'thumb' // text
 
             const cleanData = data =>
             {
