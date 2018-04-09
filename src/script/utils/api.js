@@ -106,39 +106,22 @@ class Api
             // https://getcockpit.com/documentation/api/cockpit
     }
 
-    getBoards(onLoad)
+    getGroups(onLoad)
     {
-        if (this.boards)
+        const cleanData = data =>
         {
-            console.log(this.boards)
-            return onLoad(this.boards)
+            data.selector_tags = data.selector_tags.split(',')
+            return data
         }
 
-        const init = {
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-            },
-            method: 'GET',
-            mode: 'no-cors', // same-origin
-            cache: 'default'
-        }
-        
-        // /api/collections/collection/posts?token=d66908b28464bf3a9f97118c8debe
-        // /api/collections/get
-        // /api/collections/get/posts?token=d66908b28464bf3a9f97118c8debe
-        // /api/collections/get/{collectionname}?token={yourtoken}
-
-        const url = config.api.url.root + 'collections/get/board?token=' + config.api.token
-        const request = new Request(url)
-
-        fetch(request/*, init*/)
-            // .then(collection => console.log(collection))
-            .then(collection => collection.json())
-            .then(json => onLoad(this.boards = json))
+        this.client.getItems('group')
+        // this.client._get('tables/post/rows' + search, params)
+            .then(res => { return { data: res.data.map(cleanData), meta: res.meta } })
+            .then(res => onLoad(res))
+            .catch(err => console.error(err))
     }
 
-    getPosts(onLoad)
+    getPosts(onLoad, tags = [])
     {
         // https://api.getdirectus.com/1.1/#API_Endpoints
 
@@ -159,6 +142,11 @@ class Api
             depth: 1,
             limit: 10000,
             // offset: 1
+            filters: {
+                tags: {
+
+                }
+            }
 
             // https://api.getdirectus.com/1.1/#Get_Parameters
             /* filters: {
@@ -172,7 +160,69 @@ class Api
             
         }
 
+        tags = tags.map(tag => tag.toLowerCase())
+        const tagsIn = tags.filter((tag) => tag.length > 0 && tag[0] !== '!')
+        const tagsOut = tags.filter((tag) => tag.length > 0 && tag[0] === '!').map(tag => tag.substr(1))
+
+        if (tagsIn.length > 0)
+            params.filters.tags.contains = tagsIn[0]
+
+        // params.filters.tags.contains = '3D,mesh'
+        /*if (tagsIn.length > 0)
+            params.filters.tags.contains = tagsIn
+        
+        if (tagsOut.length > 0)
+            params.filters.tags.ncontains = tagsOut*/
+
+        // const search = '/?filters[tags][in]=3D,javascript' // '/?filters[tags][contains]=3D&filters[tags][contains]=javascript' // &filters[tags][logical]=and&filters[tags][in]=3D'
+
+        const cleanData = data =>
+        {
+            data.tags = data.tags.split(',')
+
+            if (data.thumb)
+                data.thumb.data.colors = data.thumb.data.colors.split(',').map(color => '#' + color)
+
+            if (data.content_file && data.content_file.data.colors)
+                data.content_file.data.colors = data.content_file.data.colors.split(',').map(color => '#' + color)
+
+            return data
+        }
+
+        const filterTags = data =>
+        {
+            const currentTags = data.tags.map(tag => tag.toLowerCase())
+            for (const tag of tagsIn)
+            {
+                if (currentTags.indexOf(tag) < 0)
+                    return false
+            }
+
+            
+            for (const tag of tagsOut)
+            {
+                if (currentTags.indexOf(tag) > -1)
+                    return false
+            }
+
+            /*for (const tag of data.tags)
+            {
+                const tagLow = tag.toLowerCase()
+                if (tagsIn.length > 0 && tagsIn.indexOf(tagLow) < 0)
+                    return false
+                else if (tagsOut.indexOf(tagLow) > -1)
+                    return false
+            }*/
+
+            return true
+        }
+
+        console.log(tagsIn, tagsOut)
+
         this.client.getItems('post', params)
+        // this.client._get('tables/post/rows' + search, params)
+            .then(res => { return { data: res.data.map(cleanData), meta: res.meta } })
+            .then(res => { return { data: res.data.filter(filterTags), meta: res.meta } })
             .then(res => onLoad(res))
             .catch(err => console.error(err))
 

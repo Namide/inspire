@@ -26,7 +26,7 @@ export default
     {
         filterTags(tags)
         {
-            api.getPosts(this.onPosts)
+            api.getPosts(this.onPosts, tags)
         }
     },
 
@@ -54,7 +54,7 @@ export default
 
             this.displayMode = 'text' // 'thumb' // text
 
-            const cleanData = data =>
+            /*const cleanData = data =>
             {
                 const newData = JSON.parse(JSON.stringify(data))
 
@@ -69,8 +69,8 @@ export default
                 return newData
             }
 
-            const posts = data.map(cleanData)
-            this.posts.splice(0, this.posts.length, ...posts)
+            const posts = data.map(cleanData)*/
+            this.posts.splice(0, this.posts.length, ...data)
         }
     }
 }

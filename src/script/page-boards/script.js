@@ -17,14 +17,14 @@ export default
 
     created()
     {
-        api.getBoards(this.onBoards)
+        api.getGroups(this.onBoards)
     },
 
     methods:
     {
-        onBoards(boards)
+        onBoards({data, meta})
         {
-            this.boards = JSON.parse(JSON.stringify(boards.entries))
+            this.boards.splice(0, this.boards.length, ...data)
         }
     }
 }
