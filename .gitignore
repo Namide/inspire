@@ -4,6 +4,12 @@ dist/
 npm-debug.log
 yarn-error.log
 
+api/vendor
+api/data
+api/nbproject
+api/phpliteadmin.php
+api/phpliteadmin.config.php
+
 admin/vendor
 admin/composer.lock
 admin/api/logs/development.log
@@ -13,6 +19,8 @@ admin/api/configuration.php
 admin-cockpit/
 admin-directus/
 content-save/
+symfony/
+admin-install/inspire.all-db.sql
 
 
 # Editor directories and files

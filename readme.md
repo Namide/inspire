@@ -32,30 +32,68 @@ Module browser
 
 ## Back-end
 
-### Setup
+> Restart from scratch
 
-[Directus](https://getdirectus.com/)
-
-Install vendors
-
-```
-cd admin
-composer install
-```
-
-Create you database.
-
-Install the admin with the http path `/admin`.
-
-Use `Inspire` choice for `Initial schema` select box.
-
-
-### Requirements
-
-- NGINX or Apache Server
-- MySQL 5.2+
-- PHP 5.6+ (curl, gd, finfo, pdo_mysql)
 
 ### TODO
 
-Directus -> disable cors (for production)
+#### Symfony starter
+composer create-project -s beta symfony/skeleton symfony
+
+#### Custom tables
+post
+    title
+    description
+    date
+    // tags
+    // type (video image audio link 3d document text)
+    thumb
+    content_file (uid)
+    content_text
+    content_link
+    public
+    score
+
+tag
+    name
+
+type
+    name
+
+tag_join
+    tag_id
+    item_uid
+
+type_join
+    type_id
+    item_uid
+
+group
+    title
+    description
+    thumb
+    // selector_tags
+    // selector_types
+    public
+
+file
+    slug
+    name
+    location
+    type (video image audio archive document)
+    charset ?
+    width
+    height
+    size
+    colors
+    data (JSON)
+
+user
+    name
+    email
+    password
+    permission
+
+uid
+    table
+    item_id
