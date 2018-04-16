@@ -1,3 +1,0 @@
-```
-composer require league/color-extractor:0.3.*
-```

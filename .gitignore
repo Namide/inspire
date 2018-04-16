@@ -18,6 +18,7 @@ admin/api/configuration.php
 
 admin-cockpit/
 admin-directus/
+admin-directus-install/
 content-save/
 symfony/
 admin-install/inspire.all-db.sql
