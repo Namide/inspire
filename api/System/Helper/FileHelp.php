@@ -24,11 +24,11 @@ class FileHelp
 
         if (in_array($extension, self::$EXTS_IMG_BITMAP))
         {
-            $type = 'img_bitmap';
+            $type = 'img:bitmap';
         }
         elseif (in_array($extension, self::$EXTS_IMG_VECTOR))
         {
-            $type = 'img_vector';
+            $type = 'img:vector';
         }
         elseif (in_array($extension, self::$EXTS_3D))
         {
@@ -58,7 +58,74 @@ class FileHelp
         return $type;
     }
 
-    public static function SAVE_UPLOADED_FILES($name, $destDir)
+    public static function SAVE_FILE($base64, $name)
+    {
+        $data = base64_decode($data);
+        $name = self::CLEAN_NAME($name);
+        $type = self::GET_TYPE_BY_EXT($extension);
+        $dir = '/other';
+        
+        switch($type)
+        {
+            case 'img:bitmap' :
+                $dir = '/img';
+                break;
+            case 'img:vector' :
+                $dir = '/img';
+                break;
+            case '3d' :
+                $dir = '/3d';
+                break;
+            case 'sound' :
+                $dir = '/sound';
+                break;
+            case 'video' :
+                $dir = '/video';
+                break;
+            case 'page' :
+                $dir = '/page';
+                break;
+            case 'text' :
+                $dir = '/text';
+                break;
+            case 'archive' :
+                $dir = '/archive';
+                break;
+            default :
+                $dir = '/other';
+                break;
+        }
+        
+        $data = base64_decode($data);
+        $file = self::RENAME_IF_EXIST( DATA_PATH . $dir, $name);
+        file_put_contents($file, $data);        
+        
+        return str_replace(DATA_PATH, '', $file);
+        
+        
+        /*if (preg_match('/^data:image\/(\w+);base64,/', $data, $type))
+        {
+            $data = substr($data, strpos($data, ',') + 1);
+            $type = strtolower($type[1]); // jpg, png, gif
+
+            if (!in_array($type, [ 'jpg', 'jpeg', 'gif', 'png' ]))
+            {
+                throw new \Exception('invalid image type');
+            }
+
+            $data = base64_decode($data);
+
+            if ($data === false) {
+                throw new \Exception('base64_decode failed');
+            }
+        } else {
+            throw new \Exception('did not match data URI with image data');
+        }
+
+        file_put_contents("img.{$type}", $data);*/
+    }
+
+    /*public static function SAVE_UPLOADED_FILES($name, $destDir)
     {
         $outputFiles = array();
 
@@ -107,7 +174,7 @@ class FileHelp
                 $resume = '';
 
                 // CREATE THUMB
-                if ($type === 'img_bitmap') {
+                if ($type === 'img:bitmap') {
                 ImgHelp::CREATE_THUMB($destDir . $newFile, $destDir . $thumb);
                 $resume = $newFile . '_thumb.jpg';
                 }
@@ -125,6 +192,26 @@ class FileHelp
         }
 
         return $outputFiles;
+    }*/
+    
+    public static function RENAME_IF_EXIST($path, $filename)
+    {
+        $file = "$path/$filename";
+        if (!file_exists($file))
+        {
+            return $file;
+        }
+
+        $fnameNoExt = pathinfo($filename, PATHINFO_FILENAME);
+        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+
+        $i = 1;
+        while(file_exists("$path/$fnameNoExt-$i.$ext"))
+        {
+            $i++;
+        }
+
+        return "$path/$fnameNoExt-$i.$ext";
     }
 
     public static function CLEAN_NAME($name, $charset = 'utf-8')
@@ -133,21 +220,21 @@ class FileHelp
         $name = mb_strtolower($name, $charset);
         $name = str_replace(
             array(
-            'à', 'â', 'ä', 'á', 'ã', 'å',
-            'î', 'ï', 'ì', 'í',
-            'ô', 'ö', 'ò', 'ó', 'õ', 'ø',
-            'ù', 'û', 'ü', 'ú',
-            'é', 'è', 'ê', 'ë',
-            'ç', 'ÿ', 'ý', 'ñ',
-            'æ', 'œ', 'ß', "'", '’', '“', '”', '«', '»', '–', '—', '€', '$', '&'
+                'à', 'â', 'ä', 'á', 'ã', 'å',
+                'î', 'ï', 'ì', 'í',
+                'ô', 'ö', 'ò', 'ó', 'õ', 'ø',
+                'ù', 'û', 'ü', 'ú',
+                'é', 'è', 'ê', 'ë',
+                'ç', 'ÿ', 'ý', 'ñ',
+                'æ', 'œ', 'ß', "'", '’', '“', '”', '«', '»', '–', '—', '€', '$', '&'
             ), array(
-            'a', 'a', 'a', 'a', 'a', 'a',
-            'i', 'i', 'i', 'i',
-            'o', 'o', 'o', 'o', 'o', 'o',
-            'u', 'u', 'u', 'u',
-            'e', 'e', 'e', 'e',
-            'c', 'y', 'y', 'n',
-            'ae', 'oe', 'ss', '', '', '', '', '', '', '-', '-', 'e', 's', ''
+                'a', 'a', 'a', 'a', 'a', 'a',
+                'i', 'i', 'i', 'i',
+                'o', 'o', 'o', 'o', 'o', 'o',
+                'u', 'u', 'u', 'u',
+                'e', 'e', 'e', 'e',
+                'c', 'y', 'y', 'n',
+                'ae', 'oe', 'ss', '', '', '', '', '', '', '-', '-', 'e', 's', ''
             ), $name
         );
 
@@ -210,7 +297,8 @@ class FileHelp
     {        
         self::WRITE_DIR($dirName);
 
-        if (!file_exists($dirName . '.htaccess')) {
+        if (!file_exists($dirName . '.htaccess'))
+        {
             $htaccess = fopen($dirName . '.htaccess', "w");
             $htaccessContent = 'deny from all';
             fwrite($htaccess, $htaccessContent);
@@ -262,7 +350,7 @@ class FileHelp
      * @param int $round				Number to float
      * @return string					Formated size of the directory
      */
-    public static function GET_FORMATET_DIR_SIZE($dirName, $round = 2)
+    public static function GET_FORMATED_DIR_SIZE($dirName, $round = 2)
     {
         $size = self::GET_DIR_SIZE($dirName);
 
@@ -282,16 +370,21 @@ class FileHelp
      */
     public static function DEL_DIR_RECURSIVLY($dirName)
     {
-        if (!file_exists($dirName)) {
+        if (!file_exists($dirName))
+        {
             return 0;
         }
 
         $files = array_diff(scandir($dirName), array('.', '..'));
-        foreach ($files as $file) {
-            if (is_dir($dirName . '/' . $file)) {
-            self::DEL_DIR_RECURSIVLY($dirName . '/' . $file);
-            } else {
-            unlink($dirName . '/' . $file);
+        foreach ($files as $file)
+        {
+            if (is_dir($dirName . '/' . $file))
+            {
+                self::DEL_DIR_RECURSIVLY($dirName . '/' . $file);
+            }
+            else
+            {
+                unlink($dirName . '/' . $file);
             }
         }
 
@@ -316,7 +409,8 @@ class FileHelp
         if ($recursEmptyDir)
         {
             $dir = $file;
-            do {
+            do
+            {
                 $dir = explode('/', $dir);
                 if (count($dir) < 1)
                     return true;
