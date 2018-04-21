@@ -1,4 +1,4 @@
-import RemoteInstance from 'directus-sdk-javascript/remote'
+// import RemoteInstance from 'directus-sdk-javascript/remote'
 import config from '../../config'
 
 class Api
