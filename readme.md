@@ -34,6 +34,13 @@ Module browser
 
 > Restart from scratch
 
+``` bash
+# go to api dir
+cd api/
+
+# install php dependencies
+composer install
+```
 
 ### TODO
 
