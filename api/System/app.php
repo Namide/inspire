@@ -1,77 +1,93 @@
 <?php
 
-// use \Inspire\Helper\JsonHelp;
-
 // https://github.com/klein/klein.php
 $klein = new \Klein\Klein();
 
-$klein->respond('GET', API_URL . '/', function()
+$klein->respond('GET', API_URL . '/', function($request, $response, $service)
 {
-    $data = array(
-        'success' => 1,
-        'data' => array(
-            'post' => API_URL . '/posts',
-            'group' => API_URL . '/groups',
-            'item' => API_URL . '/item/{uid}',
-            'rss' => API_URL . '/rss'
-        ),
-        'meta' => array(
-            'name' => 'routes'
-        )    
-    );
-
-    \Inspire\Helper\JsonHelp::PRINT_FROM_ARRAY($data);
+    try
+    {
+        $data = array(
+            'success' => true,
+            'data' => array(
+                'post' => API_URL . '/posts',
+                'group' => API_URL . '/groups',
+                'item' => API_URL . '/item/{uid}',
+                'rss' => API_URL . '/rss'
+            ),
+            'meta' => array(
+                'name' => 'routes'
+            )
+        );
+    }
+    catch (Exception $ex)
+    {
+        $data = array(
+            'success' => false,
+            'message' => $ex->getMessage()
+        );
+    }
+    
+    $response->json($data);
 });
 
-$klein->respond('GET', API_URL . '/posts', function()
+$klein->respond('GET', API_URL . '/posts', function($request, $response, $service)
 {
-    $postManager = new \Inspire\Database\PostManager();
-    $posts = $postManager->getPosts();
-    $data = array(
-        'success' => 1,
-        'data' => $posts,
-        'meta' => array(
-            'name' => 'posts'
-        )
-    );
+    try
+    {
+        $postManager = new \Inspire\Database\PostManager();
+        $posts = $postManager->getPosts();
+        $data = array(
+            'success' => true,
+            'data' => $posts,
+            'meta' => array(
+                'name' => 'posts'
+            )
+        );
+    }
+    catch (Exception $ex)
+    {
+        $data = array(
+            'success' => false,
+            'message' => $ex->getMessage()
+        );
+    }
 
-    \Inspire\Helper\JsonHelp::PRINT_FROM_ARRAY($data);
+    $response->json($data);
 });
 
-$klein->respond('POST', API_URL . '/posts', function($request, $response, $service, $app)
+$klein->respond('GET', API_URL . '/posts/[i:id]', function ($request, $response, $service)
 {
-    $params = $request->paramsPost();
-    
-    $postManager = new \Inspire\Database\PostManager();
-    $post = $postManager->addPost($params);
-    
-    
-    $data = array(
-        'success' => 1,
-        'data' => $post,
-        'meta' => array(
-            'name' => 'post'
-        )
-    );
+    try
+    {
+        $postManager = new \Inspire\Database\PostManager();
+        $id = $request->param('id');
+        $post = $postManager->getPost($id);
 
-    \Inspire\Helper\JsonHelp::PRINT_FROM_ARRAY($data);
+        $data = array(
+            'success' => 1,
+            'data' => $post,
+            'meta' => array(
+                'name' => 'post'
+            )
+        );
+    }
+    catch (Exception $ex)
+    {
+        $data = array(
+            'success' => false,
+            'message' => $ex->getMessage()
+        );
+    }
+
+    $response->json($data);
 });
 
-$klein->respond('GET', API_URL . '/posts/[i:id]', function ($request)
+$klein->respond('GET', API_URL . '/files/[i:id]', function ($request, $response, $service, $app)
 {
-    $postManager = new \Inspire\Database\PostManager();
-    $id = $request->param('id');
-    $post = $postManager->getPost($id);
-    
-    $data = array(
-        'success' => 1,
-        'data' => $post,
-        'meta' => array(
-            'name' => 'posts'
-        )
-    );
-
-    \Inspire\Helper\JsonHelp::PRINT_FROM_ARRAY($data);
+    // Todo
+    $response->file($path, $filename = null);
+    // $response->json($data);
 });
 
 /* $klein->respond('POST', '/posts', $callback);
@@ -100,14 +116,14 @@ $klein->respond('*', function ()
     \Inspire\Helper\JsonHelp::PRINT_FROM_ARRAY($data);
 });
 */
-$klein->onHttpError(function ($request)
+$klein->onHttpError(function ($code, $router)
 {
-     $data = array(
-        'success' => 0,
-        'message' => 'URL not found'
+    $data = array(
+        'success' => false,
+        'message' => 'Error ' . $code
     );
-
-    \Inspire\Helper\JsonHelp::PRINT_FROM_ARRAY($data);
+    
+    $router->response()->json($data);
 });
 
 $klein->dispatch();

@@ -108,7 +108,22 @@ class PostManager
         $where = ' WHERE uid.id = :uid AND uid.item_name = "post"';
         $binds = array(array(':uid', $uid, \PDO::PARAM_INT));
         
-        return $this->_database->FETCH_ALL($select . $join . $where, $binds);
+        $data = $this->_database->FETCH_ALL($select . $join . $where, $binds);
+        
+        if (count($data) > 0)
+        {
+            $data = $data[0];
+            $data['uid'] = (int) $data['uid'];
+            $data['thumb'] = is_null($data['thumb']) ? null : (int) $data['thumb'];
+            $data['public'] = is_null($data['public']) ? null : (bool) $data['public'];
+            $data['score'] = is_null($data['score']) ? null : (float) $data['score'];
+        }
+        else
+        {
+            throw new \Exception('Post not found.');
+        }
+        
+        return $data;
     }
     
     public function getPosts()
