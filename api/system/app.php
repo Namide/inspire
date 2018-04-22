@@ -3,6 +3,14 @@
 // https://github.com/klein/klein.php
 $klein = new \Klein\Klein();
 
+function send(&$response, &$data)
+{
+    if (CORS)
+        $response->header('Access-Control-Allow-Origin', '*');
+
+    $response->json($data);
+}
+
 $klein->respond('GET', API_URL . '/', function($request, $response, $service)
 {
     try
@@ -28,7 +36,7 @@ $klein->respond('GET', API_URL . '/', function($request, $response, $service)
         );
     }
     
-    $response->json($data);
+    send($response, $data);
 });
 
 $klein->respond('GET', API_URL . '/posts', function($request, $response, $service)
@@ -53,7 +61,34 @@ $klein->respond('GET', API_URL . '/posts', function($request, $response, $servic
         );
     }
 
-    $response->json($data);
+    send($response, $data);
+});
+
+$klein->respond('POST', API_URL . '/posts', function($request, $response, $service)
+{
+    try
+    {
+        $params = $request->paramsPost();
+        $postManager = new \Inspire\Database\PostManager();
+        $post = $postManager->addPost($params);
+
+        $data = array(
+            'success' => true,
+            'data' => $post,
+            'meta' => array(
+                'name' => 'post'
+            )
+        );
+    }
+    catch (Exception $ex)
+    {
+        $data = array(
+            'success' => false,
+            'message' => $ex->getMessage()
+        );
+    }
+
+    send($response, $data);
 });
 
 $klein->respond('GET', API_URL . '/posts/[i:id]', function ($request, $response, $service)
@@ -80,12 +115,16 @@ $klein->respond('GET', API_URL . '/posts/[i:id]', function ($request, $response,
         );
     }
 
-    $response->json($data);
+    if (CORS)
+        $response->header('Access-Control-Allow-Origin', '*');
+    send($response, $data);
 });
 
 $klein->respond('GET', API_URL . '/files/[i:id]', function ($request, $response, $service, $app)
 {
     // Todo
+    if (CORS)
+        $response->header('Access-Control-Allow-Origin', '*');
     $response->file($path, $filename = null);
     // $response->json($data);
 });

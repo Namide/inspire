@@ -4,7 +4,7 @@ class Config
     {
         this.api = {
             url: {
-                root: 'http://inspire.local/admin/api/1.1/',
+                root: 'http://inspire.local/api',
                 // root: 'http://localhost/inspire/admin/api/',
                 // assets: 'http://localhost/inspire/admin/storage/uploads/',
                 // images: 'http://localhost/inspire'

@@ -8,6 +8,21 @@ class PostManager
      * @var Database 
      */
     private $_database;
+    
+    private static $_POST_REQUEST = array(
+        'select' => 'SELECT uid.id AS `uid`, `title`, `description`,'
+            . ' `date`, `thumb`, `content_file`, `content_text`,'
+            . ' `content_link`, `public`, `score`,'
+            . ' GROUP_CONCAT(tag.name, ",") AS `tags`',
+        'from' => ' FROM `post`',
+        'join' => ' INNER JOIN `uid` ON post.id = uid.item_id'
+            . ' LEFT OUTER JOIN `tag_join` ON tag_join.item_uid = uid.id'
+            . ' LEFT OUTER JOIN `tag` ON tag.id = tag_join.tag_id',
+        'where' => ' WHERE uid.item_name = "post"',
+        'group' => ' GROUP BY post.id',
+        'order' => ' ORDER BY `date` ASC, uid.id ASC',
+        'limit' => ' LIMIT 10 OFFSET 0'
+    );
 
     function __construct()
     {
@@ -27,69 +42,63 @@ class PostManager
         }
     }
     
+    public function addTags($postID, $tags)
+    {
+        
+    }
+    
     public function addPost($data)
     {
-        $binds = array(
-            array(
-                ':title',
-                isset($data['title']) ? $data['title'] : '',
-                \PDO::PARAM_STR
-            ),
-            array(
-                ':description',
-                isset($data['description']) ? $data['description'] : '',
-                \PDO::PARAM_STR
-            ),
-            array(
-                ':date',
-                isset($data['date']) ? $data['date'] : null,
-                \PDO::PARAM_STR
-            ),
-            array(
-                ':thumb',
-                isset($data['thumb']) ? $data['thumb'] : null,
-                \PDO::PARAM_INT
-            ),
-            array(
-                ':content_file',
-                isset($data['content_file']) ? $data['content_file'] : null,
-                \PDO::PARAM_INT
-            ),
-            array(
-                ':content_text',
-                isset($data['content_text']) ? $data['content_text'] : null,
-                \PDO::PARAM_INT
-            ),
-            array(
-                ':content_link',
-                isset($data['content_link']) ? $data['content_link'] : null,
-                \PDO::PARAM_INT
-            ),
-            array(
-                ':public',
-                isset($data['public']) ? $data['public'] : 0,
-                \PDO::PARAM_INT
-            ),
-            array(
-                ':score',
-                isset($data['score']) ? $data['score'] : 0,
-                \PDO::PARAM_STR
-            )
-        );
+        $rowList = array();
+        $binds = array();
+        
+        function testData($name, $type, &$data, &$rowList, &$binds)
+        {
+            if (isset($data[$name]))
+            {
+                $rowList[] = $name;
+                $binds[] = array(
+                    ':' . $name,
+                    $data[$name],
+                    $type
+                );
+            }
+        }
+        
+        // Format date
+        if (isset($data['date']))
+        {
+            $timestamp = strtotime($data['date']);
+            $data['date'] = date( "Y-m-d H:m:s", $timestamp);
+        }
+        
+        testData('title', \PDO::PARAM_STR, $data, $rowList, $binds);
+        testData('description', \PDO::PARAM_STR, $data, $rowList, $binds);
+        testData('date', \PDO::PARAM_STR, $data, $rowList, $binds);
+        testData('thumb', \PDO::PARAM_INT, $data, $rowList, $binds);
+        testData('title', \PDO::PARAM_STR, $data, $rowList, $binds);
+        testData('content_file', \PDO::PARAM_INT, $data, $rowList, $binds);
+        testData('content_text', \PDO::PARAM_STR, $data, $rowList, $binds);
+        testData('content_link', \PDO::PARAM_INT, $data, $rowList, $binds);
+        testData('public', \PDO::PARAM_INT, $data, $rowList, $binds);
+        testData('score', \PDO::PARAM_STR, $data, $rowList, $binds);
+
         $insert = 'INSERT INTO `post`';
-        $rows = ' (`title`, `description`, `date`, `thumb`, `content_file`, `content_text`, `content_link`, `public`, `score`)';
-        $values = ' VALUES (:title, :description, :date, :thumb, :content_file, :content_text, :content_link, :public, :score)';
+        $rows = ' (`' . implode('`, `', $rowList) . '`)';
+        $values = ' VALUES (:' . implode(', :', $rowList) . ')';
         $this->_database->EXECUTE($insert . $rows . $values, $binds);
         
-        $uid = $this->addUID('post');
+        $postId = (integer) $this->_database->GET_LAST_INSERT_ID();
+        $uid = $this->addUID('post', $postId);
         $post = $this->getPost($uid);
         
         return $post;
     }
     
-    private function addUID($table)
+    private function addUID($table, $postId = null)
     {
-        $id = (integer)$this->_database->GET_LAST_INSERT_ID();
+        $id = is_null($postId) ? (integer) $this->_database->GET_LAST_INSERT_ID() : (integer) $postId;
+        
         $binds = array(
             array(':table', $table, \PDO::PARAM_STR),
             array(':id', $id, \PDO::PARAM_INT)
@@ -97,78 +106,70 @@ class PostManager
         $request = 'INSERT INTO `uid` (`item_name`, `item_id`) VALUES(:table, :id)';
         $this->_database->EXECUTE($request, $binds);
         
-        $uid = (integer)$this->_database->GET_LAST_INSERT_ID();
+        $uid = (integer) $this->_database->GET_LAST_INSERT_ID();
         return $uid;
     }
     
     public function getPost($uid)
     {
-        $select = 'SELECT uid.id AS `uid`, `title`, `description`, `date`, `thumb`, `content_file`, `content_text`, `content_link`, `public`, `score` FROM `post`';
-        $join = ' INNER JOIN `uid` ON post.id = uid.item_id';
+        $rq = self::$_POST_REQUEST;
         $where = ' WHERE uid.id = :uid AND uid.item_name = "post"';
+        $request = $rq['select'] . $rq['from'] . $rq['join'] . $where . $rq['group'] . $rq['order'] . $rq['limit'];
         $binds = array(array(':uid', $uid, \PDO::PARAM_INT));
+        $post = $this->_database->FETCH($request, $binds);
         
-        $data = $this->_database->FETCH_ALL($select . $join . $where, $binds);
+        if ($post == false)
+            throw new \Exception('Post not found (UID = ' . $uid . ').');
         
-        if (count($data) > 0)
-        {
-            $data = $data[0];
-            $data['uid'] = (int) $data['uid'];
-            $data['thumb'] = is_null($data['thumb']) ? null : (int) $data['thumb'];
-            $data['public'] = is_null($data['public']) ? null : (bool) $data['public'];
-            $data['score'] = is_null($data['score']) ? null : (float) $data['score'];
-        }
-        else
-        {
-            throw new \Exception('Post not found.');
-        }
+        self::clearPost($post);
         
-        return $data;
+        return $post;
     }
     
     public function getPosts()
     {
-        $select = 'SELECT uid.id AS `uid`, `title`, `description`, `date`, `thumb`, `content_file`, `content_text`, `content_link`, `public`, `score` FROM `post`';
-        $limit = ' LIMIT 10 OFFSET 15';
-        $order = ' ORDER BY `date` ASC, `id` ASC ';
-        $join = ' FULL JOIN `id` ON `post.id` = `uid.item_id`';
+        $rq = self::$_POST_REQUEST;
+        $request = $rq['select'] . $rq['from'] . $rq['join'] . $rq['where'] . $rq['group'] . $rq['order'] . $rq['limit'];
+        $posts = $this->_database->FETCH_ALL($request, array());
         
-        return $this->_database->FETCH_ALL($select . $order . $limit . $join, array());
+        if (count($posts) < 1)
+            throw new \Exception('Post not found.');
+        
+        foreach ($posts as &$post)
+            self::clearPost($post);
+        
+        return $posts;
     }
 
     public static function getTableRows()
     {
         return array(
             'post' => array(
-                'title' => 'TEXT',
-                'description' => 'TEXT',
-                'date' => 'TEXT',
-                'type' => 'TEXT',
-                'tags' => 'TEXT',
-                'thumb' => 'INTEGER',
-                'content_file' => 'INTEGER',
-                'content_text' => 'TEXT',
-                'content_link' => 'TEXT',
-                'public' => 'INTEGER',
-                'score' => 'NUMERIC'
+                'title' => 'TEXT DEFAULT NULL',
+                'description' => 'TEXT DEFAULT NULL',
+                'date' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'thumb' => 'INTEGER DEFAULT NULL',
+                'content_file' => 'INTEGER DEFAULT NULL',
+                'content_text' => 'TEXT DEFAULT NULL',
+                'content_link' => 'TEXT DEFAULT NULL',
+                'public' => 'BOOLEAN DEFAULT true',
+                'score' => 'NUMERIC DEFAULT 0'
             ),
             'group' => array(
-                'title' => 'TEXT',
-                'description' => 'TEXT',
-                'thumb' => 'INTEGER',
-                'selector_tags' => 'TEXT',
-                'selector_types' => 'TEXT'
+                'title' => 'TEXT DEFAULT NULL',
+                'description' => 'TEXT DEFAULT NULL',
+                'thumb' => 'INTEGER DEFAULT NULL'
             ),
             'file' => array(
-                'slug' => 'TEXT',
-                'title' => 'TEXT',
-                'location' => 'TEXT',
+                'slug' => 'TEXT DEFAULT NULL',
+                'title' => 'TEXT DEFAULT NULL',
+                'location' => 'TEXT NOT NULL',
                 'type' => 'TEXT',
-                'charset' => 'INTEGER',
-                'width' => 'INTEGER',
-                'height' => 'TEXT',
-                'size' => 'TEXT',
-                'colors' => 'INTEGER'
+                'charset' => 'TEXT',
+                'width' => 'INTEGER DEFAULT NULL',
+                'height' => 'INTEGER DEFAULT NULL',
+                'size' => 'INTEGER DEFAULT NULL',
+                'colors' => 'TEXT DEFAULT NULL'
             ),
             'user' => array(
                 'name' => 'TEXT',
@@ -177,9 +178,42 @@ class PostManager
                 'permission' => 'INTEGER'
             ),
             'uid' => array(
-                'item_name' => 'TEXT',
-                'item_id' => 'INTEGER'
+                'item_name' => 'TEXT NOT NULL',
+                'item_id' => 'INTEGER NOT NULL'
+            ),
+            'tag' => array(
+                'name' => 'TEXT NOT NULL'
+            ),
+            'tag_join' => array(
+                'tag_id' => 'INTEGER NOT NULL',
+                'item_uid' => 'INTEGER NOT NULL'
             )
         );
+    }
+    
+    private static function clearPost(&$post)
+    {
+        $post['uid'] = (int) $post['uid'];
+        
+        if (is_null($post['thumb'])) unset($post['thumb']);
+        else $post['thumb'] = (integer) $post['thumb'];
+       
+        if (is_null($post['content_file'])) unset($post['content_file']);
+        else $post['content_file'] = $post['content_file'];
+       
+        if (is_null($post['content_text'])) unset($post['content_text']);
+        else $post['content_text'] = $post['content_text'];
+       
+        if (is_null($post['content_link'])) unset($post['content_link']);
+        else $post['content_link'] = $post['content_link'];
+        
+        if (is_null($post['public'])) unset($post['public']);
+        else $post['public'] = (bool) $post['public'];
+        
+        if (is_null($post['score'])) unset($post['score']);
+        else $post['score'] = (float) $post['score'];
+        
+        if (is_null($post['tags'])) unset($post['tags']);
+        else $post['tags'] = explode(',', $post['tags']);
     }
 }

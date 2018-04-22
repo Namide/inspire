@@ -13,4 +13,8 @@ define('DB_USER', null);
 define('DB_PASS', null);
 define('DB_OPTIONS', null);
 
+// Files
 define('MAX_FILE_SIZE', 1000000);
+
+// Params
+define('CORS', true);

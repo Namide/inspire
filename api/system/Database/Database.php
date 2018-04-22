@@ -54,7 +54,7 @@ class Database
 
         foreach ($rows as $key => $type)
         {
-            $req .= ', `' . $key . '` `' . $type . '`';
+            $req .= ', `' . $key . '` ' . $type . '';
         }
         $req .= ');';
 

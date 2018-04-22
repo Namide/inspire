@@ -1,11 +1,6 @@
 // import RemoteInstance from 'directus-sdk-javascript/remote'
 import config from '../../config'
 
-const filterPost = data =>
-{
-
-}
-
 class Api
 {
     constructor()
@@ -13,7 +8,13 @@ class Api
         this.boards = null
         this.posts = null
 
-        console.log(config.api.url.root)
+        this.client = new RemoteInstance({
+            url: config.api.url.root,
+            // accessToken: 'api-key-12345'
+            /*headers: {
+                'Access-Control-Allow-Origin': '*'
+            }*/
+        })
     }
 
     // /api/collections/get/posts
@@ -122,11 +123,50 @@ class Api
 
     getPosts(onLoad, tags = [])
     {
+        // https://api.getdirectus.com/1.1/#API_Endpoints
+
+        /*const data = {
+            'limit': 1
+        }*/
+        
+        // /api/collections/collection/posts?token=d66908b28464bf3a9f97118c8debe
+        // /api/collections/get
+        // /api/collections/get/posts?token=d66908b28464bf3a9f97118c8debe
+        // /api/collections/get/{collectionname}?token={yourtoken}
+
+        // const url = config.api.url.root + 'tables/post/rows'
+        // const request = new Request(url)
+
+        // https://api.getdirectus.com/1.1/#Global_Parameters
+        const params = {
+            depth: 1,
+            limit: 10000,
+            // offset: 1
+            filters: {
+                tags: {
+
+                }
+            }
+
+            // https://api.getdirectus.com/1.1/#Get_Parameters
+            /* filters: {
+                tags: {
+                    in: '',
+                    nin: ,
+                    contains(),
+                    ncontains()
+                }
+            }*/
+            
+        }
+
         tags = tags.map(tag => tag.toLowerCase())
         const tagsIn = tags.filter((tag) => tag.length > 0 && tag[0] !== '!')
         const tagsOut = tags.filter((tag) => tag.length > 0 && tag[0] === '!').map(tag => tag.substr(1))
 
-        
+        if (tagsIn.length > 0)
+            params.filters.tags.contains = tagsIn[0]
+
         // params.filters.tags.contains = '3D,mesh'
         /*if (tagsIn.length > 0)
             params.filters.tags.contains = tagsIn
@@ -136,7 +176,6 @@ class Api
 
         // const search = '/?filters[tags][in]=3D,javascript' // '/?filters[tags][contains]=3D&filters[tags][contains]=javascript' // &filters[tags][logical]=and&filters[tags][in]=3D'
 
-        /*
         const cleanData = data =>
         {
             data.tags = data.tags.split(',')
@@ -166,33 +205,31 @@ class Api
                     return false
             }
 
+            /*for (const tag of data.tags)
+            {
+                const tagLow = tag.toLowerCase()
+                if (tagsIn.length > 0 && tagsIn.indexOf(tagLow) < 0)
+                    return false
+                else if (tagsOut.indexOf(tagLow) > -1)
+                    return false
+            }*/
 
             return true
         }
 
         console.log(tagsIn, tagsOut)
-        */
 
-        const url = config.api.url.root + '/posts'
-        const request = new Request(url)
-        const params = {
-            method: 'GET',
-            headers: new Headers(),
-            mode: 'cors',
-            cache: 'default'
-        }
-        fetch(request, params)
-            // .then(collection => console.log(collection))
-            .then(data => data.json())
-            .then(data => data.success ? (data.data.map(filterPost), data) : data)
-            .then(json => onLoad(json))
-
-        /*this.client.getItems(url, params)
+        this.client.getItems('post', params)
         // this.client._get('tables/post/rows' + search, params)
             .then(res => { return { data: res.data.map(cleanData), meta: res.meta } })
             .then(res => { return { data: res.data.filter(filterTags), meta: res.meta } })
             .then(res => onLoad(res))
-            .catch(err => console.error(err))*/
+            .catch(err => console.error(err))
+
+        /*fetch(request)
+            .then(collection => collection.json())
+            .then(json => onLoad(this.posts = json))*/
+
     }
 }
 

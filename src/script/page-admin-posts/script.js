@@ -1,11 +1,11 @@
 import api from '../utils/api'
-import PartPost from '../part-post'
+import PartAdminPost from '../part-admin-post'
 
 export default
 {
     components:
     {
-        PartPost
+        PartAdminPost
     },
 
     props:
