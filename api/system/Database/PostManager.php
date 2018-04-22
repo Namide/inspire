@@ -20,7 +20,7 @@ class PostManager
             . ' LEFT OUTER JOIN `tag` ON tag.id = tag_join.tag_id',
         'where' => ' WHERE uid.item_name = "post"',
         'group' => ' GROUP BY post.id',
-        'order' => ' ORDER BY `date` ASC, uid.id ASC',
+        'order' => ' ORDER BY `date` DESC, uid.id DESC',
         'limit' => ' LIMIT 10 OFFSET 0'
     );
 
@@ -79,7 +79,7 @@ class PostManager
         testData('title', \PDO::PARAM_STR, $data, $rowList, $binds);
         testData('content_file', \PDO::PARAM_INT, $data, $rowList, $binds);
         testData('content_text', \PDO::PARAM_STR, $data, $rowList, $binds);
-        testData('content_link', \PDO::PARAM_INT, $data, $rowList, $binds);
+        testData('content_link', \PDO::PARAM_STR, $data, $rowList, $binds);
         testData('public', \PDO::PARAM_INT, $data, $rowList, $binds);
         testData('score', \PDO::PARAM_STR, $data, $rowList, $binds);
 

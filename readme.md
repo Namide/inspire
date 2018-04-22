@@ -42,3 +42,8 @@ cd api/
 # install php dependencies
 composer install
 ```
+
+### Requirements
+
+- PHP 7+
+- PDO / Sqlite

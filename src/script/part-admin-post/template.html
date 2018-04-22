@@ -3,22 +3,27 @@
         {{ post.uid }}
     </td>
     <td>
-        {{ post.title }}
+        <input type="text" v-model="type">
     </td>
     <td>
-        {{ post.description }}
+        <input type="text" v-model="title">
     </td>
     <td>
-        {{ post.date }}
+        <textarea cols="30" rows="10" v-model="description"></textarea>
     </td>
     <td>
-        {{ post.content_file }}
+        <input type="datetime-local" v-model="date">
     </td>
     <td>
-        {{ post.content_link }}
+        {{ post.content_file || 'no file' }}
+        <input type="file" :disabled="false" @change="filesChange($event.target.files)">
+        <img v-if="fileImg" :src="fileImg" alt="">
     </td>
     <td>
-        {{ post.content_text }}
+        <input type="text" v-model="content_link">
+    </td>
+    <td>
+        <textarea cols="30" rows="10" v-model="content_text"></textarea>
     </td>
     <td>
         {{ post.public }}

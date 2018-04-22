@@ -1,5 +1,8 @@
 <?php
 
+define('START_TIME', microtime(true));
+
+
 // https://github.com/klein/klein.php
 $klein = new \Klein\Klein();
 
@@ -32,7 +35,8 @@ $klein->respond('GET', API_URL . '/', function($request, $response, $service)
     {
         $data = array(
             'success' => false,
-            'message' => $ex->getMessage()
+            'message' => $ex->getMessage(),
+            'time' => microtime(true) - START_TIME . ' sec'
         );
     }
     
@@ -49,7 +53,8 @@ $klein->respond('GET', API_URL . '/posts', function($request, $response, $servic
             'success' => true,
             'data' => $posts,
             'meta' => array(
-                'name' => 'posts'
+                'name' => 'posts',
+                'time' => microtime(true) - START_TIME . ' sec'
             )
         );
     }
@@ -76,7 +81,8 @@ $klein->respond('POST', API_URL . '/posts', function($request, $response, $servi
             'success' => true,
             'data' => $post,
             'meta' => array(
-                'name' => 'post'
+                'name' => 'post',
+                'time' => microtime(true) - START_TIME . ' sec'
             )
         );
     }
@@ -103,7 +109,8 @@ $klein->respond('GET', API_URL . '/posts/[i:id]', function ($request, $response,
             'success' => 1,
             'data' => $post,
             'meta' => array(
-                'name' => 'post'
+                'name' => 'post',
+                'time' => microtime(true) - START_TIME . ' sec'
             )
         );
     }
