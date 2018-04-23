@@ -52,16 +52,26 @@ export default
                 size: file.size
             }
 
+            if (file.name && file.name !== '' && this.title == '')
+            {
+                const arr = file.name.split('.')
+                arr.pop()
+
+                this.title = arr.join(' ')
+                    .split('_').join(' ')
+                    .split('-').join(' ')
+            }
+
             this._reader = new FileReader()
             this._reader.addEventListener('load', event =>
             {
                 const result = event.target.result
-                
+
                 // Add base64
                 const a = result.split(';base64,')
                 a.shift()
                 this._file.base64 = a.join(';base64,')
-                
+
                 // Add image data
                 const isImage = file.type.split('/').shift().toLowerCase() === 'image'
                 if (isImage)

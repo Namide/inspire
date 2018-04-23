@@ -6,9 +6,9 @@ import PageBoards from '../page-boards'
 const router = new VueRouter({
     mode: 'history',
     routes: [
-        { path: '/admin', component: PageHome },
-        { path: '/admin/post', component: PageAdminPosts },
-        { path: '/admin/board', component: PageBoards }
+        { path: '/admin', component: PageHome, alias: '/' },
+        { path: '/admin/post', component: PageAdminPosts, alias: '/post' },
+        { path: '/admin/board', component: PageBoards, alias: '/board' }
     ]
 })
 
