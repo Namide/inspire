@@ -120,6 +120,28 @@ class Api
             .catch(err => console.error(err))
     }
 
+    addPost(onload, data)
+    {
+        const form = new FormData()
+        for (const key of Object.keys(data))
+            form.append(key, data[key])        
+
+        const url = config.api.url.root + '/posts'
+        const request = new Request(url)
+        const params = {
+            method: 'POST',
+            headers: new Headers(),
+            mode: 'cors',
+            cache: 'default',
+            body: form
+        }
+        fetch(request, params)
+            // .then(collection => console.log(collection))
+            .then(data => data.json())
+            .then(data => data.success ? (data.data.map(filterPost), data) : data)
+            .then(json => onLoad(json))
+    }
+
     getPosts(onLoad, tags = [])
     {
         tags = tags.map(tag => tag.toLowerCase())

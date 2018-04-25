@@ -9,12 +9,6 @@ namespace Inspire\Helper;
  */
 class JsonHelp
 {
-    public static function GET_ERROR($msg)
-    {
-        $arr = array('error' => $msg);
-        return JsonHelp::FROM_ARRAY($arr);
-    }
-
     public static function TO_ARRAY($str)
     {
         return json_decode($str, true);
@@ -30,22 +24,22 @@ class JsonHelp
             case JSON_ERROR_NONE:
                 break;
             case JSON_ERROR_DEPTH:
-                return self::GET_ERROR('JSON error: Maximum stack depth exceeded.');
+                throw new Exception('JSON error: Maximum stack depth exceeded.');
                 break;
             case JSON_ERROR_STATE_MISMATCH:
-                return self::GET_ERROR('JSON error: Underflow or the modes mismatch.');
+                throw new Exception('JSON error: Underflow or the modes mismatch.');
                 break;
             case JSON_ERROR_CTRL_CHAR:
-                return self::GET_ERROR('JSON error: Unexpected control character found.');
+                throw new Exception('JSON error: Unexpected control character found.');
                 break;
             case JSON_ERROR_SYNTAX:
-                return self::GET_ERROR('JSON error: Syntax error, malformed JSON.');
+                throw new Exception('JSON error: Syntax error, malformed JSON.');
                 break;
             case JSON_ERROR_UTF8:
-                return self::GET_ERROR('JSON error: Malformed UTF-8 characters, possibly incorrectly encoded.');
+                throw new Exception('JSON error: Malformed UTF-8 characters, possibly incorrectly encoded.');
                 break;
             default:
-                return self::GET_ERROR('JSON error: Unknown error.');
+                throw new Exception('JSON error: Unknown error.');
                 break;
         }
 

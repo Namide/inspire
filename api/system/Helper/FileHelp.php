@@ -58,11 +58,12 @@ class FileHelp
         return $type;
     }
 
-    public static function SAVE_FILE($base64, $name)
+    public static function SAVE_FILE(&$base64, $name)
     {
-        $data = base64_decode($data);
+        $data = base64_decode($base64);
         $name = self::CLEAN_NAME($name);
-        $type = self::GET_TYPE_BY_EXT($extension);
+        $ext = pathinfo($name, PATHINFO_EXTENSION);
+        $type = self::GET_TYPE_BY_EXT($ext);
         $dir = '/other';
         
         switch($type)
@@ -96,8 +97,8 @@ class FileHelp
                 break;
         }
         
-        $data = base64_decode($data);
-        $file = self::RENAME_IF_EXIST( DATA_PATH . $dir, $name);
+        $file = self::RENAME_IF_EXIST(DATA_PATH . $dir, $name);
+        self::WRITE_PROTECTED_DIR_OF_FILE($file);
         file_put_contents($file, $data);        
         
         return str_replace(DATA_PATH, '', $file);

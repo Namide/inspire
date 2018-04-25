@@ -62,7 +62,11 @@ class PostManager
                     $data[$name],
                     $type
                 );
+                
+                return true;
             }
+            
+            return false;
         }
         
         // Format date
@@ -77,11 +81,29 @@ class PostManager
         testData('date', \PDO::PARAM_STR, $data, $rowList, $binds);
         testData('thumb', \PDO::PARAM_INT, $data, $rowList, $binds);
         testData('title', \PDO::PARAM_STR, $data, $rowList, $binds);
-        testData('content_file', \PDO::PARAM_INT, $data, $rowList, $binds);
         testData('content_text', \PDO::PARAM_STR, $data, $rowList, $binds);
         testData('content_link', \PDO::PARAM_STR, $data, $rowList, $binds);
         testData('public', \PDO::PARAM_INT, $data, $rowList, $binds);
         testData('score', \PDO::PARAM_STR, $data, $rowList, $binds);
+        if (isset($data['content_file']))
+        {
+            $json = \Inspire\Helper\JsonHelp::TO_ARRAY($data['content_file']);
+            if (isset($data['base64']) && isset($json['name']))
+            {
+                $base64 = $data['base64'];
+                $json['path'] = \Inspire\Helper\FileHelp::SAVE_FILE($base64, $json['name']);
+                $rowList[] = 'content_file';
+                $binds[] = array(
+                    ':content_file',
+                    \Inspire\Helper\JsonHelp::FROM_ARRAY($json),
+                    \PDO::PARAM_STR
+                );
+            }
+            else
+            {
+                throw new Exception('"base64" and "content_file.name" variables needed for file');
+            }
+        }
 
         $insert = 'INSERT INTO `post`';
         $rows = ' (`' . implode('`, `', $rowList) . '`)';

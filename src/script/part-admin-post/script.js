@@ -25,6 +25,7 @@ export default
             description: '',
             content_link: '',
             content_text: '',
+            public: true,
 
             state: STATE.INITIAL,
             fileImg: false,
@@ -38,15 +39,43 @@ export default
         this.description = JSON.parse(JSON.stringify(this.post.description || ''))
         this.content_link = JSON.parse(JSON.stringify(this.post.content_link || ''))
         this.content_text = JSON.parse(JSON.stringify(this.post.content_text || ''))
-        
+        this.content_file = JSON.parse(JSON.stringify(JSON.parse(this.post.content_file) || {}))
+        this.public = JSON.parse(JSON.stringify(this.post.public))
+        // this.content_file
     },
 
     methods:
     {
+        save()
+        {
+            const data = {
+                date: this.date,
+                title: this.title,
+                description: this.description,
+                content_link: this.content_link,
+                content_text: this.content_text,
+                public: this.public,
+            }
+
+            if (this.base64 && this.content_file && this.content_file.name)
+            {
+                data.base64 = this.base64
+                data.content_file = JSON.stringify(this.content_file)
+            }
+
+            api.addPost(message =>
+                {
+                    if (message.data && message.data.content_file)
+                        message.data.content_file = JSON.parse(message.data.content_file)
+
+                    console.log(message.data.content_file)
+                }, data)
+        },
+
         filesChange([file])
         {
             this.type = file.type
-            this._file = {
+            this.content_file = {
                 name: file.name,
                 type: file.type,
                 size: file.size
@@ -70,7 +99,7 @@ export default
                 // Add base64
                 const a = result.split(';base64,')
                 a.shift()
-                this._file.base64 = a.join(';base64,')
+                this.base64 = a.join(';base64,')
 
                 // Add image data
                 const isImage = file.type.split('/').shift().toLowerCase() === 'image'
@@ -81,8 +110,8 @@ export default
                     var img = new Image()
                     img.addEventListener('load', event =>
                     {
-                        this._file.width = img.width
-                        this._file.height = img.height
+                        this.content_file.width = img.width
+                        this.content_file.height = img.height
 
                         Vibrant.from(img).getPalette((err, palette) =>
                         {
@@ -100,8 +129,8 @@ export default
                             if (palette.DarkMuted)
                                 colors.push(palette.DarkMuted.getHex())
                             
-                            this._file.colors = colors
-                            console.log(this._file)
+                            this.content_file.colors = colors
+                            console.log(this.content_file)
                         })
                     })
 
@@ -109,7 +138,7 @@ export default
                 }
                 else
                 {
-                    console.log(this._file)
+                    console.log(this.content_file)
                 }
             })
 
