@@ -1,5 +1,8 @@
 <?php
 
+// TIMER
+define('START_TIME', microtime(true));
+
 // URL and PATH
 define('API_URL', '/api');
 define('API_PATH', __DIR__);

@@ -1,7 +1,5 @@
 <?php
 
-define('START_TIME', microtime(true));
-
 
 // https://github.com/klein/klein.php
 $klein = new \Klein\Klein();
@@ -27,7 +25,8 @@ $klein->respond('GET', API_URL . '/', function($request, $response, $service)
                 'rss' => API_URL . '/rss'
             ),
             'meta' => array(
-                'name' => 'routes'
+                'name' => 'routes',
+                'time' => microtime(true) - START_TIME . ' sec'
             )
         );
     }
@@ -36,7 +35,9 @@ $klein->respond('GET', API_URL . '/', function($request, $response, $service)
         $data = array(
             'success' => false,
             'message' => $ex->getMessage(),
-            'time' => microtime(true) - START_TIME . ' sec'
+            'meta' => array(
+                'time' => microtime(true) - START_TIME . ' sec'
+            )
         );
     }
     
@@ -62,7 +63,10 @@ $klein->respond('GET', API_URL . '/posts', function($request, $response, $servic
     {
         $data = array(
             'success' => false,
-            'message' => $ex->getMessage()
+            'message' => $ex->getMessage(),
+            'meta' => array(
+                'time' => microtime(true) - START_TIME . ' sec'
+            )
         );
     }
 
@@ -90,7 +94,10 @@ $klein->respond('POST', API_URL . '/posts', function($request, $response, $servi
     {
         $data = array(
             'success' => false,
-            'message' => $ex->getMessage()
+            'message' => $ex->getMessage(),
+            'meta' => array(
+                'time' => microtime(true) - START_TIME . ' sec'
+            )
         );
     }
 
@@ -118,12 +125,13 @@ $klein->respond('GET', API_URL . '/posts/[i:id]', function ($request, $response,
     {
         $data = array(
             'success' => false,
-            'message' => $ex->getMessage()
+            'message' => $ex->getMessage(),
+            'meta' => array(
+                'time' => microtime(true) - START_TIME . ' sec'
+            )
         );
     }
 
-    if (CORS)
-        $response->header('Access-Control-Allow-Origin', '*');
     send($response, $data);
 });
 
@@ -132,8 +140,8 @@ $klein->respond('GET', API_URL . '/files/[i:id]', function ($request, $response,
     // Todo
     if (CORS)
         $response->header('Access-Control-Allow-Origin', '*');
+
     $response->file($path, $filename = null);
-    // $response->json($data);
 });
 
 /* $klein->respond('POST', '/posts', $callback);
@@ -166,7 +174,10 @@ $klein->onHttpError(function ($code, $router)
 {
     $data = array(
         'success' => false,
-        'message' => 'Error ' . $code
+        'message' => 'Error ' . $code,
+        'meta' => array(
+            'time' => microtime(true) - START_TIME . ' sec'
+        )
     );
     
     $router->response()->json($data);

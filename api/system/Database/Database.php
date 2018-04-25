@@ -28,7 +28,7 @@ class Database
         }
         catch (\PDOException $e)
         {
-            
+            throw new \Exception('Database initialization error ' . $e->getMessage( ));
         }
     }
 
@@ -88,9 +88,7 @@ class Database
         }
         catch (\PDOException $e)
         {
-            //if ( _DEBUG ) {
-            //	Debug::getInstance()->addError( 'fetch_all() database error: '.$e->getMessage() );
-            //}
+            throw new \Exception('Database fetch all error ' . $e->getMessage( ));
         }
 
         return array();
@@ -123,10 +121,7 @@ class Database
         }
         catch (\PDOException $e)
         {
-            /* if ( _DEBUG )
-              {
-              Debug::getInstance()->addError( 'fetch_all() database error: '.$e->getMessage() );
-              } */
+            throw new \Exception('Database fetch error ' . $e->getMessage( ));
         }
         return array();
     }
@@ -156,7 +151,7 @@ class Database
         }
         catch (\PDOException $e)
         {
-            
+            throw new \Exception('Database execute error ' . $e->getMessage( ));
         }
 
         return false;
