@@ -36,9 +36,7 @@ class PostManager
         {
             $tableRows = $this->getTableRows();
             foreach ($tableRows as $tableName => $rows)
-            {
                 $this->_database->CREATE($tableName, $rows);
-            }
         }
     }
     
@@ -141,7 +139,7 @@ class PostManager
         $post = $this->_database->FETCH($request, $binds);
         
         if ($post == false)
-            throw new \Exception('Post not found (UID = ' . $uid . ').');
+            throw new \Exception('Post not found.');
         
         self::clearPost($post);
         
@@ -154,9 +152,6 @@ class PostManager
         $request = $rq['select'] . $rq['from'] . $rq['join'] . $rq['where'] . $rq['group'] . $rq['order'] . $rq['limit'];
         $posts = $this->_database->FETCH_ALL($request, array());
         
-        if (count($posts) < 1)
-            throw new \Exception('Post not found.');
-        
         foreach ($posts as &$post)
             self::clearPost($post);
         
@@ -165,50 +160,59 @@ class PostManager
 
     public static function getTableRows()
     {
+        $id = 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE';
+
         return array(
             'post' => array(
-                'title' => 'TEXT DEFAULT NULL',
-                'description' => 'TEXT DEFAULT NULL',
-                'date' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
-                'thumb' => 'INTEGER DEFAULT NULL',
-                'content_file' => 'INTEGER DEFAULT NULL',
-                'content_text' => 'TEXT DEFAULT NULL',
-                'content_link' => 'TEXT DEFAULT NULL',
-                'public' => 'BOOLEAN DEFAULT true',
-                'score' => 'NUMERIC DEFAULT 0'
+                'id ' . $id,
+                'title TEXT DEFAULT NULL',
+                'description TEXT DEFAULT NULL',
+                'date TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'thumb INTEGER DEFAULT NULL',
+                'content_file INTEGER DEFAULT NULL',
+                'content_text TEXT DEFAULT NULL',
+                'content_link TEXT DEFAULT NULL',
+                'public BOOLEAN DEFAULT true',
+                'score NUMERIC DEFAULT 0'
             ),
             'group' => array(
-                'title' => 'TEXT DEFAULT NULL',
-                'description' => 'TEXT DEFAULT NULL',
-                'thumb' => 'INTEGER DEFAULT NULL'
+                'id ' . $id,
+                'title TEXT DEFAULT NULL',
+                'description TEXT DEFAULT NULL',
+                'thumb INTEGER DEFAULT NULL'
             ),
             'file' => array(
-                'slug' => 'TEXT DEFAULT NULL',
-                'title' => 'TEXT DEFAULT NULL',
-                'location' => 'TEXT NOT NULL',
-                'type' => 'TEXT',
-                'charset' => 'TEXT',
-                'width' => 'INTEGER DEFAULT NULL',
-                'height' => 'INTEGER DEFAULT NULL',
-                'size' => 'INTEGER DEFAULT NULL',
-                'colors' => 'TEXT DEFAULT NULL'
+                'id ' . $id,
+                'slug TEXT DEFAULT NULL',
+                'title TEXT DEFAULT NULL',
+                'location TEXT NOT NULL',
+                'type TEXT',
+                'charset TEXT',
+                'width INTEGER DEFAULT NULL',
+                'height INTEGER DEFAULT NULL',
+                'size INTEGER DEFAULT NULL',
+                'colors TEXT DEFAULT NULL'
             ),
             'user' => array(
-                'name' => 'TEXT',
-                'email' => 'TEXT',
-                'password' => 'TEXT',
-                'permission' => 'INTEGER'
+                'id ' . $id,
+                'name TEXT',
+                'email TEXT',
+                'password TEXT',
+                'permission INTEGER'
             ),
             'uid' => array(
-                'item_name' => 'TEXT NOT NULL',
-                'item_id' => 'INTEGER NOT NULL'
+                'id ' . $id,
+                'item_name TEXT NOT NULL',
+                'item_id INTEGER NOT NULL'
             ),
             'tag' => array(
-                'name' => 'TEXT NOT NULL'
+                'id ' . $id,
+                'name TEXT NOT NULL'
             ),
             'tag_join' => array(
-                'tag_id' => 'INTEGER NOT NULL',
-                'item_uid' => 'INTEGER NOT NULL'
+                'tag_id INTEGER NOT NULL',
+                'item_uid INTEGER NOT NULL',
+                'PRIMARY KEY (tag_id, item_uid)'
             )
         );
     }

@@ -50,13 +50,7 @@ class Database
     public function CREATE($name, array $rows)
     {
         $req = 'CREATE TABLE IF NOT EXISTS `' . $name . '` (';
-        $req .= 'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE';
-
-        foreach ($rows as $key => $type)
-        {
-            $req .= ', `' . $key . '` ' . $type . '';
-        }
-        $req .= ');';
+        $req .= implode(', ', $rows) . ');';
 
         $this->EXECUTE($req);
     }
@@ -136,18 +130,26 @@ class Database
         try
         {
             $stmt = $this->_pdo->prepare($request);
-            if ($binds !== null)
+
+            if ($stmt)
             {
-                foreach ($binds as $bind)
+                if ($binds !== null)
                 {
-                    $stmt->bindValue($bind[0], $bind[1], $bind[2]);
+                    foreach ($binds as $bind)
+                    {
+                        $stmt->bindValue($bind[0], $bind[1], $bind[2]);
+                    }
                 }
+
+                $stmt->execute();
+                $stmt = null;
+    
+                return true;
             }
-
-            $stmt->execute();
-            $stmt = null;
-
-            return true;
+            else
+            {
+                throw new \Exception('Database execute error ' . $this->_pdo->errorInfo()[2]);
+            }
         }
         catch (\PDOException $e)
         {
