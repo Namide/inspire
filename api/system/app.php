@@ -104,6 +104,37 @@ $klein->respond('POST', API_URL . '/posts', function($request, $response, $servi
     send($response, $data);
 });
 
+$klein->respond('PUT', API_URL . '/posts', function($request, $response, $service)
+{
+    try
+    {
+        $params = $request->paramsPost();
+        $postManager = new \Inspire\Database\PostManager();
+        $post = $postManager->updatePost($params);
+
+        $data = array(
+            'success' => true,
+            'data' => $post,
+            'meta' => array(
+                'name' => 'post',
+                'time' => microtime(true) - START_TIME . ' sec'
+            )
+        );
+    }
+    catch (Exception $ex)
+    {
+        $data = array(
+            'success' => false,
+            'message' => $ex->getMessage(),
+            'meta' => array(
+                'time' => microtime(true) - START_TIME . ' sec'
+            )
+        );
+    }
+
+    send($response, $data);
+});
+
 $klein->respond('GET', API_URL . '/posts/[i:id]', function ($request, $response, $service)
 {
     try

@@ -16,7 +16,7 @@ class JsonHelp
 
     public static function FROM_ARRAY(array $datas)
     {
-        $datas = self::TO_UTF8($datas);
+        // $datas = self::TO_UTF8($datas);
         $out = json_encode($datas);
 
         switch (json_last_error())
@@ -54,7 +54,7 @@ class JsonHelp
     }
 
     /**
-     * Recursive convertor to URF8 for array
+     * Recursive convertor to UTF8 for array
      * 
      * @param array|string $data
      * @return array|string

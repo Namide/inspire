@@ -148,7 +148,7 @@ class Database
             }
             else
             {
-                throw new \Exception('Database execute error ' . $this->_pdo->errorInfo()[2]);
+                throw new \Exception('Database execute error ' . $this->_pdo->errorInfo()[2] . $request);
             }
         }
         catch (\PDOException $e)

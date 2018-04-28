@@ -1,34 +1,52 @@
 <tr>
     <td>
-        {{ post.uid }}
+        {{ (post && post.uid) || '' }}
     </td>
     <td>
-        <input type="text" v-model="type">
+        <input type="text" v-model="title" placeholder="title">
     </td>
     <td>
-        <input type="text" v-model="title">
+        <input type="text" v-model="types" placeholder="types">
     </td>
     <td>
-        <textarea cols="30" rows="10" v-model="description"></textarea>
+        <textarea cols="30" rows="10" v-model="description" placeholder="description"></textarea>
     </td>
     <td>
         <input type="datetime-local" v-model="date">
     </td>
-    <td>
-        {{ post.content_file || 'no file' }}
+    <td>        
         <input type="file" :disabled="false" @change="filesChange($event.target.files)">
-        <img v-if="fileImg" :src="fileImg" alt="">
+        
+        <img v-if="fileImg" :src="fileImg" class="file-img" :class="[ 'clamp-' + (fileImgClampW ? 'w' : 'h') ]">
+        <template v-else-if="content_file">
+            <img v-if="content_file.type.includes('image')" :src="'/api/data/' + content_file.path" class="file-img" :class="[ 'clamp-' + (fileImgClampW ? 'w' : 'h') ]">
+        </template>
+
+        <template v-if="content_file">
+            <div v-for="(data, key) of content_file">
+                <small v-if="key === 'colors'">
+                    <strong>{{ key }}</strong>:
+                    <span v-for="color of data" class="color" :style="{ background: color }"></span>
+                </small>
+                <small v-else>
+                    <strong>{{ key }}</strong>: {{ data }}
+                </small>
+            </div>
+        </template>
     </td>
     <td>
-        <input type="text" v-model="content_link">
+        <input type="text" v-model="content_link" placeholder="link">
     </td>
     <td>
-        <textarea cols="30" rows="10" v-model="content_text"></textarea>
+        <input type="text" v-model="tags" placeholder="tags">
     </td>
     <td>
-        {{ post.public }}
+        <textarea cols="30" rows="10" v-model="content_text" placeholder="text"></textarea>
     </td>
     <td>
-        <a @click="save">Save</a>
+        <input type="checkbox" v-model="public"> Public
+    </td>
+    <td>
+        <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>
     </td>
 </tr>

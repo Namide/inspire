@@ -1,6 +1,7 @@
 <div>
 
     <table>
+        <part-admin-post :insert="true"></part-admin-post>
         <part-admin-post v-for="post of posts" :key="post.uid" :post="post"></part-admin-post>
     </table>
 

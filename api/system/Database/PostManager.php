@@ -2,6 +2,15 @@
 
 namespace Inspire\Database;
 
+function testData($name, $type, &$data, &$rowList, &$binds)
+{
+    if (isset($data[$name]))
+    {
+        $rowList[] = $name;
+        $binds[] = array(':' . $name, $data[$name], $type);
+    }
+}
+
 class PostManager
 {
     /**
@@ -40,9 +49,53 @@ class PostManager
         }
     }
     
-    public function addTags($postID, $tags)
+    public function updatePost($data)
     {
+        $rowList = array();
+        $binds = array();
         
+        // Get UID
+        if (!isset($data['uid']))
+        {
+            throw new \Exception('UID is needed for update post.');
+        }
+        else
+        {
+            $rowList[] = 'uid';
+            $binds[] = array(
+                ':uid',
+                (int) $data[uid],
+                \PDO::PARAM_INT
+            );
+        }
+        
+        
+        self::formatInputData($data, $rowList, $binds);
+
+        
+        if (count($binds) < 1)
+            throw new \Exception('POST data not founds');
+       
+        
+        $insert = 'UPDATE INTO `post`';
+        $join = ' INNER JOIN `uid` ON post.id = uid.item_id';
+        $where = ' WHERE uid.id = :uid AND uid.item_name = "post"';
+        $rows = ' (`' . implode('`, `', $rowList) . '`)';
+        $values = ' VALUES (:' . implode(', :', $rowList) . ')';
+        $this->_database->EXECUTE($insert . $join . $where . $rows . $values, $binds);
+        
+        
+        // Add tags
+        if (isset($data['tags']))
+        {
+            $tagList = explode(',', $data['tags']);
+            $this->removeTagsOfItem($uid);
+            $this->addTags($uid, $tagList);
+            $this->cleanTags();
+        }
+        
+        $post = $this->getPost($uid);
+        return $post;
     }
     
     public function addPost($data)
@@ -50,23 +103,219 @@ class PostManager
         $rowList = array();
         $binds = array();
         
-        function testData($name, $type, &$data, &$rowList, &$binds)
-        {
-            if (isset($data[$name]))
-            {
-                $rowList[] = $name;
-                $binds[] = array(
-                    ':' . $name,
-                    $data[$name],
-                    $type
-                );
+        self::formatInputData($data, $rowList, $binds);
                 
-                return true;
-            }
-            
-            return false;
+        
+        if (count($binds) < 1)
+            throw new \Exception('POST data not founds');
+
+        
+        $insert = 'INSERT INTO `post`';
+        $rows = ' (`' . implode('`, `', $rowList) . '`)';
+        $values = ' VALUES (:' . implode(', :', $rowList) . ')';
+        $this->_database->EXECUTE($insert . $rows . $values, $binds);
+        
+        // Get post ID and UID
+        $postId = (integer) $this->_database->GET_LAST_INSERT_ID();
+        $uid = $this->addUID('post', $postId);
+        
+        // Add tags
+        if (isset($data['tags']))
+        {
+            $tagList = explode(',', $data['tags']);
+            $this->addTags($uid, $tagList);
         }
         
+        // Return post
+        $post = $this->getPost($uid);
+        return $post;
+    }
+    
+    private function addUID($table, $postId = null)
+    {
+        $id = is_null($postId) ? (integer) $this->_database->GET_LAST_INSERT_ID() : (integer) $postId;
+        
+        $binds = array(
+            array(':table', $table, \PDO::PARAM_STR),
+            array(':id', $id, \PDO::PARAM_INT)
+        );
+        $request = 'INSERT INTO `uid` (`item_name`, `item_id`) VALUES(:table, :id)';
+        $this->_database->EXECUTE($request, $binds);
+        
+        $uid = (integer) $this->_database->GET_LAST_INSERT_ID();
+        return $uid;
+    }
+    
+    public function getPost($uid)
+    {
+        $rq = self::$_POST_REQUEST;
+        $where = ' WHERE uid.id = :uid AND uid.item_name = "post"';
+        $request = $rq['select'] . $rq['from'] . $rq['join'] . $where . $rq['group'] . $rq['order'] . $rq['limit'];
+        $binds = array(array(':uid', $uid, \PDO::PARAM_INT));
+        $post = $this->_database->FETCH($request, $binds);
+        
+        if ($post == false)
+            throw new \Exception('Post not found.');
+        
+        self::clearOutputPost($post);
+        
+        return $post;
+    }
+
+    public function getTagID($tagName)
+    {
+        $request = 'SELECT `id` FROM `tag` WHERE lower(`name`) = lower(:name)';
+        $binds = array(array(':name', $tagName, \PDO::PARAM_STR));
+        $tag = $this->_database->FETCH($request, $binds);
+        
+        if ($tag == false)
+        {
+            $request = 'INSERT INTO `tag` (`name`) VALUES (:name)';
+            $tag = $this->_database->EXECUTE($request, $binds);
+            
+            return $this->_database->GET_LAST_INSERT_ID();
+        }
+        
+        return $tag['id'];
+    }
+    
+    public function addTags($itemUID, array $tagList)
+    {
+        foreach ($tagList as $tagName)
+        {
+            $tagId = $this->getTagID($tagName);
+            $request = 'INSERT INTO `tag_join` (`item_uid`, `tag_id`) VALUES (:item_uid, :tag_id)';
+            $binds = array(
+                array(':tag_id', $tagId, \PDO::PARAM_INT),
+                array(':item_uid', $itemUID, \PDO::PARAM_INT)
+            );
+            $this->_database->EXECUTE($request, $binds);
+        }
+    }
+    
+    public function removeTagsOfItem($itemUID)
+    {
+        $request = 'DELETE FROM `tag_join` WHERE `item_uid` = :item_uid';
+        $binds = array(
+            array(':item_uid', $itemUID, \PDO::PARAM_INT)
+        );
+        $this->_database->EXECUTE($request, $binds);
+    }
+    
+    public function cleanTags()
+    {
+        $request = 'DELETE FROM `tag` WHERE (NOT EXISTS (SELECT * FROM `tag_join` WHERE tag.id = tag_join.tag_id))';
+        $this->_database->EXECUTE($request);
+    }
+
+    public function getPosts()
+    {
+        $rq = self::$_POST_REQUEST;
+        $request = $rq['select'] . $rq['from'] . $rq['join'] . $rq['where'] . $rq['group'] . $rq['order'] . $rq['limit'];
+        $posts = $this->_database->FETCH_ALL($request, array());
+        
+        foreach ($posts as &$post)
+            self::clearOutputPost($post);
+        
+        return $posts;
+    }
+
+    public static function getTableRows()
+    {
+        $id = 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE';
+
+        return array(
+            'post' => array(
+                'id ' . $id,
+                'title TEXT DEFAULT NULL',
+                'description TEXT DEFAULT NULL',
+                'date TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'thumb TEXT DEFAULT NULL',
+                'content_file TEXT DEFAULT NULL',
+                'content_text TEXT DEFAULT NULL',
+                'content_link TEXT DEFAULT NULL',
+                'public BOOLEAN DEFAULT true',
+                'score NUMERIC DEFAULT 0'
+            ),
+            'group' => array(
+                'id ' . $id,
+                'title TEXT DEFAULT NULL',
+                'description TEXT DEFAULT NULL',
+                'thumb INTEGER DEFAULT NULL'
+            ),
+            /*'file' => array(
+                'id ' . $id,
+                'slug TEXT DEFAULT NULL',
+                'title TEXT DEFAULT NULL',
+                'location TEXT NOT NULL',
+                'type TEXT',
+                'charset TEXT',
+                'width INTEGER DEFAULT NULL',
+                'height INTEGER DEFAULT NULL',
+                'size INTEGER DEFAULT NULL',
+                'colors TEXT DEFAULT NULL'
+            ),*/
+            'user' => array(
+                'id ' . $id,
+                'name TEXT',
+                'email TEXT',
+                'password TEXT',
+                'permission INTEGER'
+            ),
+            'uid' => array(
+                'id ' . $id,
+                'item_name TEXT NOT NULL',
+                'item_id INTEGER NOT NULL'
+            ),
+            'tag' => array(
+                'id ' . $id,
+                'name TEXT NOT NULL'
+            ),
+            'tag_join' => array(
+                'tag_id INTEGER NOT NULL',
+                'item_uid INTEGER NOT NULL',
+                'PRIMARY KEY (tag_id, item_uid)'
+            )
+        );
+    }
+    
+    private static function clearOutputPost(&$post)
+    {
+        $outPost['uid'] = (int) $post['uid'];
+        
+        self::clearData('title', 'string', $post);
+        self::clearData('description', 'string', $post);
+        self::clearData('date', 'string', $post);
+        self::clearData('thumb', 'string', $post);
+        self::clearData('content_file', 'json', $post);
+        self::clearData('content_text', 'string', $post);
+        self::clearData('content_link', 'string', $post);
+        self::clearData('public', 'bool', $post);
+        self::clearData('score', 'float', $post);
+        self::clearData('tags', 'array', $post);
+        self::clearData('types', 'array', $post);
+    }
+    
+    private static function clearData($name, $format, &$data)
+    {
+        if (empty($data[$name]))
+            unset($data[$name]);
+        else if ($format == 'bool')
+            $data[$name] = (bool) $data[$name];
+        else if ($format == 'float')
+            $data[$name] = (float) $data[$name];
+        else if ($format == 'array')
+            $data[$name] = explode(',', $data[$name]);
+        else if ($format == 'json')
+            $data[$name] = \Inspire\Helper\JsonHelp::TO_ARRAY ($data[$name]);
+        else if ($format == 'int')
+            $data[$name] = (integer) $data[$name];
+        else
+            $data[$name] = $data[$name];
+    }
+    
+    private static function formatInputData(&$data, &$rowList, &$binds)
+    {
         // Format date
         if (isset($data['date']))
         {
@@ -99,147 +348,8 @@ class PostManager
             }
             else
             {
-                throw new Exception('"base64" and "content_file.name" variables needed for file');
+                throw new \Exception('"base64" and "content_file.name" variables needed for file');
             }
         }
-
-        $insert = 'INSERT INTO `post`';
-        $rows = ' (`' . implode('`, `', $rowList) . '`)';
-        $values = ' VALUES (:' . implode(', :', $rowList) . ')';
-        $this->_database->EXECUTE($insert . $rows . $values, $binds);
-        
-        $postId = (integer) $this->_database->GET_LAST_INSERT_ID();
-        $uid = $this->addUID('post', $postId);
-        $post = $this->getPost($uid);
-        
-        return $post;
-    }
-    
-    private function addUID($table, $postId = null)
-    {
-        $id = is_null($postId) ? (integer) $this->_database->GET_LAST_INSERT_ID() : (integer) $postId;
-        
-        $binds = array(
-            array(':table', $table, \PDO::PARAM_STR),
-            array(':id', $id, \PDO::PARAM_INT)
-        );
-        $request = 'INSERT INTO `uid` (`item_name`, `item_id`) VALUES(:table, :id)';
-        $this->_database->EXECUTE($request, $binds);
-        
-        $uid = (integer) $this->_database->GET_LAST_INSERT_ID();
-        return $uid;
-    }
-    
-    public function getPost($uid)
-    {
-        $rq = self::$_POST_REQUEST;
-        $where = ' WHERE uid.id = :uid AND uid.item_name = "post"';
-        $request = $rq['select'] . $rq['from'] . $rq['join'] . $where . $rq['group'] . $rq['order'] . $rq['limit'];
-        $binds = array(array(':uid', $uid, \PDO::PARAM_INT));
-        $post = $this->_database->FETCH($request, $binds);
-        
-        if ($post == false)
-            throw new \Exception('Post not found.');
-        
-        self::clearPost($post);
-        
-        return $post;
-    }
-    
-    public function getPosts()
-    {
-        $rq = self::$_POST_REQUEST;
-        $request = $rq['select'] . $rq['from'] . $rq['join'] . $rq['where'] . $rq['group'] . $rq['order'] . $rq['limit'];
-        $posts = $this->_database->FETCH_ALL($request, array());
-        
-        foreach ($posts as &$post)
-            self::clearPost($post);
-        
-        return $posts;
-    }
-
-    public static function getTableRows()
-    {
-        $id = 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE';
-
-        return array(
-            'post' => array(
-                'id ' . $id,
-                'title TEXT DEFAULT NULL',
-                'description TEXT DEFAULT NULL',
-                'date TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
-                'thumb INTEGER DEFAULT NULL',
-                'content_file INTEGER DEFAULT NULL',
-                'content_text TEXT DEFAULT NULL',
-                'content_link TEXT DEFAULT NULL',
-                'public BOOLEAN DEFAULT true',
-                'score NUMERIC DEFAULT 0'
-            ),
-            'group' => array(
-                'id ' . $id,
-                'title TEXT DEFAULT NULL',
-                'description TEXT DEFAULT NULL',
-                'thumb INTEGER DEFAULT NULL'
-            ),
-            'file' => array(
-                'id ' . $id,
-                'slug TEXT DEFAULT NULL',
-                'title TEXT DEFAULT NULL',
-                'location TEXT NOT NULL',
-                'type TEXT',
-                'charset TEXT',
-                'width INTEGER DEFAULT NULL',
-                'height INTEGER DEFAULT NULL',
-                'size INTEGER DEFAULT NULL',
-                'colors TEXT DEFAULT NULL'
-            ),
-            'user' => array(
-                'id ' . $id,
-                'name TEXT',
-                'email TEXT',
-                'password TEXT',
-                'permission INTEGER'
-            ),
-            'uid' => array(
-                'id ' . $id,
-                'item_name TEXT NOT NULL',
-                'item_id INTEGER NOT NULL'
-            ),
-            'tag' => array(
-                'id ' . $id,
-                'name TEXT NOT NULL'
-            ),
-            'tag_join' => array(
-                'tag_id INTEGER NOT NULL',
-                'item_uid INTEGER NOT NULL',
-                'PRIMARY KEY (tag_id, item_uid)'
-            )
-        );
-    }
-    
-    private static function clearPost(&$post)
-    {
-        $post['uid'] = (int) $post['uid'];
-        
-        if (is_null($post['thumb'])) unset($post['thumb']);
-        else $post['thumb'] = (integer) $post['thumb'];
-       
-        if (is_null($post['content_file'])) unset($post['content_file']);
-        else $post['content_file'] = $post['content_file'];
-       
-        if (is_null($post['content_text'])) unset($post['content_text']);
-        else $post['content_text'] = $post['content_text'];
-       
-        if (is_null($post['content_link'])) unset($post['content_link']);
-        else $post['content_link'] = $post['content_link'];
-        
-        if (is_null($post['public'])) unset($post['public']);
-        else $post['public'] = (bool) $post['public'];
-        
-        if (is_null($post['score'])) unset($post['score']);
-        else $post['score'] = (float) $post['score'];
-        
-        if (is_null($post['tags'])) unset($post['tags']);
-        else $post['tags'] = explode(',', $post['tags']);
     }
 }

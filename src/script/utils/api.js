@@ -1,10 +1,21 @@
-// import RemoteInstance from 'directus-sdk-javascript/remote'
 import config from '../../config'
 
+/*
 const filterPost = data =>
 {
-
+    const newData = Object.assign({}, data)
+    if (newData.tags)
+        newData.tags = newData.tags.split(',')
+        
+    if (newData.types)
+        newData.types = newData.types.split(',')
+    
+    if (newData.content_file)
+        newData.content_file = JSON.parse(newData.content_file)
+    
+    return newData
 }
+*/
 
 class Api
 {
@@ -12,8 +23,6 @@ class Api
     {
         this.boards = null
         this.posts = null
-
-        console.log(config.api.url.root)
     }
 
     // /api/collections/get/posts
@@ -120,28 +129,6 @@ class Api
             .catch(err => console.error(err))
     }
 
-    addPost(onload, data)
-    {
-        const form = new FormData()
-        for (const key of Object.keys(data))
-            form.append(key, data[key])        
-
-        const url = config.api.url.root + '/posts'
-        const request = new Request(url)
-        const params = {
-            method: 'POST',
-            headers: new Headers(),
-            mode: 'cors',
-            cache: 'default',
-            body: form
-        }
-        fetch(request, params)
-            // .then(collection => console.log(collection))
-            .then(data => data.json())
-            .then(data => data.success ? (data.data.map(filterPost), data) : data)
-            .then(json => onLoad(json))
-    }
-
     getPosts(onLoad, tags = [])
     {
         tags = tags.map(tag => tag.toLowerCase())
@@ -206,7 +193,7 @@ class Api
         fetch(request, params)
             // .then(collection => console.log(collection))
             .then(data => data.json())
-            .then(data => data.success ? (data.data.map(filterPost), data) : data)
+            // .then(data => data.success && data.data ? (data.data = data.data.map(filterPost), data) : data)
             .then(json => onLoad(json))
 
         /*this.client.getItems(url, params)
@@ -220,4 +207,5 @@ class Api
 
 const api = new Api()
 
+export { Api }
 export default api

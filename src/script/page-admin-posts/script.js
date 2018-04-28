@@ -1,4 +1,4 @@
-import api from '../utils/api'
+import apiAdmin from '../utils/apiAdmin'
 import PartAdminPost from '../part-admin-post'
 
 export default
@@ -26,13 +26,13 @@ export default
     {
         filterTags(tags)
         {
-            api.getPosts(this.onPosts, tags)
+            apiAdmin.getPosts(this.onPosts, tags)
         }
     },
 
     created()
     {
-        api.getPosts(this.onPosts)
+        apiAdmin.getPosts(this.onPosts)
     },
 
     methods:

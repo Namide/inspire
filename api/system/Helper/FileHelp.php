@@ -9,14 +9,14 @@ namespace Inspire\Helper;
  */
 class FileHelp
 {
-    public static $EXTS_IMG_BITMAP = array('.png', '.gif', '.jpg', '.jpeg');
-    public static $EXTS_IMG_VECTOR = array('.svg', '.ai', '.eps');
-    public static $EXTS_3D = array('.blend', '.3ds', '.obj', '.dxf');
-    public static $EXTS_SOUND = array('.mp3', '.flac', '.ogg', '.wav');
-    public static $EXTS_VIDEO = array('.mp4', '.avi', '.mpeg', '.mov');
-    public static $EXTS_PAGE = array('.pdf', '.ps', '.html', '.xhtml', '.xml');
-    public static $EXTS_TEXT = array('.odt', '.txt', '.doc', '.rtf');
-    public static $EXTS_ARCHIVE = array('rar', '.gz', '.tar', '.zip', '.7z');
+    public static $EXTS_IMG_BITMAP = array('png', 'gif', 'jpg', 'jpeg');
+    public static $EXTS_IMG_VECTOR = array('svg', 'ai', 'eps');
+    public static $EXTS_3D = array('blend', '3ds', 'obj', 'dxf');
+    public static $EXTS_SOUND = array('mp3', 'flac', 'ogg', 'wav');
+    public static $EXTS_VIDEO = array('mp4', 'avi', 'mpeg', 'mov');
+    public static $EXTS_PAGE = array('pdf', 'ps', 'html', 'xhtml', 'xml');
+    public static $EXTS_TEXT = array('odt', 'txt', 'doc', 'rtf');
+    public static $EXTS_ARCHIVE = array('rar', 'gz', 'tar', 'zip', '7z');
     
     public static function GET_TYPE_BY_EXT($extension)
     {
@@ -24,11 +24,11 @@ class FileHelp
 
         if (in_array($extension, self::$EXTS_IMG_BITMAP))
         {
-            $type = 'img:bitmap';
+            $type = 'img/bitmap';
         }
         elseif (in_array($extension, self::$EXTS_IMG_VECTOR))
         {
-            $type = 'img:vector';
+            $type = 'img/vector';
         }
         elseif (in_array($extension, self::$EXTS_3D))
         {
@@ -68,10 +68,10 @@ class FileHelp
         
         switch($type)
         {
-            case 'img:bitmap' :
+            case 'img/bitmap' :
                 $dir = '/img';
                 break;
-            case 'img:vector' :
+            case 'img/vector' :
                 $dir = '/img';
                 break;
             case '3d' :
@@ -175,7 +175,7 @@ class FileHelp
                 $resume = '';
 
                 // CREATE THUMB
-                if ($type === 'img:bitmap') {
+                if ($type === 'img/bitmap') {
                 ImgHelp::CREATE_THUMB($destDir . $newFile, $destDir . $thumb);
                 $resume = $newFile . '_thumb.jpg';
                 }

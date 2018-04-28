@@ -1,4 +1,4 @@
-import api from '../utils/api'
+import apiAdmin from '../utils/apiAdmin'
 import * as Vibrant from 'node-vibrant'
 
 const STATE = {
@@ -14,6 +14,7 @@ export default
     props:
     {
         post: { type: Object },
+        insert: { type: Boolean, default: false }
     },
 
     data()
@@ -21,60 +22,117 @@ export default
         return {
             date: '',
             title: '',
-            type: '',
             description: '',
             content_link: '',
             content_text: '',
+            content_file: null,
+            tags: [],
+            types: [],
             public: true,
 
             state: STATE.INITIAL,
             fileImg: false,
+            fileImgClampW: true
         } 
+    },
+
+    watch:
+    {
+        title: function(title)
+        {
+            this._modified.title = title
+        },
+
+        description: function(description)
+        {
+            this._modified.description = description
+        },
+
+        date: function(date)
+        {
+            this._modified.date = date.split('T').join(' ')
+        },
+
+        content_link: function(content_link)
+        {
+            this._modified.content_link = content_link
+        },
+
+        content_text: function(text)
+        {
+            this._modified.content_text = text
+        },
+
+        content_file: function(data)
+        {
+            this._modified.content_file = copy(data)
+        },
+
+        public: function(isPublic)
+        {
+            this._modified.public = isPublic
+        },
+
+        tags: function(tags)
+        {
+            this._modified.tags = copy(tags)
+        },
+
+        types: function(types)
+        {
+            this._modified.types = types
+        }
     },
 
     created()
     {
-        this.date = JSON.parse(JSON.stringify(this.post.date || '')).split(' ').join('T')
-        this.title = JSON.parse(JSON.stringify(this.post.title || ''))
-        this.description = JSON.parse(JSON.stringify(this.post.description || ''))
-        this.content_link = JSON.parse(JSON.stringify(this.post.content_link || ''))
-        this.content_text = JSON.parse(JSON.stringify(this.post.content_text || ''))
-        this.content_file = JSON.parse(JSON.stringify(JSON.parse(this.post.content_file) || {}))
-        this.public = JSON.parse(JSON.stringify(this.post.public))
-        // this.content_file
+        this.title = copy((this.post && this.post.title) || '')
+        this.description = copy((this.post && this.post.description) || '')
+        this.date = copy((this.post && this.post.date) || getToday()).split(' ').join('T')
+        this.content_link = copy((this.post && this.post.content_link) || '')
+        this.content_text = copy((this.post && this.post.content_text) || '')
+        this.content_file = copy((this.post && this.post.content_file) || null)
+        this.public = copy(this.post ? this.post.public : true)
+
+        this.tags = copy((this.post && this.post.tags) || [])
+        this.types = copy((this.post && this.post.types) || [])
+
+        this._modified = { }
+        if (!this.insert)
+        {
+            this._modified.uid = this.post && this.post.uid
+        }
+
+        if (this.content_file && this.content_file.width && this.content_file.height)
+            this.fileImgClampW = +this.content_file.width > +this.content_file.height
     },
 
     methods:
     {
         save()
         {
-            const data = {
-                date: this.date,
-                title: this.title,
-                description: this.description,
-                content_link: this.content_link,
-                content_text: this.content_text,
-                public: this.public,
-            }
+            const data = this._modified
 
-            if (this.base64 && this.content_file && this.content_file.name)
+            if (this.insert)
             {
-                data.base64 = this.base64
-                data.content_file = JSON.stringify(this.content_file)
-            }
-
-            api.addPost(message =>
+                apiAdmin.addPost(message =>
                 {
-                    if (message.data && message.data.content_file)
-                        message.data.content_file = JSON.parse(message.data.content_file)
-
-                    console.log(message.data.content_file)
+                    console.log(message.data)
                 }, data)
+            }
+            else
+            {
+                console.log(data)
+                apiAdmin.updatePost(message =>
+                {
+                    console.log(message.data)
+                }, data)
+            }
         },
 
         filesChange([file])
         {
-            this.type = file.type
+            this.types.push(...file.type.split('/'))
             this.content_file = {
                 name: file.name,
                 type: file.type,
@@ -97,9 +155,11 @@ export default
                 const result = event.target.result
 
                 // Add base64
-                const a = result.split(';base64,')
-                a.shift()
-                this.base64 = a.join(';base64,')
+                {
+                    const base64Arr = result.split(';base64,')
+                    base64Arr.shift()
+                    this._modified.base64 = base64Arr.join(';base64,')
+                }
 
                 // Add image data
                 const isImage = file.type.split('/').shift().toLowerCase() === 'image'
@@ -110,27 +170,16 @@ export default
                     var img = new Image()
                     img.addEventListener('load', event =>
                     {
-                        this.content_file.width = img.width
-                        this.content_file.height = img.height
+                        this.$set(this.content_file, 'width', img.width)
+                        this.$set(this.content_file, 'height', img.height)
+                        this.fileImgClampW = img.width > img.height
 
-                        Vibrant.from(img).getPalette((err, palette) =>
+                        extractColors(img, colors =>
                         {
-                            const colors = []
-                            if (palette.LightVibrant)
-                                colors.push(palette.LightVibrant.getHex())
-                            if (palette.Vibrant)
-                                colors.push(palette.Vibrant.getHex())
-                            if (palette.DarkVibrant)
-                                colors.push(palette.DarkVibrant.getHex())
-                            if (palette.LightMuted)
-                                colors.push(palette.LightMuted.getHex())
-                            if (palette.Muted)
-                                colors.push(palette.Muted.getHex())
-                            if (palette.DarkMuted)
-                                colors.push(palette.DarkMuted.getHex())
-                            
-                            this.content_file.colors = colors
-                            console.log(this.content_file)
+                            this.$set(this.content_file, 'colors', colors)
+                        }, error =>
+                        {
+                            console.error(error)
                         })
                     })
 
@@ -145,4 +194,41 @@ export default
             this._reader.readAsDataURL(file)
         }
     }
+}
+
+const copy = obj => JSON.parse(JSON.stringify(obj))
+const getToday = () => new Date(Date.now()).toJSON().split('.')[0]
+const extractColors = (img, onColors, onError) =>
+{
+    const options = {
+        // colorCount: number
+        // quality: 2
+        maxDimension: 1024
+        // filters: Array<Filter>
+        // ImageClass: ImageClass
+        // quantizer: Quantizer
+        // generator?: Generator
+    }
+    const vibrant = new Vibrant(img, options)
+    vibrant.getPalette((err, palette) =>
+    {
+        const colors = []
+        if (palette.LightVibrant)
+            colors.push(palette.LightVibrant.getHex())
+        if (palette.Vibrant)
+            colors.push(palette.Vibrant.getHex())
+        if (palette.DarkVibrant)
+            colors.push(palette.DarkVibrant.getHex())
+        if (palette.LightMuted)
+            colors.push(palette.LightMuted.getHex())
+        if (palette.Muted)
+            colors.push(palette.Muted.getHex())
+        if (palette.DarkMuted)
+            colors.push(palette.DarkMuted.getHex())
+        
+        onColors(colors)
+
+        if (err)
+            onError(err)
+    })
 }
