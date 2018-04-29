@@ -5,7 +5,6 @@
 
 ## front-end Setup
 
-
 ### Build
 
 ``` bash
@@ -38,6 +37,9 @@ Module browser
 ``` bash
 # go to api dir
 cd api/
+
+# create a directory `data` with read and write permissions in the `api` directory
+mkdir -m 777 data
 
 # install php dependencies
 composer install
