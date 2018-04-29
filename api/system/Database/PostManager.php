@@ -2,15 +2,6 @@
 
 namespace Inspire\Database;
 
-function testData($name, $type, &$data, &$rowList, &$binds)
-{
-    if (isset($data[$name]))
-    {
-        $rowList[] = $name;
-        $binds[] = array(':' . $name, $data[$name], $type);
-    }
-}
-
 class PostManager
 {
     /**
@@ -22,11 +13,14 @@ class PostManager
         'select' => 'SELECT uid.id AS `uid`, `title`, `description`,'
             . ' `date`, `thumb`, `content_file`, `content_text`,'
             . ' `content_link`, `public`, `score`,'
-            . ' GROUP_CONCAT(tag.name, ",") AS `tags`',
+            . ' GROUP_CONCAT(DISTINCT tag.name) AS `tags`,'
+            . ' GROUP_CONCAT(DISTINCT type.name) AS `types`',
         'from' => ' FROM `post`',
         'join' => ' INNER JOIN `uid` ON post.id = uid.item_id'
             . ' LEFT OUTER JOIN `tag_join` ON tag_join.item_uid = uid.id'
-            . ' LEFT OUTER JOIN `tag` ON tag.id = tag_join.tag_id',
+            . ' LEFT OUTER JOIN `tag` ON tag.id = tag_join.tag_id'
+            . ' LEFT OUTER JOIN `type_join` ON type_join.item_uid = uid.id'
+            . ' LEFT OUTER JOIN `type` ON type.id = type_join.type_id',
         'where' => ' WHERE uid.item_name = "post"',
         'group' => ' GROUP BY post.id',
         'order' => ' ORDER BY `date` DESC, uid.id DESC',
@@ -49,50 +43,96 @@ class PostManager
         }
     }
     
-    public function updatePost($data)
+    public function removeFile($uid)
+    {
+        $request = 'SELECT `content_file` FROM `post`'
+            . ' INNER JOIN `uid` ON post.id = uid.item_id'
+            . ' WHERE uid.item_name = "post" AND uid.id = :uid';
+        $binds = array(array(':uid', $uid, \PDO::PARAM_INT));
+        $post = $this->_database->FETCH($request, $binds);
+        
+        
+        
+        if ($post != false && !empty($post['content_file']))
+        {
+            $fileData = \Inspire\Helper\JsonHelp::TO_ARRAY($post['content_file']);
+            $path = $fileData['path'];
+            
+            
+            
+            if (\Inspire\Helper\FileHelp::DEL_FILE($path))
+            {
+                $update = 'UPDATE `post`';
+                $set = ' SET `content_file` = null';
+                $where = ' WHERE `id` = (SELECT `item_id` FROM `uid` WHERE `id` = :uid AND `item_name` = "post")';
+                $this->_database->EXECUTE($update . $set . $where, $binds);
+        
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    public function updatePost($uid, &$data)
     {
         $rowList = array();
         $binds = array();
         
-        // Get UID
-        if (!isset($data['uid']))
-        {
-            throw new \Exception('UID is needed for update post.');
-        }
-        else
-        {
-            $rowList[] = 'uid';
-            $binds[] = array(
-                ':uid',
-                (int) $data[uid],
-                \PDO::PARAM_INT
-            );
-        }
+        
+        $binds[] = array(
+            ':uid',
+            (int) $uid,
+            \PDO::PARAM_INT
+        );
+        
+        
+        // Remove file
+        if (!empty($data['content_file']))
+            $this->removeFile($uid);
+        
         
         
         self::formatInputData($data, $rowList, $binds);
+        self::formatInputFileAndSave($data, $rowList, $binds);
 
         
         if (count($binds) < 1)
             throw new \Exception('POST data not founds');
-       
+  
+
+        $update = 'UPDATE `post`';
+        $set = ' SET ';
+        foreach ($rowList as $row)
+            $set .= '`' . $row . '` = :' . $row . ', ';
+        $set = substr($set, 0, -2);
+        $where = ' WHERE `id` = (SELECT uid.item_id FROM `uid` WHERE uid.id = :uid AND uid.item_name = "post")';
         
-        $insert = 'UPDATE INTO `post`';
-        $join = ' INNER JOIN `uid` ON post.id = uid.item_id';
-        $where = ' WHERE uid.id = :uid AND uid.item_name = "post"';
-        $rows = ' (`' . implode('`, `', $rowList) . '`)';
-        $values = ' VALUES (:' . implode(', :', $rowList) . ')';
-        $this->_database->EXECUTE($insert . $join . $where . $rows . $values, $binds);
+        
+        $this->_database->EXECUTE($update . $set . $where, $binds);
         
         
-        // Add tags
-        if (isset($data['tags']))
+        
+        
+        // Update tags
+        if (!empty($data['tags']))
         {
             $tagList = explode(',', $data['tags']);
             $this->removeTagsOfItem($uid);
             $this->addTags($uid, $tagList);
             $this->cleanTags();
         }
+        
+       
+        // Update types
+        if (!empty($data['types']))
+        {
+            $typeList = explode(',', $data['types']);
+            $this->removeTypesOfItem($uid);
+            $this->addTypes($uid, $typeList);
+            $this->cleanTypes();
+        }
+        
         
         $post = $this->getPost($uid);
         return $post;
@@ -103,7 +143,9 @@ class PostManager
         $rowList = array();
         $binds = array();
         
+        
         self::formatInputData($data, $rowList, $binds);
+        self::formatInputFileAndSave($data, $rowList, $binds);
                 
         
         if (count($binds) < 1)
@@ -124,6 +166,13 @@ class PostManager
         {
             $tagList = explode(',', $data['tags']);
             $this->addTags($uid, $tagList);
+        }
+        
+        // Add types
+        if (isset($data['types']))
+        {
+            $typeList = explode(',', $data['types']);
+            $this->addTypes($uid, $typeList);
         }
         
         // Return post
@@ -160,6 +209,22 @@ class PostManager
         self::clearOutputPost($post);
         
         return $post;
+    }
+    
+    public function getFile($uid)
+    {
+        $select = 'SELECT `content_file`';
+        $from = ' FROM `post`';
+        $where = ' WHERE uid.id = :uid AND uid.item_name = "post"';
+        $join = ' INNER JOIN `uid` ON post.id = uid.item_id';
+        $request = $select . $from . $join . $where;
+        $binds = array(array(':uid', $uid, \PDO::PARAM_INT));
+        $post = $this->_database->FETCH($request, $binds);
+        
+        if ($post == false || empty($post['content_file']))
+            throw new \Exception('Post not found.');
+        
+        return \Inspire\Helper\JsonHelp::TO_ARRAY($post['content_file']);
     }
 
     public function getTagID($tagName)
@@ -205,6 +270,52 @@ class PostManager
     public function cleanTags()
     {
         $request = 'DELETE FROM `tag` WHERE (NOT EXISTS (SELECT * FROM `tag_join` WHERE tag.id = tag_join.tag_id))';
+        $this->_database->EXECUTE($request);
+    }
+
+    public function getTypeID($typeName)
+    {
+        $request = 'SELECT `id` FROM `type` WHERE lower(`name`) = lower(:name)';
+        $binds = array(array(':name', $typeName, \PDO::PARAM_STR));
+        $type = $this->_database->FETCH($request, $binds);
+        
+        if ($type == false)
+        {
+            $request = 'INSERT INTO `type` (`name`) VALUES (:name)';
+            $type = $this->_database->EXECUTE($request, $binds);
+            
+            return $this->_database->GET_LAST_INSERT_ID();
+        }
+        
+        return $type['id'];
+    }
+    
+    public function addTypes($itemUID, array $typeList)
+    {
+        foreach ($typeList as $typeName)
+        {
+            $typeId = $this->getTypeID($typeName);
+            $request = 'INSERT INTO `type_join` (`item_uid`, `type_id`) VALUES (:item_uid, :type_id)';
+            $binds = array(
+                array(':type_id', $typeId, \PDO::PARAM_INT),
+                array(':item_uid', $itemUID, \PDO::PARAM_INT)
+            );
+            $this->_database->EXECUTE($request, $binds);
+        }
+    }
+    
+    public function removeTypesOfItem($itemUID)
+    {
+        $request = 'DELETE FROM `type_join` WHERE `item_uid` = :item_uid';
+        $binds = array(
+            array(':item_uid', $itemUID, \PDO::PARAM_INT)
+        );
+        $this->_database->EXECUTE($request, $binds);
+    }
+    
+    public function cleanTypes()
+    {
+        $request = 'DELETE FROM `type` WHERE (NOT EXISTS (SELECT * FROM `type_join` WHERE type.id = type_join.type_id))';
         $this->_database->EXECUTE($request);
     }
 
@@ -275,6 +386,15 @@ class PostManager
                 'tag_id INTEGER NOT NULL',
                 'item_uid INTEGER NOT NULL',
                 'PRIMARY KEY (tag_id, item_uid)'
+            ),
+            'type' => array(
+                'id ' . $id,
+                'name TEXT NOT NULL'
+            ),
+            'type_join' => array(
+                'type_id INTEGER NOT NULL',
+                'item_uid INTEGER NOT NULL',
+                'PRIMARY KEY (type_id, item_uid)'
             )
         );
     }
@@ -314,25 +434,9 @@ class PostManager
             $data[$name] = $data[$name];
     }
     
-    private static function formatInputData(&$data, &$rowList, &$binds)
+    private static function formatInputFileAndSave(&$data, &$rowList, &$binds)
     {
-        // Format date
-        if (isset($data['date']))
-        {
-            $timestamp = strtotime($data['date']);
-            $data['date'] = date( "Y-m-d H:m:s", $timestamp);
-        }
-        
-        testData('title', \PDO::PARAM_STR, $data, $rowList, $binds);
-        testData('description', \PDO::PARAM_STR, $data, $rowList, $binds);
-        testData('date', \PDO::PARAM_STR, $data, $rowList, $binds);
-        testData('thumb', \PDO::PARAM_INT, $data, $rowList, $binds);
-        testData('title', \PDO::PARAM_STR, $data, $rowList, $binds);
-        testData('content_text', \PDO::PARAM_STR, $data, $rowList, $binds);
-        testData('content_link', \PDO::PARAM_STR, $data, $rowList, $binds);
-        testData('public', \PDO::PARAM_INT, $data, $rowList, $binds);
-        testData('score', \PDO::PARAM_STR, $data, $rowList, $binds);
-        if (isset($data['content_file']))
+        if (!empty($data['content_file']))
         {
             $json = \Inspire\Helper\JsonHelp::TO_ARRAY($data['content_file']);
             if (isset($data['base64']) && isset($json['name']))
@@ -350,6 +454,36 @@ class PostManager
             {
                 throw new \Exception('"base64" and "content_file.name" variables needed for file');
             }
+        }
+    }
+    
+    private static function formatInputData(&$data, &$rowList, &$binds)
+    {
+        // Format date
+        if (!empty($data['date']))
+        {
+            $timestamp = strtotime($data['date']);
+            $data['date'] = date( "Y-m-d H:m:s", $timestamp);
+        }
+        
+        self::testData('title', \PDO::PARAM_STR, $data, $rowList, $binds);
+        self::testData('description', \PDO::PARAM_STR, $data, $rowList, $binds);
+        self::testData('date', \PDO::PARAM_STR, $data, $rowList, $binds);
+        self::testData('thumb', \PDO::PARAM_INT, $data, $rowList, $binds);
+        self::testData('title', \PDO::PARAM_STR, $data, $rowList, $binds);
+        self::testData('content_text', \PDO::PARAM_STR, $data, $rowList, $binds);
+        self::testData('content_link', \PDO::PARAM_STR, $data, $rowList, $binds);
+        self::testData('public', \PDO::PARAM_INT, $data, $rowList, $binds);
+        self::testData('score', \PDO::PARAM_STR, $data, $rowList, $binds);
+    }
+    
+    
+    private static function testData($name, $type, &$data, &$rowList, &$binds)
+    {
+        if (!empty($data[$name]))
+        {
+            $rowList[] = $name;
+            $binds[] = array(':' . $name, $data[$name], $type);
         }
     }
 }

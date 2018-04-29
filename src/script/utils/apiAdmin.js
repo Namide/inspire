@@ -47,11 +47,14 @@ class ApiAdmin extends Api
 
     updatePost(onload, data)
     {
-        const form = dataToFormData(data)
-        const url = config.api.url.root + '/posts'
+        const newData = Object.assign({}, data)
+        const url = config.api.url.root + '/posts/' + data.uid
+        newData.uid = null
+        const form = dataToFormData(newData)
+
         const request = new Request(url)
         const params = {
-            method: 'PUT',
+            method: 'POST',
             headers: new Headers(),
             mode: 'cors',
             cache: 'default',

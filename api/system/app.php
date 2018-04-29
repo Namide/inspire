@@ -104,13 +104,14 @@ $klein->respond('POST', API_URL . '/posts', function($request, $response, $servi
     send($response, $data);
 });
 
-$klein->respond('PUT', API_URL . '/posts', function($request, $response, $service)
+$klein->respond('POST', API_URL . '/posts/[i:uid]', function($request, $response, $service)
 {
     try
     {
-        $params = $request->paramsPost();
         $postManager = new \Inspire\Database\PostManager();
-        $post = $postManager->updatePost($params);
+        $params = $request->paramsPost();
+        $uid = $request->param('uid');      
+        $post = $postManager->updatePost($uid, $params);
 
         $data = array(
             'success' => true,
@@ -166,13 +167,32 @@ $klein->respond('GET', API_URL . '/posts/[i:id]', function ($request, $response,
     send($response, $data);
 });
 
-$klein->respond('GET', API_URL . '/files/[i:id]', function ($request, $response, $service, $app)
+$klein->respond('GET', API_URL . '/files/[i:uid]', function ($request, $response, $service, $app)
 {
     // Todo
     if (CORS)
         $response->header('Access-Control-Allow-Origin', '*');
 
-    $response->file($path, $filename = null);
+    try
+    {
+        $postManager = new \Inspire\Database\PostManager();
+        $uid = $request->param('uid');
+        $file = $postManager->getFile($uid);
+        
+        $response->file( DATA_PATH . $file['path'], $file['name']);
+    }
+    catch (Exception $ex)
+    {
+        $data = array(
+            'success' => false,
+            'message' => $ex->getMessage(),
+            'meta' => array(
+                'time' => microtime(true) - START_TIME . ' sec'
+            )
+        );
+      
+        send($response, $data);
+    }
 });
 
 /* $klein->respond('POST', '/posts', $callback);

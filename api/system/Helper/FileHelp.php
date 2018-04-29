@@ -401,6 +401,7 @@ class FileHelp
      */
     public static function DEL_FILE($file, $recursEmptyDir = false)
     {
+        $file = DATA_PATH . $file;
         if (!file_exists($file))
         {
             return false;
