@@ -7,7 +7,7 @@ class Config
                 root: 'http://inspire.local/api',
                 // root: 'http://localhost/inspire/admin/api/',
                 // assets: 'http://localhost/inspire/admin/storage/uploads/',
-                // images: 'http://localhost/inspire'
+                images: 'http://inspire.local/api/data'
             },
             token: 'ba3bc648e6c004de47c5c594460a18',
         }

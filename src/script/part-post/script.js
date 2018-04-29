@@ -79,7 +79,7 @@ export default
                     {
                         this.isThumbLoaded = true
                     }
-                    this._thumb.src = this.getThumb().url
+                    this._thumb.src = api.getFileURL(this.data.uid)
                     if (this._thumb.complete)
                     {
                         this.isThumbLoaded = true
@@ -87,7 +87,7 @@ export default
                 }
 
                 this.thumbStyle = {
-                    'background-image': 'url(' + this.getThumb().url + ')'
+                    'background-image': 'url(' + api.getFileURL(this.data.uid) + ')'
                 }
             }
             else
@@ -121,6 +121,7 @@ export default
         getSize()
         {
             const thumb = this.getThumb()
+            console.log(thumb)
             if (thumb)
                 return [thumb.width, thumb.height]
 
@@ -129,7 +130,7 @@ export default
 
         getThumb()
         {
-            return this.data.thumb ? this.data.thumb.data : this.data.content_file ? this.data.content_file.data : null 
+            return this.data.thumb ? this.data.thumb.data : this.data.content_file ? this.data.content_file : null 
         }
     }
 }

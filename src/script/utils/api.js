@@ -27,6 +27,11 @@ class Api
 
     // /api/collections/get/posts
 
+    getFileURL(uid)
+    {
+        return config.api.url.root + '/files/' + uid
+    }
+
     getThumb(path, onLoad)
     {
         const info = {

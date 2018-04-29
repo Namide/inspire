@@ -54,7 +54,7 @@ export default
 
             console.log(data)
 
-            this.displayMode = 'text' // 'thumb' // text
+            this.displayMode = 'thumb' // text
 
             /*const cleanData = data =>
             {
