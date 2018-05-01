@@ -12,17 +12,17 @@ function send(&$response, &$data)
     $response->json($data);
 }
 
-$klein->respond('GET', API_URL . '/', function($request, $response, $service)
+$klein->respond('GET', API_URL_REL . '/', function($request, $response, $service)
 {
     try
     {
         $data = array(
             'success' => true,
             'data' => array(
-                'post' => API_URL . '/posts',
-                'group' => API_URL . '/groups',
-                'item' => API_URL . '/item/{uid}',
-                'rss' => API_URL . '/rss'
+                'post' => API_URL_REL . '/posts',
+                'group' => API_URL_REL . '/groups',
+                'item' => API_URL_REL . '/item/{uid}',
+                'rss' => API_URL_REL . '/rss'
             ),
             'meta' => array(
                 'name' => 'routes',
@@ -44,7 +44,7 @@ $klein->respond('GET', API_URL . '/', function($request, $response, $service)
     send($response, $data);
 });
 
-$klein->respond('GET', API_URL . '/posts', function($request, $response, $service)
+$klein->respond('GET', API_URL_REL . '/posts', function($request, $response, $service)
 {
     try
     {
@@ -73,7 +73,7 @@ $klein->respond('GET', API_URL . '/posts', function($request, $response, $servic
     send($response, $data);
 });
 
-$klein->respond('POST', API_URL . '/posts', function($request, $response, $service)
+$klein->respond('POST', API_URL_REL . '/posts', function($request, $response, $service)
 {
     try
     {
@@ -104,7 +104,9 @@ $klein->respond('POST', API_URL . '/posts', function($request, $response, $servi
     send($response, $data);
 });
 
-$klein->respond('POST', API_URL . '/posts/[i:uid]', function($request, $response, $service)
+
+// Update
+$klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $response, $service)
 {
     try
     {
@@ -136,7 +138,7 @@ $klein->respond('POST', API_URL . '/posts/[i:uid]', function($request, $response
     send($response, $data);
 });
 
-$klein->respond('GET', API_URL . '/posts/[i:id]', function ($request, $response, $service)
+$klein->respond('GET', API_URL_REL . '/posts/[i:id]', function ($request, $response, $service)
 {
     try
     {
@@ -167,7 +169,7 @@ $klein->respond('GET', API_URL . '/posts/[i:id]', function ($request, $response,
     send($response, $data);
 });
 
-$klein->respond('GET', API_URL . '/files/[i:uid]', function ($request, $response, $service, $app)
+$klein->respond('GET', API_URL_REL . '/files/[i:uid]', function ($request, $response, $service, $app)
 {
     // Todo
     if (CORS)
@@ -191,6 +193,27 @@ $klein->respond('GET', API_URL . '/files/[i:uid]', function ($request, $response
             )
         );
       
+        send($response, $data);
+    }
+});
+
+$klein->respond('GET', API_URL_REL . '/config.js', function($request, $response, $service)
+{
+    try
+    {
+        $body = Inspire\Vue\ConfigJS::getJs();
+        $response->body($body);
+        // $response->sendBody();
+    }
+    catch (Exception $ex)
+    {
+        $data = array(
+            'success' => false,
+            'message' => $ex->getMessage(),
+            'meta' => array(
+                'time' => microtime(true) - START_TIME . ' sec'
+            )
+        );
         send($response, $data);
     }
 });

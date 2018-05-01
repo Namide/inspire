@@ -4,9 +4,12 @@
 define('START_TIME', microtime(true));
 
 // URL and PATH
-define('API_URL', '/api');
+define('FRONT_URL', 'http://localhost:8080');
+define('ADMIN_URL', FRONT_URL . '/admin');
+define('API_URL', 'http://inspire.local/api');
+define('API_URL_REL', '/api');
+
 define('API_PATH', __DIR__);
-define('DATA_URL', '/api/data');
 define('DATA_PATH', __DIR__ . '/data');
 
 // Database

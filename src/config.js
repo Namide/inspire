@@ -1,19 +1,22 @@
-class Config
+let config
+if (window.inspire && window.inspire.config)
 {
-    constructor()
-    {
-        this.api = {
-            url: {
-                root: 'http://inspire.local/api',
-                // root: 'http://localhost/inspire/admin/api/',
-                // assets: 'http://localhost/inspire/admin/storage/uploads/',
-                images: 'http://inspire.local/api/data'
-            },
-            token: 'ba3bc648e6c004de47c5c594460a18',
+    config = Object.assign({}, window.inspire.config)
+}
+else
+{
+    console.error('Please include the file /api/config.js')
+    config = {
+        api: {
+            root: "/api"
+        },
+        front: {
+            root: ""
+        },
+        admin: {
+            root: "/admin"
         }
     }
 }
-
-const config = new Config()
 
 export default config
