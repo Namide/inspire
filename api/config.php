@@ -23,4 +23,4 @@ define('DB_OPTIONS', null);
 define('MAX_FILE_SIZE', 1000000);
 
 // Params
-define('CORS', true);
+define('CORS', FRONT_URL); // URL or false

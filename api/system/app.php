@@ -7,7 +7,7 @@ $klein = new \Klein\Klein();
 function send(&$response, &$data)
 {
     if (CORS)
-        $response->header('Access-Control-Allow-Origin', '*');
+        $response->header('Access-Control-Allow-Origin', CORS);
 
     $response->json($data);
 }
@@ -173,7 +173,7 @@ $klein->respond('GET', API_URL_REL . '/files/[i:uid]', function ($request, $resp
 {
     // Todo
     if (CORS)
-        $response->header('Access-Control-Allow-Origin', '*');
+        $response->header('Access-Control-Allow-Origin', CORS);
 
     try
     {
@@ -201,9 +201,12 @@ $klein->respond('GET', API_URL_REL . '/config.js', function($request, $response,
 {
     try
     {
+        if (CORS)
+            $response->header('Access-Control-Allow-Origin', CORS);
+        
         $body = Inspire\Vue\ConfigJS::getJs();
+        $response->header('Content-Type', 'application/javascript');
         $response->body($body);
-        // $response->sendBody();
     }
     catch (Exception $ex)
     {
@@ -254,7 +257,8 @@ $klein->onHttpError(function ($code, $router)
         )
     );
     
-    $router->response()->json($data);
+    $response = $router->response();
+    send($response, $data);
 });
 
 $klein->dispatch();

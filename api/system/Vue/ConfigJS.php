@@ -24,8 +24,8 @@ var config = {
 }
 
 // Add config to global variable
-if (!window.inspire) { window.inspire = { config: config }; }
-else if (!window.inspire.config) { window.inspire.config = config; }
+if (!window.inspire) window.inspire = { config: config };
+else if (!window.inspire.config) window.inspire.config = config;
 EOT;
     }
 }

@@ -52,8 +52,6 @@ export default
                 return true
             }*/
 
-            console.log(data)
-
             this.displayMode = 'thumb' // text
 
             /*const cleanData = data =>

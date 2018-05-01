@@ -122,7 +122,6 @@ export default
             }
             else
             {
-                console.log(data)
                 apiAdmin.updatePost(message =>
                 {
                     console.log(message.data)
