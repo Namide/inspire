@@ -2,47 +2,8 @@
 
 namespace Inspire\Database;
 
-class PostManager
-{
-    /**
-     * @var Database 
-     */
-    private $_database;
-    
-    private static $_POST_REQUEST = array(
-        'select' => 'SELECT uid.id AS `uid`, `title`, `description`,'
-            . ' `date`, `thumb`, `content_file`, `content_text`,'
-            . ' `content_link`, `public`, `score`,'
-            . ' GROUP_CONCAT(DISTINCT tag.name) AS `tags`,'
-            . ' GROUP_CONCAT(DISTINCT type.name) AS `types`',
-        'from' => ' FROM `post`',
-        'join' => ' INNER JOIN `uid` ON post.id = uid.item_id'
-            . ' LEFT OUTER JOIN `tag_join` ON tag_join.item_uid = uid.id'
-            . ' LEFT OUTER JOIN `tag` ON tag.id = tag_join.tag_id'
-            . ' LEFT OUTER JOIN `type_join` ON type_join.item_uid = uid.id'
-            . ' LEFT OUTER JOIN `type` ON type.id = type_join.type_id',
-        'where' => ' WHERE uid.item_name = "post"',
-        'group' => ' GROUP BY post.id',
-        'order' => ' ORDER BY `date` DESC, uid.id DESC',
-        'limit' => ' LIMIT 10 OFFSET 0'
-    );
-
-    function __construct()
-    {
-        $this->_init();
-    }
-    
-    private function _init()
-    {
-        $this->_database = \Inspire\Database\Database::getInstance();
-        if (!$this->_database->EXIST('post'))
-        {
-            $tableRows = $this->getTableRows();
-            foreach ($tableRows as $tableName => $rows)
-                $this->_database->CREATE($tableName, $rows);
-        }
-    }
-    
+class PostManager extends \Inspire\Database\DataManager
+{    
     public function removeFile($uid)
     {
         $request = 'SELECT `content_file` FROM `post`'
@@ -51,14 +12,10 @@ class PostManager
         $binds = array(array(':uid', $uid, \PDO::PARAM_INT));
         $post = $this->_database->FETCH($request, $binds);
         
-        
-        
         if ($post != false && !empty($post['content_file']))
         {
             $fileData = \Inspire\Helper\JsonHelp::TO_ARRAY($post['content_file']);
             $path = $fileData['path'];
-            
-            
             
             if (\Inspire\Helper\FileHelp::DEL_FILE($path))
             {
@@ -330,74 +287,6 @@ class PostManager
         
         return $posts;
     }
-
-    public static function getTableRows()
-    {
-        $id = 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE';
-
-        return array(
-            'post' => array(
-                'id ' . $id,
-                'title TEXT DEFAULT NULL',
-                'description TEXT DEFAULT NULL',
-                'date TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
-                'thumb TEXT DEFAULT NULL',
-                'content_file TEXT DEFAULT NULL',
-                'content_text TEXT DEFAULT NULL',
-                'content_link TEXT DEFAULT NULL',
-                'public BOOLEAN DEFAULT true',
-                'score NUMERIC DEFAULT 0'
-            ),
-            'group' => array(
-                'id ' . $id,
-                'title TEXT DEFAULT NULL',
-                'description TEXT DEFAULT NULL',
-                'thumb INTEGER DEFAULT NULL'
-            ),
-            /*'file' => array(
-                'id ' . $id,
-                'slug TEXT DEFAULT NULL',
-                'title TEXT DEFAULT NULL',
-                'location TEXT NOT NULL',
-                'type TEXT',
-                'charset TEXT',
-                'width INTEGER DEFAULT NULL',
-                'height INTEGER DEFAULT NULL',
-                'size INTEGER DEFAULT NULL',
-                'colors TEXT DEFAULT NULL'
-            ),*/
-            'user' => array(
-                'id ' . $id,
-                'name TEXT',
-                'email TEXT',
-                'password TEXT',
-                'permission INTEGER'
-            ),
-            'uid' => array(
-                'id ' . $id,
-                'item_name TEXT NOT NULL',
-                'item_id INTEGER NOT NULL'
-            ),
-            'tag' => array(
-                'id ' . $id,
-                'name TEXT NOT NULL'
-            ),
-            'tag_join' => array(
-                'tag_id INTEGER NOT NULL',
-                'item_uid INTEGER NOT NULL',
-                'PRIMARY KEY (tag_id, item_uid)'
-            ),
-            'type' => array(
-                'id ' . $id,
-                'name TEXT NOT NULL'
-            ),
-            'type_join' => array(
-                'type_id INTEGER NOT NULL',
-                'item_uid INTEGER NOT NULL',
-                'PRIMARY KEY (type_id, item_uid)'
-            )
-        );
-    }
     
     private static function clearOutputPost(&$post)
     {
@@ -414,24 +303,6 @@ class PostManager
         self::clearData('score', 'float', $post);
         self::clearData('tags', 'array', $post);
         self::clearData('types', 'array', $post);
-    }
-    
-    private static function clearData($name, $format, &$data)
-    {
-        if (empty($data[$name]))
-            unset($data[$name]);
-        else if ($format == 'bool')
-            $data[$name] = (bool) $data[$name];
-        else if ($format == 'float')
-            $data[$name] = (float) $data[$name];
-        else if ($format == 'array')
-            $data[$name] = explode(',', $data[$name]);
-        else if ($format == 'json')
-            $data[$name] = \Inspire\Helper\JsonHelp::TO_ARRAY ($data[$name]);
-        else if ($format == 'int')
-            $data[$name] = (integer) $data[$name];
-        else
-            $data[$name] = $data[$name];
     }
     
     private static function formatInputFileAndSave(&$data, &$rowList, &$binds)
