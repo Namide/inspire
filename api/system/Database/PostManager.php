@@ -439,10 +439,12 @@ class PostManager
         if (!empty($data['content_file']))
         {
             $json = \Inspire\Helper\JsonHelp::TO_ARRAY($data['content_file']);
-            if (isset($data['base64']) && isset($json['name']))
+            if (!empty($data['base64']) && !empty($json['name']))
             {
                 $base64 = $data['base64'];
-                $json['path'] = \Inspire\Helper\FileHelp::SAVE_FILE($base64, $json['name']);
+                $type = \Inspire\Helper\FileHelp::GET_TYPE($json['name']);
+                $file = \Inspire\Helper\FileHelp::SAVE_FILE_BASE64($base64, $json['name'], DATA_PATH . '/' . $type);
+                $json['path'] = str_replace(DATA_PATH, '', $file);
                 $rowList[] = 'content_file';
                 $binds[] = array(
                     ':content_file',

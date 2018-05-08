@@ -121,7 +121,6 @@ export default
         getSize()
         {
             const thumb = this.getThumb()
-            console.log(thumb)
             if (thumb)
                 return [thumb.width, thumb.height]
 

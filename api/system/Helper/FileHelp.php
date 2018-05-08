@@ -18,90 +18,45 @@ class FileHelp
     public static $EXTS_TEXT = array('odt', 'txt', 'doc', 'rtf');
     public static $EXTS_ARCHIVE = array('rar', 'gz', 'tar', 'zip', '7z');
     
-    public static function GET_TYPE_BY_EXT($extension)
+    public static function GET_TYPE($fileName)
     {
-        $type = '?';
+        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+        return self::GET_TYPE_BY_EXT($ext);
+    }
+    
+    public static function GET_TYPE_BY_EXT($ext)
+    {
+        $type = 'other';
 
-        if (in_array($extension, self::$EXTS_IMG_BITMAP))
-        {
+        if (in_array($ext, self::$EXTS_IMG_BITMAP))
             $type = 'img/bitmap';
-        }
-        elseif (in_array($extension, self::$EXTS_IMG_VECTOR))
-        {
+        elseif (in_array($ext, self::$EXTS_IMG_VECTOR))
             $type = 'img/vector';
-        }
-        elseif (in_array($extension, self::$EXTS_3D))
-        {
+        elseif (in_array($ext, self::$EXTS_3D))
             $type = '3d';
-        }
-        elseif (in_array($extension, self::$EXTS_SOUND))
-        {
+        elseif (in_array($ext, self::$EXTS_SOUND))
             $type = 'sound';
-        }
-        elseif (in_array($extension, self::$EXTS_VIDEO))
-        {
+        elseif (in_array($ext, self::$EXTS_VIDEO))
             $type = 'video';
-        }
-        elseif (in_array($extension, self::$EXTS_PAGE))
-        {
+        elseif (in_array($ext, self::$EXTS_PAGE))
             $type = 'page';
-        }
-        elseif (in_array($extension, self::$EXTS_TEXT))
-        {
+        elseif (in_array($ext, self::$EXTS_TEXT))
             $type = 'text';
-        }
-        elseif (in_array($extension, self::$EXTS_ARCHIVE))
-        {
+        elseif (in_array($ext, self::$EXTS_ARCHIVE))
             $type = 'archive';
-        }
 
         return $type;
     }
 
-    public static function SAVE_FILE(&$base64, $name)
+    public static function SAVE_FILE_BASE64(&$base64, $name, $dir)
     {
         $data = base64_decode($base64);
         $name = self::CLEAN_NAME($name);
-        $ext = pathinfo($name, PATHINFO_EXTENSION);
-        $type = self::GET_TYPE_BY_EXT($ext);
-        $dir = '/other';
-        
-        switch($type)
-        {
-            case 'img/bitmap' :
-                $dir = '/img';
-                break;
-            case 'img/vector' :
-                $dir = '/img';
-                break;
-            case '3d' :
-                $dir = '/3d';
-                break;
-            case 'sound' :
-                $dir = '/sound';
-                break;
-            case 'video' :
-                $dir = '/video';
-                break;
-            case 'page' :
-                $dir = '/page';
-                break;
-            case 'text' :
-                $dir = '/text';
-                break;
-            case 'archive' :
-                $dir = '/archive';
-                break;
-            default :
-                $dir = '/other';
-                break;
-        }
-        
-        $file = self::RENAME_IF_EXIST(DATA_PATH . $dir, $name);
-        self::WRITE_PROTECTED_DIR_OF_FILE($file);
+        $file = self::RENAME_IF_EXIST($dir, $name);
+        self::WRITE_DIR_OF_FILE($file);
         file_put_contents($file, $data);        
         
-        return str_replace(DATA_PATH, '', $file);
+        return $file;
         
         
         /*if (preg_match('/^data:image\/(\w+);base64,/', $data, $type))
@@ -199,18 +154,14 @@ class FileHelp
     {
         $file = "$path/$filename";
         if (!file_exists($file))
-        {
             return $file;
-        }
 
         $fnameNoExt = pathinfo($filename, PATHINFO_FILENAME);
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
 
         $i = 1;
         while(file_exists("$path/$fnameNoExt-$i.$ext"))
-        {
             $i++;
-        }
 
         return "$path/$fnameNoExt-$i.$ext";
     }
@@ -261,7 +212,8 @@ class FileHelp
      * 
      * @param string $fileName		Name of the file
      */
-    public static function WRITE_DIR_OF_FILE($fileName) {
+    public static function WRITE_DIR_OF_FILE($fileName)
+    {
         $dir = explode('/', $fileName);
         array_pop($dir);
         self::WRITE_DIR(implode($dir, '/'));
@@ -281,9 +233,10 @@ class FileHelp
         while (count($path) > 0)
         {
             $dirName .= $path[0] . '/';
-            if (!file_exists($dirName)) {
+
+            if (!file_exists($dirName))
                 mkdir($dirName, 0777);
-            }
+            
             array_shift($path);
         }
     }
@@ -321,7 +274,8 @@ class FileHelp
         
         self::WRITE_DIR($dir);
 
-        if (!file_exists($dir . '/.htaccess')) {
+        if (!file_exists($dir . '/.htaccess'))
+        {
             $htaccess = fopen($dir . '/.htaccess', 'w');
             $htaccessContent = 'deny from all';
             fwrite($htaccess, $htaccessContent);
@@ -338,9 +292,9 @@ class FileHelp
     public static function GET_DIR_SIZE($dirName)
     {
         $size = 0;
-        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dirName)) as $file) {
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dirName)) as $file)
             $size += $file->getSize();
-        }
+        
         return $size;
     }
 
@@ -372,21 +326,15 @@ class FileHelp
     public static function DEL_DIR_RECURSIVLY($dirName)
     {
         if (!file_exists($dirName))
-        {
             return 0;
-        }
 
         $files = array_diff(scandir($dirName), array('.', '..'));
         foreach ($files as $file)
         {
             if (is_dir($dirName . '/' . $file))
-            {
                 self::DEL_DIR_RECURSIVLY($dirName . '/' . $file);
-            }
             else
-            {
                 unlink($dirName . '/' . $file);
-            }
         }
 
         return rmdir($dirName);
@@ -403,9 +351,8 @@ class FileHelp
     {
         $file = DATA_PATH . $file;
         if (!file_exists($file))
-        {
             return false;
-        }
+
         unlink($file);
 
         if ($recursEmptyDir)
@@ -414,8 +361,10 @@ class FileHelp
             do
             {
                 $dir = explode('/', $dir);
+
                 if (count($dir) < 1)
                     return true;
+                
                 array_pop($dir);
                 $dir = implode('/', $dir);
                 self::DEL_EMPTY_DIR_RECURSIVLY($dir);
@@ -435,14 +384,10 @@ class FileHelp
     public static function IS_EMPTY($dir)
     {
         if (!file_exists($dir))
-        {
             return true;
-        }
 
         if (is_file($dir))
-        {
             return true;
-        }
 
         $files = array_diff(scandir($dir), array('.', '..', '.DS_Store', 'Thumbs.db'));
         return count($files) < 1;
@@ -459,31 +404,21 @@ class FileHelp
         $numChilds = 0;
 
         if (!file_exists($dirName))
-        {
             return 0;
-        }
         if (is_file($dirName))
-        {
             return 1;
-        }
 
         $files = array_diff(scandir($dirName), array('.', '..', '.DS_Store', 'Thumbs.db'));
         foreach ($files as $file)
         {
             if (is_dir($dirName . '/' . $file))
-            {
                 $numChilds += self::DEL_EMPTY_DIR_RECURSIVLY($dirName . '/' . $file);
-            }
             else
-            {
                 $numChilds++;
-            }
         }
 
         if ($numChilds < 1)
-        {
             rmdir($dirName);
-        }
 
         return $numChilds;
     }
@@ -494,7 +429,7 @@ class FileHelp
      * @param string $dir2copy		Original directory
      * @param string $dir2paste		New directory
      */
-    public static function COPY_DIR_RECURSIVLY($dir2copy, $dir2paste)
+    /*public static function COPY_DIR_RECURSIVLY($dir2copy, $dir2paste)
     {
         if (is_dir($dir2copy))
         {
@@ -519,7 +454,7 @@ class FileHelp
                 closedir($dh);
             }
         }
-    }
+    }*/
 
     /**
      * Copy the directory ($dir2copy) to the directory ($dir2paste) for type.
@@ -530,24 +465,19 @@ class FileHelp
      * @param string $dir2paste		New directory
      * @param array $extentions		Exceptions list
      */
-    public static function COPY_DIR_RECURSIVLY_WITHOUT_TYPES($dir2copy, $dir2paste, array $extentions = null)
+    /*public static function COPY_DIR_RECURSIVLY_WITHOUT_TYPES($dir2copy, $dir2paste, array $extentions = null)
     {
         if ($extentions === null)
-        {
             $extentions = array();
-        }
 
         if (is_dir($dir2copy))
         {
-
             if ($dh = opendir($dir2copy))
             {
                 while (($file = readdir($dh)) !== false)
                 {
                     if (!is_dir($dir2paste))
-                    {
                         mkdir($dir2paste, 0777);
-                    }
 
                     if (is_dir($dir2copy . $file) && $file != '..' && $file != '.')
                     {
@@ -561,20 +491,16 @@ class FileHelp
                             $l = count($ext);
 
                             if (strtolower(substr(strrchr($file, '.'), 1)) === $ext)
-                            {
                                 $ok = false;
-                            }
                         }
 
                         if ($ok)
-                        {
                             copy($dir2copy . $file, $dir2paste . $file);
-                        }
                     }
                 }
 
                 closedir($dh);
             }
         }
-    }
+    }*/
 }

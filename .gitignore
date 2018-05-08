@@ -1,4 +1,3 @@
-.DS_Store
 node_modules/
 front/
 npm-debug.log
@@ -9,18 +8,9 @@ api/data
 api/nbproject
 api/phpliteadmin.php
 api/phpliteadmin.config.php
+api/config.php
 
-admin/vendor
-admin/composer.lock
-admin/api/logs/development.log
-admin/api/config.php
-
-admin-cockpit/
-admin-directus/
-admin-directus-install/
 content-save/
-symfony/
-admin-install/inspire.all-db.sql
 _old/
 
 
@@ -39,17 +29,3 @@ _old/
 .project
 .settings
 .idea
-content-save/
-admin/storage/*.*
-admin/storage/*/*
-admin/config/*
-admin/tests/*
-admin/node_modules
-admin/addons/
-admin/defines.php
-!admin/storage/*/index.html
-!admin/storage/*/.htaccess
-!admin/storage/collections/*
-!admin/storage/regions/*
-!.gitignore
-!.gitkeep
