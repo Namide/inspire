@@ -142,7 +142,7 @@ class DataManager
         else if ($format == 'array')
             $data[$name] = explode(',', $data[$name]);
         else if ($format == 'json')
-            $data[$name] = \Inspire\Helper\JsonHelp::TO_ARRAY ($data[$name]);
+            $data[$name] = \Inspire\Helper\JsonHelp::TO_ARRAY($data[$name]);
         else if ($format == 'int')
             $data[$name] = (integer) $data[$name];
         else
