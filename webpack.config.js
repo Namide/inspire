@@ -37,8 +37,8 @@ module.exports = {
             }
         }),
         new CopyWebpackPlugin([
-            { from: 'src/.htaccess', to: '' },
-            { from: 'src/.htaccess', to: 'admin/' }
+            { from: 'src/front.htaccess', to: '.[ext]' },
+            { from: 'src/admin.htaccess', to: 'admin/.[ext]' }
         ])
     ],
     module: {
