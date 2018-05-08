@@ -48,6 +48,21 @@ class DataManager
         }
     }
     
+    protected function addUID($table, $itemId = null)
+    {
+        $id = is_null($itemId) ? (integer) $this->_database->GET_LAST_INSERT_ID() : (integer) $itemId;
+        
+        $binds = array(
+            array(':table', $table, \PDO::PARAM_STR),
+            array(':id', $id, \PDO::PARAM_INT)
+        );
+        $request = 'INSERT INTO `uid` (`item_name`, `item_id`) VALUES(:table, :id)';
+        $this->_database->EXECUTE($request, $binds);
+        
+        $uid = (integer) $this->_database->GET_LAST_INSERT_ID();
+        return $uid;
+    }
+    
     public static function getTableRows()
     {
         $id = 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE';
@@ -133,5 +148,13 @@ class DataManager
         else
             $data[$name] = $data[$name];
     }
-
+    
+    protected static function testData($name, $type, &$data, &$rowList, &$binds)
+    {
+        if (!empty($data[$name]))
+        {
+            $rowList[] = $name;
+            $binds[] = array(':' . $name, $data[$name], $type);
+        }
+    }
 }

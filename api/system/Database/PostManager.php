@@ -75,9 +75,11 @@ class PostManager extends \Inspire\Database\DataManager
         if (!empty($data['tags']))
         {
             $tagList = explode(',', $data['tags']);
-            $this->removeTagsOfItem($uid);
-            $this->addTags($uid, $tagList);
-            $this->cleanTags();
+            
+            $tagManager = new \Inspire\Database\TagManager();
+            $tagManager->removeTagsOfItem($uid);
+            $tagManager->addTags($uid, $tagList);
+            $tagManager->cleanTags();
         }
         
        
@@ -85,9 +87,11 @@ class PostManager extends \Inspire\Database\DataManager
         if (!empty($data['types']))
         {
             $typeList = explode(',', $data['types']);
-            $this->removeTypesOfItem($uid);
-            $this->addTypes($uid, $typeList);
-            $this->cleanTypes();
+            
+            $typeManager = new \Inspire\Database\TypeManager();
+            $typeManager->removeTypesOfItem($uid);
+            $typeManager->addTypes($uid, $typeList);
+            $typeManager->cleanTypes();
         }
         
         
@@ -122,34 +126,23 @@ class PostManager extends \Inspire\Database\DataManager
         if (isset($data['tags']))
         {
             $tagList = explode(',', $data['tags']);
-            $this->addTags($uid, $tagList);
+            
+            $tagManager = new \Inspire\Database\TagManager();
+            $tagManager->addTags($uid, $tagList);
         }
         
         // Add types
         if (isset($data['types']))
         {
             $typeList = explode(',', $data['types']);
-            $this->addTypes($uid, $typeList);
+            
+            $typeManager = new \Inspire\Database\TypeManager();
+            $typeManager->addTypes($uid, $typeList);
         }
         
         // Return post
         $post = $this->getPost($uid);
         return $post;
-    }
-    
-    private function addUID($table, $postId = null)
-    {
-        $id = is_null($postId) ? (integer) $this->_database->GET_LAST_INSERT_ID() : (integer) $postId;
-        
-        $binds = array(
-            array(':table', $table, \PDO::PARAM_STR),
-            array(':id', $id, \PDO::PARAM_INT)
-        );
-        $request = 'INSERT INTO `uid` (`item_name`, `item_id`) VALUES(:table, :id)';
-        $this->_database->EXECUTE($request, $binds);
-        
-        $uid = (integer) $this->_database->GET_LAST_INSERT_ID();
-        return $uid;
     }
     
     public function getPost($uid)
@@ -182,98 +175,6 @@ class PostManager extends \Inspire\Database\DataManager
             throw new \Exception('Post not found.');
         
         return \Inspire\Helper\JsonHelp::TO_ARRAY($post['content_file']);
-    }
-
-    public function getTagID($tagName)
-    {
-        $request = 'SELECT `id` FROM `tag` WHERE lower(`name`) = lower(:name)';
-        $binds = array(array(':name', $tagName, \PDO::PARAM_STR));
-        $tag = $this->_database->FETCH($request, $binds);
-        
-        if ($tag == false)
-        {
-            $request = 'INSERT INTO `tag` (`name`) VALUES (:name)';
-            $tag = $this->_database->EXECUTE($request, $binds);
-            
-            return $this->_database->GET_LAST_INSERT_ID();
-        }
-        
-        return $tag['id'];
-    }
-    
-    public function addTags($itemUID, array $tagList)
-    {
-        foreach ($tagList as $tagName)
-        {
-            $tagId = $this->getTagID($tagName);
-            $request = 'INSERT INTO `tag_join` (`item_uid`, `tag_id`) VALUES (:item_uid, :tag_id)';
-            $binds = array(
-                array(':tag_id', $tagId, \PDO::PARAM_INT),
-                array(':item_uid', $itemUID, \PDO::PARAM_INT)
-            );
-            $this->_database->EXECUTE($request, $binds);
-        }
-    }
-    
-    public function removeTagsOfItem($itemUID)
-    {
-        $request = 'DELETE FROM `tag_join` WHERE `item_uid` = :item_uid';
-        $binds = array(
-            array(':item_uid', $itemUID, \PDO::PARAM_INT)
-        );
-        $this->_database->EXECUTE($request, $binds);
-    }
-    
-    public function cleanTags()
-    {
-        $request = 'DELETE FROM `tag` WHERE (NOT EXISTS (SELECT * FROM `tag_join` WHERE tag.id = tag_join.tag_id))';
-        $this->_database->EXECUTE($request);
-    }
-
-    public function getTypeID($typeName)
-    {
-        $request = 'SELECT `id` FROM `type` WHERE lower(`name`) = lower(:name)';
-        $binds = array(array(':name', $typeName, \PDO::PARAM_STR));
-        $type = $this->_database->FETCH($request, $binds);
-        
-        if ($type == false)
-        {
-            $request = 'INSERT INTO `type` (`name`) VALUES (:name)';
-            $type = $this->_database->EXECUTE($request, $binds);
-            
-            return $this->_database->GET_LAST_INSERT_ID();
-        }
-        
-        return $type['id'];
-    }
-    
-    public function addTypes($itemUID, array $typeList)
-    {
-        foreach ($typeList as $typeName)
-        {
-            $typeId = $this->getTypeID($typeName);
-            $request = 'INSERT INTO `type_join` (`item_uid`, `type_id`) VALUES (:item_uid, :type_id)';
-            $binds = array(
-                array(':type_id', $typeId, \PDO::PARAM_INT),
-                array(':item_uid', $itemUID, \PDO::PARAM_INT)
-            );
-            $this->_database->EXECUTE($request, $binds);
-        }
-    }
-    
-    public function removeTypesOfItem($itemUID)
-    {
-        $request = 'DELETE FROM `type_join` WHERE `item_uid` = :item_uid';
-        $binds = array(
-            array(':item_uid', $itemUID, \PDO::PARAM_INT)
-        );
-        $this->_database->EXECUTE($request, $binds);
-    }
-    
-    public function cleanTypes()
-    {
-        $request = 'DELETE FROM `type` WHERE (NOT EXISTS (SELECT * FROM `type_join` WHERE type.id = type_join.type_id))';
-        $this->_database->EXECUTE($request);
     }
 
     public function getPosts()
@@ -348,15 +249,5 @@ class PostManager extends \Inspire\Database\DataManager
         self::testData('content_link', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('public', \PDO::PARAM_INT, $data, $rowList, $binds);
         self::testData('score', \PDO::PARAM_STR, $data, $rowList, $binds);
-    }
-    
-    
-    private static function testData($name, $type, &$data, &$rowList, &$binds)
-    {
-        if (!empty($data[$name]))
-        {
-            $rowList[] = $name;
-            $binds[] = array(':' . $name, $data[$name], $type);
-        }
     }
 }
