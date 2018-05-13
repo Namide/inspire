@@ -161,7 +161,7 @@ $klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $resp
         elseif (!empty($fileData) && !empty(strpos($fileData['type'], 'image') !== false))
         {
             $postManager->removeThumb($uid);
-            $thumbData = $postManager->createThumbFromImage($fileData['path']);
+            $thumbData = $postManager->createThumbFromImage(DATA_PATH . $fileData['path']);
             $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
         }
         

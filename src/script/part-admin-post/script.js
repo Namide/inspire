@@ -197,6 +197,12 @@ export default
             return api.geFileURL(this.post.uid)
         },
 
+        thumbChange([file])
+        {
+            this._modified.thumb = file           
+            this.state = STATE.MODIFY
+        },
+
         filesChange([file])
         {
             this._modified.content_file = file
