@@ -157,6 +157,15 @@ export default
 
     methods:
     {
+        deletePost()
+        {
+            this.state = STATE.MODIFY
+            api.deletePost(message =>
+            {
+                this.state = STATE.INITIAL
+            }, this.post.uid)
+        },
+
         save()
         {
             const data = this._modified

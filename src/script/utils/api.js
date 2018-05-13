@@ -44,26 +44,8 @@ class Api
         this.posts = null
     }
 
-    /*_init()
-    {
-        const url = config.api.abs
-        const request = new Request(url)
-        const params = {
-            method: 'GET',
-            headers: new Headers(),
-            mode: 'cors',
-            cache: 'default'
-        }
-        fetch(request, params)
-            // .then(collection => console.log(collection))
-            .then(data => data.json())
-            // .then(data => data.success && data.data ? (data.data = data.data.map(filterPost), data) : data)
-            .then(onLoad)
-    }*/
-
     addPost(onLoad, data)
     {
-        console.log('ONLOAD', onLoad)
         const form = dataToFormData(data)
         const url = config.api.abs + '/posts'
         const request = new Request(url)
@@ -82,6 +64,25 @@ class Api
             .then(data => data.json())
             // .then(data => data.success ? (data.data.map(filterPost), data) : data)
             .then(onLoad)
+            .catch(err => console.error(err))
+    }
+
+    deletePost(onLoad, uid)
+    {
+        const url = config.api.abs + '/posts/' + uid
+        const request = new Request(url)
+        const params = {
+            method: 'DELETE',
+            headers: new Headers(),
+            mode: 'cors',
+            cache: 'default',
+            // body: form
+        }
+
+        fetch(request, params)
+            .then(data => data.json())
+            .then(onLoad)
+            .catch(err => console.error(err))
     }
 
     updatePost(onLoad, data)
@@ -105,6 +106,7 @@ class Api
             .then(data => data.json())
             // .then(data => data.success ? (data.data.map(filterPost), data) : data)
             .then(onLoad)
+            .catch(err => console.error(err))
     }
 
     getThumbURL(uid)

@@ -58,6 +58,16 @@ class PostManager extends \Inspire\Database\DataManager
         return false;
     }
     
+    public function deletePost($uid)
+    {
+        $update = 'DELETE FROM `post`';
+        $where = ' WHERE `id` = (SELECT `item_id` FROM `uid` WHERE `id` = :uid AND `item_name` = "post")';
+        $binds = array(array(':uid', $uid, \PDO::PARAM_INT));
+        $this->_database->EXECUTE($update . $set . $where, $binds);
+        
+        return true;
+    }
+    
     public function updatePost($uid, &$data)
     {
         $rowList = array();

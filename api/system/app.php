@@ -84,18 +84,20 @@ $klein->respond('POST', API_URL_REL . '/posts', function($request, $response, $s
         
         $params = $request->params();
         
+        // Save file
         if (!empty($_FILES['content_file']))
         {
             $fileData = $postManager->saveFile($_FILES['content_file']);
             $params['content_file'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
         }
         
-        
+        // Save thumb
         if (!empty($_FILES['thumb']))
         {
             $thumbData = $postManager->saveThumb($_FILES['thumb']);
             $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
         }
+        // Create thumb from file
         elseif (!empty($fileData) && !empty(strpos($fileData['type'], 'image') !== false))
         {
             $thumbData = $postManager->createThumbFromImage(DATA_PATH . $fileData['path']);
@@ -158,6 +160,7 @@ $klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $resp
             $thumbData = $postManager->saveThumb($_FILES['thumb']);
             $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
         }
+        // Update thumb from file
         elseif (!empty($fileData) && !empty(strpos($fileData['type'], 'image') !== false))
         {
             $postManager->removeThumb($uid);
@@ -174,6 +177,42 @@ $klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $resp
             'meta' => array(
                 'subject' => 'post',
                 'action' => 'edit',
+                'time' => microtime(true) - START_TIME . ' sec'
+            )
+        );
+    }
+    catch (Exception $ex)
+    {
+        $data = array(
+            'success' => false,
+            'message' => $ex->getMessage(),
+            'meta' => array(
+                'time' => microtime(true) - START_TIME . ' sec'
+            )
+        );
+    }
+
+    send($response, $data);
+});
+
+
+// Delete post
+$klein->respond('DELETE', API_URL_REL . '/posts/[i:uid]', function($request, $response, $service)
+{
+    try
+    {
+        $uid = $request->param('uid');
+        $postManager = new \Inspire\Database\PostManager();
+        $postManager->removeThumb($uid);
+        $postManager->removeFile($uid);
+        $postManager->deletePost($uid);
+
+        $data = array(
+            'success' => true,
+            'data' => array('uid' => $uid),
+            'meta' => array(
+                'subject' => 'post',
+                'action' => 'delete',
                 'time' => microtime(true) - START_TIME . ' sec'
             )
         );
