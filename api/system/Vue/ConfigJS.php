@@ -35,15 +35,15 @@ if (!window.inspire) window.inspire = { config: config };
 else if (!window.inspire.config) window.inspire.config = config;
 
 // Load content
-function loadBuild()
+function loadBuild(doc, loc)
 {
-    var pathType = window.location.pathname.startsWith("$adminURLRel", 0) ? 'admin' : 'front'; 
-    var script = document.createElement('script');
-    script.setAttribute('src',"$frontURLAbs" + '/assets/js/' + pathType + '.js');
-    document.head.appendChild(script);
+    var pathType = loc.pathname.startsWith("$adminURLRel", 0) ? 'admin' : 'front'; 
+    var script = doc.createElement('script');
+    script.setAttribute('src', "$frontURLAbs" + '/assets/js/' + pathType + '.js');
+    script.setAttribute('async', true);
+    doc.head.appendChild(script);
 }
-window.addEventListener('load', loadBuild);
-console.log("aaa");
+loadBuild(document, window.location);
 
 EOT;
     }
