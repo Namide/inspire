@@ -1,7 +1,8 @@
 {
     "require": {
         "klein/klein": "^2.1",
-        "league/color-extractor": "0.3.*"
+        "league/color-extractor": "0.3.*",
+        "smottt/wideimage": "^1.1"
     },
     "autoload": {
         "psr-4": {"Inspire\\": "system/"}

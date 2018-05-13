@@ -25,7 +25,9 @@ $klein->respond('GET', API_URL_REL . '/', function($request, $response, $service
                 'rss' => API_URL_REL . '/rss'
             ),
             'meta' => array(
-                'name' => 'routes',
+                'success' => true,
+                'subject' => 'routes',
+                'action' => 'get',
                 'time' => microtime(true) - START_TIME . ' sec'
             )
         );
@@ -54,7 +56,8 @@ $klein->respond('GET', API_URL_REL . '/posts', function($request, $response, $se
             'success' => true,
             'data' => $posts,
             'meta' => array(
-                'name' => 'posts',
+                'subject' => 'posts',
+                'action' => 'get',
                 'time' => microtime(true) - START_TIME . ' sec'
             )
         );
@@ -73,38 +76,40 @@ $klein->respond('GET', API_URL_REL . '/posts', function($request, $response, $se
     send($response, $data);
 });
 
+// Add post
 $klein->respond('POST', API_URL_REL . '/posts', function($request, $response, $service)
 {
     try
     {
-        /*$params = $request->paramsPost();
-        $postManager = new \Inspire\Database\PostManager();
-        $post = $postManager->addPost($params);
-
-        $data = array(
-            'success' => true,
-            'data' => $post,
-            'meta' => array(
-                'name' => 'post',
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );*/
-
         $postManager = new \Inspire\Database\PostManager();
         
         $params = $request->params();
         
         if (!empty($_FILES['content_file']))
         {
-            $files = $request->files();
             $fileData = $postManager->addFile($_FILES['content_file']);
             $params['content_file'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
         }
+        
+        
+        if (!empty($_FILES['thumb']))
+        {
+            $thumbData = $postManager->addFile($_FILES['thumb']);
+            $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
+        }
+        elseif (!empty($fileData) && !empty(strpos($fileData['type'], 'image') !== false))
+        {
+            $thumbData = $postManager->createThumbFromImage(DATA_PATH . $fileData['path']);
+            $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
+        }
+           
         
         $post = $postManager->addPost($params);
 
         $data = array(
             'success' => true,
+            'subject' => 'posts',
+            'action' => 'add',
             'data' => $post,
             'meta' => array(
                 'name' => 'post',
@@ -139,19 +144,35 @@ $klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $resp
         
         $params = $request->params();
         
+        // Update file
         if (!empty($_FILES['content_file']))
         {
             $postManager->removeFile($uid);
-            
-            $files = $request->files();
             $fileData = $postManager->addFile($_FILES['content_file']);
             $params['content_file'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
         }
         
+        // Update thumb
+        if (!empty($_FILES['thumb']))
+        {
+            $postManager->removeThumb($uid);
+            $thumbData = $postManager->addThumb($_FILES['thumb']);
+            $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
+        }
+        elseif (!empty($fileData) && !empty(strpos($fileData['type'], 'image') !== false))
+        {
+            $postManager->removeThumb($uid);
+            $thumbData = $postManager->createThumbFromImage($fileData['path']);
+            $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
+        }
+        
+        // Update post
         $post = $postManager->updatePost($uid, $params);
 
         $data = array(
             'success' => true,
+            'subject' => 'post',
+            'action' => 'edit',
             'data' => $post,
             'meta' => array(
                 'name' => 'post',
@@ -185,7 +206,8 @@ $klein->respond('GET', API_URL_REL . '/posts/[i:id]', function ($request, $respo
             'success' => 1,
             'data' => $post,
             'meta' => array(
-                'name' => 'post',
+                'subject' => 'post',
+                'action' => 'get',
                 'time' => microtime(true) - START_TIME . ' sec'
             )
         );

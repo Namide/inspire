@@ -48,26 +48,78 @@ class FileHelp
         return $type;
     }*/
     
-    public static function SET_FILE_DATA($file, &$data = array())
+    public static function SET_FILE_DATA($file, &$data = array(), $colors = false)
     {
         $info = getimagesize($file);
 
         if(in_array($info[2] , array(IMAGETYPE_GIF , IMAGETYPE_JPEG ,IMAGETYPE_PNG , IMAGETYPE_BMP)))
         {
+            if (empty($data['type']))
+                $data['type'] = mime_content_type($file);
+            
+            if (empty($data['name']))
+                $data['name'] = pathinfo($file, PATHINFO_BASENAME);
+            
+            if (empty($data['size']))
+                $data['size'] = filesize($file);
+            
+            
             $data['width'] = $info[0];
             $data['height'] = $info[1];
             
             // Extract colors
-            $palette = \League\ColorExtractor\Palette::fromFilename($file);
-            $extractor = new \League\ColorExtractor\ColorExtractor($palette);
-            $colors = $extractor->extract(5);
-            $colorIntToHex = function($intColor) {
-                return \League\ColorExtractor\Color::fromIntToHex($intColor, true);
-            };
-            $data['colors'] = array_map($colorIntToHex, $colors);
+            if ($colors)
+            {
+               $palette = \League\ColorExtractor\Palette::fromFilename($file);
+                $extractor = new \League\ColorExtractor\ColorExtractor($palette);
+                $colors = $extractor->extract(5);
+                $colorIntToHex = function($intColor) {
+                    return \League\ColorExtractor\Color::fromIntToHex($intColor, true);
+                };
+                $data['colors'] = array_map($colorIntToHex, $colors); 
+            }
         }
         
         return $data;
+    }
+    
+    public static function CREATE_THUMB($image, $thumb)
+    {
+        list($width, $height) = getimagesize($image);
+        
+        $thumbDir = pathinfo($thumb, PATHINFO_DIRNAME);
+        $thumbName = self::CLEAN_NAME(pathinfo($thumb, PATHINFO_FILENAME) . '.jpg');
+        $thumbFile = self::RENAME_IF_EXIST($thumbDir, $thumbName);
+
+        if (max($width, $height) <= 512)
+        {
+            $thumbWidth = $width;
+            $thumbHeight = $height;
+        }
+        elseif ($width > $height)
+        {
+            $thumbWidth = 512;
+            $thumbHeight = round(512 * $height / $width);
+        }
+        else
+        {
+           $thumbHeight = 512;
+           $thumbWidth = round(512 * $width / $height);
+        }
+        
+        self::WRITE_DIR_OF_FILE($thumbFile);
+        \WideImage\WideImage::load($image)
+                ->resize($thumbWidth, $thumbHeight)
+                ->saveToFile($thumbFile, 80);
+
+        return $thumbFile;
+        
+        /*$imageThumb = imagecreatetruecolor($width, $height);
+        $image = imagecreatefromjpeg($thumb);
+        imagecopyresampled($imageThumb, $image, 0, 0, 0, 0, $thumbWidth, $thumbHeight, $width, $height);
+        imagejpeg($imageThumb, $thumbDir . '/' . $thumbName, 70);
+
+        imagedestroy($imageThumb);*/
     }
     
     public static function SAVE_FILE_POST($fileInput, $dir)
@@ -392,7 +444,6 @@ class FileHelp
      */
     public static function DEL_FILE($file, $recursEmptyDir = false)
     {
-        $file = DATA_PATH . $file;
         if (!file_exists($file))
             return false;
 

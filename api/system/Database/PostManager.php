@@ -3,7 +3,7 @@
 namespace Inspire\Database;
 
 class PostManager extends \Inspire\Database\DataManager
-{    
+{
     public function removeFile($uid)
     {
         $request = 'SELECT `content_file` FROM `post`'
@@ -15,12 +15,39 @@ class PostManager extends \Inspire\Database\DataManager
         if ($post != false && !empty($post['content_file']))
         {
             $fileData = \Inspire\Helper\JsonHelp::TO_ARRAY($post['content_file']);
-            $path = $fileData['path'];
+            $path = DATA_PATH . $fileData['path'];
             
             if (\Inspire\Helper\FileHelp::DEL_FILE($path))
             {
                 $update = 'UPDATE `post`';
                 $set = ' SET `content_file` = null';
+                $where = ' WHERE `id` = (SELECT `item_id` FROM `uid` WHERE `id` = :uid AND `item_name` = "post")';
+                $this->_database->EXECUTE($update . $set . $where, $binds);
+        
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    public function removeThumb($uid)
+    {
+        $request = 'SELECT `thumb` FROM `post`'
+            . ' INNER JOIN `uid` ON post.id = uid.item_id'
+            . ' WHERE uid.item_name = "post" AND uid.id = :uid';
+        $binds = array(array(':uid', $uid, \PDO::PARAM_INT));
+        $post = $this->_database->FETCH($request, $binds);
+        
+        if ($post != false && !empty($post['thumb']))
+        {
+            $fileData = \Inspire\Helper\JsonHelp::TO_ARRAY($post['thumb']);
+            $path = DATA_PATH . $fileData['path'];
+            
+            if (\Inspire\Helper\FileHelp::DEL_FILE($path))
+            {
+                $update = 'UPDATE `post`';
+                $set = ' SET `thumb` = null';
                 $where = ' WHERE `id` = (SELECT `item_id` FROM `uid` WHERE `id` = :uid AND `item_name` = "post")';
                 $this->_database->EXECUTE($update . $set . $where, $binds);
         
@@ -99,6 +126,34 @@ class PostManager extends \Inspire\Database\DataManager
         return $post;
     }
     
+    
+    public function createThumbFromImage($image)
+    {
+        $file = \Inspire\Helper\FileHelp::CREATE_THUMB($image, DATA_PATH . '/thumb/' . basename($image));
+        $json = array(
+            'path' => str_replace(DATA_PATH, '', $file)
+        );
+        $json = \Inspire\Helper\FileHelp::SET_FILE_DATA($file, $json, true);
+        
+        return $json;
+    }
+    
+    public function addThumb($thumbUpload)
+    {
+        $file = \Inspire\Helper\FileHelp::SAVE_FILE_POST($fileUpload, DATA_PATH . '/thumb/');
+
+        $json = array(
+            'type' => $thumbUpload['type'],
+            'name' => $thumbUpload['name'],
+            'size' => $thumbUpload['size'],
+            'path' => str_replace(DATA_PATH, '', $file)
+        );
+        
+        $json = \Inspire\Helper\FileHelp::SET_FILE_DATA($file, $json);
+        
+        return $json;
+    }
+    
     public function addFile($fileUpload)
     {
         $file = \Inspire\Helper\FileHelp::SAVE_FILE_POST($fileUpload, DATA_PATH . '/' . $fileUpload['type']);
@@ -113,26 +168,6 @@ class PostManager extends \Inspire\Database\DataManager
         $json = \Inspire\Helper\FileHelp::SET_FILE_DATA($file, $json);
         
         return $json;
-        
-        
-        /*$json = \Inspire\Helper\JsonHelp::TO_ARRAY($data['content_file']);
-        if (!empty($data['base64']) && !empty($json['name']))
-        {
-            $base64 = $data['base64'];
-            $type = \Inspire\Helper\FileHelp::GET_TYPE($json['name']);
-            $file = \Inspire\Helper\FileHelp::SAVE_FILE_BASE64($base64, $json['name'], DATA_PATH . '/' . $type);
-            $json['path'] = str_replace(DATA_PATH, '', $file);
-            $rowList[] = 'content_file';
-            $binds[] = array(
-                ':content_file',
-                \Inspire\Helper\JsonHelp::FROM_ARRAY($json),
-                \PDO::PARAM_STR
-            );
-        }
-        else
-        {
-            throw new \Exception('"base64" and "content_file.name" variables needed for file');
-        }*/
     }
     
     public function addPost($data)
@@ -279,7 +314,7 @@ class PostManager extends \Inspire\Database\DataManager
         self::testData('title', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('description', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('date', \PDO::PARAM_STR, $data, $rowList, $binds);
-        self::testData('thumb', \PDO::PARAM_INT, $data, $rowList, $binds);
+        self::testData('thumb', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('title', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('content_text', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('content_link', \PDO::PARAM_STR, $data, $rowList, $binds);
