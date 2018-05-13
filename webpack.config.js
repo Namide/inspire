@@ -109,13 +109,18 @@ module.exports = {
         extensions: ['*', '.js', '.vue', '.json']
     },
     devServer: {
-        historyApiFallback: true,
+        historyApiFallback: {
+            rewrites: [
+                { from: /^\/admin/, to: '/admin/index.html' },
+                { from: /./, to: '/index.html' }
+            ]
+        },
         noInfo: true,
         overlay: true,
         headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-        'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization'
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+            'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization'
         }
     },
     performance: {
