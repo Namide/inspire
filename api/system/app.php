@@ -141,6 +141,8 @@ $klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $resp
         
         if (!empty($_FILES['content_file']))
         {
+            $postManager->removeFile($uid);
+            
             $files = $request->files();
             $fileData = $postManager->addFile($_FILES['content_file']);
             $params['content_file'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);

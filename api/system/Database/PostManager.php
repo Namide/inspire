@@ -45,8 +45,8 @@ class PostManager extends \Inspire\Database\DataManager
         
         
         // Remove file
-        if (!empty($data['content_file']))
-            $this->removeFile($uid);
+        /*if (!empty($data['content_file']))
+            $this->removeFile($uid);*/
         
         
         

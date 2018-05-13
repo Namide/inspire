@@ -1,5 +1,4 @@
-import apiAdmin from '../utils/apiAdmin'
-import * as Vibrant from 'node-vibrant'
+import api from '../utils/api'
 
 const STATE = {
     INITIAL: 0,
@@ -115,14 +114,14 @@ export default
 
             if (this.insert)
             {
-                apiAdmin.addPost(message =>
+                api.addPost(message =>
                 {
                     console.log(message.data)
                 }, data)
             }
             else
             {
-                apiAdmin.updatePost(message =>
+                api.updatePost(message =>
                 {
                     console.log(message.data)
                 }, data)
@@ -131,103 +130,27 @@ export default
 
         filesChange([file])
         {
-            this.types.push(...file.type.split('/'))
-            this.content_file = {
-                name: file.name,
-                type: file.type,
-                size: file.size
-            }
+            this._modified.content_file = file
+
+            const types = file.type ? file.type.split('/') : []
+            if (types.length > 0 && this.types.indexOf(types[0]) < 0)
+                this.types.push(types[0])
 
             if (file.name && file.name !== '' && this.title == '')
             {
-                const arr = file.name.split('.')
+                const arr = file.name.trim().split('.')
                 arr.pop()
 
-                this.title = arr.join(' ')
+                const title = arr.join(' ')
                     .split('_').join(' ')
                     .split('-').join(' ')
+                
+                if (title.length > 0)
+                    this.title = title.charAt(0).toUpperCase() + title.slice(1)
             }
-
-            this._reader = new FileReader()
-            this._reader.addEventListener('load', event =>
-            {
-                const result = event.target.result
-
-                // Add base64
-                {
-                    const base64Arr = result.split(';base64,')
-                    base64Arr.shift()
-                    this._modified.base64 = base64Arr.join(';base64,')
-                }
-
-                // Add image data
-                const isImage = file.type.split('/').shift().toLowerCase() === 'image'
-                if (isImage)
-                {
-                    this.fileImg = result
-
-                    var img = new Image()
-                    img.addEventListener('load', event =>
-                    {
-                        this.$set(this.content_file, 'width', img.width)
-                        this.$set(this.content_file, 'height', img.height)
-                        this.fileImgClampW = img.width > img.height
-
-                        extractColors(img, colors =>
-                        {
-                            this.$set(this.content_file, 'colors', colors)
-                        }, error =>
-                        {
-                            console.error(error)
-                        })
-                    })
-
-                    img.src = result
-                }
-                else
-                {
-                    console.log(this.content_file)
-                }
-            })
-
-            this._reader.readAsDataURL(file)
         }
     }
 }
 
 const copy = obj => JSON.parse(JSON.stringify(obj))
 const getToday = () => new Date(Date.now()).toJSON().split('.')[0]
-const extractColors = (img, onColors, onError) =>
-{
-    const options = {
-        // colorCount: number
-        // quality: 2
-        maxDimension: 1024
-        // filters: Array<Filter>
-        // ImageClass: ImageClass
-        // quantizer: Quantizer
-        // generator?: Generator
-    }
-    const vibrant = new Vibrant(img, options)
-    vibrant.getPalette((err, palette) =>
-    {
-        const colors = []
-        if (palette.LightVibrant)
-            colors.push(palette.LightVibrant.getHex())
-        if (palette.Vibrant)
-            colors.push(palette.Vibrant.getHex())
-        if (palette.DarkVibrant)
-            colors.push(palette.DarkVibrant.getHex())
-        if (palette.LightMuted)
-            colors.push(palette.LightMuted.getHex())
-        if (palette.Muted)
-            colors.push(palette.Muted.getHex())
-        if (palette.DarkMuted)
-            colors.push(palette.DarkMuted.getHex())
-        
-        onColors(colors)
-
-        if (err)
-            onError(err)
-    })
-}
