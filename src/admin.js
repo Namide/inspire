@@ -5,8 +5,11 @@ import App from './script/app-admin/'
 import config from './config'
 
 Vue.mixin({
-    methods: {
-        getURL(path) { return config.admin.root + (path[0] !== '/' ? '/' : '') + path }
+    data()
+    {
+        return {
+            path: Object.assign({}, config.routes.admin)
+        }
     }
 })
 Vue.use(VueRouter)

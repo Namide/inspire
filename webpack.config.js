@@ -16,8 +16,7 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             template: 'src/index.html',
-            inject: true,
-            chunks: ['front'],
+            inject: false,
             filename: 'index.html',
             minify: {
                 removeComments: true,
@@ -25,20 +24,8 @@ module.exports = {
                 conservativeCollapse: true
             }
         }),
-        new HtmlWebpackPlugin({
-            template: 'src/index.html',
-            inject: true,
-            chunks: ['admin'],
-            filename: 'admin/index.html',
-            minify: {
-                removeComments: true,
-                collapseWhitespace: true,
-                conservativeCollapse: true
-            }
-        }),
         new CopyWebpackPlugin([
-            { from: 'src/front.htaccess', to: '.[ext]' },
-            { from: 'src/admin.htaccess', to: 'admin/.[ext]' }
+            { from: 'src/.htaccess', to: '.[ext]' }
         ])
     ],
     module: {
@@ -111,7 +98,6 @@ module.exports = {
     devServer: {
         historyApiFallback: {
             rewrites: [
-                { from: /^\/admin/, to: '/admin/index.html' },
                 { from: /./, to: '/index.html' }
             ]
         },

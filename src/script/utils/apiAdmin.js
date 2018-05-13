@@ -177,7 +177,7 @@ class ApiAdmin extends Api
     addPost(onload, data)
     {
         const form = dataToFormData(data)
-        const url = config.api.root + '/posts'
+        const url = config.api.abs + '/posts'
         const request = new Request(url)
         const params = {
             method: 'POST',
@@ -197,7 +197,7 @@ class ApiAdmin extends Api
     updatePost(onload, data)
     {
         const newData = Object.assign({}, data)
-        const url = config.api.root + '/posts/' + data.uid
+        const url = config.api.abs + '/posts/' + data.uid
         newData.uid = null
         const form = dataToFormData(newData)
 

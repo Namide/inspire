@@ -2,13 +2,14 @@ import VueRouter from 'vue-router'
 import PageHome from '../page-home'
 import PagePosts from '../page-posts'
 import PageBoards from '../page-boards'
+import config from '../../config'
 
 const router = new VueRouter({
     mode: 'history',
     routes: [
-        { path: '/', component: PageHome },
-        { path: '/post', component: PagePosts },
-        { path: '/board', component: PageBoards }
+        { path: config.routes.front.home, component: PageHome },
+        { path: config.routes.front.posts, component: PagePosts },
+        { path: config.routes.front.boards, component: PageBoards }
     ]
 })
 
@@ -37,6 +38,7 @@ export default {
 
     created()
     {
+        console.log(this.$route)
 
     }
 }

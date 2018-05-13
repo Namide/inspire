@@ -3,12 +3,14 @@
 // TIMER
 define('START_TIME', microtime(true));
 
-// URL and PATH
-define('FRONT_URL', 'http://localhost:8080');
-define('ADMIN_URL', FRONT_URL . '/admin');
-define('API_URL', 'http://inspire.local/api');
-define('API_URL_REL', '/api');
+// URL
+define('FRONT_URL_ABS', 'http://localhost:8080');
+define('ADMIN_URL_ABS', FRONT_URL_ABS . '/admin');
+define('API_URL_ABS', 'http://inspire.local/api');
 
+define('API_URL_REL', parse_url(API_URL_ABS, PHP_URL_PATH));
+
+// PATH
 define('API_PATH', __DIR__);
 define('DATA_PATH', __DIR__ . '/data');
 
@@ -23,4 +25,4 @@ define('DB_OPTIONS', null);
 define('MAX_FILE_SIZE', 1000000);
 
 // Params
-define('CORS', FRONT_URL); // URL or false
+define('CORS', FRONT_URL_ABS); // URL or false

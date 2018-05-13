@@ -2,15 +2,19 @@ import './style/basic.sass'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import App from './script/app-front/'
+import config from './config'
 
-Vue.use(VueRouter)
 Vue.mixin({
-    methods: {
-        getURL(path) { return config.front.root + (path[0] !== '/' ? '/' : '') + path }
+    data()
+    {
+        return {
+            path: Object.assign({}, config.routes.front)
+        }
     }
 })
+Vue.use(VueRouter)
 
 new Vue({
-  el: '#app',
-  render: h => h(App)
+    el: '#app',
+    render: h => h(App)
 })

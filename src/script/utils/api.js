@@ -27,7 +27,7 @@ class Api
 
     _init()
     {
-        const url = config.api.root
+        const url = config.api.abs
         const request = new Request(url)
         const params = {
             method: 'GET',
@@ -46,7 +46,7 @@ class Api
 
     getFileURL(uid)
     {
-        return config.api.root + '/files/' + uid
+        return config.api.abs + '/files/' + uid
     }
 
     getGroups(onLoad)
@@ -71,7 +71,7 @@ class Api
         const tagsOut = tags.filter((tag) => tag.length > 0 && tag[0] === '!').map(tag => tag.substr(1))
 
 
-        const url = config.api.root + '/posts'
+        const url = config.api.abs + '/posts'
         const request = new Request(url)
         const params = {
             method: 'GET',

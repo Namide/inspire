@@ -23,9 +23,5 @@ export default
         {
             return this.data.type == 'image/jpeg'
         }
-        // image(relative)
-        // {
-        //     return config.api.url.images + relative
-        // }
     }
 }
