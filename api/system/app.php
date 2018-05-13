@@ -254,6 +254,34 @@ $klein->respond('GET', API_URL_REL . '/files/[i:uid]', function ($request, $resp
     }
 });
 
+$klein->respond('GET', API_URL_REL . '/thumbs/[i:uid]', function ($request, $response, $service, $app)
+{
+    // Todo
+    if (CORS)
+        $response->header('Access-Control-Allow-Origin', CORS);
+
+    try
+    {
+        $postManager = new \Inspire\Database\PostManager();
+        $uid = $request->param('uid');
+        $file = $postManager->getThumb($uid);
+        
+        $response->file( DATA_PATH . $file['path'], $file['name']);
+    }
+    catch (Exception $ex)
+    {
+        $data = array(
+            'success' => false,
+            'message' => $ex->getMessage(),
+            'meta' => array(
+                'time' => microtime(true) - START_TIME . ' sec'
+            )
+        );
+      
+        send($response, $data);
+    }
+});
+
 $klein->respond('GET', API_URL_REL . '/config.js', function($request, $response, $service)
 {
     try

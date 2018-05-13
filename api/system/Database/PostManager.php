@@ -243,9 +243,25 @@ class PostManager extends \Inspire\Database\DataManager
         $post = $this->_database->FETCH($request, $binds);
         
         if ($post == false || empty($post['content_file']))
-            throw new \Exception('Post not found.');
+            throw new \Exception('File of post not found.');
         
         return \Inspire\Helper\JsonHelp::TO_ARRAY($post['content_file']);
+    }
+    
+    public function getThumb($uid)
+    {
+        $select = 'SELECT `thumb`';
+        $from = ' FROM `post`';
+        $where = ' WHERE uid.id = :uid AND uid.item_name = "post"';
+        $join = ' INNER JOIN `uid` ON post.id = uid.item_id';
+        $request = $select . $from . $join . $where;
+        $binds = array(array(':uid', $uid, \PDO::PARAM_INT));
+        $post = $this->_database->FETCH($request, $binds);
+        
+        if ($post == false || empty($post['thumb']))
+            throw new \Exception('Thumb of post not found.');
+        
+        return \Inspire\Helper\JsonHelp::TO_ARRAY($post['thumb']);
     }
 
     public function getPosts()
@@ -267,7 +283,7 @@ class PostManager extends \Inspire\Database\DataManager
         self::clearData('title', 'string', $post);
         self::clearData('description', 'string', $post);
         self::clearData('date', 'string', $post);
-        self::clearData('thumb', 'string', $post);
+        self::clearData('thumb', 'json', $post);
         self::clearData('content_file', 'json', $post);
         self::clearData('content_text', 'string', $post);
         self::clearData('content_link', 'string', $post);

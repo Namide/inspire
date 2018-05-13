@@ -1,5 +1,82 @@
-<tr>
-    <td>
+<div>
+
+    <div v-show="state > 0" class="modal">
+        <div class="bg" @click="cancel"></div>
+        <div class="box">
+            {{ (post && post.uid) || '' }}
+        
+            <input type="text" v-model="title" placeholder="title">
+
+
+
+
+            <input type="file" :disabled="false" @change="thumbChange($event.target.files)">
+            <img v-if="thumb" :src="getThumbSrc()" class="file-img" :class="[ 'clamp-' + (fileImgClampW ? 'w' : 'h') ]">  
+            <template v-if="thumb">
+                <div v-for="(data, key) of thumb">
+                    <small v-if="key === 'colors'">
+                        <strong>{{ key }}</strong>:
+                        <span v-for="color of data" class="color" :style="{ background: color }"></span>
+                    </small>
+                    <small v-else>
+                        <strong>{{ key }}</strong>: {{ data }}
+                    </small>
+                </div>
+            </template>
+
+
+        
+            <input type="text" v-model="types" placeholder="types">
+        
+            <textarea cols="30" rows="10" v-model="description" placeholder="description"></textarea>
+        
+            <input type="datetime-local" v-model="date">
+                
+            <input type="file" :disabled="false" @change="filesChange($event.target.files)">
+            <img v-if="fileImg" :src="getFileSrc()" class="file-img" :class="[ 'clamp-' + (fileImgClampW ? 'w' : 'h') ]">
+            <template v-else-if="content_file">
+                <img v-if="content_file.type.includes('image')" :src="'/api/data/' + content_file.path" class="file-img" :class="[ 'clamp-' + (fileImgClampW ? 'w' : 'h') ]">
+            </template>
+    
+            <template v-if="content_file">
+                <div v-for="(data, key) of content_file">
+                    <small v-if="key === 'colors'">
+                        <strong>{{ key }}</strong>:
+                        <span v-for="color of data" class="color" :style="{ background: color }"></span>
+                    </small>
+                    <small v-else>
+                        <strong>{{ key }}</strong>: {{ data }}
+                    </small>
+                </div>
+            </template>
+    
+            <input type="text" v-model="content_link" placeholder="link">
+    
+            <input type="text" v-model="tags" placeholder="tags">
+    
+            <textarea cols="30" rows="10" v-model="content_text" placeholder="text"></textarea>
+    
+            <input type="checkbox" v-model="public"> Public
+            <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>
+            <button @click="cancel">Cancel</button>
+        </div>
+    </div>
+
+    <div v-if="insert">
+        <button @click="edit">+ Add new post</button>
+    </div>
+    <div v-else @click="edit">
+        <div>
+            <strong v-if="title" v-html="title"></strong>
+            <small v-if="types && types.length" v-html="type" v-for="type of types"></small>
+        </div>
+        <div>
+            <small v-if="tags && tags.length" v-html="tag" v-for="tag of tags"></small>
+            <span v-if="date" v-html="new Date(date).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})"></span>
+        </div>
+    </div>
+    
+    <!-- <td>
         {{ (post && post.uid) || '' }}
     </td>
     <td>
@@ -48,5 +125,5 @@
     </td>
     <td>
         <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>
-    </td>
-</tr>
+    </td> -->
+</div>

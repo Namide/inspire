@@ -19,15 +19,16 @@ export default
     data()
     {
         return {
-            date: '',
-            title: '',
-            description: '',
-            content_link: '',
-            content_text: '',
+            title: null,
+            description: null,
+            thumb: null,
+            date: null,
+            content_link: null,
+            content_text: null,
             content_file: null,
-            tags: [],
-            types: [],
-            public: true,
+            tags: null,
+            types: null,
+            public: null,
 
             state: STATE.INITIAL,
             fileImg: false,
@@ -37,66 +38,113 @@ export default
 
     watch:
     {
-        title: function(title)
+        title: function(title, before)
         {
-            this._modified.title = title
+            if (before !== null)
+            {
+                this.state = STATE.MODIFY
+                this._modified.title = title
+            }
         },
 
-        description: function(description)
+        description: function(description, before)
         {
-            this._modified.description = description
+            if (before !== null)
+            {
+                this._modified.description = description
+                this.state = STATE.MODIFY
+            }
         },
 
-        date: function(date)
+        thumb: function(data, before)
         {
-            this._modified.date = date.split('T').join(' ')
+            if (before !== null)
+            {
+                this.state = STATE.MODIFY
+                this._modified.thumb = copy(data)
+            }
         },
 
-        content_link: function(content_link)
+        date: function(date, before)
         {
-            this._modified.content_link = content_link
+            if (before !== null)
+            {
+                this._modified.date = date.split('T').join(' ')
+                this.state = STATE.MODIFY
+            }
         },
 
-        content_text: function(text)
+        content_link: function(content_link, before)
         {
-            this._modified.content_text = text
+            if (before !== null)
+            {
+                this._modified.content_link = content_link
+                this.state = STATE.MODIFY
+            }
         },
 
-        content_file: function(data)
+        content_text: function(text, before)
         {
-            this._modified.content_file = copy(data)
+            if (before !== null)
+            {
+                this.state = STATE.MODIFY
+                this._modified.content_text = text
+            }
         },
 
-        public: function(isPublic)
+        content_file: function(data, before)
         {
-            this._modified.public = isPublic
+            if (before !== null)
+            {
+                this.state = STATE.MODIFY
+                this._modified.content_file = copy(data)
+            }
         },
 
-        tags: function(tags)
+        public: function(isPublic, before)
         {
-            this._modified.tags = copy(tags)
+            if (before !== null)
+            {
+                this.state = STATE.MODIFY
+                this._modified.public = isPublic
+            }
         },
 
-        types: function(types)
+        tags: function(tags, before)
         {
-            this._modified.types = types
+            if (before !== null)
+            {
+                this.state = STATE.MODIFY
+                this._modified.tags = copy(tags)
+            }
+        },
+
+        types: function(types, before)
+        {
+            if (before !== null)
+            {
+                this.state = STATE.MODIFY
+                this._modified.types = types
+            }
         }
     },
 
     created()
     {
+        this._modified = { }
+
         this.title = copy((this.post && this.post.title) || '')
         this.description = copy((this.post && this.post.description) || '')
+        this.thumb = copy((this.post && this.post.thumb) || null)
         this.date = copy((this.post && this.post.date) || getToday()).split(' ').join('T')
         this.content_link = copy((this.post && this.post.content_link) || '')
         this.content_text = copy((this.post && this.post.content_text) || '')
         this.content_file = copy((this.post && this.post.content_file) || null)
-        this.public = copy(this.post ? this.post.public : true)
+        this.public = this.post ? !!this.post.public : true
 
         this.tags = copy((this.post && this.post.tags) || [])
         this.types = copy((this.post && this.post.types) || [])
 
-        this._modified = { }
         if (!this.insert)
         {
             this._modified.uid = this.post && this.post.uid
@@ -104,6 +152,7 @@ export default
 
         if (this.content_file && this.content_file.width && this.content_file.height)
             this.fileImgClampW = +this.content_file.width > +this.content_file.height
+
     },
 
     methods:
@@ -116,16 +165,36 @@ export default
             {
                 api.addPost(message =>
                 {
-                    console.log(message.data)
+                    this.state = STATE.INITIAL
                 }, data)
             }
             else
             {
                 api.updatePost(message =>
                 {
-                    console.log(message.data)
+                    this.state = STATE.INITIAL
                 }, data)
             }
+        },
+
+        cancel()
+        {
+            this.state = STATE.INITIAL
+        },
+
+        edit()
+        {
+            this.state = STATE.MODIFY
+        },
+
+        getThumbSrc()
+        {
+            return api.getThumbURL(this.post.uid)
+        },
+
+        getFileSrc()
+        {
+            return api.geFileURL(this.post.uid)
         },
 
         filesChange([file])
@@ -148,6 +217,8 @@ export default
                 if (title.length > 0)
                     this.title = title.charAt(0).toUpperCase() + title.slice(1)
             }
+            
+            this.state = STATE.MODIFY
         }
     }
 }

@@ -44,7 +44,7 @@ class Api
         this.posts = null
     }
 
-    _init()
+    /*_init()
     {
         const url = config.api.abs
         const request = new Request(url)
@@ -58,11 +58,12 @@ class Api
             // .then(collection => console.log(collection))
             .then(data => data.json())
             // .then(data => data.success && data.data ? (data.data = data.data.map(filterPost), data) : data)
-            .then(json => onLoad(json))
-    }
+            .then(onLoad)
+    }*/
 
-    addPost(onload, data)
+    addPost(onLoad, data)
     {
+        console.log('ONLOAD', onLoad)
         const form = dataToFormData(data)
         const url = config.api.abs + '/posts'
         const request = new Request(url)
@@ -80,10 +81,10 @@ class Api
             // .then(collection => console.log(collection))
             .then(data => data.json())
             // .then(data => data.success ? (data.data.map(filterPost), data) : data)
-            .then(json => onLoad(json))
+            .then(onLoad)
     }
 
-    updatePost(onload, data)
+    updatePost(onLoad, data)
     {
         const newData = Object.assign({}, data)
         const url = config.api.abs + '/posts/' + data.uid
@@ -103,7 +104,12 @@ class Api
             // .then(collection => console.log(collection))
             .then(data => data.json())
             // .then(data => data.success ? (data.data.map(filterPost), data) : data)
-            .then(json => onLoad(json))
+            .then(onLoad)
+    }
+
+    getThumbURL(uid)
+    {
+        return config.api.abs + '/thumbs/' + uid
     }
 
     getFileURL(uid)
