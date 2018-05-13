@@ -25,7 +25,6 @@ $klein->respond('GET', API_URL_REL . '/', function($request, $response, $service
                 'rss' => API_URL_REL . '/rss'
             ),
             'meta' => array(
-                'success' => true,
                 'subject' => 'routes',
                 'action' => 'get',
                 'time' => microtime(true) - START_TIME . ' sec'
@@ -87,14 +86,14 @@ $klein->respond('POST', API_URL_REL . '/posts', function($request, $response, $s
         
         if (!empty($_FILES['content_file']))
         {
-            $fileData = $postManager->addFile($_FILES['content_file']);
+            $fileData = $postManager->saveFile($_FILES['content_file']);
             $params['content_file'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
         }
         
         
         if (!empty($_FILES['thumb']))
         {
-            $thumbData = $postManager->addFile($_FILES['thumb']);
+            $thumbData = $postManager->saveThumb($_FILES['thumb']);
             $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
         }
         elseif (!empty($fileData) && !empty(strpos($fileData['type'], 'image') !== false))
@@ -108,10 +107,10 @@ $klein->respond('POST', API_URL_REL . '/posts', function($request, $response, $s
 
         $data = array(
             'success' => true,
-            'subject' => 'posts',
-            'action' => 'add',
             'data' => $post,
             'meta' => array(
+                'subject' => 'posts',
+                'action' => 'add',
                 'name' => 'post',
                 'time' => microtime(true) - START_TIME . ' sec'
             )
@@ -148,7 +147,7 @@ $klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $resp
         if (!empty($_FILES['content_file']))
         {
             $postManager->removeFile($uid);
-            $fileData = $postManager->addFile($_FILES['content_file']);
+            $fileData = $postManager->saveFile($_FILES['content_file']);
             $params['content_file'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
         }
         
@@ -156,7 +155,7 @@ $klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $resp
         if (!empty($_FILES['thumb']))
         {
             $postManager->removeThumb($uid);
-            $thumbData = $postManager->addThumb($_FILES['thumb']);
+            $thumbData = $postManager->saveThumb($_FILES['thumb']);
             $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
         }
         elseif (!empty($fileData) && !empty(strpos($fileData['type'], 'image') !== false))
@@ -171,11 +170,10 @@ $klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $resp
 
         $data = array(
             'success' => true,
-            'subject' => 'post',
-            'action' => 'edit',
             'data' => $post,
             'meta' => array(
-                'name' => 'post',
+                'subject' => 'post',
+                'action' => 'edit',
                 'time' => microtime(true) - START_TIME . ' sec'
             )
         );

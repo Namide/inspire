@@ -138,7 +138,7 @@ class PostManager extends \Inspire\Database\DataManager
         return $json;
     }
     
-    public function addThumb($thumbUpload)
+    public function saveThumb($thumbUpload)
     {
         $file = \Inspire\Helper\FileHelp::SAVE_FILE_POST($fileUpload, DATA_PATH . '/thumb/');
 
@@ -154,7 +154,7 @@ class PostManager extends \Inspire\Database\DataManager
         return $json;
     }
     
-    public function addFile($fileUpload)
+    public function saveFile($fileUpload)
     {
         $file = \Inspire\Helper\FileHelp::SAVE_FILE_POST($fileUpload, DATA_PATH . '/' . $fileUpload['type']);
                 
