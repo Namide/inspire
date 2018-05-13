@@ -22,7 +22,10 @@ define('DB_PASS', null);
 define('DB_OPTIONS', null);
 
 // Files
-define('MAX_FILE_SIZE', 1000000);
+define('MAX_FILE_SIZE', 1000000); // Octets
 
 // Params
 define('CORS', FRONT_URL_ABS); // URL or false
+
+// Add memory for ColorExtractor (very expensive tool)
+ini_set('memory_limit', '-1');

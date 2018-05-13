@@ -51,7 +51,7 @@ class PostManager extends \Inspire\Database\DataManager
         
         
         self::formatInputData($data, $rowList, $binds);
-        self::formatInputFileAndSave($data, $rowList, $binds);
+        // self::formatInputFileAndSave($data, $rowList, $binds);
 
         
         if (count($binds) < 1)
@@ -99,6 +99,42 @@ class PostManager extends \Inspire\Database\DataManager
         return $post;
     }
     
+    public function addFile($fileUpload)
+    {
+        $file = \Inspire\Helper\FileHelp::SAVE_FILE_POST($fileUpload, DATA_PATH . '/' . $fileUpload['type']);
+                
+        $json = array(
+            'type' => $fileUpload['type'],
+            'name' => $fileUpload['name'],
+            'size' => $fileUpload['size'],
+            'path' => str_replace(DATA_PATH, '', $file)
+        );
+        
+        $json = \Inspire\Helper\FileHelp::SET_FILE_DATA($file, $json);
+        
+        return $json;
+        
+        
+        /*$json = \Inspire\Helper\JsonHelp::TO_ARRAY($data['content_file']);
+        if (!empty($data['base64']) && !empty($json['name']))
+        {
+            $base64 = $data['base64'];
+            $type = \Inspire\Helper\FileHelp::GET_TYPE($json['name']);
+            $file = \Inspire\Helper\FileHelp::SAVE_FILE_BASE64($base64, $json['name'], DATA_PATH . '/' . $type);
+            $json['path'] = str_replace(DATA_PATH, '', $file);
+            $rowList[] = 'content_file';
+            $binds[] = array(
+                ':content_file',
+                \Inspire\Helper\JsonHelp::FROM_ARRAY($json),
+                \PDO::PARAM_STR
+            );
+        }
+        else
+        {
+            throw new \Exception('"base64" and "content_file.name" variables needed for file');
+        }*/
+    }
+    
     public function addPost($data)
     {
         $rowList = array();
@@ -106,7 +142,7 @@ class PostManager extends \Inspire\Database\DataManager
         
         
         self::formatInputData($data, $rowList, $binds);
-        self::formatInputFileAndSave($data, $rowList, $binds);
+        // self::formatInputFileAndSave($data, $rowList, $binds);
                 
         
         if (count($binds) < 1)
@@ -206,7 +242,7 @@ class PostManager extends \Inspire\Database\DataManager
         self::clearData('types', 'array', $post);
     }
     
-    private static function formatInputFileAndSave(&$data, &$rowList, &$binds)
+    /*private static function formatInputFileAndSave(&$data, &$rowList, &$binds)
     {
         if (!empty($data['content_file']))
         {
@@ -229,7 +265,7 @@ class PostManager extends \Inspire\Database\DataManager
                 throw new \Exception('"base64" and "content_file.name" variables needed for file');
             }
         }
-    }
+    }*/
     
     private static function formatInputData(&$data, &$rowList, &$binds)
     {
@@ -247,6 +283,7 @@ class PostManager extends \Inspire\Database\DataManager
         self::testData('title', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('content_text', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('content_link', \PDO::PARAM_STR, $data, $rowList, $binds);
+        self::testData('content_file', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('public', \PDO::PARAM_INT, $data, $rowList, $binds);
         self::testData('score', \PDO::PARAM_STR, $data, $rowList, $binds);
     }

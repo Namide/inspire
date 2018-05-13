@@ -77,8 +77,30 @@ $klein->respond('POST', API_URL_REL . '/posts', function($request, $response, $s
 {
     try
     {
-        $params = $request->paramsPost();
+        /*$params = $request->paramsPost();
         $postManager = new \Inspire\Database\PostManager();
+        $post = $postManager->addPost($params);
+
+        $data = array(
+            'success' => true,
+            'data' => $post,
+            'meta' => array(
+                'name' => 'post',
+                'time' => microtime(true) - START_TIME . ' sec'
+            )
+        );*/
+
+        $postManager = new \Inspire\Database\PostManager();
+        
+        $params = $request->params();
+        
+        if (!empty($_FILES['content_file']))
+        {
+            $files = $request->files();
+            $fileData = $postManager->addFile($_FILES['content_file']);
+            $params['content_file'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
+        }
+        
         $post = $postManager->addPost($params);
 
         $data = array(
@@ -111,8 +133,19 @@ $klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $resp
     try
     {
         $postManager = new \Inspire\Database\PostManager();
-        $params = $request->paramsPost();
-        $uid = $request->param('uid');      
+        // $params = $request->paramsPost();
+        $uid = $request->param('uid');
+        
+        
+        $params = $request->params();
+        
+        if (!empty($_FILES['content_file']))
+        {
+            $files = $request->files();
+            $fileData = $postManager->addFile($_FILES['content_file']);
+            $params['content_file'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
+        }
+        
         $post = $postManager->updatePost($uid, $params);
 
         $data = array(

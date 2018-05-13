@@ -9,7 +9,7 @@ namespace Inspire\Helper;
  */
 class FileHelp
 {
-    public static $EXTS_IMG_BITMAP = array('png', 'gif', 'jpg', 'jpeg');
+    /*public static $EXTS_IMG_BITMAP = array('png', 'gif', 'jpg', 'jpeg');
     public static $EXTS_IMG_VECTOR = array('svg', 'ai', 'eps');
     public static $EXTS_3D = array('blend', '3ds', 'obj', 'dxf');
     public static $EXTS_SOUND = array('mp3', 'flac', 'ogg', 'wav');
@@ -46,9 +46,72 @@ class FileHelp
             $type = 'archive';
 
         return $type;
+    }*/
+    
+    public static function SET_FILE_DATA($file, &$data = array())
+    {
+        $info = getimagesize($file);
+
+        if(in_array($info[2] , array(IMAGETYPE_GIF , IMAGETYPE_JPEG ,IMAGETYPE_PNG , IMAGETYPE_BMP)))
+        {
+            $data['width'] = $info[0];
+            $data['height'] = $info[1];
+            
+            // Extract colors
+            $palette = \League\ColorExtractor\Palette::fromFilename($file);
+            $extractor = new \League\ColorExtractor\ColorExtractor($palette);
+            $colors = $extractor->extract(5);
+            $colorIntToHex = function($intColor) {
+                return \League\ColorExtractor\Color::fromIntToHex($intColor, true);
+            };
+            $data['colors'] = array_map($colorIntToHex, $colors);
+        }
+        
+        return $data;
+    }
+    
+    public static function SAVE_FILE_POST($fileInput, $dir)
+    {
+        $name = self::CLEAN_NAME($fileInput['name']);
+        $file = self::RENAME_IF_EXIST($dir, $name);
+        self::WRITE_DIR_OF_FILE($file);
+        
+        if ($fileInput['size'] > MAX_FILE_SIZE)
+            throw new \Exception('Each file must be inferior at ' . (MAX_FILE_SIZE / 1000) . 'ko');
+        
+        // Check error
+        switch ($fileInput['error'])
+        { 
+            case UPLOAD_ERR_INI_SIZE: 
+                throw new \Exception('The uploaded file exceeds the upload_max_filesize directive in php.ini');
+                break; 
+            case UPLOAD_ERR_FORM_SIZE: 
+                throw new \Exception('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form');
+                break; 
+            case UPLOAD_ERR_PARTIAL: 
+                throw new \Exception('The uploaded file was only partially uploaded'); 
+                break; 
+            case UPLOAD_ERR_NO_FILE: 
+                throw new \Exception('No file was uploaded');
+                break; 
+            case UPLOAD_ERR_NO_TMP_DIR: 
+                throw new \Exception('Missing a temporary folder'); 
+                break; 
+            case UPLOAD_ERR_CANT_WRITE: 
+                throw new \Exception('Failed to write file to disk');
+                break; 
+            case UPLOAD_ERR_EXTENSION: 
+                throw new \Exception('File upload stopped by extension');
+                break;
+        }
+                    
+        if (!move_uploaded_file($fileInput['tmp_name'], $file))
+            throw new \Exception('File upload failure to move from "' . $fileData['tmp_name'] . '" to "' . $file . '"' );
+        
+        return $file;
     }
 
-    public static function SAVE_FILE_BASE64(&$base64, $name, $dir)
+    /*public static function SAVE_FILE_BASE64(&$base64, $name, $dir)
     {
         $data = base64_decode($base64);
         $name = self::CLEAN_NAME($name);
@@ -59,27 +122,7 @@ class FileHelp
         return $file;
         
         
-        /*if (preg_match('/^data:image\/(\w+);base64,/', $data, $type))
-        {
-            $data = substr($data, strpos($data, ',') + 1);
-            $type = strtolower($type[1]); // jpg, png, gif
-
-            if (!in_array($type, [ 'jpg', 'jpeg', 'gif', 'png' ]))
-            {
-                throw new \Exception('invalid image type');
-            }
-
-            $data = base64_decode($data);
-
-            if ($data === false) {
-                throw new \Exception('base64_decode failed');
-            }
-        } else {
-            throw new \Exception('did not match data URI with image data');
-        }
-
-        file_put_contents("img.{$type}", $data);*/
-    }
+    }*/
 
     /*public static function SAVE_UPLOADED_FILES($name, $destDir)
     {

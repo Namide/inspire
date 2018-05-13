@@ -1,6 +1,7 @@
 {
     "require": {
-        "klein/klein": "^2.1"
+        "klein/klein": "^2.1",
+        "league/color-extractor": "0.3.*"
     },
     "autoload": {
         "psr-4": {"Inspire\\": "system/"}
