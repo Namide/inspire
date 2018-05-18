@@ -197,7 +197,7 @@ $klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $resp
 
 
 // Delete post
-$klein->respond('DELETE', API_URL_REL . '/posts/[i:uid]', function($request, $response, $service)
+$klein->respond('GET', API_URL_REL . '/posts/delete/[i:uid]', function($request, $response, $service)
 {
     try
     {

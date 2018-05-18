@@ -69,13 +69,17 @@ class Api
 
     deletePost(onLoad, uid)
     {
-        const url = config.api.abs + '/posts/' + uid
+        const url = config.api.abs + '/posts/delete/' + uid
         const request = new Request(url)
         const params = {
-            method: 'DELETE',
-            headers: new Headers(),
-            mode: 'cors',
-            cache: 'default',
+            method: 'GET',
+            headers: new Headers({
+                'Accept': 'application/json',
+                // 'Access-Control-Allow-Methods': 'DELETE'
+                // 'content-type': 'application/json'
+            }),
+            //mode: 'cors',
+            //cache: 'default',
             // body: form
         }
 
