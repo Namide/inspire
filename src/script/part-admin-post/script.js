@@ -160,9 +160,11 @@ export default
         deletePost()
         {
             this.state = STATE.MODIFY
-            api.deletePost(message =>
+            api.deletePost(data =>
             {
                 this.state = STATE.INITIAL
+                if (data.success)
+                    this.eventHub.$emit('post/delete', data.data.uid)
             }, this.post.uid)
         },
 
@@ -172,16 +174,20 @@ export default
 
             if (this.insert)
             {
-                api.addPost(message =>
+                api.addPost(data =>
                 {
                     this.state = STATE.INITIAL
+                    if (data.success)
+                        this.eventHub.$emit('post/add', data.data)
                 }, data)
             }
             else
             {
-                api.updatePost(message =>
+                api.updatePost(data =>
                 {
                     this.state = STATE.INITIAL
+                    if (data.success)
+                        this.eventHub.$emit('post/update', data.data)
                 }, data)
             }
         },

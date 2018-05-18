@@ -35,8 +35,41 @@ export default
         api.getPosts(this.onPosts)
     },
 
+    mounted()
+    {
+        this.eventHub.$on('post/delete', this.onPostDeleted)
+        this.eventHub.$on('post/add', this.onPostAdd)
+        this.eventHub.$on('post/update', this.onPostUpdate)
+    },
+
+    destroyed()
+    {
+        this.eventHub.$off('post/delete', this.onPostDeleted)
+        this.eventHub.$off('post/add', this.onPostAdd)
+        this.eventHub.$off('post/update', this.onPostUpdate)
+    },
+
     methods:
     {
+        onPostDeleted(uid)
+        {
+            const i = this.posts.findIndex(post => post.uid === uid)
+            if (i > -1)
+                this.posts.splice(i, 1)
+        },
+
+        onPostAdd(post)
+        {
+            this.posts.splice(0, 0, post)
+        },
+
+        onPostUpdate(post)
+        {
+            const i = this.posts.findIndex(p => p.uid === post.uid)
+            if (i > -1)
+                this.posts.splice(i, 1, post)
+        },
+
         onPosts({data, meta})
         {
             /*const cleanTags = tag => tag.toLowerCase()
