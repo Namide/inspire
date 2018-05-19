@@ -41,8 +41,8 @@ export default
         else
             this.setSize(2, 2)
         
-        if (this.getThumb() && this.displayMode === 'thumb')
-            this.postStyle = { 'background-color': this.getThumb().colors[0] }
+        if (this.getImg() && this.displayMode === 'thumb')
+            this.postStyle = { 'background-color': this.getColor() }
 
         if (this.displayMode === 'text' && this.data.content_link)
             this.href = this.data.content_link
@@ -50,7 +50,7 @@ export default
 
     mounted()
     {
-        if (this.getThumb())
+        if (this.getImg())
             this.optimizeLoad()
     },
 
@@ -79,7 +79,7 @@ export default
                     {
                         this.isThumbLoaded = true
                     }
-                    this._thumb.src = api.getFileURL(this.data.uid)
+                    this._thumb.src = this.getSrc()
                     if (this._thumb.complete)
                     {
                         this.isThumbLoaded = true
@@ -87,7 +87,7 @@ export default
                 }
 
                 this.thumbStyle = {
-                    'background-image': 'url(' + api.getFileURL(this.data.uid) + ')'
+                    'background-image': 'url(' + this.getSrc() + ')'
                 }
             }
             else
@@ -120,16 +120,31 @@ export default
 
         getSize()
         {
-            const thumb = this.getThumb()
+            const thumb = this.getImg()
             if (thumb)
                 return [thumb.width, thumb.height]
 
             return [3, 1]
         },
 
-        getThumb()
+        getColor()
         {
-            return this.data.thumb ? this.data.thumb.data : this.data.content_file ? this.data.content_file : null 
+            return this.data.thumb && this.data.thumb.colors && this.data.thumb.colors.length > 0 ? this.data.thumb.colors[0] : 'rgba(0,0,0,0)'
+        },
+
+        getImg()
+        {
+            return this.data.thumb ? this.data.thumb : this.data.content_file ? this.data.content_file : null
+        },
+
+        getSrc()
+        {
+            if (this.data.thumb)
+                return api.getThumbURL(this.data.uid)
+            else if (this.data.content_file)
+                return api.getFileURL(this.data.uid)
+
+            return ''
         }
     }
 }

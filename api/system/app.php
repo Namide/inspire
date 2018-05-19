@@ -240,7 +240,7 @@ $klein->respond('GET', API_URL_REL . '/posts/[i:id]', function ($request, $respo
         $post = $postManager->getPost($id);
 
         $data = array(
-            'success' => 1,
+            'success' => true,
             'data' => $post,
             'meta' => array(
                 'subject' => 'post',
@@ -276,6 +276,58 @@ $klein->respond('GET', API_URL_REL . '/files/[i:uid]', function ($request, $resp
         $file = $postManager->getFile($uid);
         
         $response->file( DATA_PATH . $file['path'], $file['name']);
+    }
+    catch (Exception $ex)
+    {
+        $data = array(
+            'success' => false,
+            'message' => $ex->getMessage(),
+            'meta' => array(
+                'time' => microtime(true) - START_TIME . ' sec'
+            )
+        );
+      
+        send($response, $data);
+    }
+});
+
+$klein->respond('POST', API_URL_REL . '/distant-link', function ($request, $response, $service, $app)
+{
+    // Todo
+    if (CORS)
+        $response->header('Access-Control-Allow-Origin', CORS);
+
+    try
+    {
+        $params = $request->params();
+        if (!empty($params['link']))
+        {
+            $html = file_get_contents($params['link']);
+            $data = array(
+                'success' => true,
+                'data' => $html,
+                'meta' => array(
+                    'subject' => 'distant',
+                    'action' => 'get',
+                    'time' => microtime(true) - START_TIME . ' sec'
+                )
+            );
+
+            send($response, $data);
+        }
+        else
+        {
+            $data = array(
+                'success' => false,
+                'message' => '"link" value is required',
+                'meta' => array(
+                    'time' => microtime(true) - START_TIME . ' sec'
+                ),
+                "test" => $params
+            );
+
+            send($response, $data);
+        }
     }
     catch (Exception $ex)
     {

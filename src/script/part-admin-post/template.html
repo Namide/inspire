@@ -1,56 +1,30 @@
 <div>
 
     <div v-show="state > 0" class="modal">
-        <div class="bg" @click="cancel"></div>
+        <div class="bg" @click="close"></div>
         <div class="box">
-            {{ (post && post.uid) || '' }}
+
+            <!-- {{ (post && post.uid) || '' }} -->
+
+            <input type="datetime-local" v-model="date" class="date">
         
             <input type="text" v-model="title" placeholder="title">
 
 
-
-
-            <input type="file" :disabled="false" @change="thumbChange($event.target.files)">
-            <img v-if="thumb" :src="getThumbSrc()" class="file-img" :class="[ 'clamp-' + (fileImgClampW ? 'w' : 'h') ]">  
-            <template v-if="thumb">
-                <div v-for="(data, key) of thumb">
-                    <small v-if="key === 'colors'">
-                        <strong>{{ key }}</strong>:
-                        <span v-for="color of data" class="color" :style="{ background: color }"></span>
-                    </small>
-                    <small v-else>
-                        <strong>{{ key }}</strong>: {{ data }}
-                    </small>
-                </div>
-            </template>
-
+            <part-admin-file-loader @file="thumbChange" :src="getThumbSrc() || ''" :info="thumb" :only-img="true"></part-admin-file-loader>
 
         
             <input type="text" v-model="types" placeholder="types">
         
             <textarea cols="30" rows="10" v-model="description" placeholder="description"></textarea>
         
-            <input type="datetime-local" v-model="date">
-                
-            <input type="file" :disabled="false" @change="filesChange($event.target.files)">
-            <img v-if="fileImg" :src="getFileSrc()" class="file-img" :class="[ 'clamp-' + (fileImgClampW ? 'w' : 'h') ]">
-            <template v-else-if="content_file">
-                <img v-if="content_file.type.includes('image')" :src="'/api/data/' + content_file.path" class="file-img" :class="[ 'clamp-' + (fileImgClampW ? 'w' : 'h') ]">
-            </template>
+            
+
+            <part-admin-file-loader @file="fileChange" :src="getFileSrc() || ''" :info="content_file" :only-img="false"></part-admin-file-loader>
+
+
     
-            <template v-if="content_file">
-                <div v-for="(data, key) of content_file">
-                    <small v-if="key === 'colors'">
-                        <strong>{{ key }}</strong>:
-                        <span v-for="color of data" class="color" :style="{ background: color }"></span>
-                    </small>
-                    <small v-else>
-                        <strong>{{ key }}</strong>: {{ data }}
-                    </small>
-                </div>
-            </template>
-    
-            <input type="text" v-model="content_link" placeholder="link">
+            <input type="text" v-model="content_link" placeholder="link" @blur="linkChange">
     
             <input type="text" v-model="tags" placeholder="tags">
     
@@ -59,14 +33,14 @@
             <input type="checkbox" v-model="public"> Public
             <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>
             <button v-if="!insert" @click="deletePost">Delete</button>
-            <button @click="cancel">Cancel</button>
+            <button @click="cancel">Cancel changes</button>
         </div>
     </div>
 
     <div v-if="insert">
         <button @click="edit">+ Add new post</button>
     </div>
-    <div v-else @click="edit">
+    <div v-else @click="edit" class="line">
         <div>
             <strong v-if="title" v-html="title"></strong>
             <small v-if="types && types.length" v-html="type" v-for="type of types"></small>
@@ -77,54 +51,4 @@
         </div>
     </div>
     
-    <!-- <td>
-        {{ (post && post.uid) || '' }}
-    </td>
-    <td>
-        <input type="text" v-model="title" placeholder="title">
-    </td>
-    <td>
-        <input type="text" v-model="types" placeholder="types">
-    </td>
-    <td>
-        <textarea cols="30" rows="10" v-model="description" placeholder="description"></textarea>
-    </td>
-    <td>
-        <input type="datetime-local" v-model="date">
-    </td>
-    <td>        
-        <input type="file" :disabled="false" @change="filesChange($event.target.files)">
-        
-        <img v-if="fileImg" :src="fileImg" class="file-img" :class="[ 'clamp-' + (fileImgClampW ? 'w' : 'h') ]">
-        <template v-else-if="content_file">
-            <img v-if="content_file.type.includes('image')" :src="'/api/data/' + content_file.path" class="file-img" :class="[ 'clamp-' + (fileImgClampW ? 'w' : 'h') ]">
-        </template>
-
-        <template v-if="content_file">
-            <div v-for="(data, key) of content_file">
-                <small v-if="key === 'colors'">
-                    <strong>{{ key }}</strong>:
-                    <span v-for="color of data" class="color" :style="{ background: color }"></span>
-                </small>
-                <small v-else>
-                    <strong>{{ key }}</strong>: {{ data }}
-                </small>
-            </div>
-        </template>
-    </td>
-    <td>
-        <input type="text" v-model="content_link" placeholder="link">
-    </td>
-    <td>
-        <input type="text" v-model="tags" placeholder="tags">
-    </td>
-    <td>
-        <textarea cols="30" rows="10" v-model="content_text" placeholder="text"></textarea>
-    </td>
-    <td>
-        <input type="checkbox" v-model="public"> Public
-    </td>
-    <td>
-        <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>
-    </td> -->
 </div>

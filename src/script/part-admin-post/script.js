@@ -1,4 +1,5 @@
 import api from '../utils/api'
+import PartAdminFileLoader from '../part-admin-file-loader'
 
 const STATE = {
     INITIAL: 0,
@@ -10,6 +11,11 @@ const STATE = {
 
 export default
 {
+    components:
+    {
+        PartAdminFileLoader
+    },
+
     props:
     {
         post: { type: Object },
@@ -31,8 +37,6 @@ export default
             public: null,
 
             state: STATE.INITIAL,
-            fileImg: false,
-            fileImgClampW: true
         } 
     },
 
@@ -126,37 +130,44 @@ export default
                 this.state = STATE.MODIFY
                 this._modified.types = types
             }
+        },
+
+        state: function (state)
+        {
+            window.removeEventListener('keyup', this.close)
+
+            if (state !== STATE.INITIAL)
+                window.addEventListener('keyup', this.close)
         }
     },
 
     created()
     {
-        this._modified = { }
-
-        this.title = copy((this.post && this.post.title) || '')
-        this.description = copy((this.post && this.post.description) || '')
-        this.thumb = copy((this.post && this.post.thumb) || null)
-        this.date = copy((this.post && this.post.date) || getToday()).split(' ').join('T')
-        this.content_link = copy((this.post && this.post.content_link) || '')
-        this.content_text = copy((this.post && this.post.content_text) || '')
-        this.content_file = copy((this.post && this.post.content_file) || null)
-        this.public = this.post ? !!this.post.public : true
-
-        this.tags = copy((this.post && this.post.tags) || [])
-        this.types = copy((this.post && this.post.types) || [])
+        this.init()
 
         if (!this.insert)
-        {
             this._modified.uid = this.post && this.post.uid
-        }
-
-        if (this.content_file && this.content_file.width && this.content_file.height)
-            this.fileImgClampW = +this.content_file.width > +this.content_file.height
-
     },
 
     methods:
     {
+        init()
+        {
+            this._modified = { }
+
+            this.title = copy((this.post && this.post.title) || '')
+            this.description = copy((this.post && this.post.description) || '')
+            this.thumb = copy((this.post && this.post.thumb) || null)
+            this.date = copy((this.post && this.post.date) || getToday()).split(' ').join('T')
+            this.content_link = copy((this.post && this.post.content_link) || '')
+            this.content_text = copy((this.post && this.post.content_text) || '')
+            this.content_file = copy((this.post && this.post.content_file) || null)
+            this.public = this.post ? !!this.post.public : true
+    
+            this.tags = copy((this.post && this.post.tags) || [])
+            this.types = copy((this.post && this.post.types) || [])
+        },
+
         deletePost()
         {
             this.state = STATE.MODIFY
@@ -176,25 +187,32 @@ export default
             {
                 api.addPost(data =>
                 {
-                    this.state = STATE.INITIAL
                     if (data.success)
                         this.eventHub.$emit('post/add', data.data)
                 }, data)
+                this.state = STATE.INITIAL
             }
             else
             {
                 api.updatePost(data =>
                 {
-                    this.state = STATE.INITIAL
+                    
                     if (data.success)
                         this.eventHub.$emit('post/update', data.data)
                 }, data)
+                this.state = STATE.INITIAL
             }
+        },
+
+        close()
+        {
+            this.state = STATE.INITIAL
         },
 
         cancel()
         {
-            this.state = STATE.INITIAL
+            this.init()
+            this.$nextTick(this.close)
         },
 
         edit()
@@ -204,21 +222,50 @@ export default
 
         getThumbSrc()
         {
-            return api.getThumbURL(this.post.uid)
+            return this.post ? api.getThumbURL(this.post.uid) : ''
         },
 
         getFileSrc()
         {
-            return api.geFileURL(this.post.uid)
+            return this.post ? api.getFileURL(this.post.uid) : ''
         },
 
-        thumbChange([file])
+        thumbChange(file)
         {
             this._modified.thumb = file           
             this.state = STATE.MODIFY
         },
 
-        filesChange([file])
+        linkChange()
+        {
+            if (this.title == '')
+            {
+                api.getDistantLink(data =>
+                {
+                    const distantPage = document.implementation.createHTMLDocument('')
+                    distantPage.open()
+                    distantPage.write(data.data)
+                    distantPage.close()
+
+                    if (distantPage.title != '' && this.title == '')
+                        this.title = distantPage.title
+
+                    const image = distantPage.querySelector('meta[property="og:image"]')
+                    const images = distantPage.querySelectorAll('a[href]')
+                    if (image)
+                    {
+                        const URL = image.getAttribute('content')
+                    }
+                    else if (images.length > 0)
+                    {
+                        const URL = images[0].getAttribute('src')
+                    }
+
+                }, this.content_link)
+            }
+        },
+
+        fileChange(file)
         {
             this._modified.content_file = file
 

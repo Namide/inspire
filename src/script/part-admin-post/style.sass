@@ -1,15 +1,20 @@
-.file-img
-    &.clamp-w
-        width: 256px
-        height: auto
-    &.clamp-h
-        height: 256px
-        width: auto
+.line
+    padding: 0.25em 0.5em
+    margin-bottom: 0.5em
+    position: relative
+    cursor: pointer
+    &:hover
+        background-color: rgba(255, 255, 255, 0.25)
+        
+        &:after
+            content: "Edit"
+            position: absolute
+            top: 50%
+            right: 1em
+            transform: translateY(-50%)   
 
-.color
-    width: 16px
-    height: 16px
-    display: inline-block
+input
+    border: none
 
 .modal
     position: absolute
@@ -17,6 +22,7 @@
     top: 0
     width: 100%
     height: 100%
+    z-index: 2
     
     .bg
         position: absolute
@@ -30,3 +36,7 @@
         position: relative
         background: #FFF
         margin: 10%
+
+    .date
+        margin-left: auto
+        display: block

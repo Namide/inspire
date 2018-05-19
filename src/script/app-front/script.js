@@ -34,11 +34,5 @@ export default {
         {
             // react to route changes...
         }
-    },
-
-    created()
-    {
-        console.log(this.$route)
-
     }
 }

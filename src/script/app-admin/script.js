@@ -34,10 +34,5 @@ export default {
         {
             // react to route changes...
         }
-    },
-
-    created()
-    {
-
     }
 }
