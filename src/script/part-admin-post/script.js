@@ -42,7 +42,7 @@ export default
 
     watch:
     {
-        title: function(title, before)
+        title(title, before)
         {
             if (before !== null)
             {
@@ -51,7 +51,7 @@ export default
             }
         },
 
-        description: function(description, before)
+        description(description, before)
         {
             if (before !== null)
             {
@@ -60,7 +60,7 @@ export default
             }
         },
 
-        thumb: function(data, before)
+        thumb(data, before)
         {
             if (before !== null)
             {
@@ -69,7 +69,7 @@ export default
             }
         },
 
-        date: function(date, before)
+        date(date, before)
         {
             if (before !== null)
             {
@@ -78,7 +78,7 @@ export default
             }
         },
 
-        content_link: function(content_link, before)
+        content_link(content_link, before)
         {
             if (before !== null)
             {
@@ -87,7 +87,7 @@ export default
             }
         },
 
-        content_text: function(text, before)
+        content_text(text, before)
         {
             if (before !== null)
             {
@@ -96,7 +96,7 @@ export default
             }
         },
 
-        content_file: function(data, before)
+        content_file(data, before)
         {
             if (before !== null)
             {
@@ -105,7 +105,7 @@ export default
             }
         },
 
-        public: function(isPublic, before)
+        public(isPublic, before)
         {
             if (before !== null)
             {
@@ -114,7 +114,7 @@ export default
             }
         },
 
-        tags: function(tags, before)
+        tags(tags, before)
         {
             if (before !== null)
             {
@@ -123,7 +123,7 @@ export default
             }
         },
 
-        types: function(types, before)
+        types(types, before)
         {
             if (before !== null)
             {
@@ -132,12 +132,12 @@ export default
             }
         },
 
-        state: function (state)
+        state(state)
         {
-            window.removeEventListener('keyup', this.close)
+            window.removeEventListener('keyup', this.keyUp)
 
             if (state !== STATE.INITIAL)
-                window.addEventListener('keyup', this.close)
+                window.addEventListener('keyup', this.keyUp)
         }
     },
 
@@ -234,6 +234,12 @@ export default
         {
             this._modified.thumb = file           
             this.state = STATE.MODIFY
+        },
+
+        keyUp(keyEvent)
+        {
+            if (keyEvent.keyCode === 27)
+                this.close()
         },
 
         linkChange()

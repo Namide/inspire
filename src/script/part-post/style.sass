@@ -66,6 +66,52 @@ $marg: 4px
         &.h6
             grid-row-end: span 6
 
+        @media screen and (max-width: 1280px)
+            &.w1, &.w2
+                grid-column-end: span 2
+            &.w3, &.w4
+                grid-column-end: span 4
+            &.w5, &.w6
+                grid-column-end: span 6
+            &.h1, &.h2
+                grid-row-end: span 2
+            &.h3, &.h4
+                grid-row-end: span 4
+            &.h5, &.h6
+                grid-row-end: span 6
+
+        @media screen and (max-width: 960px)
+            &.w1, &.w2, &.w3
+                grid-column-end: span 3
+            &.w4, &.w5, &.w6
+                grid-column-end: span 6
+            &.h1, &.h2, &.h3
+                grid-row-end: span 3
+            &.h4, &.h5, &.h6
+                grid-row-end: span 6
+
+        @media screen and (max-width: 512px)
+            &.w1, &.w2, &.w3, &.w4, &.w5, &.w6
+                grid-column-end: span 12
+
+            &.w1.h1, &.w2.h2, &.w3.h3, &.w4.h4, &.w5.h5, &.w6.h6
+                grid-row-end: span 12
+            &.w1.h2, &.w2.h4, &.w3.h6
+                grid-row-end: span 24
+            &.w1.h3, &.w2.h6
+                grid-row-end: span 36
+            &.w1.h5
+                grid-row-end: span 60
+
+            
+            &.w2.h1, &.w4.h2, &.w6.h3
+                grid-row-end: span 6
+            &.w3.h1, &.w6.h2
+                grid-row-end: span 4
+            &.w5.h1
+                grid-row-end: span 2
+            
+
     .thumb
         position: absolute
         background-size: cover

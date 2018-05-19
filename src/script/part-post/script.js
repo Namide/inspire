@@ -1,6 +1,18 @@
 import config from '../../config'
 import api from '../utils/api'
 
+const  getPgcd = (a, b) =>
+{ 
+    while (b > 0)
+    {  
+        var r = a % b 
+        a = b 
+        b = r 
+    }
+
+    return a
+}
+
 export default
 {
     components:
@@ -22,7 +34,9 @@ export default
             postStyle: { },
             thumbStyle: false,
             isThumbLoaded: false,
-            href: false
+            href: false,
+            w: 1,
+            h: 1
         }
     },
 
@@ -30,19 +44,30 @@ export default
     {
         const size = this.getSize()
 
-        if (size[0] / size[1] > 2.5)
-            this.setSize(3, 1)
-        else if (size[0] / size[1] > 1.5)
-            this.setSize(2, 1)
-        else if (size[1] / size[0] > 2.5)
-            this.setSize(1, 3)
-        else if (size[1] / size[0] > 1.5)
-            this.setSize(1, 2)
+        const max = 6
+        let w = 1
+        let h = 1
+        if (size[0] > size[1])
+        {
+            w = max
+            h = Math.round(w * size[1] / size[0]) || 1
+        }
         else
-            this.setSize(2, 2)
+        {
+            h = max
+            w = Math.round(h * size[0] / size[1]) || 1
+        }
+
+        const p = getPgcd(w, h)
+        w /= p
+        h /= p
+
+        this.setSize(w, h)
         
         if (this.getImg() && this.displayMode === 'thumb')
-            this.postStyle = { 'background-color': this.getColor() }
+        {
+            this.$set(this.postStyle, 'background-color', this.getColor())
+        }
 
         if (this.displayMode === 'text' && this.data.content_link)
             this.href = this.data.content_link
@@ -111,11 +136,19 @@ export default
             const sideMax = 6
             const sideMin = 1
 
-            let mult = 1
+            let mult = 5
             while (w * (mult + 1) * h * (mult + 1) <= areaDo && Math.max(w * mult + 1, h * mult + 1) < sideMax)
                 mult++
+            while (Math.max(w * mult, h * mult) > sideMax)
+                mult--
+
+            w *= mult
+            h *= mult
+            console.log(w, h, mult)
             
-            this.classData.push('w' + w * mult, 'h' + h * mult)
+            this.classData.push('w' + w, 'h' + h)
+            // this.$set(this.postStyle, 'grid-column-end', 'span ' + w * mult)
+            // this.$set(this.postStyle, 'grid-row-end', 'span ' + h * mult)
         },
 
         getSize()

@@ -11,7 +11,15 @@
             position: absolute
             top: 50%
             right: 1em
-            transform: translateY(-50%)   
+            transform: translateY(-50%)
+    .tag
+        &:after
+            content: ", "
+        &:last-of-type
+            &:after
+                content: none
+    .date
+        margin-left: auto
 
 input
     border: none
