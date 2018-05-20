@@ -6,7 +6,8 @@ const STATE = {
     MODIFY: 1,
     MODIFIED: 2,
     UPDATE: 3,
-    ERROR: 4
+    ERROR: 4,
+    CANCELED: 5
 }
 
 export default
@@ -37,6 +38,7 @@ export default
             public: null,
 
             state: STATE.INITIAL,
+            STATE: STATE
         } 
     },
 
@@ -65,7 +67,7 @@ export default
             if (before !== null)
             {
                 this.state = STATE.MODIFY
-                this._modified.thumb = copy(data)
+                // this._modified.thumb = copy(data)
             }
         },
 
@@ -101,7 +103,7 @@ export default
             if (before !== null)
             {
                 this.state = STATE.MODIFY
-                this._modified.content_file = copy(data)
+                // this._modified.content_file = copy(data)
             }
         },
 
@@ -166,6 +168,8 @@ export default
     
             this.tags = copy((this.post && this.post.tags) || [])
             this.types = copy((this.post && this.post.types) || [])
+
+            this.state = STATE.INITIAL
         },
 
         deletePost()
@@ -173,9 +177,9 @@ export default
             this.state = STATE.MODIFY
             api.deletePost(data =>
             {
-                this.state = STATE.INITIAL
                 if (data.success)
                     this.eventHub.$emit('post/delete', data.data.uid)
+                this.cancel()
             }, this.post.uid)
         },
 
@@ -190,17 +194,16 @@ export default
                     if (data.success)
                         this.eventHub.$emit('post/add', data.data)
                 }, data)
-                this.state = STATE.INITIAL
+                this.cancel()
             }
             else
             {
                 api.updatePost(data =>
                 {
-                    
                     if (data.success)
                         this.eventHub.$emit('post/update', data.data)
-                }, data)
-                this.state = STATE.INITIAL
+                }, this.post.uid, data)
+                this.cancel()
             }
         },
 
@@ -212,6 +215,7 @@ export default
         cancel()
         {
             this.init()
+            this.state = STATE.CANCELED
             this.$nextTick(this.close)
         },
 
@@ -222,18 +226,12 @@ export default
 
         getThumbSrc()
         {
-            return this.post ? api.getThumbURL(this.post.uid) : ''
+            return this.post && this.thumb ? api.getThumbURL(this.post.uid) : ''
         },
 
         getFileSrc()
         {
-            return this.post ? api.getFileURL(this.post.uid) : ''
-        },
-
-        thumbChange(file)
-        {
-            this._modified.thumb = file           
-            this.state = STATE.MODIFY
+            return this.post && this.content_file ? api.getFileURL(this.post.uid) : ''
         },
 
         keyUp(keyEvent)
@@ -261,19 +259,58 @@ export default
                     if (image)
                     {
                         const URL = image.getAttribute('content')
+                        console.log(URL)
                     }
                     else if (images.length > 0)
                     {
                         const URL = images[0].getAttribute('src')
+                        console.log(URL)
                     }
 
                 }, this.content_link)
             }
         },
 
+        thumbChange(file)
+        {
+            if (!file)
+            {
+                this.thumb = null
+                this._modified.thumb = null
+                return
+            }
+
+            const thumb = {
+                name: file.name,
+                size: file.size,
+                type: file.type
+            }
+
+            this.thumb = thumb
+            this._modified.thumb = file
+        },
+
         fileChange(file)
         {
+            if (!file)
+            {
+                this.content_file = null
+                this._modified.content_file = null
+                return
+            }
+
+            const content_file = {
+                name: file.name,
+                size: file.size,
+                type: file.type
+            }
+
+            this.content_file = content_file
             this._modified.content_file = file
+
+            
+            // this.file = file
+            // this._modified.content_file = file
 
             const types = file.type ? file.type.split('/') : []
             if (types.length > 0 && this.types.indexOf(types[0]) < 0)
@@ -291,8 +328,6 @@ export default
                 if (title.length > 0)
                     this.title = title.charAt(0).toUpperCase() + title.slice(1)
             }
-            
-            this.state = STATE.MODIFY
         }
     }
 }

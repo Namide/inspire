@@ -67,7 +67,10 @@ export default
         {
             const i = this.posts.findIndex(p => p.uid === post.uid)
             if (i > -1)
-                this.posts.splice(i, 1, post)
+            {
+                this.posts.splice(i, 1)
+                this.$nextTick(() => this.posts.splice(i, 0, post))
+            }
         },
 
         onPosts({data, meta})

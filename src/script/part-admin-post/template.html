@@ -25,10 +25,10 @@
 
             <input type="datetime-local" v-model="date" class="date">
         
-            <input type="text" v-model="title" placeholder="title">
+            <input type="text" v-model="title" placeholder="title" class="title">
 
 
-            <part-admin-file-loader @file="thumbChange" :src="getThumbSrc() || ''" :info="thumb" :only-img="true"></part-admin-file-loader>
+            <part-admin-file-loader v-if="state !== STATE.CANCELED" @file="thumbChange" :src="getThumbSrc() || ''" :info="thumb" :only-img="true"></part-admin-file-loader>
 
         
             <input type="text" v-model="types" placeholder="types">
@@ -37,7 +37,7 @@
         
             
 
-            <part-admin-file-loader @file="fileChange" :src="getFileSrc() || ''" :info="content_file" :only-img="false"></part-admin-file-loader>
+            <part-admin-file-loader v-if="state !== STATE.CANCELED" @file="fileChange" :src="getFileSrc() || ''" :info="content_file" :only-img="false"></part-admin-file-loader>
 
 
     

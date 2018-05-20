@@ -4,7 +4,7 @@
 .posts
 
     &.is-thumb
-        --gutter: 4px
+        --gutter: 8px
         --columns: 12
         --width: 100vw
 
@@ -16,6 +16,8 @@
         align-content: start
         grid-auto-rows: calc( ( var(--width) - (var(--gutter) * (var(--columns) - 1))) / var(--columns))
         grid-auto-flow: dense // dense
+
+        background-color: #777
 
     // @media screen and (max-width: 2048px)
     //     &.is-thumb

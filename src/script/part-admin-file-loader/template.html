@@ -1,7 +1,8 @@
 <div>
 
-    <input type="file" :disabled="false" @change="filesChange($event.target.files)" :accept="onlyImg ? 'image/*' : '*'">
-    
+    <input v-if="!finalSrc" type="file" :disabled="false" @change="filesChange($event.target.files)" :accept="onlyImg ? 'image/*' : '*'">
+    <button v-else @click="deleteFile">Delete image</button>
+
     <div v-if="isImg && finalSrc !== ''" class="file-img" :style="{ backgroundImage: 'url(' + finalSrc + ')' }">
         
         <div v-if="info" v-for="(data, key) of info">

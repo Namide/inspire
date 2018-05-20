@@ -11,7 +11,7 @@ export default
     props:
     {
         src: { type: String, default: '' },
-        info: { type: Object, default: 1 },
+        info: { type: Object, default: null },
         onlyImg: { type: Boolean, default: false }
     },
 
@@ -34,7 +34,7 @@ export default
 
     created()
     {
-        this.finalSrc = this.src
+        this.finalSrc = this.src || ''
     },
 
     methods:
@@ -48,6 +48,11 @@ export default
             this.$emit('file', file)
             
             this.state = STATE.MODIFY
+        },
+
+        deleteFile()
+        {
+            this.$emit('file', null)
         },
 
         imgViewer(file)

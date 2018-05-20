@@ -89,11 +89,11 @@ class Api
             .catch(err => console.error(err))
     }
 
-    updatePost(onLoad, data)
+    updatePost(onLoad, uid, data)
     {
         const newData = Object.assign({}, data)
-        const url = config.api.abs + '/posts/' + data.uid
-        newData.uid = null
+        const url = config.api.abs + '/posts/' + uid
+        delete newData.uid
         const form = dataToFormData(newData)
 
         const request = new Request(url)
