@@ -86,26 +86,22 @@ class PostManager extends \Inspire\Database\DataManager
             $this->removeFile($uid);*/
         
         
-        
         self::formatInputData($data, $rowList, $binds);
         // self::formatInputFileAndSave($data, $rowList, $binds);
 
         
-        if (count($binds) < 1)
-            throw new \Exception('POST data not founds');
-  
+        if (count($binds) > 1)
+        {
+            $update = 'UPDATE `post`';
+            $set = ' SET ';
+            foreach ($rowList as $row)
+                $set .= '`' . $row . '` = :' . $row . ', ';
+            $set = substr($set, 0, -2);
+            $where = ' WHERE `id` = (SELECT uid.item_id FROM `uid` WHERE uid.id = :uid AND uid.item_name = "post")';
 
-        $update = 'UPDATE `post`';
-        $set = ' SET ';
-        foreach ($rowList as $row)
-            $set .= '`' . $row . '` = :' . $row . ', ';
-        $set = substr($set, 0, -2);
-        $where = ' WHERE `id` = (SELECT uid.item_id FROM `uid` WHERE uid.id = :uid AND uid.item_name = "post")';
-        
-        
-        $this->_database->EXECUTE($update . $set . $where, $binds);
-        
-        
+
+            $this->_database->EXECUTE($update . $set . $where, $binds);
+        }
         
         
         // Update tags
@@ -135,7 +131,6 @@ class PostManager extends \Inspire\Database\DataManager
         $post = $this->getPost($uid);
         return $post;
     }
-    
     
     public function createThumbFromImage($image)
     {

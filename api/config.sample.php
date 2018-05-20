@@ -23,6 +23,7 @@ define('DB_OPTIONS', null);
 
 // Files
 define('MAX_FILE_SIZE', 1000000); // Octets
+define('THUMB_PIXELS', 512 * 1024);
 
 // Params
 define('CORS', FRONT_URL_ABS); // URL or false
