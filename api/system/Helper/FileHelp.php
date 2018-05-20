@@ -91,7 +91,20 @@ class FileHelp
         $thumbName = self::CLEAN_NAME(pathinfo($thumb, PATHINFO_FILENAME) . '.jpg');
         $thumbFile = self::RENAME_IF_EXIST($thumbDir, $thumbName);
 
-        if (max($width, $height) <= 512)
+        $pixels = $width * $height;
+        if ($pixels > THUMB_PIXELS)
+        {
+            $mult = sqrt(THUMB_PIXELS / ($width * $height));
+            $thumbWidth = round($width * $mult);
+            $thumbHeight = round($height * $mult);
+        }
+        else
+        {
+            $thumbWidth = $width;
+            $thumbHeight = $height;
+        }
+        
+        /*if (max($width, $height) <= 512)
         {
             $thumbWidth = $width;
             $thumbHeight = $height;
@@ -105,7 +118,7 @@ class FileHelp
         {
            $thumbHeight = 512;
            $thumbWidth = round(512 * $width / $height);
-        }
+        }*/
         
         self::WRITE_DIR_OF_FILE($thumbFile);
         \WideImage\WideImage::load($image)
