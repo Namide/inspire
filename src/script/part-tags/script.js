@@ -21,7 +21,7 @@ export default
     props:
     {
         tags: { type: Array, default: () => [] },
-        placeholder: { type: String, default: '' },
+        placeholder: { type: String, default: 'Filters (tag, @type, !not)' },
         readOnly: { type: Boolean, default: false }
     },
 

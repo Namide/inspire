@@ -19,6 +19,14 @@ const dataToFormData = data =>
     return form
 }
 
+const testSuccess = data =>
+{
+    if (!data.success)
+        throw Error('API error: ' + data.message)
+        
+    return data
+}
+
 /*
 const filterPost = data =>
 {
@@ -44,7 +52,7 @@ class Api
         this.posts = null
     }
 
-    addPost(onLoad, data)
+    addPost(onLoad, data, onError = msg => console.error(msg))
     {
         const form = dataToFormData(data)
         const url = config.api.abs + '/posts'
@@ -62,12 +70,13 @@ class Api
         fetch(request, params)
             // .then(collection => console.log(collection))
             .then(data => data.json())
+            .then(testSuccess)
             // .then(data => data.success ? (data.data.map(filterPost), data) : data)
             .then(onLoad)
             .catch(err => console.error(err))
     }
 
-    deletePost(onLoad, uid)
+    deletePost(onLoad, uid, onError = msg => console.error(msg))
     {
         const url = config.api.abs + '/posts/delete/' + uid
         const request = new Request(url)
@@ -85,11 +94,12 @@ class Api
 
         fetch(request, params)
             .then(data => data.json())
+            .then(testSuccess)
             .then(onLoad)
             .catch(err => console.error(err))
     }
 
-    updatePost(onLoad, uid, data)
+    updatePost(onLoad, uid, data, onError = msg => console.error(msg))
     {
         const newData = Object.assign({}, data)
         const url = config.api.abs + '/posts/' + uid
@@ -109,6 +119,7 @@ class Api
             // .then(collection => console.log(collection))
             .then(data => data.json())
             // .then(data => data.success ? (data.data.map(filterPost), data) : data)
+            .then(testSuccess)
             .then(onLoad)
             .catch(err => console.error(err))
     }
@@ -123,7 +134,7 @@ class Api
         return config.api.abs + '/files/' + uid
     }
 
-    getGroups(onLoad)
+    getGroups(onLoad, onError = msg => console.error(msg))
     {
         const cleanData = data =>
         {
@@ -134,18 +145,21 @@ class Api
         this.client.getItems('group')
         // this.client._get('tables/post/rows' + search, params)
             .then(res => { return { data: res.data.map(cleanData), meta: res.meta } })
+            .then(testSuccess)
             .then(res => onLoad(res))
             .catch(err => console.error(err))
     }
 
-    getPosts(onLoad, tags = [])
+    getPosts(onLoad, { tags = [], types = [], noTags = [], noTypes = [], limit = 100, offset = 0 } = {}, onError = msg => console.error(msg))
     {
-        tags = tags.map(tag => tag.toLowerCase())
-        const tagsIn = tags.filter((tag) => tag.length > 0 && tag[0] !== '!')
-        const tagsOut = tags.filter((tag) => tag.length > 0 && tag[0] === '!').map(tag => tag.substr(1))
+        const args = (tags.length > 0 ? '/tags/' + encodeURIComponent(tags.join(',')) : '')
+            + (noTags.length > 0 ? '/notags/' + encodeURIComponent(noTags.join(',')) : '')
+            + (types.length > 0 ? '/types/' + encodeURIComponent(types.join(',')) : '')
+            + (noTypes.length > 0 ? '/notypes/' + encodeURIComponent(noTypes.join(',')) : '')
+            + '/limit/' + limit
+            + '/offset/' + offset
 
-
-        const url = config.api.abs + '/posts'
+        const url = config.api.abs + '/posts' + args
         const request = new Request(url)
         const params = {
             method: 'GET',
@@ -157,7 +171,9 @@ class Api
             // .then(collection => console.log(collection))
             .then(data => data.json())
             // .then(data => data.success && data.data ? (data.data = data.data.map(filterPost), data) : data)
+            .then(testSuccess)
             .then(json => onLoad(json))
+            .catch(error => onError(error.message))
 
         /*this.client.getItems(url, params)
         // this.client._get('tables/post/rows' + search, params)
@@ -167,7 +183,7 @@ class Api
             .catch(err => console.error(err))*/
     }
 
-    getDistantLink(onLoad, link)
+    getDistantLink(onLoad, link, onError = msg => console.error(msg))
     {
         const form = dataToFormData({link})
         const url = config.api.abs + '/distant-link'
@@ -182,6 +198,7 @@ class Api
         fetch(request, params)
             // .then(collection => console.log(collection))
             .then(data => data.json())
+            .then(testSuccess)
             // .then(data => data.success && data.data ? (data.data = data.data.map(filterPost), data) : data)
             .then(onLoad)
 

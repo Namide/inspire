@@ -24,9 +24,28 @@ export default
 
     watch:
     {
-        filterTags(tags)
+        filterTags(list)
         {
-            api.getPosts(this.onPosts, tags)
+            const tags = []
+            const types = []
+            const noTags = []
+            const noTypes = []
+            list.forEach(item => 
+            {
+                const s = item[0] + item[1]
+                const f = item[0]
+
+                if (s === '!@' || s === '@!')
+                    noTypes.push(item.substr(2))
+                else if (f === '@')
+                    types.push(item.substr(1))
+                else if (f === '!')
+                    noTags.push(item.substr(1))
+                else
+                    tags.push(item)
+            })
+
+            api.getPosts(this.onPosts, { tags, noTags, types, noTypes })
         }
     },
 

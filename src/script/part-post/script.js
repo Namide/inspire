@@ -144,7 +144,6 @@ export default
 
             w *= mult
             h *= mult
-            console.log(w, h, mult)
             
             this.classData.push('w' + w, 'h' + h)
             // this.$set(this.postStyle, 'grid-column-end', 'span ' + w * mult)

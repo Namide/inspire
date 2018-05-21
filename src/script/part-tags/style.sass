@@ -1,6 +1,6 @@
-.vue-input-tag-wrapper
+.tags
     background-color: #fff
-    border: 1px solid #ccc
+    // border: 1px solid #ccc
     overflow: hidden
     padding-left: 4px
     padding-top: 4px
@@ -9,31 +9,40 @@
     -webkit-appearance: textfield
     display: flex
     flex-wrap: wrap
+    
+    &.read-only
+        cursor: default
 
-.vue-input-tag-wrapper .input-tag
-    background-color: #cde69c
-    border-radius: 2px
-    border: 1px solid #a5d24a
-    color: #638421
+.input-tag
+    background-color: #F07
+    // border-radius: 2px
+    // border: 1px solid #a5d24a
+    color: #FFF
     display: inline-block
     font-size: 13px
     font-weight: 400
     margin-bottom: 4px
     margin-right: 4px
-    padding: 3px
+    padding: 2px 8px 2px 4px
 
-.vue-input-tag-wrapper .input-tag .remove
-    cursor: pointer
-    font-weight: bold
-    color: #638421
+    &.is-type
+        background-color: #F70
+    .is-not
+        text-decoration: line-through
 
-.vue-input-tag-wrapper .input-tag .remove:hover
-    text-decoration: none
+    .remove
+        cursor: pointer
+        font-weight: bold
+        color: #FFF
 
-.vue-input-tag-wrapper .input-tag .remove::before
-    content: " x"
+        &:hover
+            text-decoration: none
 
-.vue-input-tag-wrapper .new-tag
+        &::before
+            content: "✖"
+            margin-left: 4px
+
+.new-tag
     background: transparent
     border: 0
     color: #777
@@ -45,6 +54,3 @@
     padding: 4px
     padding-left: 0
     flex-grow: 1
-
-.vue-input-tag-wrapper.read-only
-    cursor: default
