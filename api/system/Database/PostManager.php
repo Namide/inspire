@@ -269,14 +269,64 @@ class PostManager extends \Inspire\Database\DataManager
         return \Inspire\Helper\JsonHelp::TO_ARRAY($post['thumb']);
     }
 
-    public function getPosts()
+    public function getPosts($filter = array())
     {
         $rq = self::$_POST_REQUEST;
-        $request = $rq['select'] . $rq['from'] . $rq['join'] . $rq['where'] . $rq['group'] . $rq['order'] . $rq['limit'];
-        $posts = $this->_database->FETCH_ALL($request, array());
+        
+        $limit = empty($filter['limit']) ? 100 : (int) $filter['limit'];
+        $offset = empty($filter['offset']) ? 0 : (int) $filter['offset'];
+        
+        $binds = array(
+            array(':limit', $limit, \PDO::PARAM_INT),
+            array(':offset', $offset, \PDO::PARAM_INT)
+        );
+        
+        $tags = empty($filter['tags']) ? array() : (array) $filter['tags'];
+        $notags = empty($filter['notags']) ? array() : (array) $filter['notags'];
+        $types = empty($filter['types']) ? array() : (array) $filter['types'];
+        $notypes = empty($filter['notypes']) ? array() : (array) $filter['notypes'];
+        
+        $codeId = 0;
+        $havings = array();
+        foreach ($tags as $tag)
+        {
+            $code = ':data' . ++$codeId;
+            $binds[] = array($code, $tag, \PDO::PARAM_STR);
+            $havings[] = '(\',\' || LOWER(tags) || \',\') LIKE (\'%,\' || LOWER(' . $code . ') || \',%\')';
+        }
+        foreach ($types as $type)
+        {
+            $code = ':data' . ++$codeId;
+            $binds[] = array($code, $type, \PDO::PARAM_STR);
+            $havings[] = '(\',\' || LOWER(types) || \',\') LIKE (\'%,\' || LOWER(' . $code . ') || \',%\')';
+        }
+        foreach ($notags as $tag)
+        {
+            $code = ':data' . ++$codeId;
+            $binds[] = array($code, $tag, \PDO::PARAM_STR);
+            $havings[] = '(\',\' || LOWER(tags) || \',\') NOT LIKE ((\'%,\' || LOWER(' . $code . ') || \',%\'))';
+        }
+        foreach ($notypes as $type)
+        {
+            $code = ':data' . ++$codeId;
+            $binds[] = array($code, $type, \PDO::PARAM_STR);
+            $havings[] = '(\',\' || LOWER(types) || \',\') NOT LIKE ((\'%,\' || LOWER(' . $code . ') || \',%\'))';
+        }
+        
+        if (count($havings) > 0)
+            $having = ' HAVING ' . implode(' AND ', $havings);
+        else
+            $having = '';
+        
+        $request = $rq['select'] . $rq['from'] . $rq['join']
+            . $rq['where'] . $rq['group'] . $having . $rq['order']
+            . ' LIMIT :limit OFFSET :offset';
+        $posts = $this->_database->FETCH_ALL($request, $binds);
         
         foreach ($posts as &$post)
             self::clearOutputPost($post);
+        
+        // return $request;
         
         return $posts;
     }

@@ -29,7 +29,7 @@ class DataManager
         'where' => ' WHERE uid.item_name = "post"',
         'group' => ' GROUP BY post.id',
         'order' => ' ORDER BY `date` DESC, uid.id DESC',
-        'limit' => ' LIMIT 10 OFFSET 0'
+        'limit' => ' LIMIT 100 OFFSET 0'
     );
     
     function __construct()

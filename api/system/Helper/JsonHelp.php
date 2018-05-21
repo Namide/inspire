@@ -24,22 +24,22 @@ class JsonHelp
             case JSON_ERROR_NONE:
                 break;
             case JSON_ERROR_DEPTH:
-                throw new Exception('JSON error: Maximum stack depth exceeded.');
+                throw new \Exception('JSON error: Maximum stack depth exceeded.');
                 break;
             case JSON_ERROR_STATE_MISMATCH:
-                throw new Exception('JSON error: Underflow or the modes mismatch.');
+                throw new \Exception('JSON error: Underflow or the modes mismatch.');
                 break;
             case JSON_ERROR_CTRL_CHAR:
-                throw new Exception('JSON error: Unexpected control character found.');
+                throw new \Exception('JSON error: Unexpected control character found.');
                 break;
             case JSON_ERROR_SYNTAX:
-                throw new Exception('JSON error: Syntax error, malformed JSON.');
+                throw new \Exception('JSON error: Syntax error, malformed JSON.');
                 break;
             case JSON_ERROR_UTF8:
-                throw new Exception('JSON error: Malformed UTF-8 characters, possibly incorrectly encoded.');
+                throw new \Exception('JSON error: Malformed UTF-8 characters, possibly incorrectly encoded.');
                 break;
             default:
-                throw new Exception('JSON error: Unknown error.');
+                throw new \Exception('JSON error: Unknown error.');
                 break;
         }
 

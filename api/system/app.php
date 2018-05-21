@@ -45,12 +45,52 @@ $klein->respond('GET', API_URL_REL . '/', function($request, $response, $service
     send($response, $data);
 });
 
-$klein->respond('GET', API_URL_REL . '/posts', function($request, $response, $service)
+$klein->respond('GET', API_URL_REL . '/posts/[*:trailing]?', function ($request, $response, $service)
 {
     try
     {
+        $argsStr = $request->param('trailing');
+        $rawList = explode('/', $argsStr);
+        
+        if (count($rawList) % 2 === 1)
+            throw new Exception('List of data after posts must be pair');
+
+        $argObj = array();
+        for ($i = 0; $i < count($rawList); $i += 2)
+        {
+            $key = $rawList[$i];
+            $rawValue = $rawList[$i + 1];
+            switch($key)
+            {
+                case 'tags':
+                    $value = explode(',', $rawValue);
+                    break;
+                case 'types':
+                    $value = explode(',', $rawValue);
+                    break;
+                case 'notags':
+                    $value = explode(',', $rawValue);
+                    break;
+                case 'notypes':
+                    $value = explode(',', $rawValue);
+                    break;
+                case 'limit':
+                    $value = (int) $rawValue;
+                    break;
+                case 'offset':
+                    $value = (int) $rawValue;
+                    break;
+                default:
+                    throw new Exception('Arguments after "posts" must be only '
+                            . '"tags", "types", "notags", "notypes", "limit" and "offset", "'
+                            . $key . '" not accepted');
+            }
+            
+            $argObj[$key] = $value;
+        }
+
         $postManager = new \Inspire\Database\PostManager();
-        $posts = $postManager->getPosts();
+        $posts = $postManager->getPosts($argObj);
         $data = array(
             'success' => true,
             'data' => $posts,
@@ -73,7 +113,7 @@ $klein->respond('GET', API_URL_REL . '/posts', function($request, $response, $se
     }
 
     send($response, $data);
-});
+});  
 
 // Add post
 $klein->respond('POST', API_URL_REL . '/posts', function($request, $response, $service)
@@ -229,7 +269,7 @@ $klein->respond('GET', API_URL_REL . '/posts/delete/[i:uid]', function($request,
     }
 
     send($response, $data);
-});
+});   
 
 $klein->respond('GET', API_URL_REL . '/posts/[i:id]', function ($request, $response, $service)
 {
