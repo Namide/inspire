@@ -51,6 +51,10 @@ $klein->respond('GET', API_URL_REL . '/posts/[*:trailing]?', function ($request,
     {
         $argsStr = $request->param('trailing');
         $rawList = explode('/', $argsStr);
+
+        // Fix array with 1 empty cell
+        if (count($rawList) === 1 && empty($rawList[0]))
+            unset($rawList[0]);
         
         if (count($rawList) % 2 === 1)
             throw new Exception('List of data after posts must be pair');
