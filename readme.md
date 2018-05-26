@@ -49,3 +49,21 @@ composer install
 
 - PHP 7+
 - PDO / Sqlite
+
+
+### Users roles
+
+> Users has many roles, this is the list of those ones:
+
+| id | role       | public data         | private data      | users         |
+|----|------------|---------------------|-------------------|---------------|
+| 0  | Guest      | see                 | X                 | X             |
+| 1  | Subscriber | see                 | see               | edit his own  |
+| 2  | Author     | add, edit his own   | add, edit his own | edit his own  |
+| 3  | Editor     | add, edit all       | add, edit all     | edit his own  |
+| 4  | Admin      | add, edit all       | add, edit all     | add, edit all |
+
+> A data can be a post, a group, etc.
+> _*Add = create_
+> _*Edit = modify and delete_
+> _*Users roles: Only admin can modify users roles_
