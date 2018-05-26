@@ -12,6 +12,29 @@ function send(&$response, &$data)
     $response->json($data);
 }
 
+function getUser($token = false)
+{
+    if ($token)
+    {
+        $userManager = new \Inspire\Database\UserManager();
+        return $userManager->getUserByToken($token);
+    }
+    
+    return [ 'name' => 'Guest', 'role' => 0 ];
+}
+
+function getErrorData($message = '')
+{
+    return [
+        'success' => false,
+        'message' => $message,
+        'meta' => array(
+            'time' => microtime(true) - START_TIME . ' sec'
+        )
+    ];
+}
+
+// Get routes
 $klein->respond('GET', API_URL_REL . '/', function($request, $response, $service)
 {
     try
@@ -33,22 +56,172 @@ $klein->respond('GET', API_URL_REL . '/', function($request, $response, $service
     }
     catch (Exception $ex)
     {
-        $data = array(
-            'success' => false,
-            'message' => $ex->getMessage(),
-            'meta' => array(
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
+        $data = getErrorData($ex->getMessage());
     }
     
     send($response, $data);
 });
 
+/*
+ * AUTH
+ */
+$klein->with(API_URL_REL . '/auth', function () use ($klein)
+{
+    $klein->respond('POST', '/signin', function ($request, $response, $service)
+    {
+        try
+        {
+            $mail = $request->param('mail');
+            $pass = $request->param('pass');
+        
+            if (empty($mail) || empty($pass))
+                throw new \Exception('"mail" and "pass" required');
+            
+          
+            $userManager = new \Inspire\Database\UserManager();
+            $user = $userManager->getUserBySignIn($mail, $pass);
+            $userMetaData = $user;
+            unset($userMetaData['token']);
+            $data = array(
+                'success' => true,
+                'data' => $user,
+                'meta' => array(
+                    'subject' => 'user',
+                    'action' => 'signin',
+                    'user' => $userMetaData,
+                    'time' => microtime(true) - START_TIME . ' sec'
+                )
+            );
+        }
+        catch (Exception $ex)
+        {
+            $data = getErrorData($ex->getMessage());
+        }
+
+        send($response, $data);
+    });
+    
+    $klein->respond('GET', '/signout', function ($request, $response, $service)
+    {
+        try
+        {
+            $headers = $request->headers();
+            $token = $headers['X-Access-Token'];
+        
+            $userManager = new \Inspire\Database\UserManager();
+            $user = $userManager->signout($token);
+            $data = array(
+                'success' => true,
+                'data' => $user,
+                'meta' => array(
+                    'subject' => 'user',
+                    'action' => 'signout',
+                    'user' => $user,
+                    'time' => microtime(true) - START_TIME . ' sec'
+                )
+            );
+        }
+        catch (Exception $ex)
+        {
+            $data = getErrorData($ex->getMessage());
+        }
+
+        send($response, $data);
+    });
+    
+    /*$klein->respond('GET', '/testtoken', function ($request, $response) use ($inspireJwt) {
+        try {
+            $headers = $request->headers();
+            $data=$inspireJwt->dumptoken($headers['X-Access-Token']);
+        } catch (Exception $ex) {
+            $data = array(
+                'success' => false,
+                'message' => $ex->getMessage(),
+                );
+        }
+        send($response, $data);
+    });*/
+    
+    /*$klein->respond('GET', '/exemple', function ($request, $response) {
+        echo 'exemple';
+    });*/
+});
+
+
+/*
+ * USER
+ */
+$klein->with(API_URL_REL . '/users', function () use ($klein)
+{
+    $klein->respond('POST', '/add', function ($request, $response, $service)
+    {
+        try
+        {
+            $mail = trim($request->param('mail'));
+            $name = trim($request->param('name'));
+            $role = trim($request->param('role'));
+        
+            if (empty($mail) || empty($name))
+                throw new \Exception('"mail" and "name" required');
+            
+            if (empty($role))
+                $role = 1;
+            
+            $headers = $request->headers();
+            $userManager = new \Inspire\Database\UserManager();
+            
+            $newUserData = [
+                'mail' => $mail,
+                'name' => $name,
+                'role' => $role
+            ];
+            $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+            $newUser = $userManager->addUser($newUserData, $user);
+            $data = [
+                'success' => true,
+                'data' => $newUser,
+                'meta' => array(
+                    'subject' => 'user',
+                    'action' => 'signup',
+                    'user' => $user,
+                    'time' => microtime(true) - START_TIME . ' sec'
+                )
+            ];
+        }
+        catch (Exception $ex)
+        {
+            $data = getErrorData($ex->getMessage());
+        }
+
+        send($response, $data);
+    });
+        
+    /*$klein->respond('GET', '/testtoken', function ($request, $response) use ($inspireJwt) {
+        try {
+            $headers = $request->headers();
+            $data=$inspireJwt->dumptoken($headers['X-Access-Token']);
+        } catch (Exception $ex) {
+            $data = array(
+                'success' => false,
+                'message' => $ex->getMessage(),
+                );
+        }
+        send($response, $data);
+    });*/
+    
+    /*$klein->respond('GET', '/exemple', function ($request, $response) {
+        echo 'exemple';
+    });*/
+});
+
+// Get posts
 $klein->respond('GET', API_URL_REL . '/posts/[*:trailing]?', function ($request, $response, $service)
 {
     try
     {
+        $headers = $request->headers();
+        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        
         $argsStr = $request->param('trailing');
         $rawList = explode('/', $argsStr);
 
@@ -101,19 +274,14 @@ $klein->respond('GET', API_URL_REL . '/posts/[*:trailing]?', function ($request,
             'meta' => array(
                 'subject' => 'posts',
                 'action' => 'get',
+                'user' => $user,
                 'time' => microtime(true) - START_TIME . ' sec'
             )
         );
     }
     catch (Exception $ex)
     {
-        $data = array(
-            'success' => false,
-            'message' => $ex->getMessage(),
-            'meta' => array(
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
+        $data = getErrorData($ex->getMessage());
     }
 
     send($response, $data);
@@ -124,6 +292,9 @@ $klein->respond('POST', API_URL_REL . '/posts', function($request, $response, $s
 {
     try
     {
+        $headers = $request->headers();
+        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        
         $postManager = new \Inspire\Database\PostManager();
         
         $params = $request->params();
@@ -158,30 +329,28 @@ $klein->respond('POST', API_URL_REL . '/posts', function($request, $response, $s
                 'subject' => 'posts',
                 'action' => 'add',
                 'name' => 'post',
+                'user' => $user,
                 'time' => microtime(true) - START_TIME . ' sec'
             )
         );
     }
     catch (Exception $ex)
     {
-        $data = array(
-            'success' => false,
-            'message' => $ex->getMessage(),
-            'meta' => array(
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
+        $data = getErrorData($ex->getMessage());
     }
 
     send($response, $data);
 });
 
 
-// Update
+// Update post
 $klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $response, $service)
 {
     try
     {
+        $headers = $request->headers();
+        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        
         $postManager = new \Inspire\Database\PostManager();
         // $params = $request->paramsPost();
         $uid = $request->param('uid');
@@ -221,30 +390,27 @@ $klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $resp
             'meta' => array(
                 'subject' => 'post',
                 'action' => 'edit',
+                'user' => $user,
                 'time' => microtime(true) - START_TIME . ' sec'
             )
         );
     }
     catch (Exception $ex)
     {
-        $data = array(
-            'success' => false,
-            'message' => $ex->getMessage(),
-            'meta' => array(
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
+        $data = getErrorData($ex->getMessage());
     }
 
     send($response, $data);
 });
-
 
 // Delete post
 $klein->respond('GET', API_URL_REL . '/posts/delete/[i:uid]', function($request, $response, $service)
 {
     try
     {
+        $headers = $request->headers();
+        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        
         $uid = $request->param('uid');
         $postManager = new \Inspire\Database\PostManager();
         $postManager->removeThumb($uid);
@@ -257,28 +423,27 @@ $klein->respond('GET', API_URL_REL . '/posts/delete/[i:uid]', function($request,
             'meta' => array(
                 'subject' => 'post',
                 'action' => 'delete',
+                'user' => $user,
                 'time' => microtime(true) - START_TIME . ' sec'
             )
         );
     }
     catch (Exception $ex)
     {
-        $data = array(
-            'success' => false,
-            'message' => $ex->getMessage(),
-            'meta' => array(
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
+        $data = getErrorData($ex->getMessage());
     }
 
     send($response, $data);
 });   
 
+// Get post
 $klein->respond('GET', API_URL_REL . '/posts/[i:id]', function ($request, $response, $service)
 {
     try
     {
+        $headers = $request->headers();
+        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        
         $postManager = new \Inspire\Database\PostManager();
         $id = $request->param('id');
         $post = $postManager->getPost($id);
@@ -289,24 +454,20 @@ $klein->respond('GET', API_URL_REL . '/posts/[i:id]', function ($request, $respo
             'meta' => array(
                 'subject' => 'post',
                 'action' => 'get',
+                'user' => $user,
                 'time' => microtime(true) - START_TIME . ' sec'
             )
         );
     }
     catch (Exception $ex)
     {
-        $data = array(
-            'success' => false,
-            'message' => $ex->getMessage(),
-            'meta' => array(
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
+        $data = getErrorData($ex->getMessage());
     }
 
     send($response, $data);
 });
 
+// Get file
 $klein->respond('GET', API_URL_REL . '/files/[i:uid]', function ($request, $response, $service, $app)
 {
     // Todo
@@ -315,26 +476,23 @@ $klein->respond('GET', API_URL_REL . '/files/[i:uid]', function ($request, $resp
 
     try
     {
+        $headers = $request->headers();
+        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        
         $postManager = new \Inspire\Database\PostManager();
         $uid = $request->param('uid');
         $file = $postManager->getFile($uid);
         
-        $response->file( DATA_PATH . $file['path'], $file['name']);
+        $response->file(DATA_PATH . $file['path'], $file['name']);
     }
     catch (Exception $ex)
     {
-        $data = array(
-            'success' => false,
-            'message' => $ex->getMessage(),
-            'meta' => array(
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
-      
+        $data = getErrorData($ex->getMessage());
         send($response, $data);
     }
 });
 
+// Get distant content
 $klein->respond('POST', API_URL_REL . '/distant-link', function ($request, $response, $service, $app)
 {
     // Todo
@@ -343,6 +501,9 @@ $klein->respond('POST', API_URL_REL . '/distant-link', function ($request, $resp
 
     try
     {
+        $headers = $request->headers();
+        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        
         $params = $request->params();
         if (!empty($params['link']))
         {
@@ -353,40 +514,25 @@ $klein->respond('POST', API_URL_REL . '/distant-link', function ($request, $resp
                 'meta' => array(
                     'subject' => 'distant',
                     'action' => 'get',
+                    'user' => $user,
                     'time' => microtime(true) - START_TIME . ' sec'
                 )
             );
-
-            send($response, $data);
         }
         else
         {
-            $data = array(
-                'success' => false,
-                'message' => '"link" value is required',
-                'meta' => array(
-                    'time' => microtime(true) - START_TIME . ' sec'
-                ),
-                "test" => $params
-            );
-
-            send($response, $data);
+            throw new \Exception('"link" value is required');
         }
     }
     catch (Exception $ex)
     {
-        $data = array(
-            'success' => false,
-            'message' => $ex->getMessage(),
-            'meta' => array(
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
-      
-        send($response, $data);
+        $data = getErrorData($ex->getMessage());
     }
+    
+    send($response, $data);
 });
 
+// Get thumb
 $klein->respond('GET', API_URL_REL . '/thumbs/[i:uid]', function ($request, $response, $service, $app)
 {
     // Todo
@@ -395,6 +541,9 @@ $klein->respond('GET', API_URL_REL . '/thumbs/[i:uid]', function ($request, $res
 
     try
     {
+        $headers = $request->headers();
+        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        
         $postManager = new \Inspire\Database\PostManager();
         $uid = $request->param('uid');
         $file = $postManager->getThumb($uid);
@@ -403,18 +552,12 @@ $klein->respond('GET', API_URL_REL . '/thumbs/[i:uid]', function ($request, $res
     }
     catch (Exception $ex)
     {
-        $data = array(
-            'success' => false,
-            'message' => $ex->getMessage(),
-            'meta' => array(
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
-      
+        $data = getErrorData($ex->getMessage());
         send($response, $data);
     }
 });
 
+// Get config.js
 $klein->respond('GET', API_URL_REL . '/config.js', function($request, $response, $service)
 {
     try
@@ -428,13 +571,7 @@ $klein->respond('GET', API_URL_REL . '/config.js', function($request, $response,
     }
     catch (Exception $ex)
     {
-        $data = array(
-            'success' => false,
-            'message' => $ex->getMessage(),
-            'meta' => array(
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
+        $data = getErrorData($ex->getMessage());
         send($response, $data);
     }
 });

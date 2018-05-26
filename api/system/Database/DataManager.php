@@ -68,7 +68,7 @@ class DataManager
         $id = 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE';
 
         return array(
-            'post' => array(
+            'post' => [
                 'id ' . $id,
                 'title TEXT DEFAULT NULL',
                 'description TEXT DEFAULT NULL',
@@ -79,13 +79,13 @@ class DataManager
                 'content_link TEXT DEFAULT NULL',
                 'public BOOLEAN DEFAULT true',
                 'score NUMERIC DEFAULT 0'
-            ),
-            'group' => array(
+            ],
+            'group' => [
                 'id ' . $id,
                 'title TEXT DEFAULT NULL',
                 'description TEXT DEFAULT NULL',
                 'thumb INTEGER DEFAULT NULL'
-            ),
+            ],
             /*'file' => array(
                 'id ' . $id,
                 'slug TEXT DEFAULT NULL',
@@ -98,36 +98,47 @@ class DataManager
                 'size INTEGER DEFAULT NULL',
                 'colors TEXT DEFAULT NULL'
             ),*/
-            'user' => array(
+            'user' => [
                 'id ' . $id,
                 'name TEXT',
-                'email TEXT',
-                'password TEXT',
-                'permission INTEGER'
-            ),
-            'uid' => array(
+                'mail TEXT UNIQUE',
+                'pass TEXT',
+                'role INTEGER'
+            ],
+            'token' => [
+                'id ' . $id,
+                'signature TEXT NOT NULL UNIQUE',
+                'user_id INTEGER NOT NULL UNIQUE',
+                'expire TIMESTAMP'
+            ],
+            'log' => [
+                'id ' . $id,
+                'user_id INTEGER NOT NULL',
+                'fingerprint TEXT DEFAULT NULL'
+            ],
+            'uid' => [
                 'id ' . $id,
                 'item_name TEXT NOT NULL',
                 'item_id INTEGER NOT NULL'
-            ),
-            'tag' => array(
+            ],
+            'tag' => [
                 'id ' . $id,
                 'name TEXT NOT NULL'
-            ),
-            'tag_join' => array(
+            ],
+            'tag_join' => [
                 'tag_id INTEGER NOT NULL',
                 'item_uid INTEGER NOT NULL',
                 'PRIMARY KEY (tag_id, item_uid)'
-            ),
-            'type' => array(
+            ],
+            'type' => [
                 'id ' . $id,
                 'name TEXT NOT NULL'
-            ),
-            'type_join' => array(
+            ],
+            'type_join' => [
                 'type_id INTEGER NOT NULL',
                 'item_uid INTEGER NOT NULL',
                 'PRIMARY KEY (type_id, item_uid)'
-            )
+            ]
         );
     }
     

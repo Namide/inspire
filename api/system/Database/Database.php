@@ -16,19 +16,17 @@ class Database
     private function __construct()
     {
         if (\Inspire\Helper\FileHelp::IS_EMPTY(DB_FILE))
-        {
             \Inspire\Helper\FileHelp::WRITE_PROTECTED_DIR_OF_FILE(DB_FILE);
-        }
 
         try
         {
             $this->_pdo = new \PDO(DB_DSN_DATAS, DB_USER, DB_PASS, DB_OPTIONS);
             $this->_pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, 0);
-            $this->_pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
+            $this->_pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         }
         catch (\PDOException $e)
         {
-            throw new \Exception('Database initialization error ' . $e->getMessage( ));
+            throw new \Exception('Database initialization error: ' . $e->getMessage());
         }
     }
 
@@ -40,9 +38,7 @@ class Database
     public static function getInstance()
     {
         if (!isset(self::$_INSTANCE))
-        {
             self::$_INSTANCE = new Database();
-        }
 
         return self::$_INSTANCE;
     }
@@ -62,19 +58,15 @@ class Database
             $stmt = $this->_pdo->prepare($request);
 
             if ($stmt === false)
-            {
-                return array();
-            }
+                return [];
 
             if ($binds !== null)
-            {
                 foreach ($binds as $bind)
-                {
                     $stmt->bindValue($bind[0], $bind[1], $bind[2]);
-                }
-            }
 
-            $stmt->execute();
+            if ($stmt->execute() === false)
+                throw new \Exception('Database execute error: ' . $this->_pdo->errorInfo()[2]);
+
             $arrValues = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             $stmt = null;
 
@@ -82,7 +74,7 @@ class Database
         }
         catch (\PDOException $e)
         {
-            throw new \Exception('Database fetch all error ' . $e->getMessage( ));
+            throw new \Exception('Database fetch all error: ' . $e->getMessage());
         }
 
         return array();
@@ -95,19 +87,15 @@ class Database
             $stmt = $this->_pdo->prepare($request);
 
             if ($stmt === false)
-            {
-                return array();
-            }
+                return [];
 
             if ($binds !== null)
-            {
                 foreach ($binds as $bind)
-                {
                     $stmt->bindValue($bind[0], $bind[1], $bind[2]);
-                }
-            }
 
-            $stmt->execute();
+            if ($stmt->execute() === false)
+                throw new \Exception('Database execute error: ' . $this->_pdo->errorInfo()[2]);
+
             $arrValues = $stmt->fetch(\PDO::FETCH_ASSOC);
             $stmt = null;
 
@@ -115,7 +103,7 @@ class Database
         }
         catch (\PDOException $e)
         {
-            throw new \Exception('Database fetch error ' . $e->getMessage( ));
+            throw new \Exception('Database fetch error: ' . $e->getMessage());
         }
         return array();
     }
@@ -134,26 +122,24 @@ class Database
             if ($stmt)
             {
                 if ($binds !== null)
-                {
                     foreach ($binds as $bind)
-                    {
                         $stmt->bindValue($bind[0], $bind[1], $bind[2]);
-                    }
-                }
 
-                $stmt->execute();
+                if ($stmt->execute() === false)
+                    throw new \Exception('Database execute error: ' . $this->_pdo->errorInfo()[2]);
+                
                 $stmt = null;
     
                 return true;
             }
             else
             {
-                throw new \Exception('Database execute error ' . $this->_pdo->errorInfo()[2] . $request);
+                throw new \Exception('Database execute error: ' . $this->_pdo->errorInfo()[2]);
             }
         }
         catch (\PDOException $e)
         {
-            throw new \Exception('Database execute error ' . $e->getMessage( ));
+            throw new \Exception('Database execute error: ' . $e->getMessage());
         }
 
         return false;

@@ -10,6 +10,9 @@ define('API_URL_ABS', 'http://inspire.local/api');
 
 define('API_URL_REL', parse_url(API_URL_ABS, PHP_URL_PATH));
 
+// ADMIN MAIL
+define('ADMIN_MAIL', 'webmaster@domain.com');
+
 // PATH
 define('API_PATH', __DIR__);
 define('DATA_PATH', __DIR__ . '/data');

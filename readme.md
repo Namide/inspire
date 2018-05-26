@@ -47,8 +47,9 @@ composer install
 
 ### Requirements
 
-- PHP 7+
+- PHP 7.2+
 - PDO / Sqlite
+- mail (SMTP configured)
 
 
 ### Users roles
@@ -63,7 +64,7 @@ composer install
 | 3  | Editor     | add, edit all       | add, edit all     | edit his own  |
 | 4  | Admin      | add, edit all       | add, edit all     | add, edit all |
 
-> A data can be a post, a group, etc.
-> _*Add = create_
-> _*Edit = modify and delete_
+> A data can be a post, a group, etc.  
+> _*Add = create_  
+> _*Edit = modify and delete_  
 > _*Users roles: Only admin can modify users roles_

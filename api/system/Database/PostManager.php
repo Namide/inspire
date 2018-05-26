@@ -379,7 +379,7 @@ class PostManager extends \Inspire\Database\DataManager
         if (!empty($data['date']))
         {
             $timestamp = strtotime($data['date']);
-            $data['date'] = date( "Y-m-d H:m:s", $timestamp);
+            $data['date'] = date('Y-m-d H:m:s', $timestamp);
         }
         
         self::testData('title', \PDO::PARAM_STR, $data, $rowList, $binds);
