@@ -127,10 +127,13 @@ class UserManager extends \Inspire\Database\DataManager
         return $user;
     }
     
-    public function deleteUser($mail, $byUser)
+    private function canEdit($mail, $byUser)
     {
+        if ($byUser['role'] < 1)
+            throw new \Exception('You have not privileges to do that');
+        
         if ($byUser['role'] < 4 && strtolower($mail) !== strtolower($byUser['mail']))
-            throw new \Exception('You do not have permission to delete other users');
+            throw new \Exception('You do not have permission to edit other users');
         
         $binds = [[':mail', $mail, \PDO::PARAM_STR]];
         if ($byUser['role'] > 3 && strtolower($mail) !== strtolower($byUser['mail']))
@@ -141,9 +144,43 @@ class UserManager extends \Inspire\Database\DataManager
             if ($rest < 1)
                 throw new \Exception('You can not delete the last administrator');
         }
+    }
+    
+    public function deleteUser($mail, $byUser)
+    {
+        throw new \Exception('TODO: fix delete last admin');
+        
+        $this->canEdit($mail, $byUser);
+        
+        $binds = [[':mail', $mail, \PDO::PARAM_STR]];
+        if ($byUser['role'] > 3)
+        {
+            $request = 'SELECT COUNT(*) FROM `user` WHERE role > 3 AND LOWER(mail) != LOWER(:mail)';
+            $rest = (int) $this->_database->EXECUTE($request, $binds);
+
+            if ($rest < 1)
+                throw new \Exception('You can not delete the last administrator');
+        }
         
         $request = 'DELETE FROM `user` WHERE LOWER(mail) == LOWER(:mail)';
         $this->_database->EXECUTE($request, $binds);
+    }
+    
+    public function updateUser($data, $byUser)
+    {
+        throw new \Exception('TODO: use uid');
+                
+        $this->canEdit($data['mail'], $byUser);
+        
+        if ($byUser['role'] > 3 && !empty($data['role']) && $data['role'] < 4)
+        {
+            $binds = [[':mail', $data['mail'], \PDO::PARAM_STR]];
+            $request = 'SELECT COUNT(*) FROM `user` WHERE role > 3 AND LOWER(mail) != LOWER(:mail)';
+            $rest = (int) $this->_database->EXECUTE($request, $binds);
+            
+            if ($rest < 1)
+                throw new \Exception('You can not downgrade the last administrator');
+        }
     }
     
     public function addUser($data, $byUser)
@@ -154,13 +191,19 @@ class UserManager extends \Inspire\Database\DataManager
             $users = $this->_database->FETCH_ALL($request);
             
             if (count($users) > 0)
-                throw new \Exception('You do not have permission to create user');
+                throw new \Exception('You do not have permission to add user');
             else
                 $data['role'] = 4;
         }
 
         if (empty($data['name']) || empty($data['mail']) || empty($data['role']))
             throw new \Exception('"name", "mail" and "role" required');
+        
+        $request = 'SELECT COUNT(*) FROM `user` WHERE LOWER(mail) = LOWER(:mail)';
+        $binds = [[':mail', $data['mail'], \PDO::PARAM_STR]];
+        $rest = $this->_database->EXECUTE($request, $binds);
+        if ($rest > 0)
+            throw new \Exception('This user already exist');
         
         $name = $data['name'];
         $mail = $data['mail'];
@@ -170,12 +213,12 @@ class UserManager extends \Inspire\Database\DataManager
        
         $request = 'INSERT INTO `user` (`name`, `mail`, `pass`, `role`)'
             . ' VALUES (:name, :mail, :pass, :role)';
-        $binds = array(
-            array(':name', $name, \PDO::PARAM_STR),
-            array(':mail', $data['mail'], \PDO::PARAM_STR),
-            array(':pass', $hash, \PDO::PARAM_STR),
-            array(':role', $role, \PDO::PARAM_INT)
-        );
+        $binds = [
+            [':name', $name, \PDO::PARAM_STR],
+            [':mail', $data['mail'], \PDO::PARAM_STR],
+            [':pass', $hash, \PDO::PARAM_STR],
+            [':role', $role, \PDO::PARAM_INT]
+        ];
         
         $this->_database->EXECUTE($request, $binds);
         $userId = (integer) $this->_database->GET_LAST_INSERT_ID();
