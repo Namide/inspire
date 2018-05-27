@@ -127,12 +127,32 @@ class UserManager extends \Inspire\Database\DataManager
         return $user;
     }
     
+    public function deleteUser($mail, $byUser)
+    {
+        if ($byUser['role'] < 4 && strtolower($mail) !== strtolower($byUser['mail']))
+            throw new \Exception('You do not have permission to delete other users');
+        
+        $binds = [[':mail', $mail, \PDO::PARAM_STR]];
+        if ($byUser['role'] > 3 && strtolower($mail) !== strtolower($byUser['mail']))
+        {
+            $request = 'SELECT COUNT(*) FROM `user` WHERE role > 3 AND LOWER(mail) != LOWER(:mail)';
+            $rest = $this->_database->EXECUTE($request, $binds);
+            
+            if ($rest < 1)
+                throw new \Exception('You can not delete the last administrator');
+        }
+        
+        $request = 'DELETE FROM `user` WHERE LOWER(mail) == LOWER(:mail)';
+        $this->_database->EXECUTE($request, $binds);
+    }
+    
     public function addUser($data, $byUser)
     {
         if ($byUser['role'] < 2)
         {
             $request = 'SELECT `id` FROM `user` WHERE 1 LIMIT 3';
             $users = $this->_database->FETCH_ALL($request);
+            
             if (count($users) > 0)
                 throw new \Exception('You do not have permission to create user');
             else

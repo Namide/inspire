@@ -4,12 +4,39 @@
 // https://github.com/klein/klein.php
 $klein = new \Klein\Klein();
 
-function send(&$response, &$data)
+function sendSuccess(&$response, &$data, $subject, $action, $user = ['name' => 'Guest'])
 {
     if (CORS)
         $response->header('Access-Control-Allow-Origin', CORS);
 
-    $response->json($data);
+    $json = [
+        'success' => true,
+        'data' => $data,
+        'meta' => array(
+            'subject' => $subject,
+            'action' => $action,
+            'user' => $user,
+            'time' => microtime(true) - START_TIME . ' sec'
+        )
+    ];
+    
+    $response->json($json);
+}
+
+function sendError(&$response, $message = '')
+{
+    if (CORS)
+        $response->header('Access-Control-Allow-Origin', CORS);
+
+    $json = [
+        'success' => false,
+        'message' => $message,
+        'meta' => array(
+            'time' => microtime(true) - START_TIME . ' sec'
+        )
+    ];
+    
+    $response->json($json);
 }
 
 function getUser($token = false)
@@ -23,43 +50,24 @@ function getUser($token = false)
     return [ 'name' => 'Guest', 'role' => 0 ];
 }
 
-function getErrorData($message = '')
-{
-    return [
-        'success' => false,
-        'message' => $message,
-        'meta' => array(
-            'time' => microtime(true) - START_TIME . ' sec'
-        )
-    ];
-}
-
 // Get routes
 $klein->respond('GET', API_URL_REL . '/', function($request, $response, $service)
 {
     try
     {
-        $data = array(
-            'success' => true,
-            'data' => array(
-                'post' => API_URL_REL . '/posts',
-                'group' => API_URL_REL . '/groups',
-                'item' => API_URL_REL . '/item/{uid}',
-                'rss' => API_URL_REL . '/rss'
-            ),
-            'meta' => array(
-                'subject' => 'routes',
-                'action' => 'get',
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
+        $data = [
+            'post' => API_URL_REL . '/posts',
+            'group' => API_URL_REL . '/groups',
+            'item' => API_URL_REL . '/item/{uid}',
+            'rss' => API_URL_REL . '/rss'
+        ];
+        
+        sendSuccess($response, $data, 'routes', 'get');
     }
     catch (Exception $ex)
     {
-        $data = getErrorData($ex->getMessage());
+        sendError($response, $ex->getMessage());
     }
-    
-    send($response, $data);
 });
 
 /*
@@ -80,25 +88,19 @@ $klein->with(API_URL_REL . '/auth', function () use ($klein)
           
             $userManager = new \Inspire\Database\UserManager();
             $user = $userManager->getUserBySignIn($mail, $pass);
-            $userMetaData = $user;
-            unset($userMetaData['token']);
-            $data = array(
-                'success' => true,
-                'data' => $user,
-                'meta' => array(
-                    'subject' => 'user',
-                    'action' => 'signin',
-                    'user' => $userMetaData,
-                    'time' => microtime(true) - START_TIME . ' sec'
-                )
-            );
+            
+            $userMetaData = [
+                'name' => $user['name'],
+                'mail' => $user['mail'],
+                'role' => $user['role']
+            ];
+            
+            sendSuccess($response, $user, 'auth', 'signin', $userMetaData);
         }
         catch (Exception $ex)
         {
-            $data = getErrorData($ex->getMessage());
+            sendError($response, $ex->getMessage());
         }
-
-        send($response, $data);
     });
     
     $klein->respond('GET', '/signout', function ($request, $response, $service)
@@ -110,23 +112,13 @@ $klein->with(API_URL_REL . '/auth', function () use ($klein)
         
             $userManager = new \Inspire\Database\UserManager();
             $user = $userManager->signout($token);
-            $data = array(
-                'success' => true,
-                'data' => $user,
-                'meta' => array(
-                    'subject' => 'user',
-                    'action' => 'signout',
-                    'user' => $user,
-                    'time' => microtime(true) - START_TIME . ' sec'
-                )
-            );
+            
+            sendSuccess($response, $user, 'auth', 'signout', $user);
         }
         catch (Exception $ex)
         {
-            $data = getErrorData($ex->getMessage());
+            sendError($response, $ex->getMessage());
         }
-
-        send($response, $data);
     });
     
     /*$klein->respond('GET', '/testtoken', function ($request, $response) use ($inspireJwt) {
@@ -177,25 +169,39 @@ $klein->with(API_URL_REL . '/users', function () use ($klein)
             ];
             $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
             $newUser = $userManager->addUser($newUserData, $user);
-            $data = [
-                'success' => true,
-                'data' => $newUser,
-                'meta' => array(
-                    'subject' => 'user',
-                    'action' => 'signup',
-                    'user' => $user,
-                    'time' => microtime(true) - START_TIME . ' sec'
-                )
-            ];
+            
+            sendSuccess($response, $newUser, 'users', 'add', $user);
         }
         catch (Exception $ex)
         {
-            $data = getErrorData($ex->getMessage());
+            sendError($response, $ex->getMessage());
         }
-
-        send($response, $data);
     });
+    
+    $klein->respond('POST', '/delete', function ($request, $response, $service)
+    {
+        try
+        {
+            $mail = trim($request->param('mail'));
         
+            if (empty($mail))
+                throw new \Exception('"mail" required');
+            
+            $headers = $request->headers();
+            $userManager = new \Inspire\Database\UserManager();
+            $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+            
+            $userManager->deleteUser($mail, $user);
+            $data = ['mail' => $mail];
+            
+            sendSuccess($response, $data, 'users', 'delete', $user);
+        }
+        catch (Exception $ex)
+        {
+            sendError($response, $ex->getMessage());
+        }
+    });
+    
     /*$klein->respond('GET', '/testtoken', function ($request, $response) use ($inspireJwt) {
         try {
             $headers = $request->headers();
@@ -268,27 +274,17 @@ $klein->respond('GET', API_URL_REL . '/posts/[*:trailing]?', function ($request,
 
         $postManager = new \Inspire\Database\PostManager();
         $posts = $postManager->getPosts($argObj);
-        $data = array(
-            'success' => true,
-            'data' => $posts,
-            'meta' => array(
-                'subject' => 'posts',
-                'action' => 'get',
-                'user' => $user,
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
+            
+        sendSuccess($response, $posts, 'posts', 'get', $user);
     }
     catch (Exception $ex)
     {
-        $data = getErrorData($ex->getMessage());
+        sendError($response, $ex->getMessage());
     }
-
-    send($response, $data);
 });  
 
 // Add post
-$klein->respond('POST', API_URL_REL . '/posts', function($request, $response, $service)
+$klein->respond('POST', API_URL_REL . '/posts/add', function($request, $response, $service)
 {
     try
     {
@@ -318,33 +314,20 @@ $klein->respond('POST', API_URL_REL . '/posts', function($request, $response, $s
             $thumbData = $postManager->createThumbFromImage(DATA_PATH . $fileData['path']);
             $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
         }
-           
-        
+
         $post = $postManager->addPost($params);
 
-        $data = array(
-            'success' => true,
-            'data' => $post,
-            'meta' => array(
-                'subject' => 'posts',
-                'action' => 'add',
-                'name' => 'post',
-                'user' => $user,
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
+        sendSuccess($response, $post, 'posts', 'add', $user);
     }
     catch (Exception $ex)
     {
-        $data = getErrorData($ex->getMessage());
+        sendError($response, $ex->getMessage());
     }
-
-    send($response, $data);
 });
 
 
 // Update post
-$klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $response, $service)
+$klein->respond('POST', API_URL_REL . '/posts/edit/[i:uid]', function($request, $response, $service)
 {
     try
     {
@@ -384,23 +367,12 @@ $klein->respond('POST', API_URL_REL . '/posts/[i:uid]', function($request, $resp
         // Update post
         $post = $postManager->updatePost($uid, $params);
 
-        $data = array(
-            'success' => true,
-            'data' => $post,
-            'meta' => array(
-                'subject' => 'post',
-                'action' => 'edit',
-                'user' => $user,
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
+        sendSuccess($response, $post, 'posts', 'edit', $user);
     }
     catch (Exception $ex)
     {
-        $data = getErrorData($ex->getMessage());
+        sendError($response, $ex->getMessage());
     }
-
-    send($response, $data);
 });
 
 // Delete post
@@ -417,23 +389,14 @@ $klein->respond('GET', API_URL_REL . '/posts/delete/[i:uid]', function($request,
         $postManager->removeFile($uid);
         $postManager->deletePost($uid);
 
-        $data = array(
-            'success' => true,
-            'data' => array('uid' => $uid),
-            'meta' => array(
-                'subject' => 'post',
-                'action' => 'delete',
-                'user' => $user,
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
+        $data = ['uid' => $uid];
+
+        sendSuccess($response, $data, 'posts', 'delete', $user);
     }
     catch (Exception $ex)
     {
-        $data = getErrorData($ex->getMessage());
+        sendError($response, $ex->getMessage());
     }
-
-    send($response, $data);
 });   
 
 // Get post
@@ -447,24 +410,13 @@ $klein->respond('GET', API_URL_REL . '/posts/[i:id]', function ($request, $respo
         $postManager = new \Inspire\Database\PostManager();
         $id = $request->param('id');
         $post = $postManager->getPost($id);
-
-        $data = array(
-            'success' => true,
-            'data' => $post,
-            'meta' => array(
-                'subject' => 'post',
-                'action' => 'get',
-                'user' => $user,
-                'time' => microtime(true) - START_TIME . ' sec'
-            )
-        );
+        
+        sendSuccess($response, $post, 'posts', 'get', $user);
     }
     catch (Exception $ex)
     {
-        $data = getErrorData($ex->getMessage());
+        sendError($response, $ex->getMessage());
     }
-
-    send($response, $data);
 });
 
 // Get file
@@ -487,13 +439,12 @@ $klein->respond('GET', API_URL_REL . '/files/[i:uid]', function ($request, $resp
     }
     catch (Exception $ex)
     {
-        $data = getErrorData($ex->getMessage());
-        send($response, $data);
+        sendError($response, $ex->getMessage());
     }
 });
 
 // Get distant content
-$klein->respond('POST', API_URL_REL . '/distant-link', function ($request, $response, $service, $app)
+$klein->respond('POST', API_URL_REL . '/distant', function ($request, $response, $service, $app)
 {
     // Todo
     if (CORS)
@@ -508,16 +459,7 @@ $klein->respond('POST', API_URL_REL . '/distant-link', function ($request, $resp
         if (!empty($params['link']))
         {
             $html = file_get_contents($params['link']);
-            $data = array(
-                'success' => true,
-                'data' => $html,
-                'meta' => array(
-                    'subject' => 'distant',
-                    'action' => 'get',
-                    'user' => $user,
-                    'time' => microtime(true) - START_TIME . ' sec'
-                )
-            );
+            sendSuccess($response, $html, 'distant', 'get', $user);
         }
         else
         {
@@ -526,10 +468,8 @@ $klein->respond('POST', API_URL_REL . '/distant-link', function ($request, $resp
     }
     catch (Exception $ex)
     {
-        $data = getErrorData($ex->getMessage());
+        sendError($response, $ex->getMessage());
     }
-    
-    send($response, $data);
 });
 
 // Get thumb
@@ -552,8 +492,7 @@ $klein->respond('GET', API_URL_REL . '/thumbs/[i:uid]', function ($request, $res
     }
     catch (Exception $ex)
     {
-        $data = getErrorData($ex->getMessage());
-        send($response, $data);
+        sendError($response, $ex->getMessage());
     }
 });
 
@@ -571,8 +510,7 @@ $klein->respond('GET', API_URL_REL . '/config.js', function($request, $response,
     }
     catch (Exception $ex)
     {
-        $data = getErrorData($ex->getMessage());
-        send($response, $data);
+        sendError($response, $ex->getMessage());
     }
 });
 
@@ -604,16 +542,9 @@ $klein->respond('*', function ()
 */
 $klein->onHttpError(function ($code, $router)
 {
-    $data = array(
-        'success' => false,
-        'message' => 'Error ' . $code,
-        'meta' => array(
-            'time' => microtime(true) - START_TIME . ' sec'
-        )
-    );
-    
+    $data = 'Error ' . $code;
     $response = $router->response();
-    send($response, $data);
+    sendError($response, $ex->getMessage());
 });
 
 $klein->dispatch();

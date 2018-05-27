@@ -55,7 +55,7 @@ class Api
     addPost(onLoad, data, onError = msg => console.error(msg))
     {
         const form = dataToFormData(data)
-        const url = config.api.abs + '/posts'
+        const url = config.api.abs + '/posts/add'
         const request = new Request(url)
         const params = {
             method: 'POST',
@@ -102,7 +102,7 @@ class Api
     updatePost(onLoad, uid, data, onError = msg => console.error(msg))
     {
         const newData = Object.assign({}, data)
-        const url = config.api.abs + '/posts/' + uid
+        const url = config.api.abs + '/posts/edit/' + uid
         delete newData.uid
         const form = dataToFormData(newData)
 
@@ -186,7 +186,7 @@ class Api
     getDistantLink(onLoad, link, onError = msg => console.error(msg))
     {
         const form = dataToFormData({link})
-        const url = config.api.abs + '/distant-link'
+        const url = config.api.abs + '/distant'
         const request = new Request(url)
         const params = {
             method: 'POST',
