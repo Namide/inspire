@@ -51,7 +51,7 @@ class Database
         $this->EXECUTE($req);
     }
 
-    public function FETCH_ALL($request, array $binds)
+    public function FETCH_ALL($request, array $binds = [])
     {
         try
         {
@@ -60,9 +60,8 @@ class Database
             if ($stmt === false)
                 return [];
 
-            if ($binds !== null)
-                foreach ($binds as $bind)
-                    $stmt->bindValue($bind[0], $bind[1], $bind[2]);
+            foreach ($binds as $bind)
+                $stmt->bindValue($bind[0], $bind[1], $bind[2]);
 
             if ($stmt->execute() === false)
                 throw new \Exception('Database execute error: ' . $this->_pdo->errorInfo()[2]);

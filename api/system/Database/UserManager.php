@@ -91,24 +91,27 @@ class UserManager extends \Inspire\Database\DataManager
     
     public function getUserBySignIn($mail, $pass)
     {
-        $request = 'SELECT `id`, `name`, `role`, `mail` FROM `user`'
-            . ' WHERE lower(`mail`) = lower(:mail) AND `pass` = :pass';
+        $request = 'SELECT `id`, `name`, `role`, `mail`, `pass` FROM `user`'
+            . ' WHERE lower(`mail`) = lower(:mail)';
         
         $binds = [
-            [':mail', $mail, \PDO::PARAM_STR],
-            [':pass', $pass, \PDO::PARAM_STR]
+            [':mail', $mail, \PDO::PARAM_STR]
         ];
         
         $user = $this->_database->FETCH($request, $binds);
         
-        if (empty($user))
+        if (!password_verify($pass, $user['pass']))
             throw new \Exception('E-mail or password error');
         
         $token = $this->createToken($user['id']);
         $user['token'] = $token['signature'];
-        unset($user['id']);
-        
-        return $user;
+
+        return [
+            'name' => $user['name'],
+            'role' => $user['role'],
+            'mail' => $user['mail'],
+            'token' => $token['signature']
+        ];
     }
     
     public function getUserByToken($token)
@@ -127,22 +130,30 @@ class UserManager extends \Inspire\Database\DataManager
     public function addUser($data, $byUser)
     {
         if ($byUser['role'] < 2)
-            throw new Exception('You do not have permission to create user');
-        
+        {
+            $request = 'SELECT `id` FROM `user` WHERE 1 LIMIT 3';
+            $users = $this->_database->FETCH_ALL($request);
+            if (count($users) > 0)
+                throw new \Exception('You do not have permission to create user');
+            else
+                $data['role'] = 4;
+        }
+
         if (empty($data['name']) || empty($data['mail']) || empty($data['role']))
-            throw new Exception('"name", "mail" and "role" required');
+            throw new \Exception('"name", "mail" and "role" required');
         
         $name = $data['name'];
         $mail = $data['mail'];
         $role = $data['role'];
         $pass = self::getRandPass();
+        $hash = password_hash($pass, PASSWORD_DEFAULT);
        
         $request = 'INSERT INTO `user` (`name`, `mail`, `pass`, `role`)'
             . ' VALUES (:name, :mail, :pass, :role)';
         $binds = array(
             array(':name', $name, \PDO::PARAM_STR),
             array(':mail', $data['mail'], \PDO::PARAM_STR),
-            array(':pass', $pass, \PDO::PARAM_STR),
+            array(':pass', $hash, \PDO::PARAM_STR),
             array(':role', $role, \PDO::PARAM_INT)
         );
         
