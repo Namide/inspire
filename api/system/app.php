@@ -5,8 +5,10 @@ $klein = new \Klein\Klein();
 function sendSuccess(&$response, &$data, $subject, $action,
                      $user = ['name' => 'Guest'])
 {
-    if (CORS) $response->header('Access-Control-Allow-Origin', CORS);
-
+    if (CORS) {
+        $response->header('Access-Control-Allow-Origin', CORS);
+    }
+    
     $json = [
         'success' => true,
         'data' => $data,
@@ -23,8 +25,10 @@ function sendSuccess(&$response, &$data, $subject, $action,
 
 function sendError(&$response, $message = '')
 {
-    if (CORS) $response->header('Access-Control-Allow-Origin', CORS);
-
+    if (CORS) {
+        $response->header('Access-Control-Allow-Origin', CORS);
+    }
+    
     $json = [
         'success' => false,
         'message' => $message,
@@ -343,7 +347,9 @@ $klein->respond('GET', API_URL_REL.'/posts/[i:id]',
 $klein->respond('GET', API_URL_REL.'/files/[i:uid]',
     function ($request, $response, $service, $app) {
     // Todo
-    if (CORS) $response->header('Access-Control-Allow-Origin', CORS);
+    if (CORS) {
+        $response->header('Access-Control-Allow-Origin', CORS);
+    }
 
     try {
         $headers = $request->headers();
@@ -363,7 +369,9 @@ $klein->respond('GET', API_URL_REL.'/files/[i:uid]',
 $klein->respond('POST', API_URL_REL.'/distant',
     function ($request, $response, $service, $app) {
     // Todo
-    if (CORS) $response->header('Access-Control-Allow-Origin', CORS);
+    if (CORS) {
+        $response->header('Access-Control-Allow-Origin', CORS);
+    }
 
     try {
         $headers = $request->headers();
@@ -385,8 +393,10 @@ $klein->respond('POST', API_URL_REL.'/distant',
 $klein->respond('GET', API_URL_REL.'/thumbs/[i:uid]',
     function ($request, $response, $service, $app) {
     // Todo
-    if (CORS) $response->header('Access-Control-Allow-Origin', CORS);
-
+    if (CORS) {
+        $response->header('Access-Control-Allow-Origin', CORS);
+    }
+    
     try {
         $headers = $request->headers();
         $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
@@ -405,7 +415,9 @@ $klein->respond('GET', API_URL_REL.'/thumbs/[i:uid]',
 $klein->respond('GET', API_URL_REL.'/config.js',
     function($request, $response, $service) {
     try {
-        if (CORS) $response->header('Access-Control-Allow-Origin', CORS);
+        if (CORS) {
+            $response->header('Access-Control-Allow-Origin', CORS);
+        }
 
         $body = Inspire\Vue\ConfigJS::getJs();
         $response->header('Content-Type', 'application/javascript');

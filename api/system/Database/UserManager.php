@@ -139,9 +139,8 @@ class UserManager extends \Inspire\Database\DataManager
         $binds = [[':mail', $mail, \PDO::PARAM_STR]];
         if ($byUser['role'] > 3 && strtolower($mail) !== strtolower($byUser['mail'])) {
             $request = 'SELECT COUNT(*) FROM `user` WHERE role > 3 AND LOWER(mail) != LOWER(:mail)';
-            $rest    = $this->_database->EXECUTE($request, $binds);
-
-            if ($rest < 1) {
+            $count   = $this->_database->COUNT($request, $binds);
+            if ($count < 1) {
                 throw new \Exception('You can not delete the last administrator');
             }
         }
@@ -149,16 +148,14 @@ class UserManager extends \Inspire\Database\DataManager
 
     public function deleteUser($mail, $byUser)
     {
-        throw new \Exception('TODO: fix delete last admin');
-
         $this->canEdit($mail, $byUser);
 
         $binds = [[':mail', $mail, \PDO::PARAM_STR]];
         if ($byUser['role'] > 3) {
             $request = 'SELECT COUNT(*) FROM `user` WHERE role > 3 AND LOWER(mail) != LOWER(:mail)';
-            $rest    = (int) $this->_database->EXECUTE($request, $binds);
-
-            if ($rest < 1) {
+            $count   = $this->_database->COUNT($request, $binds);
+            
+            if ($count < 1) {
                 throw new \Exception('You can not delete the last administrator');
             }
         }
@@ -176,9 +173,9 @@ class UserManager extends \Inspire\Database\DataManager
         if ($byUser['role'] > 3 && !empty($data['role']) && $data['role'] < 4) {
             $binds   = [[':mail', $data['mail'], \PDO::PARAM_STR]];
             $request = 'SELECT COUNT(*) FROM `user` WHERE role > 3 AND LOWER(mail) != LOWER(:mail)';
-            $rest    = (int) $this->_database->EXECUTE($request, $binds);
+            $count   = $this->_database->COUNT($request, $binds);
 
-            if ($rest < 1) {
+            if ($count < 1) {
                 throw new \Exception('You can not downgrade the last administrator');
             }
         }
@@ -187,10 +184,10 @@ class UserManager extends \Inspire\Database\DataManager
     public function addUser($data, $byUser)
     {
         if ($byUser['role'] < 2) {
-            $request = 'SELECT `id` FROM `user` WHERE 1 LIMIT 3';
-            $users   = $this->_database->FETCH_ALL($request);
+            $request = 'SELECT COUNT(*) FROM `user` WHERE 1';
+            $count   = $this->_database->COUNT($request);
 
-            if (count($users) > 0) {
+            if ($count > 0) {
                 throw new \Exception('You do not have permission to add user');
             } else {
                 $data['role'] = 4;
@@ -203,8 +200,8 @@ class UserManager extends \Inspire\Database\DataManager
 
         $request = 'SELECT COUNT(*) FROM `user` WHERE LOWER(mail) = LOWER(:mail)';
         $binds   = [[':mail', $data['mail'], \PDO::PARAM_STR]];
-        $rest    = $this->_database->EXECUTE($request, $binds);
-        if ($rest > 0) {
+        $count   = $this->_database->COUNT($request, $binds);
+        if ($count > 0) {
             throw new \Exception('This user already exist');
         }
 
@@ -231,34 +228,5 @@ class UserManager extends \Inspire\Database\DataManager
             $message);
 
         return $this->getUserById($userId);
-    }
-
-    public function addTags($itemUID, array $tagList)
-    {
-        foreach ($tagList as $tagName) {
-            $name = trim($tagName);
-            if (!empty($name)) {
-                $tagId   = $this->getTagID($name);
-                $request = 'INSERT INTO `tag_join` (`item_uid`, `tag_id`) VALUES (:item_uid, :tag_id)';
-                $binds   = [
-                    [':tag_id', $tagId, \PDO::PARAM_INT],
-                    [':item_uid', $itemUID, \PDO::PARAM_INT]
-                ];
-                $this->_database->EXECUTE($request, $binds);
-            }
-        }
-    }
-
-    public function removeTagsOfItem($itemUID)
-    {
-        $request = 'DELETE FROM `tag_join` WHERE `item_uid` = :item_uid';
-        $binds   = [[':item_uid', $itemUID, \PDO::PARAM_INT]];
-        $this->_database->EXECUTE($request, $binds);
-    }
-
-    public function cleanTags()
-    {
-        $request = 'DELETE FROM `tag` WHERE (NOT EXISTS (SELECT * FROM `tag_join` WHERE tag.id = tag_join.tag_id))';
-        $this->_database->EXECUTE($request);
     }
 }

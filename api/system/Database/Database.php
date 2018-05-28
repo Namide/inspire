@@ -78,6 +78,24 @@ class Database
         return [];
     }
 
+    public function COUNT($request, array $binds = [])
+    {
+        try {
+            if ($binds !== null) {
+                foreach ($binds as $bind) {
+                    $request = str_replace($bind[0], $this->_pdo->quote($bind[1]), $request);
+                }
+            }
+            
+            $value = (int) $this->_pdo->query($request)->fetchColumn();
+
+            return $value;
+        } catch (\PDOException $e) {
+            throw new \Exception('Database query error: '.$e->getMessage());
+        }
+        return [];
+    }
+
     public function FETCH($request, array $binds)
     {
         try {
