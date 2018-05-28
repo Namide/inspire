@@ -1,71 +1,63 @@
 <?php
-
-
 // https://github.com/klein/klein.php
 $klein = new \Klein\Klein();
 
-function sendSuccess(&$response, &$data, $subject, $action, $user = ['name' => 'Guest'])
+function sendSuccess(&$response, &$data, $subject, $action,
+                     $user = ['name' => 'Guest'])
 {
-    if (CORS)
-        $response->header('Access-Control-Allow-Origin', CORS);
+    if (CORS) $response->header('Access-Control-Allow-Origin', CORS);
 
     $json = [
         'success' => true,
         'data' => $data,
-        'meta' => array(
+        'meta' => [
             'subject' => $subject,
             'action' => $action,
             'user' => $user,
-            'time' => microtime(true) - START_TIME . ' sec'
-        )
+            'time' => microtime(true) - START_TIME.' sec'
+        ]
     ];
-    
+
     $response->json($json);
 }
 
 function sendError(&$response, $message = '')
 {
-    if (CORS)
-        $response->header('Access-Control-Allow-Origin', CORS);
+    if (CORS) $response->header('Access-Control-Allow-Origin', CORS);
 
     $json = [
         'success' => false,
         'message' => $message,
-        'meta' => array(
-            'time' => microtime(true) - START_TIME . ' sec'
-        )
+        'meta' => [
+            'time' => microtime(true) - START_TIME.' sec'
+        ]
     ];
-    
+
     $response->json($json);
 }
 
 function getUser($token = false)
 {
-    if ($token)
-    {
+    if ($token) {
         $userManager = new \Inspire\Database\UserManager();
         return $userManager->getUserByToken($token);
     }
-    
-    return [ 'name' => 'Guest', 'role' => 0 ];
-}
 
+    return ['name' => 'Guest', 'role' => 0];
+}
 // Get routes
-$klein->respond('GET', API_URL_REL . '/', function($request, $response, $service)
-{
-    try
-    {
+$klein->respond('GET', API_URL_REL.'/',
+    function($request, $response, $service) {
+    try {
         $data = [
-            'post' => API_URL_REL . '/posts',
-            'group' => API_URL_REL . '/groups',
-            'item' => API_URL_REL . '/item/{uid}',
-            'rss' => API_URL_REL . '/rss'
+            'post' => API_URL_REL.'/posts',
+            'group' => API_URL_REL.'/groups',
+            'item' => API_URL_REL.'/item/{uid}',
+            'rss' => API_URL_REL.'/rss'
         ];
-        
+
         sendSuccess($response, $data, 'routes', 'get');
-    }
-    catch (Exception $ex)
-    {
+    } catch (Exception $ex) {
         sendError($response, $ex->getMessage());
     }
 });
@@ -73,178 +65,126 @@ $klein->respond('GET', API_URL_REL . '/', function($request, $response, $service
 /*
  * AUTH
  */
-$klein->with(API_URL_REL . '/auth', function () use ($klein)
-{
-    $klein->respond('POST', '/signin', function ($request, $response, $service)
-    {
-        try
-        {
+$klein->with(API_URL_REL.'/auth',
+    function () use ($klein) {
+    $klein->respond('POST', '/signin',
+        function ($request, $response, $service) {
+        try {
             $mail = $request->param('mail');
             $pass = $request->param('pass');
-        
+
             if (empty($mail) || empty($pass))
-                throw new \Exception('"mail" and "pass" required');
-            
-          
+                    throw new \Exception('"mail" and "pass" required');
+
+
             $userManager = new \Inspire\Database\UserManager();
-            $user = $userManager->getUserBySignIn($mail, $pass);
-            
+            $user        = $userManager->getUserBySignIn($mail, $pass);
+
             $userMetaData = [
                 'name' => $user['name'],
                 'mail' => $user['mail'],
                 'role' => $user['role']
             ];
-            
+
             sendSuccess($response, $user, 'auth', 'signin', $userMetaData);
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             sendError($response, $ex->getMessage());
         }
     });
-    
-    $klein->respond('GET', '/signout', function ($request, $response, $service)
-    {
-        try
-        {
-            $headers = $request->headers();
-            $token = $headers['X-Access-Token'];
-        
-            $userManager = new \Inspire\Database\UserManager();
-            $user = $userManager->signout($token);
-            
-            sendSuccess($response, $user, 'auth', 'signout', $user);
-        }
-        catch (Exception $ex)
-        {
-            sendError($response, $ex->getMessage());
-        }
-    });
-    
-    /*$klein->respond('GET', '/testtoken', function ($request, $response) use ($inspireJwt) {
+
+    $klein->respond('GET', '/signout',
+        function ($request, $response, $service) {
         try {
             $headers = $request->headers();
-            $data=$inspireJwt->dumptoken($headers['X-Access-Token']);
+            $token   = $headers['X-Access-Token'];
+
+            $userManager = new \Inspire\Database\UserManager();
+            $user        = $userManager->signout($token);
+
+            sendSuccess($response, $user, 'auth', 'signout', $user);
         } catch (Exception $ex) {
-            $data = array(
-                'success' => false,
-                'message' => $ex->getMessage(),
-                );
+            sendError($response, $ex->getMessage());
         }
-        send($response, $data);
-    });*/
-    
-    /*$klein->respond('GET', '/exemple', function ($request, $response) {
-        echo 'exemple';
-    });*/
+    });
 });
 
 
 /*
  * USER
  */
-$klein->with(API_URL_REL . '/users', function () use ($klein)
-{
-    $klein->respond('POST', '/add', function ($request, $response, $service)
-    {
-        try
-        {
+$klein->with(API_URL_REL.'/users',
+    function () use ($klein) {
+    $klein->respond('POST', '/add',
+        function ($request, $response, $service) {
+        try {
             $mail = trim($request->param('mail'));
             $name = trim($request->param('name'));
             $role = trim($request->param('role'));
-        
+
             if (empty($mail) || empty($name))
-                throw new \Exception('"mail" and "name" required');
-            
-            if (empty($role))
-                $role = 1;
-            
-            $headers = $request->headers();
+                    throw new \Exception('"mail" and "name" required');
+
+            if (empty($role)) $role = 1;
+
+            $headers     = $request->headers();
             $userManager = new \Inspire\Database\UserManager();
-            
+
             $newUserData = [
                 'mail' => $mail,
                 'name' => $name,
                 'role' => $role
             ];
-            $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
-            $newUser = $userManager->addUser($newUserData, $user);
-            
+            $user        = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+            $newUser     = $userManager->addUser($newUserData, $user);
+
             sendSuccess($response, $newUser, 'users', 'add', $user);
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             sendError($response, $ex->getMessage());
         }
     });
-    
-    $klein->respond('POST', '/delete', function ($request, $response, $service)
-    {
-        try
-        {
+
+    $klein->respond('POST', '/delete',
+        function ($request, $response, $service) {
+        try {
             $mail = trim($request->param('mail'));
-        
-            if (empty($mail))
-                throw new \Exception('"mail" required');
-            
-            $headers = $request->headers();
+
+            if (empty($mail)) throw new \Exception('"mail" required');
+
+            $headers     = $request->headers();
             $userManager = new \Inspire\Database\UserManager();
-            $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
-            
+            $user        = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+
             $userManager->deleteUser($mail, $user);
             $data = ['mail' => $mail];
-            
+
             sendSuccess($response, $data, 'users', 'delete', $user);
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             sendError($response, $ex->getMessage());
         }
     });
-    
-    /*$klein->respond('GET', '/testtoken', function ($request, $response) use ($inspireJwt) {
-        try {
-            $headers = $request->headers();
-            $data=$inspireJwt->dumptoken($headers['X-Access-Token']);
-        } catch (Exception $ex) {
-            $data = array(
-                'success' => false,
-                'message' => $ex->getMessage(),
-                );
-        }
-        send($response, $data);
-    });*/
-    
-    /*$klein->respond('GET', '/exemple', function ($request, $response) {
-        echo 'exemple';
-    });*/
 });
 
 // Get posts
-$klein->respond('GET', API_URL_REL . '/posts/[*:trailing]?', function ($request, $response, $service)
-{
-    try
-    {
+$klein->respond('GET', API_URL_REL.'/posts/[*:trailing]?',
+    function ($request, $response, $service) {
+    try {
         $headers = $request->headers();
-        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
-        
+        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+
         $argsStr = $request->param('trailing');
         $rawList = explode('/', $argsStr);
 
         // Fix array with 1 empty cell
-        if (count($rawList) === 1 && empty($rawList[0]))
-            unset($rawList[0]);
-        
-        if (count($rawList) % 2 === 1)
-            throw new Exception('List of data after posts must be pair');
+        if (count($rawList) === 1 && empty($rawList[0])) unset($rawList[0]);
 
-        $argObj = array();
-        for ($i = 0; $i < count($rawList); $i += 2)
-        {
-            $key = $rawList[$i];
+        if (count($rawList) % 2 === 1)
+                throw new Exception('List of data after posts must be pair');
+
+        $argObj = [];
+        for ($i = 0; $i < count($rawList); $i += 2) {
+            $key      = $rawList[$i];
             $rawValue = $rawList[$i + 1];
-            switch($key)
-            {
+            switch ($key) {
                 case 'tags':
                     $value = explode(',', $rawValue);
                     break;
@@ -265,125 +205,110 @@ $klein->respond('GET', API_URL_REL . '/posts/[*:trailing]?', function ($request,
                     break;
                 default:
                     throw new Exception('Arguments after "posts" must be only '
-                            . '"tags", "types", "notags", "notypes", "limit" and "offset", "'
-                            . $key . '" not accepted');
+                    .'"tags", "types", "notags", "notypes", "limit" and "offset", "'
+                    .$key.'" not accepted');
             }
-            
+
             $argObj[$key] = $value;
         }
 
         $postManager = new \Inspire\Database\PostManager();
-        $posts = $postManager->getPosts($argObj);
-            
+        $posts       = $postManager->getPosts($argObj);
+
         sendSuccess($response, $posts, 'posts', 'get', $user);
-    }
-    catch (Exception $ex)
-    {
+    } catch (Exception $ex) {
         sendError($response, $ex->getMessage());
     }
-});  
+});
 
 // Add post
-$klein->respond('POST', API_URL_REL . '/posts/add', function($request, $response, $service)
-{
-    try
-    {
+$klein->respond('POST', API_URL_REL.'/posts/add',
+    function($request, $response, $service) {
+    try {
         $headers = $request->headers();
-        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
-        
+        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+
         $postManager = new \Inspire\Database\PostManager();
-        
+
         $params = $request->params();
-        
+
         // Save file
-        if (!empty($_FILES['content_file']))
-        {
-            $fileData = $postManager->saveFile($_FILES['content_file']);
+        if (!empty($_FILES['content_file'])) {
+            $fileData               = $postManager->saveFile($_FILES['content_file']);
             $params['content_file'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
         }
-        
+
         // Save thumb
-        if (!empty($_FILES['thumb']))
-        {
-            $thumbData = $postManager->saveThumb($_FILES['thumb']);
+        if (!empty($_FILES['thumb'])) {
+            $thumbData       = $postManager->saveThumb($_FILES['thumb']);
             $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
         }
         // Create thumb from file
-        elseif (!empty($fileData) && !empty(strpos($fileData['type'], 'image') !== false))
-        {
-            $thumbData = $postManager->createThumbFromImage(DATA_PATH . $fileData['path']);
+        elseif (!empty($fileData) && !empty(strpos($fileData['type'], 'image') !== false)) {
+            $thumbData       = $postManager->createThumbFromImage(DATA_PATH.$fileData['path']);
             $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
         }
 
         $post = $postManager->addPost($params);
 
         sendSuccess($response, $post, 'posts', 'add', $user);
-    }
-    catch (Exception $ex)
-    {
+    } catch (Exception $ex) {
         sendError($response, $ex->getMessage());
     }
 });
 
 
 // Update post
-$klein->respond('POST', API_URL_REL . '/posts/edit/[i:uid]', function($request, $response, $service)
-{
-    try
-    {
+$klein->respond('POST', API_URL_REL.'/posts/edit/[i:uid]',
+    function($request, $response, $service) {
+    try {
         $headers = $request->headers();
-        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
-        
+        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+
         $postManager = new \Inspire\Database\PostManager();
         // $params = $request->paramsPost();
-        $uid = $request->param('uid');
-        
-        
+        $uid         = $request->param('uid');
+
+
         $params = $request->params();
-        
+
         // Update file
-        if (!empty($_FILES['content_file']))
-        {
+        if (!empty($_FILES['content_file'])) {
             $postManager->removeFile($uid);
-            $fileData = $postManager->saveFile($_FILES['content_file']);
+            $fileData               = $postManager->saveFile($_FILES['content_file']);
             $params['content_file'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
         }
-        
+
         // Update thumb
-        if (!empty($_FILES['thumb']))
-        {
+        if (!empty($_FILES['thumb'])) {
             $postManager->removeThumb($uid);
-            $thumbData = $postManager->saveThumb($_FILES['thumb']);
+            $thumbData       = $postManager->saveThumb($_FILES['thumb']);
             $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
         }
         // Update thumb from file
-        elseif (!empty($fileData) && !empty(strpos($fileData['type'], 'image') !== false))
-        {
+        elseif (!empty($fileData) && !empty(strpos($fileData['type'], 'image') !== false)) {
             $postManager->removeThumb($uid);
-            $thumbData = $postManager->createThumbFromImage(DATA_PATH . $fileData['path']);
+            $thumbData       = $postManager->createThumbFromImage(DATA_PATH.$fileData['path']);
             $params['thumb'] = Inspire\Helper\JsonHelp::FROM_ARRAY($thumbData);
         }
-        
+
         // Update post
         $post = $postManager->updatePost($uid, $params);
 
         sendSuccess($response, $post, 'posts', 'edit', $user);
-    }
-    catch (Exception $ex)
-    {
+    } catch (Exception $ex) {
         sendError($response, $ex->getMessage());
     }
 });
 
 // Delete post
-$klein->respond('GET', API_URL_REL . '/posts/delete/[i:uid]', function($request, $response, $service)
-{
-    try
-    {
+$klein->respond('GET', API_URL_REL.'/posts/delete/[i:uid]',
+    function($request, $response, $service) {
+    try {
         $headers = $request->headers();
-        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
-        
-        $uid = $request->param('uid');
+        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+
+        $uid         = $request->param('uid');
         $postManager = new \Inspire\Database\PostManager();
         $postManager->removeThumb($uid);
         $postManager->removeFile($uid);
@@ -392,157 +317,106 @@ $klein->respond('GET', API_URL_REL . '/posts/delete/[i:uid]', function($request,
         $data = ['uid' => $uid];
 
         sendSuccess($response, $data, 'posts', 'delete', $user);
-    }
-    catch (Exception $ex)
-    {
+    } catch (Exception $ex) {
         sendError($response, $ex->getMessage());
     }
-});   
+});
 
 // Get post
-$klein->respond('GET', API_URL_REL . '/posts/[i:id]', function ($request, $response, $service)
-{
-    try
-    {
+$klein->respond('GET', API_URL_REL.'/posts/[i:id]',
+    function ($request, $response, $service) {
+    try {
         $headers = $request->headers();
-        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
-        
+        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+
         $postManager = new \Inspire\Database\PostManager();
-        $id = $request->param('id');
-        $post = $postManager->getPost($id);
-        
+        $id          = $request->param('id');
+        $post        = $postManager->getPost($id);
+
         sendSuccess($response, $post, 'posts', 'get', $user);
-    }
-    catch (Exception $ex)
-    {
+    } catch (Exception $ex) {
         sendError($response, $ex->getMessage());
     }
 });
 
 // Get file
-$klein->respond('GET', API_URL_REL . '/files/[i:uid]', function ($request, $response, $service, $app)
-{
+$klein->respond('GET', API_URL_REL.'/files/[i:uid]',
+    function ($request, $response, $service, $app) {
     // Todo
-    if (CORS)
-        $response->header('Access-Control-Allow-Origin', CORS);
+    if (CORS) $response->header('Access-Control-Allow-Origin', CORS);
 
-    try
-    {
+    try {
         $headers = $request->headers();
-        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
-        
+        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+
         $postManager = new \Inspire\Database\PostManager();
-        $uid = $request->param('uid');
-        $file = $postManager->getFile($uid);
-        
-        $response->file(DATA_PATH . $file['path'], $file['name']);
-    }
-    catch (Exception $ex)
-    {
+        $uid         = $request->param('uid');
+        $file        = $postManager->getFile($uid);
+
+        $response->file(DATA_PATH.$file['path'], $file['name']);
+    } catch (Exception $ex) {
         sendError($response, $ex->getMessage());
     }
 });
 
 // Get distant content
-$klein->respond('POST', API_URL_REL . '/distant', function ($request, $response, $service, $app)
-{
+$klein->respond('POST', API_URL_REL.'/distant',
+    function ($request, $response, $service, $app) {
     // Todo
-    if (CORS)
-        $response->header('Access-Control-Allow-Origin', CORS);
+    if (CORS) $response->header('Access-Control-Allow-Origin', CORS);
 
-    try
-    {
+    try {
         $headers = $request->headers();
-        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
-        
+        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+
         $params = $request->params();
-        if (!empty($params['link']))
-        {
+        if (!empty($params['link'])) {
             $html = file_get_contents($params['link']);
             sendSuccess($response, $html, 'distant', 'get', $user);
-        }
-        else
-        {
+        } else {
             throw new \Exception('"link" value is required');
         }
-    }
-    catch (Exception $ex)
-    {
+    } catch (Exception $ex) {
         sendError($response, $ex->getMessage());
     }
 });
 
 // Get thumb
-$klein->respond('GET', API_URL_REL . '/thumbs/[i:uid]', function ($request, $response, $service, $app)
-{
+$klein->respond('GET', API_URL_REL.'/thumbs/[i:uid]',
+    function ($request, $response, $service, $app) {
     // Todo
-    if (CORS)
-        $response->header('Access-Control-Allow-Origin', CORS);
+    if (CORS) $response->header('Access-Control-Allow-Origin', CORS);
 
-    try
-    {
+    try {
         $headers = $request->headers();
-        $user = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
-        
+        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+
         $postManager = new \Inspire\Database\PostManager();
-        $uid = $request->param('uid');
-        $file = $postManager->getThumb($uid);
-        
-        $response->file( DATA_PATH . $file['path'], $file['name']);
-    }
-    catch (Exception $ex)
-    {
+        $uid         = $request->param('uid');
+        $file        = $postManager->getThumb($uid);
+
+        $response->file(DATA_PATH.$file['path'], $file['name']);
+    } catch (Exception $ex) {
         sendError($response, $ex->getMessage());
     }
 });
 
 // Get config.js
-$klein->respond('GET', API_URL_REL . '/config.js', function($request, $response, $service)
-{
-    try
-    {
-        if (CORS)
-            $response->header('Access-Control-Allow-Origin', CORS);
-        
+$klein->respond('GET', API_URL_REL.'/config.js',
+    function($request, $response, $service) {
+    try {
+        if (CORS) $response->header('Access-Control-Allow-Origin', CORS);
+
         $body = Inspire\Vue\ConfigJS::getJs();
         $response->header('Content-Type', 'application/javascript');
         $response->body($body);
-    }
-    catch (Exception $ex)
-    {
+    } catch (Exception $ex) {
         sendError($response, $ex->getMessage());
     }
 });
 
-/* $klein->respond('POST', '/posts', $callback);
-$klein->respond('PUT', '/posts/[i:id]', $callback);
-$klein->respond('DELETE', '/posts/[i:id]', $callback);
-$klein->respond('OPTIONS', null, $callback);*/
-
-// To match multiple request methods:
-// $klein->respond(array('POST','GET'), $route, $callback);
-
-// Or you might want to handle the requests in the same place
-/*$klein->respond('/posts/[create|edit:action]?/[i:id]?', function ($request, $response) {
-    switch ($request->action) {
-        //
-    }
-});*/
-
-/*
-$klein->respond('*', function ()
-{
-    $data = array(
-        'success' => 0,
-        'message' => 'URL not found'
-    );
-
-    \Inspire\Helper\JsonHelp::PRINT_FROM_ARRAY($data);
-});
-*/
-$klein->onHttpError(function ($code, $router)
-{
-    $data = 'Error ' . $code;
+$klein->onHttpError(function ($code, $router) {
+    $data     = 'Error '.$code;
     $response = $router->response();
     sendError($response, $ex->getMessage());
 });

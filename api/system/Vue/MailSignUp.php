@@ -6,9 +6,9 @@ class MailSignUp
 {
     static function getHtml($name, $mail, $pass)
     {
-        $siteURL = FRONT_URL_ABS;
+        $siteURL  = FRONT_URL_ABS;
         $adminURL = ADMIN_URL_ABS;
-        
+
         return <<<EOT
 
 <h1>Hello $name!</h1>

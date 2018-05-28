@@ -9,6 +9,7 @@ namespace Inspire\Helper;
  */
 class JsonHelp
 {
+
     public static function TO_ARRAY($str)
     {
         return json_decode($str, true);
@@ -19,8 +20,7 @@ class JsonHelp
         // $datas = self::TO_UTF8($datas);
         $out = json_encode($datas);
 
-        switch (json_last_error())
-        {
+        switch (json_last_error()) {
             case JSON_ERROR_NONE:
                 break;
             case JSON_ERROR_DEPTH:
@@ -61,10 +61,8 @@ class JsonHelp
      */
     public static function TO_UTF8($data)
     {
-        if (is_array($data))
-        {
-            foreach ($data as $key => $value)
-            {
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
                 $data[$key] = self::TO_UTF8($value);
             }
 
@@ -73,5 +71,4 @@ class JsonHelp
 
         return ($data === '') ? '' : utf8_encode($data);
     }
-
 }

@@ -9,267 +9,149 @@ namespace Inspire\Helper;
  */
 class FileHelp
 {
-    /*public static $EXTS_IMG_BITMAP = array('png', 'gif', 'jpg', 'jpeg');
-    public static $EXTS_IMG_VECTOR = array('svg', 'ai', 'eps');
-    public static $EXTS_3D = array('blend', '3ds', 'obj', 'dxf');
-    public static $EXTS_SOUND = array('mp3', 'flac', 'ogg', 'wav');
-    public static $EXTS_VIDEO = array('mp4', 'avi', 'mpeg', 'mov');
-    public static $EXTS_PAGE = array('pdf', 'ps', 'html', 'xhtml', 'xml');
-    public static $EXTS_TEXT = array('odt', 'txt', 'doc', 'rtf');
-    public static $EXTS_ARCHIVE = array('rar', 'gz', 'tar', 'zip', '7z');
-    
-    public static function GET_TYPE($fileName)
-    {
-        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-        return self::GET_TYPE_BY_EXT($ext);
-    }
-    
-    public static function GET_TYPE_BY_EXT($ext)
-    {
-        $type = 'other';
-
-        if (in_array($ext, self::$EXTS_IMG_BITMAP))
-            $type = 'img/bitmap';
-        elseif (in_array($ext, self::$EXTS_IMG_VECTOR))
-            $type = 'img/vector';
-        elseif (in_array($ext, self::$EXTS_3D))
-            $type = '3d';
-        elseif (in_array($ext, self::$EXTS_SOUND))
-            $type = 'sound';
-        elseif (in_array($ext, self::$EXTS_VIDEO))
-            $type = 'video';
-        elseif (in_array($ext, self::$EXTS_PAGE))
-            $type = 'page';
-        elseif (in_array($ext, self::$EXTS_TEXT))
-            $type = 'text';
-        elseif (in_array($ext, self::$EXTS_ARCHIVE))
-            $type = 'archive';
-
-        return $type;
-    }*/
-    
-    public static function SET_FILE_DATA($file, &$data = array(), $colors = false)
+    public static function SET_FILE_DATA($file, &$data = [], $colors = false)
     {
         $info = getimagesize($file);
 
-        if(in_array($info[2] , array(IMAGETYPE_GIF , IMAGETYPE_JPEG ,IMAGETYPE_PNG , IMAGETYPE_BMP)))
-        {
-            if (empty($data['type']))
+        if (in_array($info[2],
+                [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_BMP])) {
+            if (empty($data['type'])) {
                 $data['type'] = mime_content_type($file);
-            
-            if (empty($data['name']))
+            }
+
+            if (empty($data['name'])) {
                 $data['name'] = pathinfo($file, PATHINFO_BASENAME);
-            
-            if (empty($data['size']))
+            }
+
+            if (empty($data['size'])) {
                 $data['size'] = filesize($file);
-            
-            
-            $data['width'] = $info[0];
+            }
+
+            $data['width']  = $info[0];
             $data['height'] = $info[1];
-            
+
             // Extract colors
-            if ($colors)
-            {
-               $palette = \League\ColorExtractor\Palette::fromFilename($file);
-                $extractor = new \League\ColorExtractor\ColorExtractor($palette);
-                $colors = $extractor->extract(5);
+            if ($colors) {
+                $palette       = \League\ColorExtractor\Palette::fromFilename($file);
+                $extractor     = new \League\ColorExtractor\ColorExtractor($palette);
+                $colors        = $extractor->extract(5);
                 $colorIntToHex = function($intColor) {
-                    return \League\ColorExtractor\Color::fromIntToHex($intColor, true);
+                    return \League\ColorExtractor\Color::fromIntToHex($intColor,
+                            true);
                 };
-                $data['colors'] = array_map($colorIntToHex, $colors); 
+                $data['colors'] = array_map($colorIntToHex, $colors);
             }
         }
-        
+
         return $data;
     }
-    
+
     public static function CREATE_THUMB($image, $thumb)
     {
         list($width, $height) = getimagesize($image);
-        
-        $thumbDir = pathinfo($thumb, PATHINFO_DIRNAME);
-        $thumbName = self::CLEAN_NAME(pathinfo($thumb, PATHINFO_FILENAME) . '.jpg');
+
+        $thumbDir  = pathinfo($thumb, PATHINFO_DIRNAME);
+        $thumbName = self::CLEAN_NAME(pathinfo($thumb, PATHINFO_FILENAME).'.jpg');
         $thumbFile = self::RENAME_IF_EXIST($thumbDir, $thumbName);
 
         $pixels = $width * $height;
-        if ($pixels > THUMB_PIXELS)
-        {
-            $mult = sqrt(THUMB_PIXELS / ($width * $height));
-            $thumbWidth = round($width * $mult);
+        if ($pixels > THUMB_PIXELS) {
+            $mult        = sqrt(THUMB_PIXELS / ($width * $height));
+            $thumbWidth  = round($width * $mult);
             $thumbHeight = round($height * $mult);
+        } else {
+            $thumbWidth  = $width;
+            $thumbHeight = $height;
         }
-        else
+
+        /*
+        if (max($width, $height) <= 512)
         {
             $thumbWidth = $width;
             $thumbHeight = $height;
-        }
-        
-        /*if (max($width, $height) <= 512)
-        {
-            $thumbWidth = $width;
-            $thumbHeight = $height;
-        }
-        elseif ($width > $height)
-        {
+        } elseif ($width > $height) {
             $thumbWidth = 512;
             $thumbHeight = round(512 * $height / $width);
+        } else {
+            $thumbHeight = 512;
+            $thumbWidth = round(512 * $width / $height);
         }
-        else
-        {
-           $thumbHeight = 512;
-           $thumbWidth = round(512 * $width / $height);
-        }*/
-        
+         */
+
         self::WRITE_DIR_OF_FILE($thumbFile);
         \WideImage\WideImage::load($image)
-                ->resize($thumbWidth, $thumbHeight)
-                ->saveToFile($thumbFile, 80);
+            ->resize($thumbWidth, $thumbHeight)
+            ->saveToFile($thumbFile, 80);
 
         return $thumbFile;
-        
-        /*$imageThumb = imagecreatetruecolor($width, $height);
+
+        /*
+        $imageThumb = imagecreatetruecolor($width, $height);
         $image = imagecreatefromjpeg($thumb);
         imagecopyresampled($imageThumb, $image, 0, 0, 0, 0, $thumbWidth, $thumbHeight, $width, $height);
         imagejpeg($imageThumb, $thumbDir . '/' . $thumbName, 70);
 
-        imagedestroy($imageThumb);*/
+        imagedestroy($imageThumb);
+        */
     }
-    
+
     public static function SAVE_FILE_POST($fileInput, $dir)
     {
         $name = self::CLEAN_NAME($fileInput['name']);
         $file = self::RENAME_IF_EXIST($dir, $name);
         self::WRITE_DIR_OF_FILE($file);
-        
-        if ($fileInput['size'] > MAX_FILE_SIZE)
-            throw new \Exception('Each file must be inferior at ' . (MAX_FILE_SIZE / 1000) . 'ko');
-        
+
+        if ($fileInput['size'] > MAX_FILE_SIZE) {
+            throw new \Exception('Each file must be inferior at '.(MAX_FILE_SIZE
+            / 1000).'ko');
+        }
+
         // Check error
-        switch ($fileInput['error'])
-        { 
-            case UPLOAD_ERR_INI_SIZE: 
+        switch ($fileInput['error']) {
+            case UPLOAD_ERR_INI_SIZE:
                 throw new \Exception('The uploaded file exceeds the upload_max_filesize directive in php.ini');
-                break; 
-            case UPLOAD_ERR_FORM_SIZE: 
+                break;
+            case UPLOAD_ERR_FORM_SIZE:
                 throw new \Exception('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form');
-                break; 
-            case UPLOAD_ERR_PARTIAL: 
-                throw new \Exception('The uploaded file was only partially uploaded'); 
-                break; 
-            case UPLOAD_ERR_NO_FILE: 
+                break;
+            case UPLOAD_ERR_PARTIAL:
+                throw new \Exception('The uploaded file was only partially uploaded');
+                break;
+            case UPLOAD_ERR_NO_FILE:
                 throw new \Exception('No file was uploaded');
-                break; 
-            case UPLOAD_ERR_NO_TMP_DIR: 
-                throw new \Exception('Missing a temporary folder'); 
-                break; 
-            case UPLOAD_ERR_CANT_WRITE: 
+                break;
+            case UPLOAD_ERR_NO_TMP_DIR:
+                throw new \Exception('Missing a temporary folder');
+                break;
+            case UPLOAD_ERR_CANT_WRITE:
                 throw new \Exception('Failed to write file to disk');
-                break; 
-            case UPLOAD_ERR_EXTENSION: 
+                break;
+            case UPLOAD_ERR_EXTENSION:
                 throw new \Exception('File upload stopped by extension');
                 break;
         }
-                    
-        if (!move_uploaded_file($fileInput['tmp_name'], $file))
-            throw new \Exception('File upload failure to move from "' . $fileData['tmp_name'] . '" to "' . $file . '"' );
-        
+
+        if (!move_uploaded_file($fileInput['tmp_name'], $file)) {
+            throw new \Exception('File upload failure to move from "'.$fileData['tmp_name'].'" to "'.$file.'"');
+        }
+
         return $file;
     }
 
-    /*public static function SAVE_FILE_BASE64(&$base64, $name, $dir)
-    {
-        $data = base64_decode($base64);
-        $name = self::CLEAN_NAME($name);
-        $file = self::RENAME_IF_EXIST($dir, $name);
-        self::WRITE_DIR_OF_FILE($file);
-        file_put_contents($file, $data);        
-        
-        return $file;
-        
-        
-    }*/
-
-    /*public static function SAVE_UPLOADED_FILES($name, $destDir)
-    {
-        $outputFiles = array();
-
-        if (exist($_FILES, $name)) {
-          return array('error' => 'The file ' . $name . ' don\'nt exist.');
-        }
-
-        $destDir .= date('Y-m') . '/';
-
-        if (FileHelp::IS_EMPTY($destDir)) {
-          FileHelp::WRITE_DIR($destDir);
-        }
-
-        $fileInput = $_FILES[$name];
-        for ($i = 0; $i < count($fileInput['name']); $i++)
-        {
-            if (!exist($fileInput['name'], $i)) {
-                continue;
-            }
-
-            if ($fileInput['error'][$i] != UPLOAD_ERR_OK) {
-                continue;
-            }
-
-            $file = basename($fileInput['name'][$i]);
-            $weight = filesize($fileInput['tmp_name'][$i]);
-            $extensions = array('.png', '.gif', '.jpg', '.jpeg');
-            $extension = strrchr($fileInput['name'][$i], '.');
-
-            if (!in_array($extension, $extensions))
-            {
-                $return = array('error' => 'You can not upload this file format: ' . $extension);
-            }
-
-            if ($weight > MAX_FILE_SIZE)
-            {
-                $return = array('error' => 'Each file must be inferior at ' . (MAX_FILE_SIZE / 1000) . 'ko');
-            }
-
-            $newNams = date('Y-m-d_H-i-s') . '_' . FileHelp::CLEAN_NAME($file);
-            $newFile = $newNams . $extension;
-
-            if (move_uploaded_file($fileInput['tmp_name'][$i], $destDir . $newFile))
-            {
-                $type = self::GET_TYPE_BY_EXT($extension);
-                $resume = '';
-
-                // CREATE THUMB
-                if ($type === 'img/bitmap') {
-                ImgHelp::CREATE_THUMB($destDir . $newFile, $destDir . $thumb);
-                $resume = $newFile . '_thumb.jpg';
-                }
-
-                $outputFiles[] = array(
-                    'type' => $type,
-                    'value' => $newFile,
-                    'resume' => $resume
-                );
-            }
-            else
-            {
-                return array('error' => 'File content upload failure');
-            }
-        }
-
-        return $outputFiles;
-    }*/
-    
     public static function RENAME_IF_EXIST($path, $filename)
     {
         $file = "$path/$filename";
-        if (!file_exists($file))
+        if (!file_exists($file)) {
             return $file;
-
+        }
+        
         $fnameNoExt = pathinfo($filename, PATHINFO_FILENAME);
-        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+        $ext        = pathinfo($filename, PATHINFO_EXTENSION);
 
         $i = 1;
-        while(file_exists("$path/$fnameNoExt-$i.$ext"))
+        while (file_exists("$path/$fnameNoExt-$i.$ext")) {
             $i++;
+        }
 
         return "$path/$fnameNoExt-$i.$ext";
     }
@@ -278,24 +160,23 @@ class FileHelp
     {
         $name = html_entity_decode($name, ENT_QUOTES, $charset);
         $name = mb_strtolower($name, $charset);
-        $name = str_replace(
-            array(
-                'à', 'â', 'ä', 'á', 'ã', 'å',
-                'î', 'ï', 'ì', 'í',
-                'ô', 'ö', 'ò', 'ó', 'õ', 'ø',
-                'ù', 'û', 'ü', 'ú',
-                'é', 'è', 'ê', 'ë',
-                'ç', 'ÿ', 'ý', 'ñ',
-                'æ', 'œ', 'ß', "'", '’', '“', '”', '«', '»', '–', '—', '€', '$', '&'
-            ), array(
-                'a', 'a', 'a', 'a', 'a', 'a',
-                'i', 'i', 'i', 'i',
-                'o', 'o', 'o', 'o', 'o', 'o',
-                'u', 'u', 'u', 'u',
-                'e', 'e', 'e', 'e',
-                'c', 'y', 'y', 'n',
-                'ae', 'oe', 'ss', '', '', '', '', '', '', '-', '-', 'e', 's', ''
-            ), $name
+        $name = str_replace([
+            'à', 'â', 'ä', 'á', 'ã', 'å',
+            'î', 'ï', 'ì', 'í',
+            'ô', 'ö', 'ò', 'ó', 'õ', 'ø',
+            'ù', 'û', 'ü', 'ú',
+            'é', 'è', 'ê', 'ë',
+            'ç', 'ÿ', 'ý', 'ñ',
+            'æ', 'œ', 'ß', "'", '’', '“', '”', '«', '»', '–', '—', '€', '$', '&'
+            ], [
+            'a', 'a', 'a', 'a', 'a', 'a',
+            'i', 'i', 'i', 'i',
+            'o', 'o', 'o', 'o', 'o', 'o',
+            'u', 'u', 'u', 'u',
+            'e', 'e', 'e', 'e',
+            'c', 'y', 'y', 'n',
+            'ae', 'oe', 'ss', '', '', '', '', '', '', '-', '-', 'e', 's', ''
+            ], $name
         );
 
         $name = preg_replace('/([^.a-z0-9]+)/i', '-', $name);
@@ -338,13 +219,13 @@ class FileHelp
         $path = explode('/', $dirName);
 
         $dirName = '';
-        while (count($path) > 0)
-        {
-            $dirName .= $path[0] . '/';
+        while (count($path) > 0) {
+            $dirName .= $path[0].'/';
 
-            if (!file_exists($dirName))
+            if (!file_exists($dirName)) {
                 mkdir($dirName, 0777);
-            
+            }
+
             array_shift($path);
         }
     }
@@ -356,12 +237,11 @@ class FileHelp
      * @param string $dirName		Directory of the .htaccess
      */
     public static function WRITE_PROTECTED_DIR($dirName)
-    {        
+    {
         self::WRITE_DIR($dirName);
 
-        if (!file_exists($dirName . '.htaccess'))
-        {
-            $htaccess = fopen($dirName . '.htaccess', "w");
+        if (!file_exists($dirName.'.htaccess')) {
+            $htaccess        = fopen($dirName.'.htaccess', "w");
             $htaccessContent = 'deny from all';
             fwrite($htaccess, $htaccessContent);
             fclose($htaccess);
@@ -378,20 +258,19 @@ class FileHelp
     {
         $dirArray = explode('/', $fileName);
         array_pop($dirArray);
-        $dir = implode($dirArray, '/');
-        
+        $dir      = implode($dirArray, '/');
+
         self::WRITE_DIR($dir);
 
-        if (!file_exists($dir . '/.htaccess'))
-        {
-            $htaccess = fopen($dir . '/.htaccess', 'w');
+        if (!file_exists($dir.'/.htaccess')) {
+            $htaccess        = fopen($dir.'/.htaccess', 'w');
             $htaccessContent = 'deny from all';
             fwrite($htaccess, $htaccessContent);
             fclose($htaccess);
         }
     }
 
-      /**
+    /**
      * Size of the directory in octets
      * 
      * @param string $dir		Directory to mesure
@@ -402,7 +281,7 @@ class FileHelp
         $size = 0;
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dirName)) as $file)
             $size += $file->getSize();
-        
+
         return $size;
     }
 
@@ -418,11 +297,12 @@ class FileHelp
         $size = self::GET_DIR_SIZE($dirName);
 
         //Size must be bytes!
-        $sizes = array('B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
-        for ($i = 0; $size > 1024 && $i < count($sizes) - 1; $i++)
+        $sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        for ($i = 0; $size > 1024 && $i < count($sizes) - 1; $i++) {
             $size /= 1024;
+        }
 
-        return round($size, $round) . ' ' . $sizes[$i];
+        return round($size, $round).' '.$sizes[$i];
     }
 
     /**
@@ -433,16 +313,15 @@ class FileHelp
      */
     public static function DEL_DIR_RECURSIVLY($dirName)
     {
-        if (!file_exists($dirName))
-            return 0;
+        if (!file_exists($dirName)) return 0;
 
-        $files = array_diff(scandir($dirName), array('.', '..'));
-        foreach ($files as $file)
-        {
-            if (is_dir($dirName . '/' . $file))
-                self::DEL_DIR_RECURSIVLY($dirName . '/' . $file);
-            else
-                unlink($dirName . '/' . $file);
+        $files = array_diff(scandir($dirName), ['.', '..']);
+        foreach ($files as $file) {
+            if (is_dir($dirName.'/'.$file)) {
+                self::DEL_DIR_RECURSIVLY($dirName.'/'.$file);
+            } else {
+                unlink($dirName.'/'.$file);
+            }
         }
 
         return rmdir($dirName);
@@ -457,21 +336,19 @@ class FileHelp
      */
     public static function DEL_FILE($file, $recursEmptyDir = false)
     {
-        if (!file_exists($file))
-            return false;
+        if (!file_exists($file)) return false;
 
         unlink($file);
 
-        if ($recursEmptyDir)
-        {
+        if ($recursEmptyDir) {
             $dir = $file;
-            do
-            {
+            do {
                 $dir = explode('/', $dir);
 
-                if (count($dir) < 1)
+                if (count($dir) < 1) {
                     return true;
-                
+                }
+
                 array_pop($dir);
                 $dir = implode('/', $dir);
                 self::DEL_EMPTY_DIR_RECURSIVLY($dir);
@@ -490,13 +367,15 @@ class FileHelp
      */
     public static function IS_EMPTY($dir)
     {
-        if (!file_exists($dir))
+        if (!file_exists($dir)) {
             return true;
+        }
 
-        if (is_file($dir))
+        if (is_file($dir)) {
             return true;
-
-        $files = array_diff(scandir($dir), array('.', '..', '.DS_Store', 'Thumbs.db'));
+        }
+        
+        $files = array_diff(scandir($dir), ['.', '..', '.DS_Store', 'Thumbs.db']);
         return count($files) < 1;
     }
 
@@ -510,23 +389,26 @@ class FileHelp
     {
         $numChilds = 0;
 
-        if (!file_exists($dirName))
+        if (!file_exists($dirName)) {
             return 0;
-        if (is_file($dirName))
+        }
+        if (is_file($dirName)) {
             return 1;
-
-        $files = array_diff(scandir($dirName), array('.', '..', '.DS_Store', 'Thumbs.db'));
-        foreach ($files as $file)
-        {
-            if (is_dir($dirName . '/' . $file))
-                $numChilds += self::DEL_EMPTY_DIR_RECURSIVLY($dirName . '/' . $file);
-            else
+        }
+        
+        $files = array_diff(scandir($dirName), ['.', '..', '.DS_Store', 'Thumbs.db']);
+        foreach ($files as $file) {
+            if (is_dir($dirName.'/'.$file)) {
+                $numChilds += self::DEL_EMPTY_DIR_RECURSIVLY($dirName.'/'.$file);
+            } else {
                 $numChilds++;
+            }
         }
 
-        if ($numChilds < 1)
+        if ($numChilds < 1) {
             rmdir($dirName);
-
+        }
+        
         return $numChilds;
     }
 
@@ -566,7 +448,7 @@ class FileHelp
     /**
      * Copy the directory ($dir2copy) to the directory ($dir2paste) for type.
      * Ex for copy without php:
-     * COPY_DIR_RECURSIVLY_WITHOUT_TYPES( 'original/dir', 'new/dir', array('php', 'php4', 'php5') );
+     * COPY_DIR_RECURSIVLY_WITHOUT_TYPES( 'original/dir', 'new/dir', ['php', 'php4', 'php5'] );
      * 
      * @param string $dir2copy		Original directory
      * @param string $dir2paste		New directory
@@ -575,7 +457,7 @@ class FileHelp
     /*public static function COPY_DIR_RECURSIVLY_WITHOUT_TYPES($dir2copy, $dir2paste, array $extentions = null)
     {
         if ($extentions === null)
-            $extentions = array();
+            $extentions = [];
 
         if (is_dir($dir2copy))
         {

@@ -7,37 +7,36 @@ namespace Inspire\Helper;
  */
 class ImgHelp
 {
+
     public static function CREATE_THUMB($file, $thumb, $maxW = 512, $maxH = 512)
     {
         list($w, $h, $imgType) = getimagesize($file);
 
-        switch ($imgType)
-        {
-            case 1: $src = imagecreatefromgif($file);
+        switch ($imgType) {
+            case 1:
+                $src = imagecreatefromgif($file);
                 break;
-            case 2: $src = imagecreatefromjpeg($file);
+            case 2:
+                $src = imagecreatefromjpeg($file);
                 break;
-            case 3: $src = imagecreatefrompng($file);
+            case 3:
+                $src = imagecreatefrompng($file);
                 break;
-            default: return '';
+            default:
+                return '';
                 break;
         }
 
         $ratioX = $maxW / $w;
         $ratioY = $maxH / $h;
 
-        if (($w <= $maxW) && ($h <= $maxH))
-        {
+        if (($w <= $maxW) && ($h <= $maxH)) {
             $thumbW = $w;
             $thumbH = $h;
-        }
-        elseif (($ratioX * $h) < $maxH)
-        {
+        } elseif (($ratioX * $h) < $maxH) {
             $thumbH = ceil($ratioX * $h);
             $thumbW = $maxW;
-        }
-        else
-        {
+        } else {
             $thumbW = ceil($ratioY * $w);
             $thumbH = $maxH;
         }
@@ -45,8 +44,7 @@ class ImgHelp
         $tmp = imagecreatetruecolor($thumbW, $thumbH);
 
         // Check if this image is PNG or GIF, then set if transparent
-        if (($imgType == 1) || ($imgType == 3))
-        {
+        if (($imgType == 1) || ($imgType == 3)) {
             imagealphablending($tmp, false);
             imagesavealpha($tmp, true);
             $transparent = imagecolorallocatealpha($tmp, 255, 255, 255, 127);
