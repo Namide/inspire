@@ -166,6 +166,38 @@ $klein->with(API_URL_REL.'/users',
             sendError($response, $ex->getMessage());
         }
     });
+
+    $klein->respond('GET', '/[i:uid]',
+        function ($request, $response, $service) {
+            try {
+                $headers = $request->headers();
+                $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+
+                $userManager = new \Inspire\Database\UserManager();
+                $uid         = $request->param('uid');
+                $getData     = $userManager->getUserByUid($uid, $user);
+
+                sendSuccess($response, $getData, 'posts', 'get', $user);
+            } catch (Exception $ex) {
+                sendError($response, $ex->getMessage());
+            }
+    });
+
+    $klein->respond('GET', '',
+        function ($request, $response, $service) {
+            try {
+                $headers = $request->headers();
+                $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+
+                $userManager = new \Inspire\Database\UserManager();
+                $uid         = $request->param('uid');
+                $users = $userManager->getUsers($user);
+
+                sendSuccess($response, $users, 'posts', 'get', $user);
+            } catch (Exception $ex) {
+                sendError($response, $ex->getMessage());
+            }
+    });
 });
 
 // Get posts
@@ -430,7 +462,7 @@ $klein->respond('GET', API_URL_REL.'/config.js',
 $klein->onHttpError(function ($code, $router) {
     $data     = 'Error '.$code;
     $response = $router->response();
-    sendError($response, $ex->getMessage());
+    sendError($response, $data);
 });
 
 $klein->dispatch();

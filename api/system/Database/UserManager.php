@@ -33,23 +33,28 @@ class UserManager extends \Inspire\Database\DataManager
         return implode($pass);
     }
 
-    private function deleteToken($userId)
+    private function deleteToken($uid)
     {
-        $request = 'DELETE FROM `token` WHERE `user_id` = :user_id';
-        $binds   = [[':user_id', $userId, \PDO::PARAM_INT]];
-        $this->_database->EXECUTE($request, $binds);
+        throw new \Exception('TODO: delete token');
+
+        $delete = 'DELETE FROM `token`';
+        $where  = ' WHERE `id` = (SELECT `item_id` FROM `uid` WHERE `id` = :uid AND `item_name` = "user")';
+        $binds  = [[':uid', $uid, \PDO::PARAM_INT]];
+        $this->_database->EXECUTE($delete.$where, $binds);
+
+        $this->deleteUID($uid);
     }
 
-    private function createToken($userId)
+    private function createToken($uid)
     {
-        $this->deleteToken($userId);
-        $signature = sha1($userId.'-'.mt_rand(0xFFFF, 0xFFFFF).'-'.time());
+        $this->deleteToken($uid);
+        $signature = sha1($uid.'-'.mt_rand(0xFFFF, 0xFFFFF).'-'.time());
         $expire    = self::getExpire();
 
-        $request = 'INSERT INTO `token` (`signature`, `user_id`, `expire`) VALUES (:signature, :user_id, :expire)';
+        $request = 'INSERT INTO `token` (`signature`, `user_uid`, `expire`) VALUES (:signature, :uid, :expire)';
         $binds   = [
             [':signature', $signature, \PDO::PARAM_STR],
-            [':user_id', $userId, \PDO::PARAM_INT],
+            [':uid', $uid, \PDO::PARAM_INT],
             [':expire', $expire, \PDO::PARAM_STR]
         ];
         $this->_database->EXECUTE($request, $binds);
@@ -62,6 +67,8 @@ class UserManager extends \Inspire\Database\DataManager
 
     public function signout($token)
     {
+        throw new \Exception('TODO: delete signout');
+
         $request = 'DELETE FROM `token` WHERE `signature` = :signature';
         $binds   = [
             [':signature', $token, \PDO::PARAM_STR]
@@ -71,12 +78,15 @@ class UserManager extends \Inspire\Database\DataManager
         return $this->getUserByToken($token);
     }
 
-    public function getUserById($userId)
+    public function getUserByUid($uid, $byUser)
     {
-        $request = 'SELECT `name`, `role`, `mail` FROM `user` WHERE `id` = :id';
-        $binds   = [
-            [':id', $userId, \PDO::PARAM_INT]
-        ];
+        if ($byUser['role'] < 4) {
+            throw new \Exception('You do not have permission to see other users');
+        }
+
+        $request = 'SELECT uid.id as `uid`, `name`, `role`, `mail` FROM `user`'
+            .' INNER JOIN `uid` ON user.id = uid.item_id WHERE uid.id = :uid AND uid.item_name = "user"';
+        $binds   = [[':uid', $uid, \PDO::PARAM_INT]];
         $user    = $this->_database->FETCH($request, $binds);
 
         if (empty($user)) {
@@ -86,11 +96,32 @@ class UserManager extends \Inspire\Database\DataManager
         return $user;
     }
 
+    public function getUsers($byUser)
+    {
+        if ($byUser['role'] < 4) {
+            throw new \Exception('You do not have permission to see other users');
+        }
+
+        $request = 'SELECT uid.id as `uid`, `name`, `role`, `mail` FROM `user`'
+            .' INNER JOIN `uid` ON user.id = uid.item_id WHERE uid.item_name = "user"';
+        $users   = $this->_database->FETCH_ALL($request);
+
+        if (count($users) < 1) {
+            throw new \Exception('Users not found');
+        }
+
+        return $users;
+    }
+
     public function getUserBySignIn($mail, $pass)
     {
-        $request = 'SELECT `id`, `name`, `role`, `mail`, `pass` FROM `user`'
+        $request = 'SELECT uid.id as `uid`, `name`, `pass`, `role`, `mail` FROM `user`'
+            .' INNER JOIN `uid` ON user.id = uid.item_id WHERE uid.item_name = "user"'
+            .' AND uid.item_name = "user" AND lower(`mail`) = lower(:mail)';
+        /*
+        $request = 'SELECT id, `name`, `role`, `mail`, `pass` FROM `user`'
             .' WHERE lower(`mail`) = lower(:mail)';
-
+*/
         $binds = [
             [':mail', $mail, \PDO::PARAM_STR]
         ];
@@ -101,8 +132,7 @@ class UserManager extends \Inspire\Database\DataManager
             throw new \Exception('E-mail or password error');
         }
 
-        $token         = $this->createToken($user['id']);
-        $user['token'] = $token['signature'];
+        $token = $this->createToken($user['uid']);
 
         return [
             'name' => $user['name'],
@@ -114,8 +144,10 @@ class UserManager extends \Inspire\Database\DataManager
 
     public function getUserByToken($token)
     {
-        $request = 'SELECT `name`, `role`, `mail` FROM `user`'
-            .' INNER JOIN `token` ON token.user_id = user.id WHERE token.signature = :signature';
+        $request = 'SELECT uid.id as `uid`, `name`, `role`, `mail` FROM `user`'
+            .' INNER JOIN `uid` ON user.id = uid.item_id'
+            .' INNER JOIN `token` ON token.user_uid = user.id'
+            .' WHERE uid.item_name = "user" AND token.signature = :signature';
         $binds   = [[':signature', $token, \PDO::PARAM_STR]];
         $user    = $this->_database->FETCH($request, $binds);
 
@@ -126,33 +158,36 @@ class UserManager extends \Inspire\Database\DataManager
         return $user;
     }
 
-    private function canEdit($mail, $byUser)
+    private function canEdit($user, $byUser)
     {
         if ($byUser['role'] < 1) {
             throw new \Exception('You have not privileges to do that');
         }
 
-        if ($byUser['role'] < 4 && strtolower($mail) !== strtolower($byUser['mail'])) {
+        if ($byUser['role'] < 4 && strtolower($user['mail']) !== strtolower($byUser['mail'])) {
             throw new \Exception('You do not have permission to edit other users');
         }
 
-        $binds = [[':mail', $mail, \PDO::PARAM_STR]];
-        if ($byUser['role'] > 3 && strtolower($mail) !== strtolower($byUser['mail'])) {
-            $request = 'SELECT COUNT(*) FROM `user` WHERE role > 3 AND LOWER(mail) != LOWER(:mail)';
-            $count   = $this->_database->COUNT($request, $binds);
-            if ($count < 1) {
-                throw new \Exception('You can not delete the last administrator');
-            }
-        }
+        return true;
     }
 
-    public function deleteUser($mail, $byUser)
+    public function deleteUser($uid, $byUser)
     {
-        $this->canEdit($mail, $byUser);
+        throw new \Exception('TODO: delete user');
 
-        $binds = [[':mail', $mail, \PDO::PARAM_STR]];
+        $user = $this->getUserByUid($uid);
+        if (empty($user)) {
+            throw new \Exception('User not found');
+        }
+
+        if (!$this->canEdit($user, $byUser)) {
+            throw new \Exception('You can not delete this user');
+        }
+
+        throw new \Exception('TODO: Request with UID');
+        $binds = [[':uid', $uid, \PDO::PARAM_INT]];
         if ($byUser['role'] > 3) {
-            $request = 'SELECT COUNT(*) FROM `user` WHERE role > 3 AND LOWER(mail) != LOWER(:mail)';
+            $request = 'SELECT COUNT(*) FROM `user` INNER JOIN `uid` ON user.id = uid.item_id WHERE uid.item_name = "user" AND role > 3 AND uid.id = :uid AND uid.id != ';
             $count   = $this->_database->COUNT($request, $binds);
             
             if ($count < 1) {
@@ -162,11 +197,13 @@ class UserManager extends \Inspire\Database\DataManager
 
         $request = 'DELETE FROM `user` WHERE LOWER(mail) == LOWER(:mail)';
         $this->_database->EXECUTE($request, $binds);
+
+        $this->deleteUID();
     }
 
     public function updateUser($data, $byUser)
     {
-        throw new \Exception('TODO: use uid');
+        throw new \Exception('TODO: updateUser');
 
         $this->canEdit($data['mail'], $byUser);
 
@@ -222,11 +259,12 @@ class UserManager extends \Inspire\Database\DataManager
 
         $this->_database->EXECUTE($request, $binds);
         $userId = (integer) $this->_database->GET_LAST_INSERT_ID();
+        $uid    = $this->addUID('user', $userId);
 
         $message = \Inspire\Vue\MailSignUp::getHtml($name, $mail, $pass);
         \Inspire\Helper\MailHelp::sendMail($mail, 'Inspire subscription',
             $message);
 
-        return $this->getUserById($userId);
+        return $this->getUserByUid($uid);
     }
 }

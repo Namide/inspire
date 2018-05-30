@@ -63,6 +63,14 @@ class DataManager
         return $uid;
     }
 
+    public function deleteUID($uid)
+    {
+        $delete = 'DELETE FROM `uid` WHERE `id` = :uid';
+        $binds  = [[':uid', $uid, \PDO::PARAM_INT]];
+        $this->_database->EXECUTE($delete, $binds);
+        return true;
+    }
+
     public static function getTableRows()
     {
         $id = 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE';
@@ -96,12 +104,12 @@ class DataManager
             'token' => [
                 'id '.$id,
                 'signature TEXT NOT NULL UNIQUE',
-                'user_id INTEGER NOT NULL UNIQUE',
+                'user_uid INTEGER NOT NULL UNIQUE',
                 'expire TIMESTAMP'
             ],
             'log' => [
                 'id '.$id,
-                'user_id INTEGER NOT NULL',
+                'user_uid INTEGER NOT NULL',
                 'fingerprint TEXT DEFAULT NULL'
             ],
             'uid' => [
