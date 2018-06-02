@@ -50,6 +50,57 @@ class Api
     {
         this.boards = null
         this.posts = null
+
+        this.user = null
+        this.token = null
+    }
+
+    getHeaders()
+    {
+        const init = {
+            Accept: 'application/json'
+        }
+
+        if (this.token)
+            init['Content-Type'] = this.token
+
+        return new Headers(init)
+    }
+
+    connect(mail, pass,
+        onConnected = data => console.log(data.name, 'connected'),
+        onError = msg => console.error(msg))
+    {
+        const form = dataToFormData({mail, pass})
+        const url = config.api.abs + '/auth/signin'
+        const request = new Request(url)
+        const params = {
+            method: 'POST',
+            headers: new Headers(),
+            mode: 'cors',
+            cache: 'default',
+            body: form
+        }
+
+        const saveSession = data =>
+        {
+            this.token = data.data.token
+            this.user = {
+                uid: data.data.uid,
+                name: data.data.name,
+                role: data.data.role,
+                mail: data.data.mail
+            }
+        }
+
+        fetch(request, params)
+            // .then(collection => console.log(collection))
+            .then(data => data.json())
+            .then(testSuccess)
+            // .then(data => data.success ? (data.data.map(filterPost), data) : data)
+            .then(saveSession)
+            .then(onConnected)
+            .catch(onError)
     }
 
     addPost(onLoad, data, onError = msg => console.error(msg))
@@ -59,9 +110,7 @@ class Api
         const request = new Request(url)
         const params = {
             method: 'POST',
-            headers: new Headers(/*{
-                'Content-Type': 'multipart/form-data'
-            }*/),
+            headers: this.getHeaders(),
             mode: 'cors',
             cache: 'default',
             body: form
@@ -82,11 +131,7 @@ class Api
         const request = new Request(url)
         const params = {
             method: 'GET',
-            headers: new Headers({
-                'Accept': 'application/json',
-                // 'Access-Control-Allow-Methods': 'DELETE'
-                // 'content-type': 'application/json'
-            }),
+            headers: this.getHeaders(),
             //mode: 'cors',
             //cache: 'default',
             // body: form
@@ -109,7 +154,7 @@ class Api
         const request = new Request(url)
         const params = {
             method: 'POST',
-            headers: new Headers(),
+            headers: this.getHeaders(),
             mode: 'cors',
             cache: 'default',
             body: form
@@ -134,7 +179,7 @@ class Api
         return config.api.abs + '/files/' + uid
     }
 
-    getGroups(onLoad, onError = msg => console.error(msg))
+    /*getGroups(onLoad, onError = msg => console.error(msg))
     {
         const cleanData = data =>
         {
@@ -148,7 +193,7 @@ class Api
             .then(testSuccess)
             .then(res => onLoad(res))
             .catch(err => console.error(err))
-    }
+    }*/
 
     getPosts(onLoad, { tags = [], types = [], noTags = [], noTypes = [], limit = 100, offset = 0 } = {}, onError = msg => console.error(msg))
     {
@@ -163,10 +208,11 @@ class Api
         const request = new Request(url)
         const params = {
             method: 'GET',
-            headers: new Headers(),
+            headers: this.getHeaders(),
             mode: 'cors',
             cache: 'default'
         }
+
         fetch(request, params)
             // .then(collection => console.log(collection))
             .then(data => data.json())
@@ -190,11 +236,12 @@ class Api
         const request = new Request(url)
         const params = {
             method: 'POST',
-            headers: new Headers(),
+            headers: this.getHeaders(),
             mode: 'cors',
             cache: 'default',
             body: form
         }
+
         fetch(request, params)
             // .then(collection => console.log(collection))
             .then(data => data.json())

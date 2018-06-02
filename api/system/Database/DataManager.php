@@ -86,7 +86,8 @@ class DataManager
                 'content_text TEXT DEFAULT NULL',
                 'content_link TEXT DEFAULT NULL',
                 'public BOOLEAN DEFAULT true',
-                'score NUMERIC DEFAULT 0'
+                'score NUMERIC DEFAULT 0',
+                'author_uid NUMERIC DEFAULT -1'
             ],
             'group' => [
                 'id '.$id,

@@ -70,24 +70,9 @@ class PostManager extends \Inspire\Database\DataManager
     public function updatePost($uid, &$data)
     {
         $rowList = [];
-        $binds   = [];
-
-
-        $binds[] = [
-            ':uid',
-            (int) $uid,
-            \PDO::PARAM_INT
-        ];
-
-
-        // Remove file
-        /* if (!empty($data['content_file']))
-          $this->removeFile($uid); */
-
+        $binds   = [[':uid', (int) $uid, \PDO::PARAM_INT]];
 
         self::formatInputData($data, $rowList, $binds);
-        // self::formatInputFileAndSave($data, $rowList, $binds);
-
 
         if (count($binds) > 1) {
             $update = 'UPDATE `post`';
@@ -179,7 +164,6 @@ class PostManager extends \Inspire\Database\DataManager
     {
         $rowList = [];
         $binds   = [];
-
 
         self::formatInputData($data, $rowList, $binds);
         // self::formatInputFileAndSave($data, $rowList, $binds);

@@ -1,8 +1,5 @@
 <?php
 
-// TIMER
-define('START_TIME', microtime(true));
-
 // URL
 define('FRONT_URL_ABS', 'http://localhost:8080');
 define('ADMIN_URL_ABS', FRONT_URL_ABS . '/admin');
@@ -30,6 +27,8 @@ define('THUMB_PIXELS', 512 * 1024);
 
 // Params
 define('CORS', FRONT_URL_ABS); // URL or false
+define('TOKEN_TIME', 24 * 60 * 60); // 24h
+define('DEBUG', true);
 
 // Add memory for ColorExtractor (very expensive tool)
 ini_set('memory_limit', '-1');

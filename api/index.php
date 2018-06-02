@@ -1,4 +1,5 @@
 <?php
+define('START_TIME', microtime(true));
 $configFile = __DIR__.'/config.php';
 if (file_exists($configFile)) {
     require_once $configFile;

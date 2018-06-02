@@ -19,10 +19,11 @@ class Database
         }
 
         try {
+            $errMode = DEBUG ? \PDO::ERRMODE_EXCEPTION : \PDO::ERRMODE_SILENT;
+
             $this->_pdo = new \PDO(DB_DSN_DATAS, DB_USER, DB_PASS, DB_OPTIONS);
             $this->_pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, 0);
-            $this->_pdo->setAttribute(\PDO::ATTR_ERRMODE,
-                \PDO::ERRMODE_EXCEPTION);
+            $this->_pdo->setAttribute(\PDO::ATTR_ERRMODE, $errMode);
         } catch (\PDOException $e) {
             throw new \Exception('Database initialization error: '.$e->getMessage());
         }
