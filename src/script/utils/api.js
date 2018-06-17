@@ -27,23 +27,6 @@ const testSuccess = data =>
     return data
 }
 
-/*
-const filterPost = data =>
-{
-    const newData = Object.assign({}, data)
-    if (newData.tags)
-        newData.tags = newData.tags.split(',')
-        
-    if (newData.types)
-        newData.types = newData.types.split(',')
-    
-    if (newData.content_file)
-        newData.content_file = JSON.parse(newData.content_file)
-    
-    return newData
-}
-*/
-
 class Api
 {
     constructor()

@@ -2,53 +2,16 @@
 // https://github.com/klein/klein.php
 $klein = new \Klein\Klein();
 
-function sendSuccess(&$response, &$data, $subject, $action,
-                     $user = ['name' => 'Guest'])
-{
-    if (CORS) {
-        $response->header('Access-Control-Allow-Origin', CORS);
-    }
+$routes = [
+    'routes' => '/',
+    'auth/signin' => 'auth/signin',
+    'auth/signout' => 'auth/signout',
+    'routes' => '/',
+    'routes' => '/',
+    'routes' => '/',
+    'routes' => '/',
+];
 
-    $json = [
-        'success' => true,
-        'data' => $data,
-        'meta' => [
-            'subject' => $subject,
-            'action' => $action,
-            'user' => $user,
-            'time' => microtime(true) - START_TIME.' sec'
-        ]
-    ];
-
-    $response->json($json);
-}
-
-function sendError(&$response, $message = '')
-{
-    if (CORS) {
-        $response->header('Access-Control-Allow-Origin', CORS);
-    }
-
-    $json = [
-        'success' => false,
-        'message' => $message,
-        'meta' => [
-            'time' => microtime(true) - START_TIME.' sec'
-        ]
-    ];
-
-    $response->json($json);
-}
-
-function getUser($token = false)
-{
-    if ($token) {
-        $userManager = new \Inspire\Database\UserManager();
-        return $userManager->getUserByToken($token);
-    }
-
-    return ['name' => 'Guest', 'role' => 0];
-}
 // Get routes
 $klein->respond('GET', API_URL_REL.'/',
     function($request, $response, $service) {
@@ -60,9 +23,9 @@ $klein->respond('GET', API_URL_REL.'/',
             'rss' => API_URL_REL.'/rss'
         ];
 
-        sendSuccess($response, $data, 'routes', 'get');
+        \Inspire\Helper\IOHelp::outputSuccess($response, $data, 'routes', 'get');
     } catch (Exception $ex) {
-        sendError($response, $ex->getMessage());
+        \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
 });
 
@@ -74,15 +37,13 @@ $klein->with(API_URL_REL.'/auth',
     $klein->respond('POST', '/signin',
         function ($request, $response, $service) {
         try {
-            $mail = trim($request->param('mail'));
-            $pass = trim($request->param('pass'));
-
-            if (empty($mail) || empty($pass)) {
-                throw new \Exception('"mail" and "pass" required');
-            }
-
-            $userManager = new \Inspire\Database\UserManager();
-            $user        = $userManager->getUserBySignIn($mail, $pass);
+            $userMan  = new \Inspire\Database\UserManager();
+            $postData = [
+                'mail' => ['type' => \Inspire\Helper\IOHelp::TYPE_STR, 'required' => true],
+                'pass' => ['type' => \Inspire\Helper\IOHelp::TYPE_STR, 'required' => true]
+            ];
+            $post     = \Inspire\Helper\IOHelp::getInputPost($request, $postData);
+            $user     = $userMan->getUserBySignIn($post['mail'], $post['pass']);
 
             $userMetaData = [
                 'name' => $user['name'],
@@ -90,9 +51,10 @@ $klein->with(API_URL_REL.'/auth',
                 'role' => $user['role']
             ];
 
-            sendSuccess($response, $user, 'auth', 'signin', $userMetaData);
+            \Inspire\Helper\IOHelp::outputSuccess($response, $user, 'auth',
+                'signin', $userMetaData);
         } catch (Exception $ex) {
-            sendError($response, $ex->getMessage());
+            \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
         }
     });
 
@@ -101,13 +63,13 @@ $klein->with(API_URL_REL.'/auth',
         try {
             $headers = $request->headers();
             $token   = $headers['X-Access-Token'];
+            $userMan = new \Inspire\Database\UserManager();
+            $user    = $userMan->signout($token);
 
-            $userManager = new \Inspire\Database\UserManager();
-            $user        = $userManager->signout($token);
-
-            sendSuccess($response, $user, 'auth', 'signout', $user);
+            \Inspire\Helper\IOHelp::outputSuccess($response, $user, 'auth',
+                'signout', $user);
         } catch (Exception $ex) {
-            sendError($response, $ex->getMessage());
+            \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
         }
     });
 });
@@ -121,169 +83,138 @@ $klein->with(API_URL_REL.'/users',
     $klein->respond('POST', '/add',
         function ($request, $response, $service) {
         try {
-            $mail = trim($request->param('mail'));
-            $name = trim($request->param('name'));
-            $role = trim($request->param('role'));
+            $user = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
-            if (empty($mail) || empty($name)) {
-                throw new \Exception('"mail" and "name" required');
-            }
-
-            if (empty($role)) {
-                $role = 1;
-            }
-
-            $headers     = $request->headers();
-            $userManager = new \Inspire\Database\UserManager();
-
-            $newUserData = [
-                'mail' => $mail,
-                'name' => $name,
-                'role' => $role
+            $postData = [
+                'mail' => ['type' => \Inspire\Helper\IOHelp::TYPE_STR, 'required' => true],
+                'pass' => ['type' => \Inspire\Helper\IOHelp::TYPE_STR, 'required' => true],
+                'role' => ['type' => \Inspire\Helper\IOHelp::TYPE_INT, 'required' => true]
             ];
-            $user        = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
-            $newUser     = $userManager->addUser($newUserData, $user);
+            $post     = \Inspire\Helper\IOHelp::getInputPost($request, $postData);
+            $userMan  = new \Inspire\Database\UserManager();
+            $newUser  = $userMan->addUser($post, $user);
 
-            sendSuccess($response, $newUser, 'users', 'add', $user);
+            \Inspire\Helper\IOHelp::outputSuccess($response, $newUser, 'users',
+                'add', $user);
         } catch (Exception $ex) {
-            sendError($response, $ex->getMessage());
+            \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
         }
     });
 
     $klein->respond('POST', '/edit/[i:uid]',
         function ($request, $response, $service) {
         try {
-            $uid         = (int) $request->param('uid');
-            $headers     = $request->headers();
-            $userManager = new \Inspire\Database\UserManager();
-            $user        = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
-            $userData    = [];
+            $user = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
-            if (!empty($request->param('mail'))) {
-                $userData['mail'] = trim($request->param('mail'));
-            }
-            if (!empty($request->param('role'))) {
-                $userData['role'] = (int) trim($request->param('role'));
-            }
-            if (!empty($request->param('name'))) {
-                $userData['name'] = trim($request->param('name'));
-            }
-            if (!empty($request->param('pass'))) {
-                $userData['pass'] = trim($request->param('pass'));
-            }
+            $uid      = (int) $request->param('uid');
+            $userMan  = new \Inspire\Database\UserManager();
+            $postData = [
+                'name' => ['type' => \Inspire\Helper\IOHelp::TYPE_STR, 'required' => true],
+                'mail' => ['type' => \Inspire\Helper\IOHelp::TYPE_STR, 'required' => true],
+                'pass' => ['type' => \Inspire\Helper\IOHelp::TYPE_STR, 'required' => true],
+                'role' => ['type' => \Inspire\Helper\IOHelp::TYPE_INT, 'required' => true]
+            ];
+            $userData = \Inspire\Helper\IOHelp::getInputPost($request, $postData);
+            $data     = $userMan->updateUser($uid, $userData, $user);
 
-            $data = $userManager->updateUser($uid, $userData, $user);
-
-            sendSuccess($response, $data, 'users', 'edit', $user);
+            \Inspire\Helper\IOHelp::outputSuccess($response, $data, 'users',
+                'edit', $user);
         } catch (Exception $ex) {
-            sendError($response, $ex->getMessage());
+            \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
         }
     });
 
     $klein->respond('GET', '/delete/[i:uid]',
         function ($request, $response, $service) {
         try {
-            $uid         = (int) $request->param('uid');
-            $headers     = $request->headers();
-            $userManager = new \Inspire\Database\UserManager();
-            $user        = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+            $user = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
-            $userManager->deleteUser($uid, $user);
-            $data = ['uid' => $uid];
+            $uid     = (int) $request->param('uid');
+            $userMan = new \Inspire\Database\UserManager();
+            $userMan->deleteUser($uid, $user);
+            $data    = ['uid' => $uid];
 
-            sendSuccess($response, $data, 'users', 'delete', $user);
+            \Inspire\Helper\IOHelp::outputSuccess($response, $data, 'users',
+                'delete', $user);
         } catch (Exception $ex) {
-            sendError($response, $ex->getMessage());
+            \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
         }
     });
 
     $klein->respond('GET', '/[i:uid]',
         function ($request, $response, $service) {
         try {
-            $headers = $request->headers();
-            $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+            $user = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
-            $userManager = new \Inspire\Database\UserManager();
-            $uid         = (int) $request->param('uid');
-            $getData     = $userManager->getUserByUid($uid, $user);
+            $userMan = new \Inspire\Database\UserManager();
+            $uid     = (int) $request->param('uid');
+            $getData = $userMan->getUserByUid($uid, $user);
 
-            sendSuccess($response, $getData, 'posts', 'get', $user);
+            \Inspire\Helper\IOHelp::outputSuccess($response, $getData, 'posts',
+                'get', $user);
         } catch (Exception $ex) {
-            sendError($response, $ex->getMessage());
+            \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
         }
     });
 
     $klein->respond('GET', '',
         function ($request, $response, $service) {
         try {
-            $headers = $request->headers();
-            $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+            $user = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
-            $userManager = new \Inspire\Database\UserManager();
-            $uid         = $request->param('uid');
-            $users       = $userManager->getUsers($user);
+            $userMan = new \Inspire\Database\UserManager();
+            $uid     = $request->param('uid');
+            $users   = $userMan->getUsers($user);
 
-            sendSuccess($response, $users, 'posts', 'get', $user);
+            \Inspire\Helper\IOHelp::outputSuccess($response, $users, 'posts',
+                'get', $user);
         } catch (Exception $ex) {
-            sendError($response, $ex->getMessage());
+            \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
         }
     });
+});
+
+// Get post
+$klein->respond('GET', API_URL_REL.'/post/[i:id]',
+    function ($request, $response, $service) {
+    try {
+        $headers = $request->headers();
+        $user    = \Inspire\Helper\IOHelp::getCurrentUser($request);
+
+        $postManager = new \Inspire\Database\PostManager();
+        $id          = $request->param('id');
+        $post        = $postManager->getPost($id);
+
+        \Inspire\Helper\IOHelp::outputSuccess($response, $post, 'posts', 'get',
+            $user);
+    } catch (Exception $ex) {
+        \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
+    }
 });
 
 // Get posts
 $klein->respond('GET', API_URL_REL.'/posts/[*:trailing]?',
     function ($request, $response, $service) {
     try {
-        $headers = $request->headers();
-        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        $user = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
-        $argsStr = $request->param('trailing');
-        $rawList = explode('/', $argsStr);
-
-        // Fix array with 1 empty cell
-        if (count($rawList) === 1 && empty($rawList[0])) unset($rawList[0]);
-
-        if (count($rawList) % 2 === 1)
-                throw new Exception('List of data after posts must be pair');
-
-        $argObj = [];
-        for ($i = 0; $i < count($rawList); $i += 2) {
-            $key      = $rawList[$i];
-            $rawValue = $rawList[$i + 1];
-            switch ($key) {
-                case 'tags':
-                    $value = explode(',', $rawValue);
-                    break;
-                case 'types':
-                    $value = explode(',', $rawValue);
-                    break;
-                case 'notags':
-                    $value = explode(',', $rawValue);
-                    break;
-                case 'notypes':
-                    $value = explode(',', $rawValue);
-                    break;
-                case 'limit':
-                    $value = (int) $rawValue;
-                    break;
-                case 'offset':
-                    $value = (int) $rawValue;
-                    break;
-                default:
-                    throw new Exception('Arguments after "posts" must be only '
-                    .'"tags", "types", "notags", "notypes", "limit" and "offset", "'
-                    .$key.'" not accepted');
-            }
-
-            $argObj[$key] = $value;
-        }
-
+        $filters = [
+            'tags' => ['type' => \Inspire\Helper\IOHelp::TYPE_ARRAY, 'required' => false],
+            'types' => ['type' => \Inspire\Helper\IOHelp::TYPE_ARRAY, 'required' => false],
+            'notags' => ['type' => \Inspire\Helper\IOHelp::TYPE_ARRAY, 'required' => false],
+            'notypes' => ['type' => \Inspire\Helper\IOHelp::TYPE_ARRAY, 'required' => false],
+            'limit' => ['type' => \Inspire\Helper\IOHelp::TYPE_INT, 'required' => false],
+            'offset' => ['type' => \Inspire\Helper\IOHelp::TYPE_INT, 'required' => false]
+        ];
+        
+        $argObj      = \Inspire\Helper\IOHelp::getInputTrail($request, $filters);
         $postManager = new \Inspire\Database\PostManager();
         $posts       = $postManager->getPosts($argObj);
 
-        sendSuccess($response, $posts, 'posts', 'get', $user);
+        \Inspire\Helper\IOHelp::outputSuccess($response, $posts, 'posts', 'get',
+            $user);
     } catch (Exception $ex) {
-        sendError($response, $ex->getMessage());
+        \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
 });
 
@@ -292,7 +223,7 @@ $klein->respond('POST', API_URL_REL.'/posts/add',
     function($request, $response, $service) {
     try {
         $headers = $request->headers();
-        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        $user    = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
         $postManager = new \Inspire\Database\PostManager();
 
@@ -317,9 +248,10 @@ $klein->respond('POST', API_URL_REL.'/posts/add',
 
         $post = $postManager->addPost($params);
 
-        sendSuccess($response, $post, 'posts', 'add', $user);
+        \Inspire\Helper\IOHelp::outputSuccess($response, $post, 'posts', 'add',
+            $user);
     } catch (Exception $ex) {
-        sendError($response, $ex->getMessage());
+        \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
 });
 
@@ -329,7 +261,7 @@ $klein->respond('POST', API_URL_REL.'/posts/edit/[i:uid]',
     function($request, $response, $service) {
     try {
         $headers = $request->headers();
-        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        $user    = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
         $postManager = new \Inspire\Database\PostManager();
         // $params = $request->paramsPost();
@@ -361,9 +293,10 @@ $klein->respond('POST', API_URL_REL.'/posts/edit/[i:uid]',
         // Update post
         $post = $postManager->updatePost($uid, $params);
 
-        sendSuccess($response, $post, 'posts', 'edit', $user);
+        \Inspire\Helper\IOHelp::outputSuccess($response, $post, 'posts', 'edit',
+            $user);
     } catch (Exception $ex) {
-        sendError($response, $ex->getMessage());
+        \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
 });
 
@@ -372,7 +305,7 @@ $klein->respond('GET', API_URL_REL.'/posts/delete/[i:uid]',
     function($request, $response, $service) {
     try {
         $headers = $request->headers();
-        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        $user    = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
         $uid         = $request->param('uid');
         $postManager = new \Inspire\Database\PostManager();
@@ -382,26 +315,10 @@ $klein->respond('GET', API_URL_REL.'/posts/delete/[i:uid]',
 
         $data = ['uid' => $uid];
 
-        sendSuccess($response, $data, 'posts', 'delete', $user);
+        \Inspire\Helper\IOHelp::outputSuccess($response, $data, 'posts',
+            'delete', $user);
     } catch (Exception $ex) {
-        sendError($response, $ex->getMessage());
-    }
-});
-
-// Get post
-$klein->respond('GET', API_URL_REL.'/posts/[i:id]',
-    function ($request, $response, $service) {
-    try {
-        $headers = $request->headers();
-        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
-
-        $postManager = new \Inspire\Database\PostManager();
-        $id          = $request->param('id');
-        $post        = $postManager->getPost($id);
-
-        sendSuccess($response, $post, 'posts', 'get', $user);
-    } catch (Exception $ex) {
-        sendError($response, $ex->getMessage());
+        \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
 });
 
@@ -415,7 +332,7 @@ $klein->respond('GET', API_URL_REL.'/files/[i:uid]',
 
     try {
         $headers = $request->headers();
-        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        $user    = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
         $postManager = new \Inspire\Database\PostManager();
         $uid         = $request->param('uid');
@@ -423,7 +340,7 @@ $klein->respond('GET', API_URL_REL.'/files/[i:uid]',
 
         $response->file(DATA_PATH.$file['path'], $file['name']);
     } catch (Exception $ex) {
-        sendError($response, $ex->getMessage());
+        \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
 });
 
@@ -437,17 +354,18 @@ $klein->respond('POST', API_URL_REL.'/distant',
 
     try {
         $headers = $request->headers();
-        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        $user    = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
         $params = $request->params();
         if (!empty($params['link'])) {
             $html = file_get_contents($params['link']);
-            sendSuccess($response, $html, 'distant', 'get', $user);
+            \Inspire\Helper\IOHelp::outputSuccess($response, $html, 'distant',
+                'get', $user);
         } else {
             throw new \Exception('"link" value is required');
         }
     } catch (Exception $ex) {
-        sendError($response, $ex->getMessage());
+        \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
 });
 
@@ -461,7 +379,7 @@ $klein->respond('GET', API_URL_REL.'/thumbs/[i:uid]',
 
     try {
         $headers = $request->headers();
-        $user    = empty($headers['X-Access-Token']) ? getUser() : getUser($headers['X-Access-Token']);
+        $user    = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
         $postManager = new \Inspire\Database\PostManager();
         $uid         = $request->param('uid');
@@ -469,7 +387,7 @@ $klein->respond('GET', API_URL_REL.'/thumbs/[i:uid]',
 
         $response->file(DATA_PATH.$file['path'], $file['name']);
     } catch (Exception $ex) {
-        sendError($response, $ex->getMessage());
+        \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
 });
 
@@ -485,14 +403,14 @@ $klein->respond('GET', API_URL_REL.'/config.js',
         $response->header('Content-Type', 'application/javascript');
         $response->body($body);
     } catch (Exception $ex) {
-        sendError($response, $ex->getMessage());
+        \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
 });
 
 $klein->onHttpError(function ($code, $router) {
     $data     = 'Error '.$code;
     $response = $router->response();
-    sendError($response, $data);
+    \Inspire\Helper\IOHelp::outputError($response, $data);
 });
 
 $klein->dispatch();

@@ -268,6 +268,10 @@ class UserManager extends \Inspire\Database\DataManager
 
     public function addUser($data, $byUser)
     {
+        if (empty($data['name']) || empty($data['mail']) || empty($data['role'])) {
+            throw new \Exception('"name", "mail" and "role" required');
+        }
+
         if ($byUser['role'] < 2) {
             $request = 'SELECT COUNT(*) FROM `user` WHERE 1';
             $count   = $this->_database->COUNT($request);
@@ -281,10 +285,6 @@ class UserManager extends \Inspire\Database\DataManager
                 ];
                 $data['role'] = 4;
             }
-        }
-
-        if (empty($data['name']) || empty($data['mail']) || empty($data['role'])) {
-            throw new \Exception('"name", "mail" and "role" required');
         }
 
         $request = 'SELECT COUNT(*) FROM `user` WHERE LOWER(mail) = LOWER(:mail)';
