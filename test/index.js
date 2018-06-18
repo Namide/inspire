@@ -1,7 +1,7 @@
 const http = require('http')
 const fs = require('fs')
+const querystring = require('querystring')
 const del = require('del')
-
 const TESTS = [
     {
         route: '/',
@@ -14,6 +14,19 @@ const TESTS = [
     {
         route: '/posts/1',
         check: data => log(data.success, 'post/get', 'Load JSON')
+    },
+    {
+        route: '/users/add',
+        check: data => log(!data.success, 'users/add', 'Forgot user mail', {
+            'name': 'Motoko',
+        })
+    },
+    {
+        route: '/users/add',
+        check: data => log(data.success, 'users/add', 'Add first user', {
+            'mail': 'motoko@kusanagi.jp',
+            'name': 'Motoko',
+        })
     },
 ]
 
@@ -58,7 +71,7 @@ function start()
     })
 }
 
-function run(num = 0, onEnd = () => { })
+function run(num = 0, onEnd = () => { }, postData = false)
 {
     if (num > TESTS.length - 1)
     {
@@ -70,7 +83,7 @@ function run(num = 0, onEnd = () => { })
         send(currentTest.route, data => {
             currentTest.check(data)
             run(num + 1, onEnd)
-        })
+        }, postData)
     }
 }
 
@@ -103,18 +116,26 @@ function log(success, subject, title)
     }
 }
 
-function send(url, callback, method = 'get')
+function send(url, callback, postData = false)
 {
-    var options = {
+    const options = {
         hostname: 'inspire.local',
         port: '80', // app.get('port'),
         path: '/api' + url,
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    }
+
+    if (postData) {
+        const postQuery = querystring.stringify(postData || {})
+        options.method = 'POST'
+        options.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        options.headers['Content-Length'] = Buffer.byteLength(postQuery)
     }
       
-    var req = http.request(options, function(res)
-    {
+    const req = http.request(options, function(res) {
         res.setEncoding('utf8');
         res.on('data', function (data) {
             callback(JSON.parse(data))
