@@ -1,4 +1,6 @@
-const http = require('http');
+const http = require('http')
+const fs = require('fs')
+const del = require('del')
 
 const TESTS = [
     {
@@ -15,29 +17,64 @@ const TESTS = [
     },
 ]
 
-
-function run(num = 0)
+function start()
 {
-    if (num > TESTS.length - 1)
+    const code = Math.round(Math.random() * 0xFFFFFFFF).toString(16)
+    const dataRep = 'data-test-' + code
+    let originalConfig = false
+
+    if (fs.existsSync('./' + dataRep)) {
+        log(false, 'content file', './' + dataRep + ' always exist')
+        return
+    }
+
+    if (fs.existsSync('./api/config.php')) {
+        originalConfig = './api/config.' + code + '.php'
+        fs.renameSync('./api/config.php', originalConfig)
+    }
+
     {
+        const content = fs.readFileSync('./api/config.sample.php')
+            .toString()
+            .replace('/data', '/' + dataRep)
+        fs.writeFileSync('./api/config.php', content)
+    }
+    
+    run(0, () =>
+    {
+        fs.unlinkSync('./api/config.php')
+
+        if (originalConfig) {
+            fs.renameSync(originalConfig, './api/config.php')
+        }
+        
+        del.sync(['./api/' + dataRep])
+
         console.log(' ')
         console.log(
             '[ ok ] ',
             'all tests finished'
         )
+    })
+}
+
+function run(num = 0, onEnd = () => { })
+{
+    if (num > TESTS.length - 1)
+    {
+        onEnd()
     }
     else
     {
         const currentTest = TESTS[num]
         send(currentTest.route, data => {
             currentTest.check(data)
-            run(num + 1)
+            run(num + 1, onEnd)
         })
     }
 }
 
-
-run()
+start()
 
 
 
