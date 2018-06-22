@@ -2,36 +2,65 @@ const http = require('http')
 const fs = require('fs')
 const querystring = require('querystring')
 const del = require('del')
+
+const mail = 'motoko@kusanagi.jp'
+let pass = ''
+let token = ''
+let end = () => {}
+
+const DEBUG = false
 const TESTS = [
     {
         route: '/',
-        check: data => log(data.success, 'routes/get', 'Load JSON')
+        check: data => log(data.success, 'routes/get', 'Load JSON', data)
     },
     {
         route: '/posts',
-        check: data => log(data.success, 'posts/get', 'Load JSON')
+        check: data => log(data.success, 'posts/get', 'Load JSON', data)
     },
     {
         route: '/posts/1',
-        check: data => log(data.success, 'post/get', 'Load JSON')
+        check: data => log(!data.success, 'post/get', 'Try bad post', data)
     },
     {
         route: '/users/add',
-        check: data => log(!data.success, 'users/add', 'Forgot user mail', {
-            'name': 'Motoko',
-        })
+        post: () => ({ name: 'Motoko' }),
+        check: data => log(!data.success, 'users/add', 'Check user mail', data)
     },
     {
         route: '/users/add',
-        check: data => log(data.success, 'users/add', 'Add first user', {
-            'mail': 'motoko@kusanagi.jp',
-            'name': 'Motoko',
-        })
+        post: () => ({ mail, name: 'Motoko', role: 4, returnPass: true }),
+        check: data =>
+        {
+            pass = data.data.pass
+            log(data.success && data.data.pass, 'users/add', 'Add first user', data)
+        }
     },
+    {
+        route: '/auth/signin',
+        post: () => ({ mail, pass: 'bad password' }),
+        check: data => log(!data.success, 'auth/signin', 'Try with bad password', data)
+    },
+    {
+        route: '/auth/signin',
+        post: () => ({ mail: 'bad email', pass }),
+        check: data => log(!data.success, 'auth/signin', 'Try with bad email', data)
+    },
+    {
+        route: '/auth/signin',
+        post: () => ({ mail, pass }),
+        check: data =>
+        {
+            token = data.data.token
+            log(data.success && data.data.token, 'auth/signin', 'Sign in', data)
+        }
+    }
 ]
 
 function start()
 {
+    console.log('\n         START TESTS\n')
+
     const code = Math.round(Math.random() * 0xFFFFFFFF).toString(16)
     const dataRep = 'data-test-' + code
     let originalConfig = false
@@ -52,8 +81,8 @@ function start()
             .replace('/data', '/' + dataRep)
         fs.writeFileSync('./api/config.php', content)
     }
-    
-    run(0, () =>
+
+    end = () =>
     {
         fs.unlinkSync('./api/config.php')
 
@@ -63,15 +92,13 @@ function start()
         
         del.sync(['./api/' + dataRep])
 
-        console.log(' ')
-        console.log(
-            '[ ok ] ',
-            'all tests finished'
-        )
-    })
+        console.log('\n         END TESTS\n\n')
+    }
+    
+    run(0, end)
 }
 
-function run(num = 0, onEnd = () => { }, postData = false)
+function run(num = 0, onEnd = () => { })
 {
     if (num > TESTS.length - 1)
     {
@@ -80,10 +107,20 @@ function run(num = 0, onEnd = () => { }, postData = false)
     else
     {
         const currentTest = TESTS[num]
-        send(currentTest.route, data => {
-            currentTest.check(data)
-            run(num + 1, onEnd)
-        }, postData)
+        send(currentTest.route, data =>
+        {
+            try
+            {
+                currentTest.check(data)
+                run(num + 1, onEnd)
+            }
+            catch(e)
+            {
+                log(false, 'check', e.message, data)
+                onEnd()
+            }
+            
+        }, currentTest.post ? currentTest.post() : false)
     }
 }
 
@@ -96,13 +133,14 @@ start()
 // HELPERS
 // -------------------
 
-function log(success, subject, title)
+function log(success, subject, title, message = '')
 {
+    const rest = Math.max(15 - subject.length, 1)
     if (success)
     {
         console.log(
             '[ ok ] ',
-            subject + ' '.repeat(10 - subject.length),
+            subject + ' '.repeat(rest),
             title
         )
     }
@@ -110,8 +148,16 @@ function log(success, subject, title)
     {
         console.log(
             '[fail] ',
-            subject + ' '.repeat(10 - subject.length),
+            subject + ' '.repeat(rest),
             title
+        )
+    }
+    if (DEBUG)
+    {
+        console.log(
+            '       ',
+            message,
+            '\n'
         )
     }
 }
@@ -128,8 +174,9 @@ function send(url, callback, postData = false)
         }
     }
 
+    let postQuery
     if (postData) {
-        const postQuery = querystring.stringify(postData || {})
+        postQuery = querystring.stringify(postData || {})
         options.method = 'POST'
         options.headers['Content-Type'] = 'application/x-www-form-urlencoded'
         options.headers['Content-Length'] = Buffer.byteLength(postQuery)
@@ -138,15 +185,23 @@ function send(url, callback, postData = false)
     const req = http.request(options, function(res) {
         res.setEncoding('utf8');
         res.on('data', function (data) {
-            callback(JSON.parse(data))
-            // console.log(data); // I can't parse it because, it's a string. why?
+            try {
+                callback(JSON.parse(data))
+            } catch(e) {
+                log(false, 'parsing error', data, e.message)
+                end()
+            }
         })
     })
 
     req.on('error', function(e) {
-        callback('problem with request', '(' + url + ')', e.message)
-        // console.log('problem with request: ' + e.message);
+        log(false, 'problem with request', '(' + url + ')', e.message)
+        end()
     })
+
+    if (postData) {
+        req.write(postQuery)
+    }
 
     req.end()
 }

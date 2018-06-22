@@ -86,9 +86,10 @@ $klein->with(API_URL_REL.'/users',
             $user = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
             $postData = [
+                'name' => ['type' => \Inspire\Helper\IOHelp::TYPE_STR, 'required' => true],
                 'mail' => ['type' => \Inspire\Helper\IOHelp::TYPE_STR, 'required' => true],
-                'pass' => ['type' => \Inspire\Helper\IOHelp::TYPE_STR, 'required' => true],
-                'role' => ['type' => \Inspire\Helper\IOHelp::TYPE_INT, 'required' => true]
+                'role' => ['type' => \Inspire\Helper\IOHelp::TYPE_INT, 'required' => true],
+                'returnPass' => ['type' => \Inspire\Helper\IOHelp::TYPE_BOOL, 'required' => true]
             ];
             $post     = \Inspire\Helper\IOHelp::getInputPost($request, $postData);
             $userMan  = new \Inspire\Database\UserManager();

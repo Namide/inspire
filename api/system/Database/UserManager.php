@@ -35,7 +35,7 @@ class UserManager extends \Inspire\Database\DataManager
         $delete = 'DELETE FROM `token`';
         $where  = ' WHERE `id` = (SELECT `item_id` FROM `uid` WHERE `id` = :uid AND `item_name` = "user")';
         $binds  = [[':uid', $uid, \PDO::PARAM_INT]];
-        
+
         $this->_database->EXECUTE($delete.$where, $binds);
     }
 
@@ -232,7 +232,7 @@ class UserManager extends \Inspire\Database\DataManager
 
         $this->canEdit($user, $byUser);
 
-        $binds   = [[':uid', $uid, \PDO::PARAM_INT]];
+        $binds = [[':uid', $uid, \PDO::PARAM_INT]];
         if ($user['role'] > 3 && !empty($data['role']) && $data['role'] < 4) {
             $request = 'SELECT COUNT(*) FROM `user` INNER JOIN `uid` ON user.id = uid.item_id WHERE uid.item_name = "user" AND role > 3 AND uid.id != :uid';
             $count   = $this->_database->COUNT($request, $binds);
@@ -268,7 +268,7 @@ class UserManager extends \Inspire\Database\DataManager
 
     public function addUser($data, $byUser)
     {
-        if (empty($data['name']) || empty($data['mail']) || empty($data['role'])) {
+        if (empty($data['name']) || empty($data['name']) || empty($data['mail']) || empty($data['role'])) {
             throw new \Exception('"name", "mail" and "role" required');
         }
 
@@ -279,7 +279,7 @@ class UserManager extends \Inspire\Database\DataManager
             if ($count > 0) {
                 throw new \Exception('You do not have permission to add user');
             } else {
-                $byUser = [
+                $byUser       = [
                     'name' => 'install',
                     'role' => 4
                 ];
@@ -313,10 +313,15 @@ class UserManager extends \Inspire\Database\DataManager
         $userId = (integer) $this->_database->GET_LAST_INSERT_ID();
         $uid    = $this->addUID('user', $userId);
 
-        $message = \Inspire\Vue\MailSignUp::getHtml($name, $mail, $pass);
-        \Inspire\Helper\MailHelp::sendMail($mail, 'Inspire subscription',
-            $message);
+        $user = $this->getUserByUid($uid, $byUser);
+        if (isset($data['returnPass']) && $data['returnPass'] == true) {
+            $user['pass'] = $pass;
+        } else {
+            $message = \Inspire\Vue\MailSignUp::getHtml($name, $mail, $pass);
+            \Inspire\Helper\MailHelp::sendMail($mail, 'Inspire subscription',
+                $message);
+        }
 
-        return $this->getUserByUid($uid, $byUser);
+        return $user;
     }
 }

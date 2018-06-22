@@ -15,6 +15,7 @@ class IOHelp
     const TYPE_INT = 0;
     const TYPE_STR = 1;
     const TYPE_ARRAY = 2;
+    const TYPE_BOOL = 3;
 
     /*private static function isAssociative(array $arr)
     {
@@ -55,6 +56,9 @@ class IOHelp
     {
         $value = trim($value);
         switch ($data['type']) {
+            case self::TYPE_BOOL:
+                return ($value === true || $value === 1 || strtolower($value) == 'true');
+                break;
             case self::TYPE_INT:
                 return (int) $value;
                 break;
@@ -132,7 +136,6 @@ class IOHelp
 
     public static function getInputPost(&$request, &$filters)
     {
-        // $filters = self::formatFilter($filters);
         $out = [];
         foreach ($filters as $key => $data) {
             self::injectValue($out, $request, $key, $data);
