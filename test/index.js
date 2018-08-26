@@ -4,9 +4,6 @@ const querystring = require('querystring')
 const del = require('del')
 
 const mail = 'motoko@kusanagi.jp'
-let pass = ''
-let token = ''
-let end = () => {}
 
 const DEBUG = false
 const TESTS = [
@@ -51,15 +48,53 @@ const TESTS = [
         post: () => ({ mail, pass }),
         check: data =>
         {
-            token = data.data.token
+            token = data.data.token.signature
             log(data.success && data.data.token, 'auth/signin', 'Sign in', data)
+        }
+    },
+    {
+        route: '/auth/signin',
+        post: () => ({ mail, pass }),
+        check: data =>
+        {
+            token = data.data.token.signature
+            log(data.success && data.data.token, 'auth/signin', 'Sign in', data)
+        }
+    },
+    {
+        route: '/users',
+        check: data =>
+        {
+            log(data.success && data.data.length === 1 && data.data[0].mail === mail, 'users', 'Get user list (connected)', data)
+        }
+    },
+    {
+        route: '/auth/signout',
+        check: data =>
+        {
+            log(data.success, 'auth/signout', 'Sign out', data)
+        }
+    },
+    {
+        route: '/users',
+        check: data =>
+        {
+            token = ''
+            log(!data.success, 'users', 'Get user list (bad token)', data)
         }
     }
 ]
 
+let pass = ''
+let token = ''
+let testSuccess = 0
+let testFailed = 0
+const testTotal = TESTS.length
+let end = () => {}
+
 function start()
 {
-    console.log('\n         START TESTS\n')
+    console.log('\n         START TESTS (API only) : ' + testTotal + '\n')
 
     const code = Math.round(Math.random() * 0xFFFFFFFF).toString(16)
     const dataRep = 'data-test-' + code
@@ -92,6 +127,9 @@ function start()
         
         del.sync(['./api/' + dataRep])
 
+        console.log('\n -', testSuccess, 'success', '/', testTotal, 'total')
+        console.log(' -', testFailed, 'failed')
+        console.log(' -', testTotal - (testSuccess + testFailed), 'avoided')
         console.log('\n         END TESTS\n\n')
     }
     
@@ -138,6 +176,7 @@ function log(success, subject, title, message = '')
     const rest = Math.max(15 - subject.length, 1)
     if (success)
     {
+        testSuccess++
         console.log(
             '[ ok ] ',
             subject + ' '.repeat(rest),
@@ -146,12 +185,14 @@ function log(success, subject, title, message = '')
     }
     else
     {
+        testFailed++
         console.log(
             '[fail] ',
             subject + ' '.repeat(rest),
             title
         )
     }
+
     if (DEBUG)
     {
         console.log(
@@ -172,6 +213,10 @@ function send(url, callback, postData = false)
         headers: {
             'Content-Type': 'application/json',
         }
+    }
+
+    if (token != '') {
+        options.headers['X-Access-Token'] = token
     }
 
     let postQuery
