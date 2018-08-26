@@ -9,14 +9,22 @@ namespace Inspire\Database;
  */
 class UserManager extends \Inspire\Database\DataManager
 {
-
-    static private function getExpire()
+    /**
+     *
+     * @return string
+     */
+    static private function getExpire(): string
     {
         $expireTime = time() + TOKEN_TIME;
         return date('Y-m-d H:m:s', $expireTime);
     }
 
-    static private function getRandPass($length = 20)
+    /**
+     *
+     * @param int $length
+     * @return string
+     */
+    static private function getRandPass($length = 20): string
     {
         $alphabet = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
 
@@ -30,16 +38,23 @@ class UserManager extends \Inspire\Database\DataManager
         return implode($pass);
     }
 
-    private function deleteToken($uid)
+    /**
+     * @param int $uid
+     */
+    private function deleteToken(int $uid)
     {
         $delete = 'DELETE FROM `token`';
-        $where  = ' WHERE `id` = (SELECT `item_id` FROM `uid` WHERE `id` = :uid AND `item_name` = "user")';
+        $where  = ' WHERE `user_uid` = (SELECT `item_id` FROM `uid` WHERE `id` = :uid AND `item_name` = "user")';
         $binds  = [[':uid', $uid, \PDO::PARAM_INT]];
 
         $this->_database->EXECUTE($delete.$where, $binds);
     }
 
-    private function createToken($uid)
+    /**
+     * @param int $uid
+     * @return array
+     */
+    private function createToken(int $uid): array
     {
         $this->deleteToken($uid);
         $signature = sha1($uid.'-'.mt_rand(0xFFFF, 0xFFFFF).'-'.time());
@@ -59,7 +74,11 @@ class UserManager extends \Inspire\Database\DataManager
         ];
     }
 
-    private function updateToken($signature)
+    /**
+     * @param string $signature
+     * @return array
+     */
+    private function updateToken(string $signature): array
     {
         $expire  = self::getExpire();
         $request = 'UPDATE `token` SET `expire` = :expire'
@@ -76,47 +95,61 @@ class UserManager extends \Inspire\Database\DataManager
         ];
     }
 
-    public function signout($token)
+    /**
+     *
+     * @param string $token
+     * @return \Inspire\Database\User
+     */
+    public function signout(string $token): \Inspire\Database\User
     {
         $request = 'SELECT uid.id as `uid`, token.expire as `token_expire`, `name`, `role`, `mail` FROM `user`'
             .' INNER JOIN `uid` ON user.id = uid.item_id'
             .' INNER JOIN `token` ON token.user_uid = uid.id'
             .' WHERE uid.item_name = "user" AND token.signature = :signature';
         $binds   = [[':signature', $token, \PDO::PARAM_STR]];
-        $user    = $this->_database->FETCH($request, $binds);
+        $data    = $this->_database->FETCH($request, $binds);
 
-        if (!empty($user)) {
-            $this->deleteToken($token);
+        if (!empty($data)) {
+            $this->deleteToken($data['uid']);
         }
+
+        return new \Inspire\Database\User($data);
     }
 
-    public function getUserByUid($uid, $byUser)
+    /**
+     *
+     * @param int $uid
+     * @param \Inspire\Database\User $byUser
+     * @return \Inspire\Database\User
+     * @throws \Exception
+     */
+    public function getUserByUid(int $uid, \Inspire\Database\User $byUser): \Inspire\Database\User
     {
-        // throw new \Exception('aAa'.$uid);
-        if ($byUser['role'] < 4) {
+        if ($byUser->role < \Inspire\Database\User::$ROLE_ADMIN) {
             throw new \Exception('You do not have permission to see other users');
         }
 
         $request = 'SELECT uid.id as `uid`, `name`, `role`, `mail` FROM `user`'
             .' INNER JOIN `uid` ON user.id = uid.item_id WHERE uid.id = :uid AND uid.item_name = "user"';
         $binds   = [[':uid', $uid, \PDO::PARAM_INT]];
-        $user    = $this->_database->FETCH($request, $binds);
+        $data    = $this->_database->FETCH($request, $binds);
 
-        if (empty($user)) {
+        if (empty($data)) {
             throw new \Exception('User not found');
         }
-
-        return [
-            'uid' => (int) $user['uid'],
-            'name' => $user['name'],
-            'role' => (int) $user['role'],
-            'mail' => $user['mail']
-        ];
+        
+        return new \Inspire\Database\User($data);
     }
 
-    public function getUsers($byUser)
+    /**
+     * 
+     * @param \Inspire\Database\User $byUser
+     * @return array
+     * @throws \Exception
+     */
+    public function getUsers(\Inspire\Database\User $byUser): array
     {
-        if ($byUser['role'] < 4) {
+        if ($byUser->role < \Inspire\Database\User::$ROLE_ADMIN) {
             throw new \Exception('You do not have permission to see other users');
         }
 
@@ -131,75 +164,87 @@ class UserManager extends \Inspire\Database\DataManager
         return $users;
     }
 
-    public function getUserBySignIn($mail, $pass)
+    /**
+     *
+     * @param string $mail
+     * @param string $pass
+     * @return \Inspire\Database\User
+     * @throws \Exception
+     */
+    public function getUserBySignIn(string $mail, string $pass): \Inspire\Database\User
     {
         $request = 'SELECT uid.id as `uid`, `name`, `pass`, `role`, `mail` FROM `user`'
             .' INNER JOIN `uid` ON user.id = uid.item_id WHERE uid.item_name = "user"'
             .' AND uid.item_name = "user" AND lower(`mail`) = lower(:mail)';
-        /*
-          $request = 'SELECT id, `name`, `role`, `mail`, `pass` FROM `user`'
-          .' WHERE lower(`mail`) = lower(:mail)';
-         */
+
         $binds   = [[':mail', $mail, \PDO::PARAM_STR]];
+            
+        $data = $this->_database->FETCH($request, $binds);
 
-        $user = $this->_database->FETCH($request, $binds);
-
-        if (!password_verify($pass, $user['pass'])) {
+        if (!password_verify($pass, $data['pass'])) {
             throw new \Exception('E-mail or password error');
         }
 
-        $token = $this->createToken($user['uid']);
-
-        return [
-            'uid' => (int) $user['uid'],
-            'name' => $user['name'],
-            'role' => (int) $user['role'],
-            'mail' => $user['mail'],
-            'token' => $token['signature']
-        ];
+        $data['token'] = $this->createToken($data['uid']);
+      
+        return new \Inspire\Database\User($data);
     }
 
-    public function getUserByToken($token)
+    /**
+     *
+     * @param string $token
+     * @return \Inspire\Database\User
+     * @throws \Exception
+     */
+    public function getUserByToken(string $token): \Inspire\Database\User
     {
         $request = 'SELECT uid.id as `uid`, token.expire as `token_expire`, `name`, `role`, `mail` FROM `user`'
             .' INNER JOIN `uid` ON user.id = uid.item_id'
             .' INNER JOIN `token` ON token.user_uid = uid.id'
             .' WHERE uid.item_name = "user" AND token.signature = :signature';
         $binds   = [[':signature', $token, \PDO::PARAM_STR]];
-        $user    = $this->_database->FETCH($request, $binds);
+        $data    = $this->_database->FETCH($request, $binds);
 
-        if (empty($user)) {
+        if (empty($data)) {
             throw new \Exception('Token/user not found, please sign in');
         }
 
-        if (strtotime($user['token_expire']) < time()) {
+        if (strtotime($data['token_expire']) < time()) {
             throw new \Exception('Token expired, please sign in');
         }
 
         $this->updateToken($token);
 
-        return [
-            'uid' => $user['uid'],
-            'name' => $user['name'],
-            'role' => $user['role'],
-            'mail' => $user['mail']
-        ];
+        return new \Inspire\Database\User($data);
     }
 
-    private function canEdit($user, $byUser)
+    /**
+     *
+     * @param \Inspire\Database\User $user
+     * @param \Inspire\Database\User $byUser
+     * @return boolean
+     * @throws \Exception
+     */
+    private function canEdit(\Inspire\Database\User $user, \Inspire\Database\User $byUser): bool
     {
-        if ($byUser['role'] < 1) {
+        if ($byUser->role < \Inspire\Database\User::$ROLE_SUBSCRIBER) {
             throw new \Exception('You have not privileges to do that');
         }
 
-        if ($byUser['role'] < 4 && strtolower($user['uid']) !== strtolower($byUser['uid'])) {
+        if ($byUser->role < \Inspire\Database\User::$ROLE_ADMIN && strtolower($user->uid) !== strtolower($byUser->uid)) {
             throw new \Exception('You do not have permission to edit other users');
         }
 
         return true;
     }
 
-    public function deleteUser($uid, $byUser)
+    /**
+     *
+     * @param int $uid
+     * @param \Inspire\Database\User $byUser
+     * @throws \Exception
+     */
+    public function deleteUser(int $uid, \Inspire\Database\User $byUser)
     {
         $user = $this->getUserByUid($uid, $byUser);
         if (empty($user)) {
@@ -211,7 +256,7 @@ class UserManager extends \Inspire\Database\DataManager
         }
 
         $binds = [[':uid', $uid, \PDO::PARAM_INT]];
-        if ($user['role'] > 3) {
+        if ($user->role >= \Inspire\Database\User::$ROLE_ADMIN) {
             $request = 'SELECT COUNT(*) FROM `user` INNER JOIN `uid` ON user.id = uid.item_id WHERE uid.item_name = "user" AND role > 3 AND uid.id != :uid';
             $count   = $this->_database->COUNT($request, $binds);
 
@@ -226,14 +271,22 @@ class UserManager extends \Inspire\Database\DataManager
         $this->deleteUID($uid);
     }
 
-    public function updateUser($uid, $data, $byUser)
+    /**
+     *
+     * @param int $uid
+     * @param array $data
+     * @param \Inspire\Database\User $byUser
+     * @return \Inspire\Database\User
+     * @throws \Exception
+     */
+    public function updateUser(int $uid, array $data, \Inspire\Database\User $byUser): \Inspire\Database\User
     {
         $user = $this->getUserByUid($uid, $byUser);
 
         $this->canEdit($user, $byUser);
 
         $binds = [[':uid', $uid, \PDO::PARAM_INT]];
-        if ($user['role'] > 3 && !empty($data['role']) && $data['role'] < 4) {
+        if ($user->role >= \Inspire\Database\User::$ROLE_ADMIN && !empty($data['role']) && $data['role'] < \Inspire\Database\User::$ROLE_ADMIN) {
             $request = 'SELECT COUNT(*) FROM `user` INNER JOIN `uid` ON user.id = uid.item_id WHERE uid.item_name = "user" AND role > 3 AND uid.id != :uid';
             $count   = $this->_database->COUNT($request, $binds);
 
@@ -266,23 +319,33 @@ class UserManager extends \Inspire\Database\DataManager
         return $this->getUserByUid($uid, $byUser);
     }
 
-    public function addUser($data, $byUser)
+    /**
+     *
+     * @param array $data
+     * @param \Inspire\Database\User $byUser
+     * @return \Inspire\Database\User
+     * @throws \Exception
+     */
+    public function addUser(array $data, \Inspire\Database\User $byUser): \Inspire\Database\User
     {
-        if (empty($data['name']) || empty($data['name']) || empty($data['mail']) || empty($data['role'])) {
+        if (empty($data['name']) || empty($data['mail']) || empty($data['role'])) {
             throw new \Exception('"name", "mail" and "role" required');
         }
 
-        if ($byUser['role'] < 2) {
+        if ($byUser->role < \Inspire\Database\User::$ROLE_ADMIN) {
             $request = 'SELECT COUNT(*) FROM `user` WHERE 1';
             $count   = $this->_database->COUNT($request);
 
             if ($count > 0) {
                 throw new \Exception('You do not have permission to add user');
             } else {
-                $byUser       = [
+
+                // Create temporary install user
+                $byUser       = new \Inspire\Database\User([
                     'name' => 'install',
                     'role' => 4
-                ];
+                ]);
+                
                 $data['role'] = 4;
             }
         }
@@ -310,12 +373,12 @@ class UserManager extends \Inspire\Database\DataManager
         ];
 
         $this->_database->EXECUTE($request, $binds);
-        $userId = (integer) $this->_database->GET_LAST_INSERT_ID();
+        $userId = (int) $this->_database->GET_LAST_INSERT_ID();
         $uid    = $this->addUID('user', $userId);
 
         $user = $this->getUserByUid($uid, $byUser);
         if (isset($data['returnPass']) && $data['returnPass'] == true) {
-            $user['pass'] = $pass;
+            $user->pass = $pass;
         } else {
             $message = \Inspire\Vue\MailSignUp::getHtml($name, $mail, $pass);
             \Inspire\Helper\MailHelp::sendMail($mail, 'Inspire subscription',

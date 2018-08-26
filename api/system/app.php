@@ -44,14 +44,14 @@ $klein->with(API_URL_REL.'/auth',
             ];
             $post     = \Inspire\Helper\IOHelp::getInputPost($request, $postData);
             $user     = $userMan->getUserBySignIn($post['mail'], $post['pass']);
-
+            
             $userMetaData = [
-                'name' => $user['name'],
-                'mail' => $user['mail'],
-                'role' => $user['role']
+                'name' => $user->name,
+                'mail' => $user->mail,
+                'role' => $user->role
             ];
 
-            \Inspire\Helper\IOHelp::outputSuccess($response, $user, 'auth',
+            \Inspire\Helper\IOHelp::outputSuccess($response, $user->getData(), 'auth',
                 'signin', $userMetaData);
         } catch (Exception $ex) {
             \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
@@ -66,8 +66,8 @@ $klein->with(API_URL_REL.'/auth',
             $userMan = new \Inspire\Database\UserManager();
             $user    = $userMan->signout($token);
 
-            \Inspire\Helper\IOHelp::outputSuccess($response, $user, 'auth',
-                'signout', $user);
+            \Inspire\Helper\IOHelp::outputSuccess($response, $user->getData(), 'auth',
+                'signout', $user->getData());
         } catch (Exception $ex) {
             \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
         }
@@ -95,8 +95,8 @@ $klein->with(API_URL_REL.'/users',
             $userMan  = new \Inspire\Database\UserManager();
             $newUser  = $userMan->addUser($post, $user);
 
-            \Inspire\Helper\IOHelp::outputSuccess($response, $newUser, 'users',
-                'add', $user);
+            \Inspire\Helper\IOHelp::outputSuccess($response, $newUser->getData(), 'users',
+                'add', $user->getData());
         } catch (Exception $ex) {
             \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
         }
@@ -115,11 +115,11 @@ $klein->with(API_URL_REL.'/users',
                 'pass' => ['type' => \Inspire\Helper\IOHelp::TYPE_STR, 'required' => true],
                 'role' => ['type' => \Inspire\Helper\IOHelp::TYPE_INT, 'required' => true]
             ];
-            $userData = \Inspire\Helper\IOHelp::getInputPost($request, $postData);
-            $data     = $userMan->updateUser($uid, $userData, $user);
+            $userData    = \Inspire\Helper\IOHelp::getInputPost($request, $postData);
+            $userUpdated = $userMan->updateUser($uid, $userData, $user);
 
-            \Inspire\Helper\IOHelp::outputSuccess($response, $data, 'users',
-                'edit', $user);
+            \Inspire\Helper\IOHelp::outputSuccess($response, $userUpdated->getData(), 'users',
+                'edit', $user->getData());
         } catch (Exception $ex) {
             \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
         }
@@ -136,7 +136,7 @@ $klein->with(API_URL_REL.'/users',
             $data    = ['uid' => $uid];
 
             \Inspire\Helper\IOHelp::outputSuccess($response, $data, 'users',
-                'delete', $user);
+                'delete', $user->getData());
         } catch (Exception $ex) {
             \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
         }
@@ -151,7 +151,7 @@ $klein->with(API_URL_REL.'/users',
             $uid     = (int) $request->param('uid');
             $getData = $userMan->getUserByUid($uid, $user);
 
-            \Inspire\Helper\IOHelp::outputSuccess($response, $getData, 'posts',
+            \Inspire\Helper\IOHelp::outputSuccess($response, $getData->getData(), 'posts',
                 'get', $user);
         } catch (Exception $ex) {
             \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
@@ -168,7 +168,7 @@ $klein->with(API_URL_REL.'/users',
             $users   = $userMan->getUsers($user);
 
             \Inspire\Helper\IOHelp::outputSuccess($response, $users, 'posts',
-                'get', $user);
+                'get', $user->getData());
         } catch (Exception $ex) {
             \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
         }
@@ -187,7 +187,7 @@ $klein->respond('GET', API_URL_REL.'/post/[i:id]',
         $post        = $postManager->getPost($id);
 
         \Inspire\Helper\IOHelp::outputSuccess($response, $post, 'posts', 'get',
-            $user);
+            $user->getData());
     } catch (Exception $ex) {
         \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
@@ -213,7 +213,7 @@ $klein->respond('GET', API_URL_REL.'/posts/[*:trailing]?',
         $posts       = $postManager->getPosts($argObj);
 
         \Inspire\Helper\IOHelp::outputSuccess($response, $posts, 'posts', 'get',
-            $user);
+            $user->getData());
     } catch (Exception $ex) {
         \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
@@ -250,7 +250,7 @@ $klein->respond('POST', API_URL_REL.'/posts/add',
         $post = $postManager->addPost($params);
 
         \Inspire\Helper\IOHelp::outputSuccess($response, $post, 'posts', 'add',
-            $user);
+            $user->getData());
     } catch (Exception $ex) {
         \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
@@ -295,7 +295,7 @@ $klein->respond('POST', API_URL_REL.'/posts/edit/[i:uid]',
         $post = $postManager->updatePost($uid, $params);
 
         \Inspire\Helper\IOHelp::outputSuccess($response, $post, 'posts', 'edit',
-            $user);
+            $user->getData());
     } catch (Exception $ex) {
         \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
@@ -317,7 +317,7 @@ $klein->respond('GET', API_URL_REL.'/posts/delete/[i:uid]',
         $data = ['uid' => $uid];
 
         \Inspire\Helper\IOHelp::outputSuccess($response, $data, 'posts',
-            'delete', $user);
+            'delete', $user->getData());
     } catch (Exception $ex) {
         \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
     }
@@ -361,7 +361,7 @@ $klein->respond('POST', API_URL_REL.'/distant',
         if (!empty($params['link'])) {
             $html = file_get_contents($params['link']);
             \Inspire\Helper\IOHelp::outputSuccess($response, $html, 'distant',
-                'get', $user);
+                'get', $user->getData());
         } else {
             throw new \Exception('"link" value is required');
         }

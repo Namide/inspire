@@ -84,7 +84,7 @@ class IOHelp
         }
     }
 
-    public static function outputSuccess(&$response, &$data, $subject, $action, $user = ['name' => 'Guest'])
+    public static function outputSuccess(&$response, $data, $subject, $action, $user = ['name' => 'Guest'])
     {
         if (CORS) {
             $response->header('Access-Control-Allow-Origin', CORS);
@@ -126,7 +126,7 @@ class IOHelp
         $headers = $request->headers();
         
         if (empty($headers['X-Access-Token'])) {
-            return ['name' => 'Guest', 'role' => 0];
+            return new \Inspire\Database\User();
         }
 
         $token = $headers['X-Access-Token'];
