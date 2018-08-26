@@ -3,7 +3,28 @@ const fs = require('fs')
 const querystring = require('querystring')
 const del = require('del')
 
-const mail = 'motoko@kusanagi.jp'
+const users = [
+    {
+        mail: 'motoko@kusanagi.jp',
+        name: 'Motoko',
+        role: 4
+    },
+    {
+        mail: 'dva@overwatch.ko',
+        name: 'D.Va',
+        role: 3
+    },
+    {
+        mail: 'lara@croft.uk',
+        name: 'Lara',
+        role: 2
+    },
+    {
+        mail: 'dolphin@animals.com',
+        name: 'Dolphin',
+        role: 1
+    }
+]
 
 const DEBUG = false
 const TESTS = [
@@ -21,51 +42,60 @@ const TESTS = [
     },
     {
         route: '/users/add',
-        post: () => ({ name: 'Motoko' }),
+        post: () => ({ name: users[0].name }),
         check: data => log(!data.success, 'users/add', 'Check user mail', data)
     },
     {
         route: '/users/add',
-        post: () => ({ mail, name: 'Motoko', role: 4, returnPass: true }),
+        post: () => (Object.assign(users[0], {returnPass: true})),
         check: data =>
         {
-            pass = data.data.pass
+            users[0].pass = data.data.pass
             log(data.success && data.data.pass, 'users/add', 'Add first user', data)
         }
     },
     {
+        route: '/users/add',
+        post: () => (Object.assign(users[1], {returnPass: true})),
+        check: data =>
+        {
+            log(!data.success, 'users/add', 'Can not add user if not connected', data)
+        }
+    },
+    {
         route: '/auth/signin',
-        post: () => ({ mail, pass: 'bad password' }),
+        post: () => ({ mail: users[0].mail, pass: 'bad password' }),
         check: data => log(!data.success, 'auth/signin', 'Try with bad password', data)
     },
     {
         route: '/auth/signin',
-        post: () => ({ mail: 'bad email', pass }),
+        post: () => ({ mail: 'bad email', pass: users[0].pass }),
         check: data => log(!data.success, 'auth/signin', 'Try with bad email', data)
     },
     {
         route: '/auth/signin',
-        post: () => ({ mail, pass }),
+        post: () => ({ mail: users[0].mail, pass: users[0].pass }),
         check: data =>
         {
             token = data.data.token.signature
             log(data.success && data.data.token, 'auth/signin', 'Sign in', data)
         }
     },
-    {
-        route: '/auth/signin',
-        post: () => ({ mail, pass }),
+    ...users.filter((user, i) => i > 0).map((user, i) => ({
+        route: '/users/add',
+        post: () => (Object.assign(user, { returnPass: true })),
         check: data =>
         {
-            token = data.data.token.signature
-            log(data.success && data.data.token, 'auth/signin', 'Sign in', data)
+            users[i].pass = data.data.pass
+            const role = ['guest', 'subscriber', 'author', 'editor', 'admin'][user.role]
+            log(data.success && data.data.pass, 'users/add', 'Add ' + role, data)
         }
-    },
+    })),
     {
         route: '/users',
         check: data =>
         {
-            log(data.success && data.data.length === 1 && data.data[0].mail === mail, 'users', 'Get user list (connected)', data)
+            log(data.success && data.data.length === users.length, 'users', 'Get user list (connected)', data)
         }
     },
     {
@@ -85,16 +115,15 @@ const TESTS = [
     }
 ]
 
-let pass = ''
+let pass = []
 let token = ''
 let testSuccess = 0
 let testFailed = 0
-const testTotal = TESTS.length
 let end = () => {}
 
 function start()
 {
-    console.log('\n         START TESTS (API only) : ' + testTotal + '\n')
+    console.log('\n         START TESTS (API only) : ' + TESTS.length + '\n')
 
     const code = Math.round(Math.random() * 0xFFFFFFFF).toString(16)
     const dataRep = 'data-test-' + code
@@ -127,9 +156,9 @@ function start()
         
         del.sync(['./api/' + dataRep])
 
-        console.log('\n -', testSuccess, 'success', '/', testTotal, 'total')
+        console.log('\n -', testSuccess, 'success', '/', TESTS.length, 'total')
         console.log(' -', testFailed, 'failed')
-        console.log(' -', testTotal - (testSuccess + testFailed), 'avoided')
+        console.log(' -', TESTS.length - (testSuccess + testFailed), 'avoided')
         console.log('\n         END TESTS\n\n')
     }
     
