@@ -30,20 +30,20 @@ const DEBUG = false
 const TESTS = [
     {
         route: '/',
-        check: data => log(data.success, 'routes/get', 'Load JSON', data)
+        check: data => logTest(data.success, 'routes/get', 'Load JSON', data)
     },
     {
         route: '/posts',
-        check: data => log(data.success, 'posts/get', 'Load JSON', data)
+        check: data => logTest(data.success, 'posts/get', 'Load JSON', data)
     },
     {
         route: '/posts/1',
-        check: data => log(!data.success, 'post/get', 'Try bad post', data)
+        check: data => logTest(!data.success, 'post/get', 'Try bad post', data)
     },
     {
         route: '/users/add',
         post: () => ({ name: users[0].name }),
-        check: data => log(!data.success, 'users/add', 'Check user mail', data)
+        check: data => logTest(!data.success, 'users/add', 'Check user mail', data)
     },
     {
         route: '/users/add',
@@ -51,7 +51,7 @@ const TESTS = [
         check: data =>
         {
             users[0].pass = data.data.pass
-            log(data.success && data.data.pass, 'users/add', 'Add first user', data)
+            logTest(data.success && data.data.pass, 'users/add', 'Add first user', data)
         }
     },
     {
@@ -59,18 +59,18 @@ const TESTS = [
         post: () => (Object.assign(users[1], {returnPass: true})),
         check: data =>
         {
-            log(!data.success, 'users/add', 'Can not add user if not connected', data)
+            logTest(!data.success, 'users/add', 'Can not add user if not connected', data)
         }
     },
     {
         route: '/auth/signin',
         post: () => ({ mail: users[0].mail, pass: 'bad password' }),
-        check: data => log(!data.success, 'auth/signin', 'Try with bad password', data)
+        check: data => logTest(!data.success, 'auth/signin', 'Try with bad password', data)
     },
     {
         route: '/auth/signin',
         post: () => ({ mail: 'bad email', pass: users[0].pass }),
-        check: data => log(!data.success, 'auth/signin', 'Try with bad email', data)
+        check: data => logTest(!data.success, 'auth/signin', 'Try with bad email', data)
     },
     {
         route: '/auth/signin',
@@ -78,7 +78,7 @@ const TESTS = [
         check: data =>
         {
             token = data.data.token.signature
-            log(data.success && data.data.token, 'auth/signin', 'Sign in', data)
+            logTest(data.success && data.data.token, 'auth/signin', 'Sign in', data)
         }
     },
     ...users.filter((user, i) => i > 0).map((user, i) => ({
@@ -88,21 +88,21 @@ const TESTS = [
         {
             users[i].pass = data.data.pass
             const role = ['guest', 'subscriber', 'author', 'editor', 'admin'][user.role]
-            log(data.success && data.data.pass, 'users/add', 'Add ' + role, data)
+            logTest(data.success && data.data.pass, 'users/add', 'Add ' + role, data)
         }
     })),
     {
         route: '/users',
         check: data =>
         {
-            log(data.success && data.data.length === users.length, 'users', 'Get user list (connected)', data)
+            logTest(data.success && data.data.length === users.length, 'users', 'Get user list (connected)', data)
         }
     },
     {
         route: '/auth/signout',
         check: data =>
         {
-            log(data.success, 'auth/signout', 'Sign out', data)
+            logTest(data.success, 'auth/signout', 'Sign out', data)
         }
     },
     {
@@ -110,7 +110,7 @@ const TESTS = [
         check: data =>
         {
             token = ''
-            log(!data.success, 'users', 'Get user list (bad token)', data)
+            logTest(!data.success, 'users', 'Get user list (bad token)', data)
         }
     }
 ]
@@ -120,6 +120,7 @@ let token = ''
 let testSuccess = 0
 let testFailed = 0
 let end = () => {}
+let testNum = 0
 
 function start()
 {
@@ -130,7 +131,7 @@ function start()
     let originalConfig = false
 
     if (fs.existsSync('./' + dataRep)) {
-        log(false, 'content file', './' + dataRep + ' always exist')
+        logTest(false, 'content file', './' + dataRep + ' always exist')
         return
     }
 
@@ -183,7 +184,7 @@ function run(num = 0, onEnd = () => { })
             }
             catch(e)
             {
-                log(false, 'check', e.message, data)
+                logTest(false, 'check', e.message, data)
                 onEnd()
             }
             
@@ -200,13 +201,16 @@ start()
 // HELPERS
 // -------------------
 
-function log(success, subject, title, message = '')
+function logTest(success, subject, title, message = '')
 {
+    testNum++
+    const num = ' ' + '0'.repeat(String(TESTS.length).length - String(testNum).length) + testNum + ' '
     const rest = Math.max(15 - subject.length, 1)
     if (success)
     {
         testSuccess++
         console.log(
+            num,
             '[ ok ] ',
             subject + ' '.repeat(rest),
             title
@@ -216,6 +220,7 @@ function log(success, subject, title, message = '')
     {
         testFailed++
         console.log(
+            num,
             '[fail] ',
             subject + ' '.repeat(rest),
             title
@@ -262,14 +267,14 @@ function send(url, callback, postData = false)
             try {
                 callback(JSON.parse(data))
             } catch(e) {
-                log(false, 'parsing error', data, e.message)
+                logTest(false, 'parsing error', data, e.message)
                 end()
             }
         })
     })
 
     req.on('error', function(e) {
-        log(false, 'problem with request', '(' + url + ')', e.message)
+        logTest(false, 'problem with request', '(' + url + ')', e.message)
         end()
     })
 
