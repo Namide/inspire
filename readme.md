@@ -52,9 +52,9 @@ composer install
 - mail (SMTP configured)
 
 
-### Users roles
+## Users roles
 
-> Users has many roles, this is the list of those ones:
+Users has many roles, this is the list of those ones:
 
 | id | role       | public data         | private data      | users         |
 |----|------------|---------------------|-------------------|---------------|
@@ -65,6 +65,53 @@ composer install
 | 4  | Admin      | add, edit all       | add, edit all     | add, edit all |
 
 > A data can be a post, a group, etc.  
-> _*Add = create_  
-> _*Edit = modify and delete_  
-> _*Users roles: Only admin can modify users roles_
+- _*Add = create_  
+- _*Edit = modify and delete_  
+- _*Users roles: Only admin can modify users roles_
+
+## Road map
+
+*API*
+- [x] Post
+- [x] Post > Filters
+- [ ] Group
+- [ ] Group > Filters
+- [x] Images
+- [ ] Images > Resizer
+- [ ] Files
+- [x] Authentication
+- [x] Authentication > Security > Token
+- [ ] Authentication > Security > Bruteforce
+- [ ] Authentication > Security > Browser permission
+- [ ] Authentication > Security > Split security database and content database
+- [ ] Logs
+
+*Front*
+- [x] Post wall
+- [ ] Post wall > Paging
+- [ ] Post
+- [x] Tag filter
+- [ ] Group wall
+- [ ] Group wall > Paging
+- [ ] Group
+
+*Admin*
+- [ ] Authentication
+- [x] Post wall
+- [ ] Post wall > Paging
+- [ ] Post
+- [x] Tag filter
+- [ ] Group wall
+- [ ] Group wall > Paging
+- [ ] Group
+
+*API units tests*
+- [x] Auth
+- [x] Users
+- [ ] Posts
+- [ ] Post
+- [ ] Groups
+- [ ] Group
+- [ ] Image
+- [ ] Thumb
+- [ ] File
