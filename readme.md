@@ -94,6 +94,7 @@ Users has many roles, this is the list of those ones:
 - [ ] Group wall
 - [ ] Group wall > Paging
 - [ ] Group
+- [ ] SEO compliant
 
 *Admin*
 - [ ] Authentication
