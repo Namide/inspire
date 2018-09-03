@@ -85,6 +85,7 @@ Users has many roles, this is the list of those ones:
 - [ ] Authentication > Security > Browser permission
 - [ ] Authentication > Security > Split security database and content database
 - [ ] Logs
+- [ ] Hooks for custom code
 
 *Front*
 - [x] Post wall
@@ -95,6 +96,7 @@ Users has many roles, this is the list of those ones:
 - [ ] Group wall > Paging
 - [ ] Group
 - [ ] SEO compliant
+- [ ] Store (vuex)
 
 *Admin*
 - [ ] Authentication
@@ -105,6 +107,7 @@ Users has many roles, this is the list of those ones:
 - [ ] Group wall
 - [ ] Group wall > Paging
 - [ ] Group
+- [ ] Store (vuex)
 
 *API units tests*
 - [x] Auth
