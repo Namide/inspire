@@ -25,7 +25,7 @@ For detailed explanation on how things work, consult the [docs for vue-loader](h
 
 Module browser
 
-- Microsoft Edge
+- Microsoft Edge (last version)
 - Chrome (last version)
 - Firefox (last version)
 - Safari (last version)
