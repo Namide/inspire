@@ -302,7 +302,7 @@ $klein->respond('POST', API_URL_REL.'/posts/edit/[i:uid]',
 });
 
 // Delete post
-$klein->respond('GET', API_URL_REL.'/posts/delete/[i:uid]',
+$klein->respond('POST', API_URL_REL.'/posts/delete/[i:uid]',
     function($request, $response, $service) {
     try {
         $headers = $request->headers();

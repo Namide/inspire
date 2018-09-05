@@ -189,7 +189,7 @@ export default
             api.deletePost(data =>
             {
                 if (data.success)
-                    this.eventHub.$emit('post/delete', data.data.uid)
+                    this.$store.commit('deletePost', data.data.uid)
                 this.cancel()
             }, this.post.uid)
         },
@@ -203,7 +203,7 @@ export default
                 api.addPost(data =>
                 {
                     if (data.success)
-                        this.eventHub.$emit('post/add', data.data)
+                        this.$store.commit('addPost', data.data)
                 }, data)
                 this.cancel()
             }
@@ -212,7 +212,7 @@ export default
                 api.updatePost(data =>
                 {
                     if (data.success)
-                        this.eventHub.$emit('post/update', data.data)
+                        this.$store.commit('updatePost', data.data)
                 }, this.post.uid, data)
                 this.cancel()
             }

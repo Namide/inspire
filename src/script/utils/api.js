@@ -111,13 +111,14 @@ class Api
     deletePost(onLoad, uid, onError = msg => console.error(msg))
     {
         const url = config.api.abs + '/posts/delete/' + uid
+        const form = dataToFormData({})
         const request = new Request(url)
         const params = {
-            method: 'GET',
+            method: 'POST',
             headers: this.getHeaders(),
-            //mode: 'cors',
-            //cache: 'default',
-            // body: form
+            mode: 'cors',
+            cache: 'default',
+            body: form
         }
 
         fetch(request, params)
