@@ -214,7 +214,6 @@ class PostManager extends \Inspire\Database\DataManager
         $post    = $this->_database->FETCH($request, $binds);
 
         if ($post == false) {
-
             throw new \Exception('Post not found.');
         }
 
@@ -330,6 +329,7 @@ class PostManager extends \Inspire\Database\DataManager
         self::clearData('content_file', 'json', $post);
         self::clearData('content_text', 'string', $post);
         self::clearData('content_link', 'string', $post);
+        self::clearData('content_flux', 'json', $post);
         self::clearData('public', 'bool', $post);
         self::clearData('score', 'float', $post);
         self::clearData('tags', 'array', $post);
@@ -377,6 +377,7 @@ class PostManager extends \Inspire\Database\DataManager
         self::testData('content_text', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('content_link', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('content_file', \PDO::PARAM_STR, $data, $rowList, $binds);
+        self::testData('content_flux', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('public', \PDO::PARAM_INT, $data, $rowList, $binds);
         self::testData('score', \PDO::PARAM_STR, $data, $rowList, $binds);
     }

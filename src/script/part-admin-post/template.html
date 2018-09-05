@@ -46,6 +46,8 @@
             <input type="text" v-model="tags" placeholder="tags">
     
             <textarea cols="30" rows="10" v-model="content_text" placeholder="text"></textarea>
+
+            <input type="text" v-model="content_flux" placeholder="flux" class="flux">
     
             <input type="checkbox" v-model="public"> Public
             <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>

@@ -15,7 +15,7 @@ class DataManager
     protected $_database;
     protected static $_POST_REQUEST = [
         'select' => 'SELECT uid.id AS `uid`, `title`, `description`,'
-        .' `date`, `thumb`, `content_file`, `content_text`,'
+        .' `date`, `thumb`, `content_file`, `content_flux`, `content_text`,'
         .' `content_link`, `public`, `score`,'
         .' GROUP_CONCAT(DISTINCT tag.name) AS `tags`,'
         .' GROUP_CONCAT(DISTINCT type.name) AS `types`',
@@ -85,6 +85,7 @@ class DataManager
                 'content_file TEXT DEFAULT NULL',
                 'content_text TEXT DEFAULT NULL',
                 'content_link TEXT DEFAULT NULL',
+                'content_flux TEXT DEFAULT NULL',
                 'public BOOLEAN DEFAULT true',
                 'score NUMERIC DEFAULT 0',
                 'author_uid NUMERIC DEFAULT -1'

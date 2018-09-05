@@ -32,6 +32,7 @@ export default
             date: null,
             content_link: null,
             content_text: null,
+            content_flux: null,
             content_file: null,
             tags: null,
             types: null,
@@ -95,6 +96,15 @@ export default
             {
                 this.state = STATE.MODIFY
                 this._modified.content_text = text
+            }
+        },
+
+        content_flux(flux, before)
+        {
+            if (before !== null)
+            {
+                this.state = STATE.MODIFY
+                this._modified.content_flux = { url: flux }
             }
         },
 
@@ -163,6 +173,7 @@ export default
             this.date = copy((this.post && this.post.date) || getToday()).split(' ').join('T')
             this.content_link = copy((this.post && this.post.content_link) || '')
             this.content_text = copy((this.post && this.post.content_text) || '')
+            this.content_flux = copy((this.post && this.post.content_flux && this.post.content_flux.url) || null)
             this.content_file = copy((this.post && this.post.content_file) || null)
             this.public = this.post ? !!this.post.public : true
     
