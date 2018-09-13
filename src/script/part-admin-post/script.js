@@ -30,10 +30,7 @@ export default
             description: null,
             thumb: null,
             date: null,
-            content_link: null,
-            content_text: null,
-            content_flux: null,
-            content_file: null,
+            content: null,
             tags: null,
             types: null,
             public: null,
@@ -81,30 +78,13 @@ export default
             }
         },
 
-        content_link(content_link, before)
-        {
-            if (before !== null)
-            {
-                this._modified.content_link = content_link
-                this.state = STATE.MODIFY
-            }
-        },
-
-        content_text(text, before)
+        content(text, before)
         {
             if (before !== null)
             {
                 this.state = STATE.MODIFY
-                this._modified.content_text = text
-            }
-        },
-
-        content_flux(flux, before)
-        {
-            if (before !== null)
-            {
-                this.state = STATE.MODIFY
-                this._modified.content_flux = { url: flux }
+                this._modified.content = text
+                console.log('TODO: modify content_format')
             }
         },
 
@@ -171,10 +151,8 @@ export default
             this.description = copy((this.post && this.post.description) || '')
             this.thumb = copy((this.post && this.post.thumb) || null)
             this.date = copy((this.post && this.post.date) || getToday()).split(' ').join('T')
-            this.content_link = copy((this.post && this.post.content_link) || '')
-            this.content_text = copy((this.post && this.post.content_text) || '')
-            this.content_flux = copy((this.post && this.post.content_flux && this.post.content_flux.url) || null)
-            this.content_file = copy((this.post && this.post.content_file) || null)
+            this.content_format = copy((this.post && this.post.content_format) || '')
+            this.content = copy((this.post && this.post.content) || '')
             this.public = this.post ? !!this.post.public : true
     
             this.tags = copy((this.post && this.post.tags) || [])
@@ -242,7 +220,9 @@ export default
 
         getFileSrc()
         {
-            return this.post && this.content_file ? api.getFileURL(this.post.uid) : ''
+            return this.post && this.content_format.indexOf('file') > -1
+                   && this.content_format.indexOf('image') && this.content
+                   ? api.getFileURL(this.post.uid) : ''
         },
 
         keyUp(keyEvent)
@@ -251,7 +231,7 @@ export default
                 this.close()
         },
 
-        linkChange()
+        /*linkChange()
         {
             if (this.title == '')
             {
@@ -280,7 +260,7 @@ export default
 
                 }, this.content_link)
             }
-        },
+        },*/
 
         thumbChange(file)
         {
@@ -305,19 +285,21 @@ export default
         {
             if (!file)
             {
-                this.content_file = null
-                this._modified.content_file = null
+                this.content_ = null
+                this._modified.file = null
+                this._modified.content = null
                 return
             }
 
-            const content_file = {
+            const content = {
                 name: file.name,
                 size: file.size,
                 type: file.type
             }
 
-            this.content_file = content_file
-            this._modified.content_file = file
+            this.content = content
+            this._modified.content = content
+            this._modified.file = file
 
             
             // this.file = file

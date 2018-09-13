@@ -231,9 +231,9 @@ $klein->respond('POST', API_URL_REL.'/posts/add',
         $params = $request->params();
 
         // Save file
-        if (!empty($_FILES['content_file'])) {
-            $fileData               = $postManager->saveFile($_FILES['content_file']);
-            $params['content_file'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
+        if (!empty($_FILES['file'])) {
+            $fileData          = $postManager->saveFile($_FILES['file']);
+            $params['content'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
         }
 
         // Save thumb
@@ -272,10 +272,10 @@ $klein->respond('POST', API_URL_REL.'/posts/edit/[i:uid]',
         $params = $request->params();
 
         // Update file
-        if (!empty($_FILES['content_file'])) {
+        if (!empty($_FILES['file'])) {
             $postManager->removeFile($uid);
-            $fileData               = $postManager->saveFile($_FILES['content_file']);
-            $params['content_file'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
+            $fileData               = $postManager->saveFile($_FILES['file']);
+            $params['content'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
         }
 
         // Update thumb

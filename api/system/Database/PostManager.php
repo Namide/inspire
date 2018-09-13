@@ -7,19 +7,21 @@ class PostManager extends \Inspire\Database\DataManager
 
     public function removeFile($uid)
     {
-        $request = 'SELECT `content_file` FROM `post`'
+        $request = 'SELECT `content`, `content_format` FROM `post`'
             .' INNER JOIN `uid` ON post.id = uid.item_id'
-            .' WHERE uid.item_name = "post" AND uid.id = :uid';
+            .' WHERE uid.item_name = "post" AND uid.id = :uid'
+            .' AND `content_format` LIKE `,image,`'
+            .' AND `content_format` LIKE `,file,`';
         $binds   = [[':uid', $uid, \PDO::PARAM_INT]];
         $post    = $this->_database->FETCH($request, $binds);
 
-        if ($post != false && !empty($post['content_file'])) {
-            $fileData = \Inspire\Helper\JsonHelp::TO_ARRAY($post['content_file']);
+        if ($post != false && !empty($post['content'])) {
+            $fileData = \Inspire\Helper\JsonHelp::TO_ARRAY($post['content']);
             $path     = DATA_PATH.$fileData['path'];
 
             if (\Inspire\Helper\FileHelp::DEL_FILE($path)) {
                 $update = 'UPDATE `post`';
-                $set    = ' SET `content_file` = null';
+                $set    = ' SET `content` = null';
                 $where  = ' WHERE `id` = (SELECT `item_id` FROM `uid` WHERE `id` = :uid AND `item_name` = "post")';
                 $this->_database->EXECUTE($update.$set.$where, $binds);
 
@@ -224,20 +226,22 @@ class PostManager extends \Inspire\Database\DataManager
 
     public function getFile($uid)
     {
-        $select  = 'SELECT `content_file`';
+        $select  = 'SELECT `content`';
         $from    = ' FROM `post`';
-        $where   = ' WHERE uid.id = :uid AND uid.item_name = "post"';
+        $where   = ' WHERE uid.id = :uid AND uid.item_name = "post"'
+                   .' AND `content_format` LIKE `,image,`'
+                   .' AND `content_format` LIKE `,file,`';
         $join    = ' INNER JOIN `uid` ON post.id = uid.item_id';
         $request = $select.$from.$join.$where;
         $binds   = [[':uid', $uid, \PDO::PARAM_INT]];
         $post    = $this->_database->FETCH($request, $binds);
 
-        if ($post == false || empty($post['content_file'])) {
+        if ($post == false || empty($post['content'])) {
 
             throw new \Exception('File of post not found.');
         }
 
-        return \Inspire\Helper\JsonHelp::TO_ARRAY($post['content_file']);
+        return \Inspire\Helper\JsonHelp::TO_ARRAY($post['content']);
     }
 
     public function getThumb($uid)
@@ -326,40 +330,13 @@ class PostManager extends \Inspire\Database\DataManager
         self::clearData('description', 'string', $post);
         self::clearData('date', 'string', $post);
         self::clearData('thumb', 'json', $post);
-        self::clearData('content_file', 'json', $post);
-        self::clearData('content_text', 'string', $post);
-        self::clearData('content_link', 'string', $post);
-        self::clearData('content_flux', 'json', $post);
+        self::clearData('content_format', 'string', $post);
+        self::clearData('content', 'json', $post);
         self::clearData('public', 'bool', $post);
         self::clearData('score', 'float', $post);
         self::clearData('tags', 'array', $post);
         self::clearData('types', 'array', $post);
     }
-
-    /*private static function formatInputFileAndSave(&$data, &$rowList, &$binds)
-    {
-        if (!empty($data['content_file']))
-        {
-            $json = \Inspire\Helper\JsonHelp::TO_ARRAY($data['content_file']);
-            if (!empty($data['base64']) && !empty($json['name']))
-            {
-                $base64 = $data['base64'];
-                $type = \Inspire\Helper\FileHelp::GET_TYPE($json['name']);
-                $file = \Inspire\Helper\FileHelp::SAVE_FILE_BASE64($base64, $json['name'], DATA_PATH . '/' . $type);
-                $json['path'] = str_replace(DATA_PATH, '', $file);
-                $rowList[] = 'content_file';
-                $binds[] = [
-                    ':content_file',
-                    \Inspire\Helper\JsonHelp::FROM_ARRAY($json),
-                    \PDO::PARAM_STR
-                ];
-            }
-            else
-            {
-                throw new \Exception('"base64" and "content_file.name" variables needed for file');
-            }
-        }
-    }*/
 
     private static function formatInputData(&$data, &$rowList, &$binds)
     {
@@ -374,10 +351,8 @@ class PostManager extends \Inspire\Database\DataManager
         self::testData('date', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('thumb', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('title', \PDO::PARAM_STR, $data, $rowList, $binds);
-        self::testData('content_text', \PDO::PARAM_STR, $data, $rowList, $binds);
-        self::testData('content_link', \PDO::PARAM_STR, $data, $rowList, $binds);
-        self::testData('content_file', \PDO::PARAM_STR, $data, $rowList, $binds);
-        self::testData('content_flux', \PDO::PARAM_STR, $data, $rowList, $binds);
+        self::testData('content_format', \PDO::PARAM_STR, $data, $rowList, $binds);
+        self::testData('content', \PDO::PARAM_STR, $data, $rowList, $binds);
         self::testData('public', \PDO::PARAM_INT, $data, $rowList, $binds);
         self::testData('score', \PDO::PARAM_STR, $data, $rowList, $binds);
     }

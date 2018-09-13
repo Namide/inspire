@@ -69,8 +69,9 @@ export default
             this.$set(this.postStyle, 'background-color', this.getColor())
         }
 
-        if (this.displayMode === 'text' && this.data.content_link)
-            this.href = this.data.content_link
+        if (this.displayMode === 'text'
+            && this.data.content_format.indexOf('URL') > -1)
+            this.href = this.data.content.URL
     },
 
     mounted()
@@ -166,14 +167,19 @@ export default
 
         getImg()
         {
-            return this.data.thumb ? this.data.thumb : this.data.content_file ? this.data.content_file : null
+            return this.data.thumb ? this.data.thumb :
+                   this.data.content_format.indexOf('file') > -1
+                   && this.data.content_format.indexOf('image')
+                   && this.content ? this.data.content : null
         },
 
         getSrc()
         {
             if (this.data.thumb)
                 return api.getThumbURL(this.data.uid)
-            else if (this.data.content_file)
+            else if (this.data.content_format.indexOf('file') > -1
+                     && this.data.content_format.indexOf('image')
+                     && this.content)
                 return api.getFileURL(this.data.uid)
 
             return ''

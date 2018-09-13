@@ -37,17 +37,11 @@
         
             
 
-            <part-admin-file-loader v-if="state !== STATE.CANCELED" @file="fileChange" :src="getFileSrc() || ''" :info="content_file" :only-img="false"></part-admin-file-loader>
+            <part-admin-file-loader v-if="state !== STATE.CANCELED" @file="fileChange" :src="getFileSrc() || ''" :info="content" :only-img="false"></part-admin-file-loader>
 
-
-    
-            <input type="text" v-model="content_link" placeholder="link" @blur="linkChange">
-    
             <input type="text" v-model="tags" placeholder="tags">
     
-            <textarea cols="30" rows="10" v-model="content_text" placeholder="text"></textarea>
-
-            <input type="text" v-model="content_flux" placeholder="flux" class="flux">
+            <textarea cols="30" rows="10" v-model="content" placeholder="text"></textarea>
     
             <input type="checkbox" v-model="public"> Public
             <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>
