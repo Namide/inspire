@@ -127,6 +127,35 @@ class ApiSet
             .then(res => onLoad(res))
             .catch(err => console.error(err))
     }*/
+
+    getDistantLink(onLoad, link, onError = msg => console.error(msg))
+    {
+        const form = ApiSet.dataToFormData({link})
+        const url = config.api.abs + '/distant'
+        const request = new Request(url)
+        const params = {
+            method: 'POST',
+            headers: this.apiGet.getHeaders(),
+            mode: 'cors',
+            cache: 'default',
+            body: form
+        }
+
+        fetch(request, params)
+            // .then(collection => console.log(collection))
+            .then(data => data.json())
+            .then(ApiGet.testSuccess)
+            // .then(data => data.success && data.data ? (data.data = data.data.map(filterPost), data) : data)
+            .then(onLoad)
+            .catch(onError)
+
+        /*this.client.getItems(url, params)
+        // this.client._get('tables/post/rows' + search, params)
+            .then(res => { return { data: res.data.map(cleanData), meta: res.meta } })
+            .then(res => { return { data: res.data.filter(filterTags), meta: res.meta } })
+            .then(res => onLoad(res))
+            .catch(err => console.error(err))*/
+    }
 }
 
 ApiSet.dataToFormData = data =>

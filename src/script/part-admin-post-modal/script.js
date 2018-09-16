@@ -3,22 +3,15 @@ import apiGet from '../utils/apiGet'
 import PartAdminFileLoader from '../part-admin-file-loader'
 import SetPostContent from '../utils/SetPostContent'
 import PartContent from '../part-content'
-
-const STATE = {
-    INITIAL: 0,
-    MODIFY: 1,
-    MODIFIED: 2,
-    UPDATE: 3,
-    ERROR: 4,
-    CANCELED: 5
-}
+import PartInputTextarea from '../part-input-textarea'
 
 export default
 {
     components:
     {
         PartAdminFileLoader,
-        PartContent
+        PartContent,
+        PartInputTextarea
     },
 
     props:
@@ -30,6 +23,8 @@ export default
     data()
     {
         return {
+            isFile: false,
+
             title: null,
             description: null,
             thumb: null,
@@ -41,8 +36,7 @@ export default
             types: [],
             public: null,
 
-            state: STATE.INITIAL,
-            STATE: STATE
+            state: 0
         } 
     },
 
@@ -52,7 +46,6 @@ export default
         {
             if (before !== null)
             {
-                this.state = STATE.MODIFY
                 this._modified.title = title
             }
         },
@@ -62,7 +55,6 @@ export default
             if (before !== null)
             {
                 this._modified.description = description
-                this.state = STATE.MODIFY
             }
         },
 
@@ -70,7 +62,6 @@ export default
         {
             if (before !== null)
             {
-                this.state = STATE.MODIFY
                 // this._modified.thumb = copy(data)
             }
         },
@@ -80,17 +71,13 @@ export default
             if (before !== null)
             {
                 this._modified.date = date.split('T').join(' ')
-                this.state = STATE.MODIFY
             }
         },
 
         contentRaw(text)
         {
-            console.log('CONTENT', this.state)
             if (text !== null)
             {
-                this.state = STATE.MODIFY
-
                 const content = SetPostContent.extractContent(text)
                 const format = SetPostContent.extractFormat(content)
                 this._modified.content = content
@@ -115,7 +102,6 @@ export default
         {
             if (before !== null)
             {
-                this.state = STATE.MODIFY
                 this._modified.public = isPublic
             }
         },
@@ -124,7 +110,6 @@ export default
         {
             if (before !== null)
             {
-                this.state = STATE.MODIFY
                 this._modified.tags = copy(tags)
             }
         },
@@ -133,35 +118,37 @@ export default
         {
             if (before !== null)
             {
-                this.state = STATE.MODIFY
                 this._modified.types = types
             }
         },
 
-        state(state)
-        {
-            window.removeEventListener('keyup', this.keyUp)
-            window.removeEventListener('resize', this.resizeContentRaw)
+        // state(state)
+        // {
+            
 
-            if (state !== STATE.INITIAL) {
-                window.addEventListener('keyup', this.keyUp)
-                window.addEventListener('resize', this.resizeContentRaw)
-                this.resizeContentRaw()
-            }
-        }
+        //     if (state !== STATE.INITIAL) {
+        //         window.addEventListener('keyup', this.keyUp)
+        //         window.addEventListener('resize', this.resizeContentRaw)
+        //         this.resizeContentRaw()
+        //     }
+        // }
     },
 
     created()
     {
+        window.removeEventListener('keyup', this.keyUp)
+
         this.init()
 
         if (!this.insert)
+        {
             this._modified.uid = this.post && this.post.uid
+            this.state = 1
+        }
     },
 
     destroyed()
     {
-        window.removeEventListener('resize', this.resizeContentRaw)
         window.removeEventListener('keyup', this.keyUp)
     },
 
@@ -182,18 +169,27 @@ export default
     
             this.tags = copy((this.post && this.post.tags) || [])
             this.types = copy((this.post && this.post.types) || [])
+        },
 
-            this.state = STATE.INITIAL
-            console.log('INIT', this.state)
+        validContent()
+        {
+            if (this.content && this.content.url)
+            {
+                this.updateByLink(this.content.url, () => this.state++)
+            }
+            else 
+            {
+                this.state++
+            }
         },
 
         deletePost()
         {
-            this.state = STATE.MODIFY
             apiSet.deletePost(data =>
             {
                 if (data.success)
                     this.$store.commit('deletePost', data.data.uid)
+                
                 this.cancel()
             }, this.post.uid)
         },
@@ -208,6 +204,7 @@ export default
                 {
                     if (data.success)
                         this.$store.commit('addPost', data.data)
+        
                 }, data)
                 this.cancel()
             }
@@ -217,6 +214,7 @@ export default
                 {
                     if (data.success)
                         this.$store.commit('updatePost', data.data)
+                
                 }, this.post.uid, data)
                 this.cancel()
             }
@@ -224,21 +222,20 @@ export default
 
         close()
         {
-            this.state = STATE.INITIAL
             this.$emit('close')
         },
 
         cancel()
         {
-            this.init()
-            this.state = STATE.CANCELED
-            this.$nextTick(this.close)
+            // this.init()
+            // this.$nextTick(this.close)
+            this.close()
         },
 
-        edit()
-        {
-            this.state = STATE.MODIFY
-        },
+        // edit()
+        // {
+        //     this.state = STATE.MODIFY
+        // },
 
         getThumbSrc()
         {
@@ -261,46 +258,41 @@ export default
                 this.close()
         },
 
-        resizeContentRaw()
+        updateByLink(URL, callback)
         {
-            const el = this.$refs.contentRaw
-            this.$nextTick(() =>
+            apiSet.getDistantLink(data =>
             {
-                el.style.cssText = 'height:auto; padding:0'
-                el.style.cssText = 'height:' + el.scrollHeight + 'px'
-            })
-        },
+                const distantPage = document.implementation.createHTMLDocument('')
+                distantPage.open()
+                distantPage.write(data.data)
+                distantPage.close()
 
-        /*linkChange()
-        {
-            if (this.title == '')
-            {
-                apiGet.getDistantLink(data =>
+                if (distantPage.title != '' && this.title == '')
+                    this.title = distantPage.title
+
+                const description = distantPage.querySelector('meta[name="description"]')
+                if (description && description.content !== '')
                 {
-                    const distantPage = document.implementation.createHTMLDocument('')
-                    distantPage.open()
-                    distantPage.write(data.data)
-                    distantPage.close()
+                    this.description = description.content
+                }
 
-                    if (distantPage.title != '' && this.title == '')
-                        this.title = distantPage.title
+                const image = distantPage.querySelector('meta[property="og:image"]')
+                const images = distantPage.querySelectorAll('a[href]')
+                if (image)
+                {
+                    const URL = image.getAttribute('content')
+                    console.log(URL)
+                }
+                else if (images.length > 0)
+                {
+                    const URL = images[0].getAttribute('src')
+                    console.log(URL)
+                }
 
-                    const image = distantPage.querySelector('meta[property="og:image"]')
-                    const images = distantPage.querySelectorAll('a[href]')
-                    if (image)
-                    {
-                        const URL = image.getAttribute('content')
-                        console.log(URL)
-                    }
-                    else if (images.length > 0)
-                    {
-                        const URL = images[0].getAttribute('src')
-                        console.log(URL)
-                    }
+                callback()
 
-                }, this.content_link)
-            }
-        },*/
+            }, URL, callback)
+        },
 
         thumbChange(file)
         {

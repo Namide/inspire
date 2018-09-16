@@ -4,31 +4,55 @@
     
     <div class="box">
 
-        <!-- {{ (post && post.uid) || '' }} -->
+        <label><input type="checkbox" v-model="isFile">File</label>
 
-        <input type="datetime-local" v-model="date" class="date">
+        <div v-if="state === 0">
+            
+            <part-admin-file-loader v-if="isFile" @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></part-admin-file-loader>
+            <template v-else>
+                <part-input-textarea @submit="validContent" :value="contentRaw" @change="argValue => contentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></part-input-textarea>
+                <part-content :data="content"></part-content>
+            </template>
     
-        <input type="text" v-model="title" placeholder="title" class="title">
-
-        <part-admin-file-loader v-if="state !== STATE.CANCELED" @file="thumbChange" :src="getThumbSrc() || ''" :info="thumb" :only-img="true"></part-admin-file-loader>
+            <button @click="validContent">Ok</button>
+        </div>
+        <div v-else="state === 1">
 
     
-        <input type="text" v-model="types" placeholder="types">
+            <input type="datetime-local" v-model="date" class="date">
+        
+            <input type="text" v-model="title" placeholder="title" class="title">
     
-        <textarea cols="30" rows="10" v-model="description" placeholder="description"></textarea>
+            <part-admin-file-loader @file="thumbChange" :src="getThumbSrc() || ''" :info="thumb" :only-img="true"></part-admin-file-loader>
     
+        
+            <input type="text" v-model="types" placeholder="types">
+        
+            <part-input-textarea :value="description" @change="argValue => description = argValue" placeholder="Description"></part-input-textarea>
+            
 
-        <!-- :info="content"  -->
-        <part-admin-file-loader v-if="state !== STATE.CANCELED" @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></part-admin-file-loader>
 
-        <input type="text" v-model="tags" placeholder="tags">
+            <part-admin-file-loader v-if="isFile" @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></part-admin-file-loader>
+            <template v-else>
+                <part-input-textarea @submit="validContent" :value="contentRaw" @change="argValue => contentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></part-input-textarea>
+                <part-content :data="content"></part-content>
+            </template>
 
-        <textarea @keydown="resizeContentRaw" ref="contentRaw" rows="1" v-model="contentRaw" placeholder="text" class="content-raw"></textarea>
-        <part-content :data="content"></part-content>
 
-        <input type="checkbox" v-model="public"> Public
-        <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>
-        <button v-if="!insert" @click="deletePost">Delete</button>
-        <button @click="cancel">Cancel changes</button>
+    
+            <!-- :info="content"  -->
+            <!-- <part-admin-file-loader @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></part-admin-file-loader> -->
+    
+            <input type="text" v-model="tags" placeholder="tags">
+    
+            <!-- <part-input-textarea :value="contentRaw" @change="argValue => contentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></part-input-textarea>
+            <part-content :data="content"></part-content> -->
+    
+            <input type="checkbox" v-model="public"> Public
+            <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>
+            <button v-if="!insert" @click="deletePost">Delete</button>
+            <button @click="cancel">Cancel changes</button>
+        </div>
+
     </div>
 </div>
