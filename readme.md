@@ -69,6 +69,34 @@ Users has many roles, this is the list of those ones:
 - _*Edit = modify and delete_  
 - _*Users roles: Only admin can modify users roles_
 
+## Post content formats
+
+List of analysed content
+
+- url
+    - flux
+        - rss
+        - twitter
+        - youtube channel
+    - link
+- embed
+    - video
+        - dailymotion
+        - vimeo
+        - youtube
+    - 3d
+        - sketchfab
+- text
+    - markdown
+    - html
+- file
+    - image
+        - jpeg
+        - gif
+        - png
+    - video
+        - mp4
+
 ## Road map
 
 *API*
