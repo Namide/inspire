@@ -1,4 +1,4 @@
-import api from '../utils/api'
+import apiGet from '../utils/apiGet'
 import PartBoard from '../part-board'
 
 export default
@@ -17,7 +17,7 @@ export default
 
     created()
     {
-        api.getGroups(this.onBoards)
+        apiGet.getGroups(this.onBoards)
     },
 
     methods:

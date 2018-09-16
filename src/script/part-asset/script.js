@@ -1,5 +1,4 @@
 import config from '../../config'
-import api from '../utils/api'
 
 export default
 {

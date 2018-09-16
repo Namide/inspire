@@ -1,4 +1,3 @@
-import api from '../utils/api'
 import PagePosts from '../page-posts'
 import PartTags from '../part-tags'
 
