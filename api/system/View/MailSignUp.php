@@ -1,6 +1,6 @@
 <?php
 
-namespace Inspire\Vue;
+namespace Inspire\View;
 
 class MailSignUp
 {
