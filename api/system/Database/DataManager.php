@@ -150,7 +150,7 @@ class DataManager
         } elseif ($format == 'json') {
             $data[$name] = \Inspire\Helper\JsonHelp::TO_ARRAY($data[$name]);
         } elseif ($format == 'int') {
-            $data[$name] = (integer) $data[$name];
+            $data[$name] = (int) $data[$name];
         } else {
             $data[$name] = $data[$name];
         }

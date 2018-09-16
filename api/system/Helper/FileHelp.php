@@ -319,8 +319,8 @@ class FileHelp
         foreach ($files as $file) {
             if (is_dir($dirName.'/'.$file)) {
                 self::DEL_DIR_RECURSIVLY($dirName.'/'.$file);
-            } else {
-                unlink($dirName.'/'.$file);
+            } elseif (!unlink($dirName.'/'.$file)) {
+                throw new \Exception(error_get_last()['message']);
             }
         }
 
@@ -336,27 +336,32 @@ class FileHelp
      */
     public static function DEL_FILE($file, $recursEmptyDir = false)
     {
-        if (!file_exists($file)) return false;
+        if (!file_exists($file))
+            return false;
 
-        unlink($file);
+        if (unlink($file)) {
+            if ($recursEmptyDir) {
+                $dir = $file;
+                do {
+                    $dir = explode('/', $dir);
 
-        if ($recursEmptyDir) {
-            $dir = $file;
-            do {
-                $dir = explode('/', $dir);
+                    if (count($dir) < 1) {
+                        return true;
+                    }
 
-                if (count($dir) < 1) {
-                    return true;
+                    array_pop($dir);
+                    $dir = implode('/', $dir);
+                    self::DEL_EMPTY_DIR_RECURSIVLY($dir);
                 }
-
-                array_pop($dir);
-                $dir = implode('/', $dir);
-                self::DEL_EMPTY_DIR_RECURSIVLY($dir);
+                while (self::IS_EMPTY($dir));
             }
-            while (self::IS_EMPTY($dir));
+
+            return true;
+        } else {
+            throw new \Exception(error_get_last()['message']);
         }
 
-        return true;
+        return false;
     }
 
     /**

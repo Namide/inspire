@@ -276,6 +276,10 @@ $klein->respond('POST', API_URL_REL.'/posts/edit/[i:uid]',
             $postManager->removeFile($uid);
             $fileData               = $postManager->saveFile($_FILES['file']);
             $params['content'] = Inspire\Helper\JsonHelp::FROM_ARRAY($fileData);
+        
+        // Delete old file if new content
+        } elseif (!empty($params['content'])) {
+            $postManager->removeFile($uid);
         }
 
         // Update thumb
@@ -308,7 +312,7 @@ $klein->respond('POST', API_URL_REL.'/posts/delete/[i:uid]',
         $headers = $request->headers();
         $user    = \Inspire\Helper\IOHelp::getCurrentUser($request);
 
-        $uid         = $request->param('uid');
+        $uid         = (int) $request->param('uid');
         $postManager = new \Inspire\Database\PostManager();
         $postManager->removeThumb($uid);
         $postManager->removeFile($uid);
@@ -400,7 +404,7 @@ $klein->respond('GET', API_URL_REL.'/config.js',
             $response->header('Access-Control-Allow-Origin', CORS);
         }
 
-        $body = Inspire\Vue\ConfigJS::getJs();
+        $body = Inspire\View\ConfigJS::getJs();
         $response->header('Content-Type', 'application/javascript');
         $response->body($body);
     } catch (Exception $ex) {
