@@ -2,52 +2,21 @@
 
     <!-- Line -->
     <div v-if="insert">
-        <button @click="edit">+ Add new post</button>
+        <button @click="isModalOpen = true">+ Add new post</button>
     </div>
 
-    <div v-else @click="edit" class="line">
+    <div v-else @click="isModalOpen = true" class="line">
         <div>
-            <strong v-if="title" v-html="title"></strong>
-            <small v-if="types && types.length" v-html="type" v-for="type of types"></small>
+            <strong v-if="post.title" v-html="post.title"></strong>
+            <small v-if="post.types && post.types.length" v-html="type" v-for="type of post.types"></small>
         </div>
         <div>
-            <small v-if="tags && tags.length" v-html="tag" v-for="tag of tags" class="tag"></small>
-            <span v-if="date" v-html="new Date(date).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})" class="date"></span>
+            <small v-if="post.tags && post.tags.length" v-html="tag" v-for="tag of post.tags" class="tag"></small>
+            <span v-if="post.date" v-html="new Date(post.date).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})" class="date"></span>
         </div>
     </div>
 
     <!-- Modal -->
-    <div v-show="state > 0" class="modal">
-        <div class="bg" @click="close"></div>
-        <div class="box">
-
-            <!-- {{ (post && post.uid) || '' }} -->
-
-            <input type="datetime-local" v-model="date" class="date">
-        
-            <input type="text" v-model="title" placeholder="title" class="title">
-
-
-            <part-admin-file-loader v-if="state !== STATE.CANCELED" @file="thumbChange" :src="getThumbSrc() || ''" :info="thumb" :only-img="true"></part-admin-file-loader>
-
-        
-            <input type="text" v-model="types" placeholder="types">
-        
-            <textarea cols="30" rows="10" v-model="description" placeholder="description"></textarea>
-        
-            
-
-            <part-admin-file-loader v-if="state !== STATE.CANCELED" @file="fileChange" :src="getFileSrc() || ''" :info="content" :only-img="false"></part-admin-file-loader>
-
-            <input type="text" v-model="tags" placeholder="tags">
-    
-            <textarea cols="30" rows="10" v-model="content" placeholder="text"></textarea>
-    
-            <input type="checkbox" v-model="public"> Public
-            <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>
-            <button v-if="!insert" @click="deletePost">Delete</button>
-            <button @click="cancel">Cancel changes</button>
-        </div>
-    </div>
+    <part-admin-post-modal v-if="isModalOpen" :post="post" :insert="insert" @close="isModalOpen = false"></part-admin-post-modal>
     
 </div>
