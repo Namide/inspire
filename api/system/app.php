@@ -2,6 +2,7 @@
 // https://github.com/klein/klein.php
 $klein = new \Klein\Klein();
 
+/*  TODO
 $routes = [
     'routes' => '/',
     'auth/signin' => 'auth/signin',
@@ -11,6 +12,7 @@ $routes = [
     'routes' => '/',
     'routes' => '/',
 ];
+ */
 
 // Get routes
 $klein->respond('GET', API_URL_REL.'/',
@@ -173,6 +175,32 @@ $klein->with(API_URL_REL.'/users',
             \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
         }
     });
+});
+
+// Get tags
+$klein->respond('GET', API_URL_REL.'/tags/[*:trailing]?',
+    function ($request, $response, $service) {
+    try {
+        $user = \Inspire\Helper\IOHelp::getCurrentUser($request);
+
+        $filters = [
+            'tags' => ['type' => \Inspire\Helper\IOHelp::TYPE_ARRAY, 'required' => false],
+            'types' => ['type' => \Inspire\Helper\IOHelp::TYPE_ARRAY, 'required' => false],
+            'notags' => ['type' => \Inspire\Helper\IOHelp::TYPE_ARRAY, 'required' => false],
+            'notypes' => ['type' => \Inspire\Helper\IOHelp::TYPE_ARRAY, 'required' => false],
+            'limit' => ['type' => \Inspire\Helper\IOHelp::TYPE_INT, 'required' => false],
+            'offset' => ['type' => \Inspire\Helper\IOHelp::TYPE_INT, 'required' => false]
+        ];
+
+        $argObj     = \Inspire\Helper\IOHelp::getInputTrail($request, $filters);
+        $tagManager = new \Inspire\Database\TagManager();
+        $tags       = $tagManager->getTags($argObj);
+
+        \Inspire\Helper\IOHelp::outputSuccess($response, $tags, 'tags', 'get',
+            $user->getData());
+    } catch (Exception $ex) {
+        \Inspire\Helper\IOHelp::outputError($response, $ex->getMessage());
+    }
 });
 
 // Get post

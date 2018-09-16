@@ -15,15 +15,15 @@ class DataManager
     protected $_database;
     protected static $_POST_REQUEST = [
         'select' => 'SELECT uid.id AS `uid`, `title`, `description`,'
-        .' `date`, `thumb`, `content_format`, `content`, `public`, `score`,'
-        .' GROUP_CONCAT(DISTINCT tag.name) AS `tags`,'
-        .' GROUP_CONCAT(DISTINCT type.name) AS `types`',
+                .' `date`, `thumb`, `content_format`, `content`, `public`, `score`,'
+                .' GROUP_CONCAT(DISTINCT tag.name) AS `tags`,'
+                .' GROUP_CONCAT(DISTINCT type.name) AS `types`',
         'from' => ' FROM `post`',
         'join' => ' INNER JOIN `uid` ON post.id = uid.item_id'
-        .' LEFT OUTER JOIN `tag_join` ON tag_join.item_uid = uid.id'
-        .' LEFT OUTER JOIN `tag` ON tag.id = tag_join.tag_id'
-        .' LEFT OUTER JOIN `type_join` ON type_join.item_uid = uid.id'
-        .' LEFT OUTER JOIN `type` ON type.id = type_join.type_id',
+                .' LEFT OUTER JOIN `tag_join` ON tag_join.item_uid = uid.id'
+                .' LEFT OUTER JOIN `tag` ON tag.id = tag_join.tag_id'
+                .' LEFT OUTER JOIN `type_join` ON type_join.item_uid = uid.id'
+                .' LEFT OUTER JOIN `type` ON type.id = type_join.type_id',
         'where' => ' WHERE uid.item_name = "post"',
         'group' => ' GROUP BY post.id',
         'order' => ' ORDER BY `date` DESC, uid.id DESC',

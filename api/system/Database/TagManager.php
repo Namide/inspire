@@ -9,6 +9,70 @@ namespace Inspire\Database;
  */
 class TagManager extends \Inspire\Database\DataManager
 {
+    public function getTags($filter = [])
+    {
+        $rq = self::$_POST_REQUEST;
+
+        $limit  = empty($filter['limit']) ? 100 : (int) $filter['limit'];
+        $offset = empty($filter['offset']) ? 0 : (int) $filter['offset'];
+
+        $binds = [
+            [':limit', $limit, \PDO::PARAM_INT],
+            [':offset', $offset, \PDO::PARAM_INT]
+        ];
+
+        $tags    = empty($filter['tags']) ? [] : (array) $filter['tags'];
+        $notags  = empty($filter['notags']) ? [] : (array) $filter['notags'];
+        $types   = empty($filter['types']) ? [] : (array) $filter['types'];
+        $notypes = empty($filter['notypes']) ? [] : (array) $filter['notypes'];
+
+        $codeId  = 0;
+        $havings = [];
+        foreach ($tags as $tag) {
+            $code      = ':data'.++$codeId;
+            $binds[]   = [$code, $tag, \PDO::PARAM_STR];
+            $havings[] = '(\',\' || LOWER(tags) || \',\') LIKE (\'%,\' || LOWER('.$code.') || \',%\')';
+        }
+        foreach ($types as $type) {
+            $code      = ':data'.++$codeId;
+            $binds[]   = [$code, $type, \PDO::PARAM_STR];
+            $havings[] = '(\',\' || LOWER(types) || \',\') LIKE (\'%,\' || LOWER('.$code.') || \',%\')';
+        }
+        foreach ($notags as $tag) {
+            $code      = ':data'.++$codeId;
+            $binds[]   = [$code, $tag, \PDO::PARAM_STR];
+            $havings[] = '(\',\' || LOWER(tags) || \',\') NOT LIKE ((\'%,\' || LOWER('.$code.') || \',%\'))';
+        }
+        foreach ($notypes as $type) {
+            $code      = ':data'.++$codeId;
+            $binds[]   = [$code, $type, \PDO::PARAM_STR];
+            $havings[] = '(\',\' || LOWER(types) || \',\') NOT LIKE ((\'%,\' || LOWER('.$code.') || \',%\'))';
+        }
+
+        if (count($havings) > 0) {
+            $having = ' HAVING '.implode(' AND ', $havings);
+        } else {
+            $having = '';
+        }
+
+        $select = 'SELECT uid.id AS `uid` '
+                .' GROUP_CONCAT(DISTINCT tag.name) AS `tags`,'
+                .' GROUP_CONCAT(DISTINCT type.name) AS `types`';
+
+        $request = $select.$rq['from'].$rq['join']
+            .$rq['where'].$rq['group'].$having.$rq['order']
+            .' LIMIT :limit OFFSET :offset';
+        $posts   = $this->_database->FETCH_ALL($request, $binds);
+
+        foreach ($posts as &$post) {
+            self::clearOutputPost($post);
+        }
+
+        // return $request;
+
+        return $posts;
+    }
+
     public function getTagID($tagName)
     {
         $name = trim($tagName);

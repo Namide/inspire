@@ -4,7 +4,6 @@ namespace Inspire\Database;
 
 class PostManager extends \Inspire\Database\DataManager
 {
-
     public function removeFile($uid)
     {
         $request = 'SELECT `content`, `content_format` FROM `post`'
