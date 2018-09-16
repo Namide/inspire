@@ -380,7 +380,7 @@ class UserManager extends \Inspire\Database\DataManager
         if (isset($data['returnPass']) && $data['returnPass'] == true) {
             $user->pass = $pass;
         } else {
-            $message = \Inspire\Vue\MailSignUp::getHtml($name, $mail, $pass);
+            $message = \Inspire\View\MailSignUp::getHtml($name, $mail, $pass);
             \Inspire\Helper\MailHelp::sendMail($mail, 'Inspire subscription',
                 $message);
         }

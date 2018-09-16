@@ -10,8 +10,10 @@ class PostManager extends \Inspire\Database\DataManager
         $request = 'SELECT `content`, `content_format` FROM `post`'
             .' INNER JOIN `uid` ON post.id = uid.item_id'
             .' WHERE uid.item_name = "post" AND uid.id = :uid'
-            .' AND `content_format` LIKE `,image,`'
-            .' AND `content_format` LIKE `,file,`';
+            .' AND (\',\' || LOWER(content_format) || \',\') LIKE (\'%,file,%\')'
+            .' AND (\',\' || LOWER(content_format) || \',\') LIKE (\'%,image,%\')';
+            // .' AND `content_format` LIKE `,image,`'
+            // .' AND `content_format` LIKE `,file,`';
         $binds   = [[':uid', $uid, \PDO::PARAM_INT]];
         $post    = $this->_database->FETCH($request, $binds);
 
@@ -21,7 +23,7 @@ class PostManager extends \Inspire\Database\DataManager
 
             if (\Inspire\Helper\FileHelp::DEL_FILE($path)) {
                 $update = 'UPDATE `post`';
-                $set    = ' SET `content` = null';
+                $set    = ' SET `content` = null, `content_format` = null';
                 $where  = ' WHERE `id` = (SELECT `item_id` FROM `uid` WHERE `id` = :uid AND `item_name` = "post")';
                 $this->_database->EXECUTE($update.$set.$where, $binds);
 
@@ -229,8 +231,10 @@ class PostManager extends \Inspire\Database\DataManager
         $select  = 'SELECT `content`';
         $from    = ' FROM `post`';
         $where   = ' WHERE uid.id = :uid AND uid.item_name = "post"'
-                   .' AND `content_format` LIKE `,image,`'
-                   .' AND `content_format` LIKE `,file,`';
+                   .' AND (\',\' || LOWER(content_format) || \',\') LIKE (\'%,file,%\')'
+                   .' AND (\',\' || LOWER(content_format) || \',\') LIKE (\'%,image,%\')';
+                   //.' AND `content_format` LIKE `,image,`'
+                   //.' AND `content_format` LIKE `,file,`';
         $join    = ' INNER JOIN `uid` ON post.id = uid.item_id';
         $request = $select.$from.$join.$where;
         $binds   = [[':uid', $uid, \PDO::PARAM_INT]];
@@ -324,13 +328,12 @@ class PostManager extends \Inspire\Database\DataManager
 
     private static function clearOutputPost(&$post)
     {
-        $outPost['uid'] = (int) $post['uid'];
-
+        self::clearData('uid', 'int', $post);
         self::clearData('title', 'string', $post);
         self::clearData('description', 'string', $post);
         self::clearData('date', 'string', $post);
         self::clearData('thumb', 'json', $post);
-        self::clearData('content_format', 'string', $post);
+        self::clearData('content_format', 'array', $post);
         self::clearData('content', 'json', $post);
         self::clearData('public', 'bool', $post);
         self::clearData('score', 'float', $post);
