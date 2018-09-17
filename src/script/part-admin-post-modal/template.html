@@ -8,7 +8,7 @@
 
         <div v-if="state === 0">
             
-            <part-admin-file-loader v-if="isFile" @file="() => {fileChange(); validContent()}" :src="getFileSrc() || ''" :only-img="false"></part-admin-file-loader>
+            <part-admin-file-loader v-if="isFile" @file="data => {fileChange(data); validContent()}" :src="getFileSrc() || ''" :only-img="false"></part-admin-file-loader>
             <template v-else>
                 <part-input-textarea @submit="validContent" :value="contentRaw" @change="argValue => contentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></part-input-textarea>
                 <part-content :data="content"></part-content>
