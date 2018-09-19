@@ -105,7 +105,6 @@ List of analysed content
 - [ ] Group
 - [ ] Group > Filters
 - [x] Images
-- [ ] Images > Resizer
 - [ ] Files
 - [x] Authentication
 - [x] Authentication > Security > Token
@@ -115,6 +114,7 @@ List of analysed content
 - [ ] Logs
 - [x] Flux (RSS, videos...)
 - [ ] Hooks for custom code
+- [ ] Make images color optionnal
 
 *Front*
 - [x] Post wall
@@ -127,6 +127,7 @@ List of analysed content
 - [ ] SEO compliant
 - [x] Store (vuex)
 - [ ] Flux (RSS, videos...)
+- [ ] URL to image, embed (Youtube, Vimeo...), Flux (RSS, Youtube chanel...)
 
 *Admin*
 - [ ] Authentication
