@@ -27,15 +27,5 @@ export default
 
     methods:
     {
-        deletePost()
-        {
-            this.state = STATE.MODIFY
-            apiSet.deletePost(data =>
-            {
-                if (data.success)
-                    this.$store.commit('deletePost', data.data.uid)
-                this.cancel()
-            }, this.post.uid)
-        }
     }
 }

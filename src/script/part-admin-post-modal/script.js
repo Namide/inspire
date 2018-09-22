@@ -185,37 +185,41 @@ export default
 
         deletePost()
         {
-            apiSet.deletePost(data =>
+            this.$store.dispatch('deletePost', {uid: this.post.uid})
+            /*apiSet.deletePost(data =>
             {
                 if (data.success)
                     this.$store.commit('deletePost', data.data.uid)
                 
                 this.cancel()
-            }, this.post.uid)
+            }, this.post.uid)*/
         },
 
         save()
         {
             const data = this._modified
+            console.log(data, this.insert)
 
             if (this.insert)
             {
-                apiSet.addPost(data =>
+                this.$store.dispatch('addPost', {post: data})
+                /*apiSet.addPost(data =>
                 {
                     if (data.success)
                         this.$store.commit('addPost', data.data)
         
-                }, data)
+                }, data)*/
                 this.cancel()
             }
             else
             {
-                apiSet.updatePost(data =>
+                this.$store.dispatch('updatePost', {uid: this.post.uid, data: data})
+                /*apiSet.updatePost(data =>
                 {
                     if (data.success)
                         this.$store.commit('updatePost', data.data)
                 
-                }, this.post.uid, data)
+                }, this.post.uid, data)*/
                 this.cancel()
             }
         },
