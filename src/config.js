@@ -20,7 +20,6 @@ if (window.inspire && window.inspire.config)
     }
 
     config = Object.assign({routes}, URLs)
-    console.log(config)
 }
 else
 {

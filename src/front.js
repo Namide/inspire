@@ -1,6 +1,6 @@
 import './style/basic.sass'
 import Vue from 'vue'
-import Vuex from 'vueX'
+import Vuex from 'vuex'
 import VueRouter from 'vue-router'
 import App from './script/app-front/'
 import config from './config'
