@@ -1,5 +1,5 @@
-import apiSet from '../utils/apiSet'
-import apiGet from '../utils/apiGet'
+import api from '../utils/api'
+// import api from '../utils/api'
 import PartAdminFileLoader from '../part-admin-file-loader'
 import SetPostContent from '../utils/SetPostContent'
 import PartContent from '../part-content'
@@ -186,7 +186,7 @@ export default
         deletePost()
         {
             this.$store.dispatch('deletePost', {uid: this.post.uid})
-            /*apiSet.deletePost(data =>
+            /*api.deletePost(data =>
             {
                 if (data.success)
                     this.$store.commit('deletePost', data.data.uid)
@@ -203,7 +203,7 @@ export default
             if (this.insert)
             {
                 this.$store.dispatch('addPost', {post: data})
-                /*apiSet.addPost(data =>
+                /*api.addPost(data =>
                 {
                     if (data.success)
                         this.$store.commit('addPost', data.data)
@@ -214,7 +214,7 @@ export default
             else
             {
                 this.$store.dispatch('updatePost', {uid: this.post.uid, data: data})
-                /*apiSet.updatePost(data =>
+                /*api.updatePost(data =>
                 {
                     if (data.success)
                         this.$store.commit('updatePost', data.data)
@@ -243,7 +243,7 @@ export default
 
         getThumbSrc()
         {
-            return this.post && this.thumb ? apiGet.getThumbURL(this.post.uid) : ''
+            return this.post && this.thumb ? api.getThumbURL(this.post.uid) : ''
         },
 
         getFileSrc()
@@ -253,7 +253,7 @@ export default
                    && this.content_format.indexOf('file') > -1
                    && this.content_format.indexOf('image') > -1
                    && this.content
-                   ? apiGet.getFileURL(this.post.uid) : ''
+                   ? api.getFileURL(this.post.uid) : ''
         },
 
         keyUp(keyEvent)
@@ -264,7 +264,7 @@ export default
 
         updateByLink(URL, callback)
         {
-            apiSet.getDistantLink(data =>
+            api.getDistantLink(data =>
             {
                 const distantPage = document.implementation.createHTMLDocument('')
                 distantPage.open()

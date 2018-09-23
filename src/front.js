@@ -1,12 +1,9 @@
 import './style/basic.sass'
 import Vue from 'vue'
-import Vuex from 'vuex'
 import VueRouter from 'vue-router'
 import App from './script/app-front/'
 import config from './config'
-import storeData from './script/utils/storeGet'
-
-Vue.use(Vuex)
+import store from './script/utils/store'
 
 const eventHub = new Vue()
 
@@ -24,6 +21,6 @@ Vue.use(VueRouter)
 
 new Vue({
     el: '#app',
-    store: new Vuex.Store(storeData),
+    store: store,
     render: h => h(App)
 })

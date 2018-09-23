@@ -14,7 +14,7 @@ include_once('api/config.php');
     <meta charset="utf-8">
     <title>Inspire</title>
     <meta name="description" content="Tool to collect and storage or embed datas (URL, images, scripts, files, videos)">
-    <link rel="stylesheet" type="text/css" href="<?= FRONT_URL_ABS ?>/assets/css/style.css">
+    <!-- <link rel="stylesheet" type="text/css" href="<?= FRONT_URL_ABS ?>/assets/css/style.css"> -->
     <script src="<?= API_URL_ABS ?>/config.js"></script>
   </head>
   <body>

@@ -1,15 +1,37 @@
-import apiSet from '../utils/apiSet'
-import store from './storeGet'
+import Vue from 'vue'
+import Vuex from 'vuex'
+import api from './api'
 
-export default {
+Vue.use(Vuex)
 
-    state: store.state,
+export default new Vuex.Store({
 
-    actions: Object.assign({
+    state:
+    {
+        // postFilter: post => true,
+        posts: []
+    },
+
+    actions:
+    {
+        /**
+         * 
+         * @param {Object} context 
+         * @param {Object} { tags, noTags, types, noTypes }
+         */
+        getPosts({commit}, {tags = [], noTags = [], types = [], noTypes = []} = {})
+        {
+            api.getPosts(data =>
+            {
+                console.log('OK', data.success)
+                if (data.success)
+                    commit('updatePosts', data.data)
+            }, { tags, noTags, types, noTypes })
+        },
 
         deletePost({commit}, {uid})
         {
-            apiSet.deletePost(data =>
+            api.deletePost(data =>
             {
                 if (data.success)
                     commit('deletePost', data.data.uid)
@@ -19,7 +41,7 @@ export default {
         addPost({commit}, {post})
         {
             console.log('post', post)
-            apiSet.addPost(data =>
+            api.addPost(data =>
             {
                 if (data.success)
                     commit('addPost', data.data)
@@ -29,16 +51,26 @@ export default {
 
         updatePost({commit}, {uid, data})
         {
-            apiSet.updatePost(data =>
+            api.updatePost(data =>
             {
                 if (data.success)
                     commit('updatePost', data.data)
             
             }, uid, data)
         }
-    }, store.actions),
+    },
 
-    mutations: Object.assign({
+    mutations:
+    {
+        clearPosts(state)
+        {
+            state.posts = []
+        },
+
+        updatePosts(state, posts)
+        {
+            state.posts.splice(0, state.posts.length, ...posts)
+        },
 
         updatePost(state, post)
         {
@@ -61,6 +93,5 @@ export default {
         {
             state.posts.splice(0, 0, post)
         }
-
-    }, store.mutations)
-}
+    }
+})

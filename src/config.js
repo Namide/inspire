@@ -9,13 +9,11 @@ if (window.inspire && window.inspire.config)
             post: URLs.front.rel + '/post/:uid',
             boards: URLs.front.rel + '/board',
             board: URLs.front.rel + '/board/:uid',
-        },
-        admin: {
-            home: URLs.admin.rel + '/',
-            posts: URLs.admin.rel + '/post',
-            post: URLs.admin.rel + '/post/:uid',
-            boards: URLs.admin.rel + '/board',
-            board: URLs.admin.rel + '/board/:uid',
+            adminHome: URLs.front.rel + '/admin/',
+            adminPosts: URLs.front.rel + '/admin/post',
+            adminPost: URLs.front.rel + '/admin/post/:uid',
+            adminBoards: URLs.front.rel + '/admin/board',
+            adminBoard: URLs.front.rel + '/admin/board/:uid',
         }
     }
 

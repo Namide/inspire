@@ -1,4 +1,4 @@
-import apiSet from '../utils/apiSet'
+// import api from '../utils/api'
 import PartAdminFileLoader from '../part-admin-file-loader'
 import PartContent from '../part-content'
 import PartAdminPostModal from '../part-admin-post-modal'

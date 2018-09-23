@@ -1,5 +1,5 @@
 import config from '../../config'
-import apiGet from '../utils/apiGet'
+import api from '../utils/api'
 
 const  getPgcd = (a, b) =>
 { 
@@ -177,11 +177,11 @@ export default
         getSrc()
         {
             if (this.data.thumb)
-                return apiGet.getThumbURL(this.data.uid)
+                return api.getThumbURL(this.data.uid)
             else if (this.data.content_format.indexOf('file') > -1
                      && this.data.content_format.indexOf('image')
                      && this.content)
-                return apiGet.getFileURL(this.data.uid)
+                return api.getFileURL(this.data.uid)
 
             return ''
         }

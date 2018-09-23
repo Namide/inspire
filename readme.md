@@ -2,6 +2,7 @@
 
 > Tool to collect and storage or embed datas (URL, images, scripts, files, videos)
 
+Todo: https://router.vuejs.org/guide/advanced/lazy-loading.html
 
 ## front-end Setup
 

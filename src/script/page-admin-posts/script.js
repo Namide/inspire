@@ -1,4 +1,4 @@
-import apiGet from '../utils/apiGet'
+// import apiGet from '../utils/apiGet'
 import PartAdminPost from '../part-admin-post'
 
 export default
@@ -52,13 +52,15 @@ export default
                     tags.push(item)
             })
 
-            apiGet.getPosts(this.onPosts, { tags, noTags, types, noTypes })
+            this.$store.dispatch('getPosts', { tags, noTags, types, noTypes })
+            // apiGet.getPosts(this.onPosts, { tags, noTags, types, noTypes })
         }
     },
 
     created()
     {
-        apiGet.getPosts(this.onPosts)
+        this.$store.dispatch('getPosts')
+        // apiGet.getPosts(this.onPosts)
     },
 
     methods:
