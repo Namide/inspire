@@ -35,7 +35,7 @@ module.exports = function(env, argv) {
             // Optimize index.html file
             new HtmlWebpackPlugin({
                 template: prod ? 'src/index.php' : 'src/index.html',
-                // inject: false,
+                inject: !prod,
                 filename: prod ? 'index.php' : 'index.html',
                 minify: {
                     removeComments: true,
