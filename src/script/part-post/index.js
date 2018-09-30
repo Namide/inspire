@@ -1,5 +1,150 @@
+import { h, app } from 'hyperapp'
+import './style.sass'
+
+const getPgcd = (a, b) =>
+{ 
+    while (b > 0)
+    {  
+        var r = a % b 
+        a = b 
+        b = r 
+    }
+
+    return a
+}
+
+const getColor = data =>
+{
+    return data.thumb && data.thumb.colors && data.thumb.colors.length > 0 ? data.thumb.colors[0] : 'rgba(0,0,0,0)'
+}
+
+const getImg = data =>
+{
+    return data.thumb ? data.thumb : null
+}
+
+const getThumbSize = data =>
+{
+    const thumb = getImg(data)
+    return thumb ? [thumb.width, thumb.height] : [3, 1]
+}
+
+const getPostSize = (data, w = 1, h = 1) =>
+{
+    const areaMax = 12
+    const areaMin = 4
+    const area = w * h
+    const areaDo = data.score * (areaMax - areaMin) + areaMin
+
+    const sideMax = 6
+    const sideMin = 1
+
+    let mult = 5
+    while (w * (mult + 1) * h * (mult + 1) <= areaDo && Math.max(w * mult + 1, h * mult + 1) < sideMax)
+        mult++
+    while (Math.max(w * mult, h * mult) > sideMax)
+        mult--
+
+    w *= mult
+    h *= mult
+    
+    return [w, h]
+    // this.$set(this.postStyle, 'grid-column-end', 'span ' + w * mult)
+    // this.$set(this.postStyle, 'grid-row-end', 'span ' + h * mult)
+}
+
+const getClassList = (data, displayMode) => 
+{
+    const thumbSize = getThumbSize(data)
+
+    const max = 6
+    let w = 1
+    let h = 1
+    if (thumbSize[0] > thumbSize[1])
+    {
+        w = max
+        h = Math.round(w * thumbSize[1] / thumbSize[0]) || 1
+    }
+    else
+    {
+        h = max
+        w = Math.round(h * thumbSize[0] / thumbSize[1]) || 1
+    }
+
+    const p = getPgcd(w, h)
+    w /= p
+    h /= p
+
+    const size = getPostSize(data, w, h)
+    
+    /*if (getImg(data) && displayMode === 'thumb')
+    {
+        this.$set(this.postStyle, 'background-color', this.getColor())
+    }*/
+
+    /* if (displayMode === 'text'
+        && data.content_format.indexOf('URL') > -1)
+        this.href = this.data.content.URL */
+
+
+    return 'post w' + size[0] + ' h' + size[1]
+}
+
+const getStyle = (data, displayMode) =>
+{
+    return getImg(data) && displayMode === 'thumb' ? { 'backgroundColor': getColor(data) } : {}
+}
+
+const getHref = (data, displayMode) =>
+{
+    return (displayMode === 'text' && data.content_format.indexOf('URL') > -1) ? data.content.URL : ''
+}
+
+export default ({ match, data, displayMode }) => (state, actions) => (
+    <a href={ getHref(data) } target="blank" class={ getClassList(data, displayMode) } style={ getStyle(data, displayMode) } /*:class="classData" :style="postStyle" oncreate={ setSize() }*/>
+
+        <h1 class="title">
+            { data.title }
+        </h1>
+
+        <time class="date">
+            { data.date }
+        </time>
+
+        <p class="description">
+            { data.description }
+        </p>
+
+        <ul class="tags">
+            { data.tags && data.tags.map(tag => (
+                <li class="tag">
+                    { tag }
+                </li>
+            )) }
+        </ul>
+
+        <span class="score">
+            { data.score }/5
+        </span>
+
+
+    </a>
+)
+
+/* 
+    <transition name="thumbfade">
+        <div v-if="isThumbLoaded && thumbStyle" :style="thumbStyle" class="thumb"></div>
+    </transition>
+ */
+
+
+
+
+/*
+
 import config from '../../config'
 import api from '../utils/api'
+
 
 const  getPgcd = (a, b) =>
 { 
@@ -187,3 +332,4 @@ export default
         }
     }
 }
+*/

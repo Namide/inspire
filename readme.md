@@ -151,3 +151,15 @@ List of analysed content
 - [ ] Image
 - [ ] Thumb
 - [ ] File
+
+
+
+Vue         65.2 ko
+VueRouter   24.4 ko
+Vuex        10.1 ko
+            -------
+            99.7 ko
+
+Marked      21.7 ko
+            -------
+           121.4 ko

@@ -1,11 +1,24 @@
+import { h, app } from 'hyperapp'
+import './style.sass'
+import PartPost from '../part-post'
+
+let displayMode = 'thumb'
+
+export default ({ posts }) => (state, actions) => (
+    <div class="posts" class={ ['is-' + displayMode] } oncreate={ () => actions.loadPosts() }>
+        { state.posts.map(post => <PartPost id={ post.uid } data={ post } displayMode={ displayMode }></PartPost> ) }
+    </div>
+)
+
+/*
 // import apiGet from '../utils/apiGet'
-import PartAdminPost from '../part-admin-post'
+import PartPost from '../part-post'
 
 export default
 {
     components:
     {
-        PartAdminPost
+        PartPost
     },
 
     props:
@@ -52,7 +65,7 @@ export default
                     tags.push(item)
             })
 
-            this.$store.dispatch('getPosts', { tags, noTags, types, noTypes })
+            this.$store.dispatch('getPosts', {tags, noTags, types, noTypes})
             // apiGet.getPosts(this.onPosts, { tags, noTags, types, noTypes })
         }
     },
@@ -67,8 +80,8 @@ export default
     {
         onPosts({data, meta})
         {
-            this.displayMode = 'text' // 'thumb' // text
+            this.displayMode = 'thumb'
             this.$store.commit('updatePosts', data)
         }
     }
-}
+}*/

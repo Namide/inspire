@@ -1,5 +1,13 @@
-import PagePosts from '../page-posts'
+import { h, app } from 'hyperapp'
+import './style.sass'
+
+export default ({ match }) => (
+    <div>Home</div>
+)
+
+/* import PagePosts from '../page-posts'
 import PartTags from '../part-tags'
+
 
 export default
 {
@@ -28,4 +36,4 @@ export default
             this.filterTags.splice(0, this.filterTags.length, ...tags)
         }
     }
-}
+}*/

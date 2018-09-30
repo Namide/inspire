@@ -115,8 +115,8 @@ module.exports = function(env, argv) {
                 loader: 'babel-loader',
                 exclude: /node_modules/,
                 options: {
-                    presets: ['@babel/preset-env'],
-                    plugins: ["@babel/plugin-syntax-dynamic-import"]
+                    // presets: ["transform-object-rest-spread"],// ['@babel/preset-env'],
+                    plugins: [["@babel/plugin-transform-react-jsx", { "pragma": "h" }], "transform-object-rest-spread"] // ["@babel/plugin-syntax-dynamic-import"]
                 }
             },
             {

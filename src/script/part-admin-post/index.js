@@ -1,3 +1,12 @@
+import { h, app } from 'hyperapp'
+import './style.sass'
+
+export default ({ match }) => (
+    <div>Admin post</div>
+)
+
+
+/*
 // import api from '../utils/api'
 import PartAdminFileLoader from '../part-admin-file-loader'
 import PartContent from '../part-content'
@@ -29,3 +38,4 @@ export default
     {
     }
 }
+*/

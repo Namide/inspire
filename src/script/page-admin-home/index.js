@@ -1,3 +1,11 @@
+import { h, app } from 'hyperapp'
+import './style.sass'
+
+export default ({ match }) => (
+    <div>Admin</div>
+)
+
+/*
 // import apiGet from '../utils/apiGet'
 import PartPost from '../part-post'
 
@@ -71,4 +79,4 @@ export default
             this.$store.commit('updatePosts', data)
         }
     }
-}
+}*/
