@@ -100,36 +100,66 @@ const getHref = (data, displayMode) =>
     return (displayMode === 'text' && data.content_format.indexOf('URL') > -1) ? data.content.URL : ''
 }
 
-export default ({ match, data, displayMode }) => (state, actions) => (
-    <a href={ getHref(data) } target="blank" class={ getClassList(data, displayMode) } style={ getStyle(data, displayMode) } /*:class="classData" :style="postStyle" oncreate={ setSize() }*/>
+const create = (el, data, observer) =>
+{
+    if (getImg(data))
+    {
+        el._thumbSrc = getImg(data).src
+        observer.observe(el)
+    }
+}
 
-        <h1 class="title">
-            { data.title }
-        </h1>
+const destroy = (el, data, observer) =>
+{
+    if (getImg(data))
+    {
+        observer.unobserve(el)
+    }
+}
 
-        <time class="date">
-            { data.date }
-        </time>
+export default ({ match, data, displayMode, observer }) => (state, actions) =>
+{
+    return (
+        <a href={ getHref(data) }
+            target="blank"
+            class={ getClassList(data, displayMode) }
+            style={ getStyle(data, displayMode) }
+            oncreate={ el => create(el, data, observer) }
+            ondestroy={ el => destroy(el, data, observer) } /*:class="classData" :style="postStyle" oncreate={ setSize() }*/>
 
-        <p class="description">
-            { data.description }
-        </p>
+            {
+                getImg(data) ? <div style={ 'background-image: url(' + data.thumb.src + ')' } class="thumb"></div> : ''
+            }
+            
 
-        <ul class="tags">
-            { data.tags && data.tags.map(tag => (
-                <li class="tag">
-                    { tag }
-                </li>
-            )) }
-        </ul>
+            <h1 class="title">
+                { data.title }
+            </h1>
 
-        <span class="score">
-            { data.score }/5
-        </span>
+            <time class="date">
+                { data.date }
+            </time>
+
+            <p class="description">
+                { data.description }
+            </p>
+
+            <ul class="tags">
+                { data.tags && data.tags.map(tag => (
+                    <li class="tag">
+                        { tag }
+                    </li>
+                )) }
+            </ul>
+
+            <span class="score">
+                { data.score }/5
+            </span>
 
 
-    </a>
-)
+        </a>
+    )
+}
 
 /* 
     <transition name="thumbfade">

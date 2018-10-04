@@ -12,7 +12,10 @@ const actions = {
         {
             if (data.success) {
                 console.log('OK', data.data)
-                actions.setPosts(data.data)
+                const postsData = data.data.map(data => Object.assign({
+                    _isIn: false
+                }, data))
+                actions.setPosts(postsData)
             }
         }, { tags, noTags, types, noTypes })
     },
