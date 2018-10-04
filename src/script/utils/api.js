@@ -1,5 +1,30 @@
 import config from '../../config'
 
+const getThumbURL = uid => config.api.abs + '/thumbs/' + uid
+const getFileURL = uid => config.api.abs + '/files/' + uid
+
+const cleanPosts = data =>
+{
+    data.data = data.data.map(cleanPost)
+    return data
+}
+
+const cleanPost = data =>
+{
+    if (data.thumb && data.uid)
+    {
+        data.thumb.src = getThumbURL(data.uid)
+    }
+
+    if (data.content && data.content.path)
+    {
+        data.content.src = getFileURL(data.uid)
+    }
+
+    console.log("->", data)
+    return data
+}
+
 class Api
 {
     constructor()
@@ -21,16 +46,6 @@ class Api
             init['Content-Type'] = this.token
 
         return new Headers(init)
-    }
-
-    getThumbURL(uid)
-    {
-        return config.api.abs + '/thumbs/' + uid
-    }
-
-    getFileURL(uid)
-    {
-        return config.api.abs + '/files/' + uid
     }
 
     getPosts(onLoad, { tags = [], types = [], noTags = [], noTypes = [], limit = 100, offset = 0 } = {}, onError = msg => console.error(msg))
@@ -56,6 +71,7 @@ class Api
             .then(data => data.json())
             // .then(data => data.success && data.data ? (data.data = data.data.map(filterPost), data) : data)
             .then(Api.testSuccess)
+            .then(cleanPosts)
             .then(json => onLoad(json))
             .catch(error => onError(error.message))
     }
@@ -113,6 +129,7 @@ class Api
             // .then(collection => console.log(collection))
             .then(data => data.json())
             .then(Api.testSuccess)
+            .then(cleanPosts)
             // .then(data => data.success ? (data.data.map(filterPost), data) : data)
             .then(onLoad)
             .catch(err => console.error(err))
@@ -159,6 +176,7 @@ class Api
             .then(data => data.json())
             // .then(data => data.success ? (data.data.map(filterPost), data) : data)
             .then(Api.testSuccess)
+            .then(cleanPosts)
             .then(onLoad)
             .catch(err => console.error(err))
     }
