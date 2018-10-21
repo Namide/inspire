@@ -1,5 +1,5 @@
 // import apiGet from '../utils/apiGet'
-import PartBoard from '../part-board'
+import PartBoard from '../../part/part-board'
 
 export default
 {

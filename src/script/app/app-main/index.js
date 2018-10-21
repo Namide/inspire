@@ -1,12 +1,12 @@
 import './style.sass'
 import { h, app } from 'hyperapp'
 import { Link, Route, location } from '@hyperapp/router'
-import config from '../../config'
+import config from '../../../config'
 
-import PageHome from '../page-home'
-import PagePosts from '../page-posts'
-import PageAdminPosts from '../page-admin-posts'
-import PageAdminHome from '../page-admin-home'
+import PageHome from '../../page/page-home'
+import PagePosts from '../../page/page-posts'
+import PageAdminPosts from '../../page/page-admin-posts'
+import PageAdminHome from '../../page/page-admin-home'
 
 /*
 const Home = () => <h2>Home</h2>

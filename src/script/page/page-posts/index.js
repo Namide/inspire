@@ -1,6 +1,6 @@
 import { h, app } from 'hyperapp'
 import './style.sass'
-import PartPost from '../part-post'
+import PartPost from '../../part/part-post'
 
 let displayMode = 'thumb'
 

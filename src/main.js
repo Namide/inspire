@@ -34,10 +34,10 @@ new Vue({
 
 import state from './script/state'
 import actions from './script/actions'
-import view from './script/app-front/index.js'
+import view from './script/app/app-main/index.js'
 
-import { h, app } from "hyperapp"
-import { Link, Route, location } from "@hyperapp/router"
+import { h, app } from 'hyperapp'
+import { Link, Route, location } from '@hyperapp/router'
  
 const main = app(state, actions, view, document.body)
 
