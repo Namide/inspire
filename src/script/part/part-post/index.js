@@ -156,7 +156,6 @@ export default ({ match, data, displayMode, observer }) => (state, actions) =>
                 { data.score }/5
             </span>
 
-
         </a>
     )
 }

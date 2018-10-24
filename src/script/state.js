@@ -5,6 +5,11 @@ const state = {
     // search: {
 
     // },
+    filter: {
+        tags: [],
+        type: 'post'
+    },
+
     posts: []
 }
 

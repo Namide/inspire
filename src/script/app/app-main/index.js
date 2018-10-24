@@ -47,7 +47,7 @@ export default (state, actions) => (
             <Link to={config.routes.front.adminPosts} class="link">Admin</Link>
         </nav>
 
-        <Route path={config.routes.front.home} render={PageHome} />
+        <Route path={config.routes.front.home} render={PageHome} state={state} />
         <Route path={config.routes.front.posts} render={PagePosts} state={state} />
         <Route path={config.routes.front.adminPosts} render={PageAdminPosts} />
 
