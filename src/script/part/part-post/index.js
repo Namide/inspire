@@ -33,11 +33,11 @@ const getPostSize = (data, w = 1, h = 1) =>
 {
     const areaMax = 12
     const areaMin = 4
-    const area = w * h
+    // const area = w * h
     const areaDo = data.score * (areaMax - areaMin) + areaMin
 
     const sideMax = 6
-    const sideMin = 1
+    // const sideMin = 1
 
     let mult = 5
     while (w * (mult + 1) * h * (mult + 1) <= areaDo && Math.max(w * mult + 1, h * mult + 1) < sideMax)
@@ -100,37 +100,103 @@ const getHref = (data, displayMode) =>
     return (displayMode === 'text' && data.content_format.indexOf('URL') > -1) ? data.content.URL : ''
 }
 
-const create = (el, data, observer) =>
+const observeImg = (el, data, observerSubscribe) =>
+{
+    let isThumbLoaded = false
+    let thumb = null
+
+    const onSee = () =>
+    {
+        if (!isThumbLoaded)
+        {
+            thumb = new Image()
+            thumb.onload = () =>
+            {
+                isThumbLoaded = true
+                el.classList.add('is-loaded')
+            }
+            thumb.src = getImg(data).src
+            if (thumb.complete)
+            {
+                isThumbLoaded = true
+                el.classList.add('is-loaded')
+            }
+        }
+
+        el.classList.add('is-in')
+    }
+
+    const onHide = () =>
+    {
+        if (thumb && !isThumbLoaded)
+        {
+            thumb.src = null
+            thumb = null
+        }
+
+        el.classList.remove('is-in')
+    }
+
+    observerSubscribe(el, onSee, onHide)
+}
+
+const create = (el, data, observerSubscribe) =>
 {
     if (getImg(data))
     {
-        el._thumbSrc = getImg(data).src
-        observer.observe(el)
+        observeImg(el, data, observerSubscribe)
     }
 }
 
-const destroy = (el, data, observer) =>
+const destroy = (el, data, observerUnsubscribe) =>
 {
     if (getImg(data))
     {
-        observer.unobserve(el)
+        observerUnsubscribe(el)
     }
 }
 
-export default ({ match, data, displayMode, observer }) => (state, actions) =>
+const isEmbed = data =>
 {
+    return 'content' in data && 'type' in data.content && data.content.type === 'embed'
+}
+
+const strToEl = str =>
+{
+    const template = document.createElement('template')
+    template.innerHTML = str.trim()
+console.log(template.content.firstChild)
+    // return template.content.firstChild
+
+
+
+    return <div></div>
+}
+
+const getContentEl = data =>
+{
+    if (getImg(data))
+        return <div style={ 'background-image: url(' + data.thumb.src + ')' } class="thumb"></div>
+    else if (isEmbed(data))
+        return <div> { strToEl(data.content.raw) } </div>
+}
+
+export default ({ onOpen = null, data, displayMode, observerSubscribe, observerUnsubscribe }) => (state, actions) =>
+{
+    const valueObject = { }
+
     return (
-        <a href={ getHref(data) }
+        <button // href={ getHref(data) }
+            onclick={ () => onOpen(data) }
             target="blank"
             class={ getClassList(data, displayMode) }
             style={ getStyle(data, displayMode) }
-            oncreate={ el => create(el, data, observer) }
-            ondestroy={ el => destroy(el, data, observer) } /*:class="classData" :style="postStyle" oncreate={ setSize() }*/>
+            oncreate={ el => create(el, data, observerSubscribe) }
+            ondestroy={ el => destroy(el, data, observerUnsubscribe) } /*:class="classData" :style="postStyle" oncreate={ setSize() }*/>
 
             {
-                getImg(data) ? <div style={ 'background-image: url(' + data.thumb.src + ')' } class="thumb"></div> : ''
+                getContentEl(data)
             }
-            
 
             <h1 class="title">
                 { data.title }
@@ -156,7 +222,7 @@ export default ({ match, data, displayMode, observer }) => (state, actions) =>
                 { data.score }/5
             </span>
 
-        </a>
+        </button>
     )
 }
 

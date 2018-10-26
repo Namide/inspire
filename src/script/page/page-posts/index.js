@@ -1,67 +1,16 @@
 import { h, app } from 'hyperapp'
+import PartTags from '../../part/part-tags'
+import PartPosts from '../../part/part-posts'
 import './style.sass'
-import PartPost from '../../part/part-post'
 
-let displayMode = 'thumb'
-
-const IOOptions = {
-    root: null,
-    rootMargin: '0px',
-    threshold: [0, 1]
-}
-
-const removeObserver = observer => observer.disconnect()
-
-export default ({ posts }) => (state, actions) => 
-{
-    const observer = new IntersectionObserver(onInOuts, IOOptions)
-
-    return (
-        <div class={ 'posts ' + 'is-' + displayMode } oncreate={ () => actions.loadPosts() } ondestroy={ () => observer.disconnect() } >
-            { state.posts.map(post => <PartPost id={ post.uid } data={ post } displayMode={ displayMode } observer={ observer }></PartPost> ) }
-        </div>
-    )
-}
-
-const onInOuts = (list) =>
-{
-    list.forEach(onInOut)
-}
-
-const onInOut = data =>
-{
-    const el = data.target
-    if (data.intersectionRatio > 0)
-    {
-        if (!el._isThumbLoaded)
-        {
-            el._thumb = new Image()
-            el._thumb.onload = () =>
-            {
-                el._isThumbLoaded = true
-                el.classList.add('is-loaded')
-            }
-            el._thumb.src = el._thumbSrc
-            if (el._thumb.complete)
-            {
-                el._isThumbLoaded = true
-                el.classList.add('is-loaded')
-            }
-        }
-
-        el.classList.add('is-in')
-    }
-    else
-    {
-        if (el._thumb && !el._isThumbLoaded)
-        {
-            el._thumb.src = null
-            el._thumb = null
-        }
-
-        el.classList.remove('is-in')
-    }
-}
+export default () => () => 
+(
+    <div>
+        <h2>Posts</h2>
+        <PartTags/>
+        <PartPosts/>
+    </div>
+)
 
 
 /*
