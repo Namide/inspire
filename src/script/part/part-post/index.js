@@ -23,10 +23,22 @@ const getImg = data =>
     return data.thumb ? data.thumb : null
 }
 
-const getThumbSize = data =>
+const getOriginalSize = data =>
 {
     const thumb = getImg(data)
-    return thumb ? [thumb.width, thumb.height] : [3, 1]
+    if (thumb)
+    {
+        return [thumb.width, thumb.height]
+    }
+    else if (isEmbed(data))
+    {
+        return [
+            data.content.width || 640,
+            data.content.height || 360
+        ]
+    }
+
+    return [3, 1]
 }
 
 const getPostSize = (data, w = 1, h = 1) =>
@@ -55,7 +67,7 @@ const getPostSize = (data, w = 1, h = 1) =>
 
 const getClassList = (data, displayMode) => 
 {
-    const thumbSize = getThumbSize(data)
+    const thumbSize = getOriginalSize(data)
 
     const max = 6
     let w = 1
@@ -143,17 +155,18 @@ const observeImg = (el, data, observerSubscribe) =>
 const create = (el, data, observerSubscribe) =>
 {
     if (getImg(data))
-    {
         observeImg(el, data, observerSubscribe)
+    else
+    {
+        const onSee = () => el.classList.add('is-in')
+        const onHide = () => el.classList.remove('is-in')    
+        observerSubscribe(el, onSee, onHide)
     }
 }
 
 const destroy = (el, data, observerUnsubscribe) =>
 {
-    if (getImg(data))
-    {
-        observerUnsubscribe(el)
-    }
+    observerUnsubscribe(el)
 }
 
 const isEmbed = data =>
@@ -161,24 +174,19 @@ const isEmbed = data =>
     return 'content' in data && 'type' in data.content && data.content.type === 'embed'
 }
 
-const strToEl = str =>
-{
-    const template = document.createElement('template')
-    template.innerHTML = str.trim()
-console.log(template.content.firstChild)
-    // return template.content.firstChild
-
-
-
-    return <div></div>
-}
-
 const getContentEl = data =>
 {
     if (getImg(data))
         return <div style={ 'background-image: url(' + data.thumb.src + ')' } class="thumb"></div>
     else if (isEmbed(data))
-        return <div> { strToEl(data.content.raw) } </div>
+    {
+        const size = getOriginalSize(data)
+        return <div innerHTML={ data.content.raw.trim() } class="embed"></div>
+        // <div class="embed">
+        //     <div class="dummy" style={ 'padding-top:' + (100 * size[1] / size[0]).toFixed(3) + '%' }></div>
+        //     <div innerHTML={ data.content.raw.trim() } class="iframe-container"></div>
+        // </div>
+    }
 }
 
 export default ({ onOpen = null, data, displayMode, observerSubscribe, observerUnsubscribe }) => (state, actions) =>
