@@ -1,0 +1,121 @@
+// .post-list
+//     position: relative
+//     width: 25%
+
+// .has-thumb
+//     .title
+//         display: none
+
+// .time
+//     display: none
+
+// .description
+//     display: none
+
+// .score
+//     display: none
+
+// .tags
+//     display: none
+
+// .thumb
+//     /deep/ img
+//         width: 100%
+//         height: auto
+//         display: block
+
+// .has-thumb
+//     .content
+//         display: none
+
+$marg: 4px
+
+// .post-list_date, .post-list_title, .post-list_description, .post-list_tags, .post-list_score
+//     display: none
+
+.post-list
+    display: flex
+    justify-content: space-between
+    margin-bottom: 4px
+    font-weight: normal
+    text-decoration: none
+    color: #363
+    border: none
+
+    &:hover
+        cursor: pointer
+
+.post-list_url
+    color: #FFF
+    font-size: 1.5em
+
+.post-list_embed
+    position: absolute
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    display: none
+    
+    .is-in &
+        display: block
+
+    iframe
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        height: 100%
+
+.post-list_thumb
+    position: absolute
+    background-size: cover
+    background-position: center center
+    background-color: whitesmoke
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    transition: opacity 1s, transform 1s cubic-bezier(.18,0,.12,.99)
+    opacity: 0
+    .is-in.is-loaded &
+        opacity: 1
+
+.post-list:hover
+    .post-list_thumb
+        transform: scale(1.05) translateZ(0)
+        cursor: pointer
+
+.post-list_title
+    text-decoration: underline
+
+.post-list_date, .post-list_thumb
+    display: none
+
+.post-list_title, 
+    margin: $marg 16px
+    font-size: 1em
+    white-space: nowrap
+    padding: 0
+
+.post-list_description
+    margin: $marg
+    font-size: 1em
+    overflow: hidden
+    white-space: nowrap
+    margin-right: auto
+    text-overflow: ellipsis
+
+.post-list_tags
+    list-style: none
+    display: flex
+    padding: 0
+    margin: 0
+    .post-list_tag
+        margin-left: 8px
+        background-color: #FFF
+        padding: $marg
+        white-space: nowrap
+
+.post-list_score
+    margin: $marg 16px

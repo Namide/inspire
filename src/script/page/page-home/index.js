@@ -1,6 +1,6 @@
 import { h, app } from 'hyperapp'
 import PartTags from '../../part/part-tags'
-import PartPosts from '../../part/part-posts'
+import PartPostsGrid from '../../part/part-posts-grid'
 import './style.sass'
 
 export default () => () =>
@@ -8,7 +8,7 @@ export default () => () =>
     <div>
         <h2>Home page</h2>
         <PartTags/>
-        <PartPosts/>
+        <PartPostsGrid onPostClick={ console.log }/>
     </div>
 )
 

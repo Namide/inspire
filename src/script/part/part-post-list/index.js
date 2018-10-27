@@ -1,18 +1,6 @@
 import { h, app } from 'hyperapp'
 import './style.sass'
 
-const getPgcd = (a, b) =>
-{ 
-    while (b > 0)
-    {  
-        var r = a % b 
-        a = b 
-        b = r 
-    }
-
-    return a
-}
-
 const getColor = data =>
 {
     return data.thumb && data.thumb.colors && data.thumb.colors.length > 0 ? data.thumb.colors[0] : 'rgba(0,0,0,0)'
@@ -23,215 +11,92 @@ const getImg = data =>
     return data.thumb ? data.thumb : null
 }
 
-const getOriginalSize = data =>
-{
-    const thumb = getImg(data)
-    if (thumb)
-    {
-        return [thumb.width, thumb.height]
-    }
-    else if (isEmbed(data))
-    {
-        return [
-            data.content.width || 640,
-            data.content.height || 360
-        ]
-    }
-
-    return [3, 1]
-}
-
-const getPostSize = (data, w = 1, h = 1) =>
-{
-    const areaMax = 12
-    const areaMin = 4
-    // const area = w * h
-    const areaDo = data.score * (areaMax - areaMin) + areaMin
-
-    const sideMax = 6
-    // const sideMin = 1
-
-    let mult = 5
-    while (w * (mult + 1) * h * (mult + 1) <= areaDo && Math.max(w * mult + 1, h * mult + 1) < sideMax)
-        mult++
-    while (Math.max(w * mult, h * mult) > sideMax)
-        mult--
-
-    w *= mult
-    h *= mult
-    
-    return [w, h]
-    // this.$set(this.postStyle, 'grid-column-end', 'span ' + w * mult)
-    // this.$set(this.postStyle, 'grid-row-end', 'span ' + h * mult)
-}
-
-const getClassList = (data, displayMode) => 
-{
-    const thumbSize = getOriginalSize(data)
-
-    const max = 6
-    let w = 1
-    let h = 1
-    if (thumbSize[0] > thumbSize[1])
-    {
-        w = max
-        h = Math.round(w * thumbSize[1] / thumbSize[0]) || 1
-    }
-    else
-    {
-        h = max
-        w = Math.round(h * thumbSize[0] / thumbSize[1]) || 1
-    }
-
-    const p = getPgcd(w, h)
-    w /= p
-    h /= p
-
-    const size = getPostSize(data, w, h)
-    
-    /*if (getImg(data) && displayMode === 'thumb')
-    {
-        this.$set(this.postStyle, 'background-color', this.getColor())
-    }*/
-
-    /* if (displayMode === 'text'
-        && data.content_format.indexOf('URL') > -1)
-        this.href = this.data.content.URL */
-
-
-    return 'post w' + size[0] + ' h' + size[1]
-}
-
-const getStyle = (data, displayMode) =>
-{
-    return getImg(data) && displayMode === 'thumb' ? { 'backgroundColor': getColor(data) } : {}
-}
-
-const getHref = (data, displayMode) =>
-{
-    return (displayMode === 'text' && data.content_format.indexOf('URL') > -1) ? data.content.URL : ''
-}
-
-const observeImg = (el, data, observerSubscribe) =>
-{
-    let isThumbLoaded = false
-    let thumb = null
-
-    const onSee = () =>
-    {
-        if (!isThumbLoaded)
-        {
-            thumb = new Image()
-            thumb.onload = () =>
-            {
-                isThumbLoaded = true
-                el.classList.add('is-loaded')
-            }
-            thumb.src = getImg(data).src
-            if (thumb.complete)
-            {
-                isThumbLoaded = true
-                el.classList.add('is-loaded')
-            }
-        }
-
-        el.classList.add('is-in')
-    }
-
-    const onHide = () =>
-    {
-        if (thumb && !isThumbLoaded)
-        {
-            thumb.src = null
-            thumb = null
-        }
-
-        el.classList.remove('is-in')
-    }
-
-    observerSubscribe(el, onSee, onHide)
-}
-
-const create = (el, data, observerSubscribe) =>
-{
-    if (getImg(data))
-        observeImg(el, data, observerSubscribe)
-    else
-    {
-        const onSee = () => el.classList.add('is-in')
-        const onHide = () => el.classList.remove('is-in')    
-        observerSubscribe(el, onSee, onHide)
-    }
-}
-
-const destroy = (el, data, observerUnsubscribe) =>
-{
-    observerUnsubscribe(el)
-}
-
 const isEmbed = data =>
 {
-    return 'content' in data && 'type' in data.content && data.content.type === 'embed'
+    return data.content && data.content.type && data.content.type === 'embed'
+}
+
+const isURL = data =>
+{
+    return data.content && data.content.type && data.content.type === 'url'
+}
+
+const isText = data =>
+{
+    return data.content && data.content.type && data.content.type === 'text'
 }
 
 const getContentEl = data =>
 {
     if (getImg(data))
-        return <div style={ 'background-image: url(' + data.thumb.src + ')' } class="thumb"></div>
+    {
+        return <div style={ 'background-image: url(' + data.thumb.src + ')' } class="post-list_thumb"></div>
+    }
     else if (isEmbed(data))
     {
-        const size = getOriginalSize(data)
-        return <div innerHTML={ data.content.raw.trim() } class="embed"></div>
-        // <div class="embed">
-        //     <div class="dummy" style={ 'padding-top:' + (100 * size[1] / size[0]).toFixed(3) + '%' }></div>
-        //     <div innerHTML={ data.content.raw.trim() } class="iframe-container"></div>
-        // </div>
+        return <div innerHTML={ data.content.raw.trim() } class="post-list_embed"></div>
+    }
+    else if (isURL(data))
+    {
+        return <a href={ data.content.url } target="_blank" rel="nofollow noopener noreferrer" class="post-list_url">{ data.content.url.replace(/(^\w+:|^)\/\//, '') }</a>
     }
 }
 
-export default ({ onOpen = null, data, displayMode, observerSubscribe, observerUnsubscribe }) => (state, actions) =>
+export default ({ onOpen = null, data }) => (state, actions) =>
 {
-    const valueObject = { }
-
     return (
         <button // href={ getHref(data) }
             onclick={ () => onOpen(data) }
             target="blank"
-            class={ getClassList(data, displayMode) }
-            style={ getStyle(data, displayMode) }
-            oncreate={ el => create(el, data, observerSubscribe) }
-            ondestroy={ el => destroy(el, data, observerUnsubscribe) } /*:class="classData" :style="postStyle" oncreate={ setSize() }*/>
+            class="post-list">
 
             {
-                getContentEl(data)
+                // getContentEl(data)
             }
 
-            <h1 class="title">
+            <h1 class="post-list_title">
                 { data.title }
             </h1>
 
-            <time class="date">
+            <time class="post-list_date">
                 { data.date }
             </time>
 
-            <p class="description">
+            <p class="post-list_description">
                 { data.description }
             </p>
 
-            <ul class="tags">
+            <ul class="post-list_tags">
                 { data.tags && data.tags.map(tag => (
-                    <li class="tag">
+                    <li class="post-list_tag">
                         { tag }
                     </li>
                 )) }
             </ul>
 
-            <span class="score">
+            <span class="post-list_score">
                 { data.score }/5
             </span>
 
         </button>
     )
+
+
+    // <p class="post-list_description">
+    //     { data.description }
+    // </p>
+
+    // <ul class="post-list_tags">
+    //     { data.tags && data.tags.map(tag => (
+    //         <li class="post-list_tag">
+    //             { tag }
+    //         </li>
+    //     )) }
+    // </ul>
+
+    // <span class="post-list_score">
+    //     { data.score }/5
+    // </span>
 }
 
 /* 

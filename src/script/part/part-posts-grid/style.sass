@@ -1,23 +1,21 @@
 // http://www.competa.com/blog/css-grid-layout-metro-design-blocks/
 
 
-.posts
+.posts-grid
+    --gutter: 8px
+    --columns: 12
+    --width: 100vw
 
-    &.is-thumb
-        --gutter: 8px
-        --columns: 12
-        --width: 100vw
+    display: grid
+    grid-template-columns: repeat(var(--columns), 1fr)
+    grid-gap: var(--gutter)
+    padding: var(--gutter)
+    // grid-auto-rows: minmax(100px, auto)
+    align-content: start
+    grid-auto-rows: calc( ( var(--width) - (var(--gutter) * (var(--columns) - 1))) / var(--columns))
+    grid-auto-flow: dense // dense
 
-        display: grid
-        grid-template-columns: repeat(var(--columns), 1fr)
-        grid-gap: var(--gutter)
-        padding: var(--gutter)
-        // grid-auto-rows: minmax(100px, auto)
-        align-content: start
-        grid-auto-rows: calc( ( var(--width) - (var(--gutter) * (var(--columns) - 1))) / var(--columns))
-        grid-auto-flow: dense // dense
-
-        background-color: #777
+    background-color: #777
 
     // @media screen and (max-width: 2048px)
     //     &.is-thumb

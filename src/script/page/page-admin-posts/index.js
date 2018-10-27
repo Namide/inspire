@@ -1,7 +1,6 @@
 import { h, app } from 'hyperapp'
 import './style.sass'
 import PartTags from '../../part/part-tags'
-import PartPosts from '../../part/part-posts'
 
 export default ({ posts }) => (state, actions) => {
 
@@ -12,9 +11,10 @@ export default ({ posts }) => (state, actions) => {
             <div>Admin post</div>
             <PartTags/>
             <button>+ Add new post</button>
-            <PartPosts isAdmin={ true } onPostClick={ onPostClick } />
-        </div>
-
+            </div>
+            
+        // <PartPosts isAdmin={ true } onPostClick={ onPostClick } />
+        
         // <part-admin-post insert={ true }></part-admin-post>
         // { state.posts.map(post => <PartPost id={ post.uid } data={ post } displayMode={ displayMode } observer={ observer }></PartPost> ) }
         // <part-admin-post v-for="post of posts" :key="post.uid" :post="post"></part-admin-post>

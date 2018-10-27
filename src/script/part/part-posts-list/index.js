@@ -1,60 +1,17 @@
 import { h, app } from 'hyperapp'
 import './style.sass'
-import PartPost from '../../part/part-post'
+import PartPostList from '../../part/part-post-list'
 
-let displayMode = 'thumb'
-
-const IOOptions = {
-    root: null,
-    rootMargin: '0px',
-    threshold: [0, 1]
-}
-
-const removeObserver = observer => observer.disconnect()
-
-export default ({ isAdmin = false, onPostClick = null }) => (state, actions) => 
+export default ({ onPostClick = null }) => (state, actions) => 
 {
-    const observedDataList = []
-
-    const observerSubscribe = (el, onIn, onOut) =>
-    {
-        observedDataList.push({ el, onIn, onOut })
-        observer.observe(el)
-    }
-    
-    const observerUnsubscribe = el =>
-    {
-        observer.unobserve(el)
-
-        const index = observedDataList.findIndex(data => data.el === el)
-        if (index > -1)
-            observedDataList.splice(index, 1)
-    }
-
-    const onInOut = data =>
-    {
-        const el = data.target
-        const observedData = observedDataList.find(od => od.el === el)
-        if (data.intersectionRatio > 0)
-            observedData.onIn()
-        else
-            observedData.onOut()
-    }
-    const onInOuts = list => list.forEach(onInOut)
-
-    const observer = new IntersectionObserver(onInOuts, IOOptions)
-
     return (
-        <div class={ 'posts ' + 'is-' + displayMode } oncreate={ () => actions.loadPosts() } ondestroy={ () => observer.disconnect() } >
+        <div class="posts-list" oncreate={ () => actions.loadPosts() } >
             { 
                 state.posts.map(post => (
-                    <PartPost id={ post.uid }
+                    <PartPostList id={ post.uid }
                         onOpen={ onPostClick }
-                        data={ post }
-                        displayMode={ displayMode }
-                        observerSubscribe={ observerSubscribe }
-                        observerUnsubscribe={ observerUnsubscribe }>
-                    </PartPost>
+                        data={ post }>
+                    </PartPostList>
                 ))
             }
         </div>

@@ -1,0 +1,199 @@
+// .post
+//     position: relative
+//     width: 25%
+
+// .has-thumb
+//     .title
+//         display: none
+
+// .time
+//     display: none
+
+// .description
+//     display: none
+
+// .score
+//     display: none
+
+// .tags
+//     display: none
+
+// .thumb
+//     /deep/ img
+//         width: 100%
+//         height: auto
+//         display: block
+
+// .has-thumb
+//     .content
+//         display: none
+
+$marg: 4px
+
+.post-grid
+    grid-row-end: span 2
+    grid-column-end: span 2
+    position: relative
+    overflow: hidden
+    border: none
+    padding: 0
+    margin: 0
+    background: #000
+
+    &.w1
+        grid-column-end: span 1
+    &.w2
+        grid-column-end: span 2
+    &.w3
+        grid-column-end: span 3
+    &.w4
+        grid-column-end: span 4
+    &.w5
+        grid-column-end: span 5
+    &.w6
+        grid-column-end: span 6
+    &.h1
+        grid-row-end: span 1
+    &.h2
+        grid-row-end: span 2
+    &.h3
+        grid-row-end: span 3
+    &.h4
+        grid-row-end: span 4
+    &.h5
+        grid-row-end: span 5
+    &.h6
+        grid-row-end: span 6
+
+    @media screen and (max-width: 1280px)
+        &.w1, &.w2
+            grid-column-end: span 2
+        &.w3, &.w4
+            grid-column-end: span 4
+        &.w5, &.w6
+            grid-column-end: span 6
+        &.h1, &.h2
+            grid-row-end: span 2
+        &.h3, &.h4
+            grid-row-end: span 4
+        &.h5, &.h6
+            grid-row-end: span 6
+
+    @media screen and (max-width: 960px)
+        &.w1, &.w2, &.w3
+            grid-column-end: span 3
+        &.w4, &.w5, &.w6
+            grid-column-end: span 6
+        &.h1, &.h2, &.h3
+            grid-row-end: span 3
+        &.h4, &.h5, &.h6
+            grid-row-end: span 6
+
+    @media screen and (max-width: 512px)
+        &.w1, &.w2, &.w3, &.w4, &.w5, &.w6
+            grid-column-end: span 12
+
+        &.w1.h1, &.w2.h2, &.w3.h3, &.w4.h4, &.w5.h5, &.w6.h6
+            grid-row-end: span 12
+        &.w1.h2, &.w2.h4, &.w3.h6
+            grid-row-end: span 24
+        &.w1.h3, &.w2.h6
+            grid-row-end: span 36
+        &.w1.h5
+            grid-row-end: span 60
+
+        
+        &.w2.h1, &.w4.h2, &.w6.h3
+            grid-row-end: span 6
+        &.w3.h1, &.w6.h2
+            grid-row-end: span 4
+        &.w5.h1
+            grid-row-end: span 2
+
+.post-grid_date, .post-grid_title, .post-grid_description, .post-grid_tags, .post-grid_score
+    display: none
+
+.post-grid_url
+    color: #FFF
+    font-size: 1.5em
+
+.post-grid_embed
+    position: absolute
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    display: none
+    
+    .is-in &
+        display: block
+
+    iframe
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        height: 100%
+
+.post-grid_thumb
+    position: absolute
+    background-size: cover
+    background-position: center center
+    background-color: whitesmoke
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    transition: opacity 1s, transform 1s cubic-bezier(.18,0,.12,.99)
+    opacity: 0
+    .is-in.is-loaded &
+        opacity: 1
+
+.post-grid:hover
+    .post-grid_thumb
+        transform: scale(1.05) translateZ(0)
+        cursor: pointer
+
+.is-text
+    .post-grid
+        display: flex
+        justify-content: space-between
+        margin-bottom: 4px
+        font-weight: normal
+        text-decoration: none
+        color: #363
+
+        &:hover
+            cursor: pointer
+            .post-grid_title
+                text-decoration: underline
+
+    .post-grid_date, .post-grid_thumb
+        display: none
+    
+    .post-grid_title, 
+        margin: $marg 16px
+        font-size: 1em
+        white-space: nowrap
+        padding: 0
+
+    .post-grid_description
+        margin: $marg
+        font-size: 1em
+        overflow: hidden
+        white-space: nowrap
+        margin-right: auto
+
+    .post-grid_tags
+        list-style: none
+        display: flex
+        padding: 0
+        margin: 0
+        .post-grid_tag
+            margin-left: 8px
+            background-color: #FFF
+            padding: $marg
+            white-space: nowrap
+
+    .post-grid_score
+        margin: $marg 16px

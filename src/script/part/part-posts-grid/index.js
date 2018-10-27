@@ -1,16 +1,60 @@
 import { h, app } from 'hyperapp'
-import PartTags from '../../part/part-tags'
-import PartPostsList from '../../part/part-posts-list'
 import './style.sass'
+import PartPostGrid from '../../part/part-post-grid'
 
-export default () => () => 
-(
-    <div>
-        <h2>Posts</h2>
-        <PartTags/>
-        <PartPostsList/>
-    </div>
-)
+const IOOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: [0, 1]
+}
+
+export default ({ isAdmin = false, onPostClick = null }) => (state, actions) => 
+{
+    const observedDataList = []
+
+    const observerSubscribe = (el, onIn, onOut) =>
+    {
+        observedDataList.push({ el, onIn, onOut })
+        observer.observe(el)
+    }
+    
+    const observerUnsubscribe = el =>
+    {
+        observer.unobserve(el)
+
+        const index = observedDataList.findIndex(data => data.el === el)
+        if (index > -1)
+            observedDataList.splice(index, 1)
+    }
+
+    const onInOut = data =>
+    {
+        const el = data.target
+        const observedData = observedDataList.find(od => od.el === el)
+        if (data.intersectionRatio > 0)
+            observedData.onIn()
+        else
+            observedData.onOut()
+    }
+    const onInOuts = list => list.forEach(onInOut)
+
+    const observer = new IntersectionObserver(onInOuts, IOOptions)
+
+    return (
+        <div class="posts-grid" oncreate={ () => actions.loadPosts() } ondestroy={ () => observer.disconnect() } >
+            { 
+                state.posts.map(post => (
+                    <PartPostGrid id={ post.uid }
+                        onOpen={ onPostClick }
+                        data={ post }
+                        observerSubscribe={ observerSubscribe }
+                        observerUnsubscribe={ observerUnsubscribe }>
+                    </PartPostGrid>
+                ))
+            }
+        </div>
+    )
+}
 
 
 /*
