@@ -1,38 +1,33 @@
 import { h, app } from 'hyperapp'
 import './style.sass'
-import PartTags from '../../part/part-tags'
-import PartPostsFull from '../../part/part-posts-full'
+import PartPostFull from '../../part/part-post-full'
 
-export default ({ posts }) => (state, actions) => {
-
-    const onPostClick = (post) => console.log(post)
-
+export default ({ onPostClick = null }) => (state, actions) => 
+{
     return (
-        <div>
-            <h2>Admin post</h2>
-            <PartTags/>
-            <button>+ Add new post</button>
-            <PartPostsFull onPostClick={ console.log }/>
+        <div class="posts-full" oncreate={ () => actions.loadPosts() } >
+            { 
+                state.posts.map(post => (
+                    <PartPostFull id={ post.uid }
+                        onOpen={ onPostClick }
+                        data={ post }>
+                    </PartPostFull>
+                ))
+            }
         </div>
-            
-        // <PartPosts isAdmin={ true } onPostClick={ onPostClick } />
-        
-        // <part-admin-post insert={ true }></part-admin-post>
-        // { state.posts.map(post => <PartPost id={ post.uid } data={ post } displayMode={ displayMode } observer={ observer }></PartPost> ) }
-        // <part-admin-post v-for="post of posts" :key="post.uid" :post="post"></part-admin-post>
     )
 }
 
-/*
 
+/*
 // import apiGet from '../utils/apiGet'
-import PartAdminPost from '../part-admin-post'
+import PartPost from '../part-post'
 
 export default
 {
     components:
     {
-        PartAdminPost
+        PartPost
     },
 
     props:
@@ -79,7 +74,7 @@ export default
                     tags.push(item)
             })
 
-            this.$store.dispatch('getPosts', { tags, noTags, types, noTypes })
+            this.$store.dispatch('getPosts', {tags, noTags, types, noTypes})
             // apiGet.getPosts(this.onPosts, { tags, noTags, types, noTypes })
         }
     },
@@ -94,7 +89,7 @@ export default
     {
         onPosts({data, meta})
         {
-            this.displayMode = 'text' // 'thumb' // text
+            this.displayMode = 'thumb'
             this.$store.commit('updatePosts', data)
         }
     }

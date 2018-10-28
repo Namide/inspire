@@ -45,40 +45,55 @@ const getContentEl = data =>
 export default ({ onOpen = null, data }) => (state, actions) =>
 {
     return (
-        <div class="post-list">
+        <div onclick={ () => onOpen(data) } class="post-full_line">
 
-            {
-                // getContentEl(data)
-            }
 
-            <a class="post-list_title" onclick={ () => onOpen(data) } target="blank">
-                <h1>
+            <div class="post-full_top">
+                <strong class="post-full_title">
                     { data.title }
-                </h1>
-            </a>
-
-            <time class="post-list_date">
-                { data.date }
-            </time>
-
-            <p class="post-list_description">
-                { data.description }
-            </p>
-
-            <ul class="post-list_tags">
-                { data.tags && data.tags.map(tag => (
-                    <li class="post-list_tag">
-                        { tag }
-                    </li>
-                )) }
-            </ul>
-
-            <span class="post-list_score">
-                { data.score }/5
-            </span>
+                </strong>
+                { (data.types || []).map(type => <small>{ type }</small>) }
+            </div>
+            <div class="post-full_bottom">
+                { (data.tags || []).map(tag => <small class="post-full_tag">{ tag }</small>) }
+                { data.date ? <span class="post-full_date">{ new Date(data.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }</span> : '' }
+            </div>
 
         </div>
     )
+
+    // {
+    //     // getContentEl(data)
+    // }
+
+    // <a class="post-list_title"  target="blank">
+    //     <h1>
+    //         { data.title }
+    //     </h1>
+    // </a>
+
+    // <time class="post-list_date">
+    //     { data.date }
+    // </time>
+
+    // <p class="post-list_description">
+    //     { data.description }
+    // </p>
+
+    // <ul class="post-list_tags">
+    //     { data.tags && data.tags.map(tag => (
+    //         <li class="post-list_tag">
+    //             { tag }
+    //         </li>
+    //     )) }
+    // </ul>
+
+    // <span class="post-list_score">
+    //     { data.score }/5
+    // </span>
+
+
+
 
 
     // <p class="post-list_description">
