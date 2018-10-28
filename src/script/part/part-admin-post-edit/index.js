@@ -1,3 +1,70 @@
+import { h, app } from 'hyperapp'
+import './style.sass'
+
+export default ({ onClose }, children) => (state, actions) =>
+{
+    
+
+    return (
+        <div class="admin-post-edit">
+            <label>
+                <input type="checkbox" v-model="isFile" /> File
+            </label>
+
+            <div v-if="state === 0">
+                
+                <part-admin-file-loader v-if="isFile" @file="data => {fileChange(data); validContent()}" :src="getFileSrc() || ''" :only-img="false"></part-admin-file-loader>
+                <template v-else>
+                    <part-input-textarea @submit="validContent" :value="contentRaw" @change="argValue => contentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></part-input-textarea>
+                    <part-content :data="content"></part-content>
+                </template>
+        
+                <button @click="validContent">Ok</button>
+            </div>
+
+            <div v-else="state === 1">
+
+        
+                <input type="datetime-local" v-model="date" class="date">
+            
+                <input type="text" v-model="title" placeholder="title" class="title">
+        
+                <part-admin-file-loader @file="thumbChange" :src="getThumbSrc() || ''" :info="thumb" :only-img="true"></part-admin-file-loader>
+        
+            
+                <input type="text" v-model="types" placeholder="types">
+            
+                <part-input-textarea :value="description" @change="argValue => description = argValue" placeholder="Description"></part-input-textarea>
+                
+
+
+                <part-admin-file-loader v-if="isFile" @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></part-admin-file-loader>
+                <template v-else>
+                    <part-input-textarea @submit="validContent" :value="contentRaw" @change="argValue => contentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></part-input-textarea>
+                    <part-content :data="content"></part-content>
+                </template>
+
+
+        
+                <!-- :info="content"  -->
+                <!-- <part-admin-file-loader @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></part-admin-file-loader> -->
+        
+                <input type="text" v-model="tags" placeholder="tags">
+        
+                <!-- <part-input-textarea :value="contentRaw" @change="argValue => contentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></part-input-textarea>
+                <part-content :data="content"></part-content> -->
+        
+                <input type="checkbox" v-model="public"> Public
+                <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>
+                <button v-if="!insert" @click="deletePost">Delete</button>
+                <button @click="cancel">Cancel changes</button>
+            </div>
+        </div>
+    )
+}
+
+
+/*
 import api from '../utils/api'
 // import api from '../utils/api'
 import PartAdminFileLoader from '../part-admin-file-loader'
@@ -89,15 +156,6 @@ export default
             }
         },
 
-        /*content_file(data, before)
-        {
-            if (before !== null)
-            {
-                this.state = STATE.MODIFY
-                // this._modified.content_file = copy(data)
-            }
-        },*/
-
         public(isPublic, before)
         {
             if (before !== null)
@@ -186,13 +244,6 @@ export default
         deletePost()
         {
             this.$store.dispatch('deletePost', {uid: this.post.uid})
-            /*api.deletePost(data =>
-            {
-                if (data.success)
-                    this.$store.commit('deletePost', data.data.uid)
-                
-                this.cancel()
-            }, this.post.uid)*/
         },
 
         save()
@@ -203,23 +254,11 @@ export default
             if (this.insert)
             {
                 this.$store.dispatch('addPost', {post: data})
-                /*api.addPost(data =>
-                {
-                    if (data.success)
-                        this.$store.commit('addPost', data.data)
-        
-                }, data)*/
                 this.cancel()
             }
             else
             {
                 this.$store.dispatch('updatePost', {uid: this.post.uid, data: data})
-                /*api.updatePost(data =>
-                {
-                    if (data.success)
-                        this.$store.commit('updatePost', data.data)
-                
-                }, this.post.uid, data)*/
                 this.cancel()
             }
         },
@@ -368,3 +407,4 @@ export default
 
 const copy = obj => JSON.parse(JSON.stringify(obj))
 const getToday = () => new Date(Date.now()).toJSON().split('.')[0]
+*/

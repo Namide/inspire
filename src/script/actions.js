@@ -31,7 +31,18 @@ const actions = {
 
     location: location.actions,
 
-    loadPosts: (tags = []) => (state, actions) => {
+    onEdit : (uid, type = 'post') => state =>
+    {
+        return { edit: { uid, type, isOpen: true } }
+    },
+
+    onEditClose : () => state =>
+    {
+        return { edit: { isOpen: false } }
+    },
+
+    loadPosts: (tags = []) => (state, actions) =>
+    {
         console.log('actions.loadPosts(', tags, ')')
         api.getPosts(data =>
         {

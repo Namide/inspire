@@ -2,6 +2,8 @@ import { h, app } from 'hyperapp'
 import './style.sass'
 import PartTags from '../../part/part-tags'
 import PartPostsFull from '../../part/part-posts-full'
+import PartAdminPostEdit from '../../'
+import PartModal from '../../part/part-modal'
 
 export default ({ posts }) => (state, actions) => {
 
@@ -12,7 +14,8 @@ export default ({ posts }) => (state, actions) => {
             <h2>Admin post</h2>
             <PartTags/>
             <button>+ Add new post</button>
-            <PartPostsFull onPostClick={ console.log }/>
+            <PartPostsFull onPostClick={ data => actions.onEdit(data.uid) }/>
+            { state.edit.isOpen ? <PartModal onClose={ actions.onEditClose }>Test</PartModal> : '' }
         </div>
             
         // <PartPosts isAdmin={ true } onPostClick={ onPostClick } />
