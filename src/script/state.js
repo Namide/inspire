@@ -3,10 +3,7 @@ import { location } from "@hyperapp/router"
 const state = {
 
     edit: {
-        isOpen: false,
-        type: 'post',
-        uid: 0,
-        data: {  }
+        isOpen: false
     },
 
     location: location.state,

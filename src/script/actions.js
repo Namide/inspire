@@ -31,9 +31,17 @@ const actions = {
 
     location: location.actions,
 
-    onEdit : (uid, type = 'post') => state =>
+    onEdit : ({uid, type = 'post', data = { stage: 0 }}) => state =>
     {
-        return { edit: { uid, type, isOpen: true } }
+        console.log(uid, type, data)
+        return {
+            edit: {
+                uid,
+                type,
+                isOpen: true,
+                data
+            }
+        }
     },
 
     onEditClose : () => state =>

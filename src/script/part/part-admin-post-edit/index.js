@@ -1,17 +1,28 @@
 import { h, app } from 'hyperapp'
 import './style.sass'
 
-export default ({ onClose }, children) => (state, actions) =>
+export default ({ onClose }) => (state, actions) =>
 {
-    
 
     return (
         <div class="admin-post-edit">
             <label>
                 <input type="checkbox" v-model="isFile" /> File
             </label>
-
-            <div v-if="state === 0">
+            
+            {
+                (state.edit.data.stage === 0) ?
+                    <span>State 0</span>
+                : (state.edit.data.stage === 1) ?
+                    <span>State 1</span>
+                :
+                    <span>State 2</span>
+            }
+            
+        </div>
+    )
+}
+/*<div v-if="state === 0">
                 
                 <part-admin-file-loader v-if="isFile" @file="data => {fileChange(data); validContent()}" :src="getFileSrc() || ''" :only-img="false"></part-admin-file-loader>
                 <template v-else>
@@ -58,10 +69,7 @@ export default ({ onClose }, children) => (state, actions) =>
                 <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>
                 <button v-if="!insert" @click="deletePost">Delete</button>
                 <button @click="cancel">Cancel changes</button>
-            </div>
-        </div>
-    )
-}
+            </div>*/
 
 
 /*
