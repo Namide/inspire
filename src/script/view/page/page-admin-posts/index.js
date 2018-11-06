@@ -17,7 +17,7 @@ export default ({ posts }) => (state, actions) => {
             <PartPostsFull onPostClick={ data => actions.onEdit({ uid: data.uid }) }/>
             {
                 state.edit.isOpen ? <PartModal onClose={ actions.onEditClose }>
-                    <PartAdminPostEdit />
+                    <PartAdminPostEdit data={ state.posts.find(post => post.uid === state.edit.uid) } />
                 </PartModal> : ''
             }
         </div>

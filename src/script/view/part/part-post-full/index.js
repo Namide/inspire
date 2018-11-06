@@ -1,49 +1,27 @@
 import { h, app } from 'hyperapp'
 import './style.sass'
+import Post from '../../../model/Post'
 
-const getColor = data =>
+const getContentEl = post =>
 {
-    return data.thumb && data.thumb.colors && data.thumb.colors.length > 0 ? data.thumb.colors[0] : 'rgba(0,0,0,0)'
-}
-
-const getImg = data =>
-{
-    return data.thumb ? data.thumb : null
-}
-
-const isEmbed = data =>
-{
-    return data.content && data.content.type && data.content.type === 'embed'
-}
-
-const isURL = data =>
-{
-    return data.content && data.content.type && data.content.type === 'url'
-}
-
-const isText = data =>
-{
-    return data.content && data.content.type && data.content.type === 'text'
-}
-
-const getContentEl = data =>
-{
-    if (getImg(data))
+    if (post.getImg())
     {
-        return <div style={ 'background-image: url(' + data.thumb.src + ')' } class="post-list_thumb"></div>
+        return <div style={ 'background-image: url(' + post.getThumbSrc() + ')' } class="post-list_thumb"></div>
     }
-    else if (isEmbed(data))
+    else if (post.isEmbed())
     {
-        return <div innerHTML={ data.content.raw.trim() } class="post-list_embed"></div>
+        return <div innerHTML={ post.data.content.raw.trim() } class="post-list_embed"></div>
     }
-    else if (isURL(data))
+    else if (post.isURL())
     {
-        return <a href={ data.content.url } target="_blank" rel="nofollow noopener noreferrer" class="post-list_url">{ data.content.url.replace(/(^\w+:|^)\/\//, '') }</a>
+        return <a href={ post.data.content.url } target="_blank" rel="nofollow noopener noreferrer" class="post-list_url">{ post.data.content.url.replace(/(^\w+:|^)\/\//, '') }</a>
     }
 }
 
 export default ({ onOpen = null, data }) => (state, actions) =>
 {
+    // const post = new Post(data)
+
     return (
         <div onclick={ () => onOpen(data) } class="post-full_line">
 

@@ -163,3 +163,8 @@ Vuex        10.1 ko
 Marked      21.7 ko
             -------
            121.4 ko
+
+
+# Youtube video cover
+
+https://img.youtube.com/vi/[youtube video id]/sddefault.jpg

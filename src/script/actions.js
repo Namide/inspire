@@ -33,13 +33,15 @@ const actions = {
 
     onEdit : ({uid, type = 'post', data = { stage: 0 }}) => state =>
     {
+        const post = state.posts.find(post => post.uid === uid)
         console.log(uid, type, data)
         return {
             edit: {
                 uid,
                 type,
                 isOpen: true,
-                data
+                data,
+                post
             }
         }
     },

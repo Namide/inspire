@@ -1,7 +1,7 @@
 import './style.sass'
 import { h, app } from 'hyperapp'
 import { Link, Route, location } from '@hyperapp/router'
-import config from '../../../config'
+import config from '../../../../config'
 
 import PageHome from '../../page/page-home'
 import PagePosts from '../../page/page-posts'

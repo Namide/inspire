@@ -34,7 +34,7 @@ new Vue({
 
 import state from './script/state'
 import actions from './script/actions'
-import view from './script/app/app-main/index.js'
+import view from './script/view/app/app-main/index.js'
 
 import { h, app } from 'hyperapp'
 import { Link, Route, location } from '@hyperapp/router'
