@@ -2,9 +2,7 @@ import { location } from "@hyperapp/router"
 
 const state = {
 
-    edit: {
-        isOpen: false
-    },
+    edit: null,
 
     location: location.state,
     // search: {

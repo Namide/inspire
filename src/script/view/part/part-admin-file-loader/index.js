@@ -1,45 +1,56 @@
 import { h, app } from 'hyperapp'
 import './style.sass'
 
-export default ({ onClose, src = '', onlyImg = false }) => (state, actions) =>
+export default ({ src = '', onlyImg = false, isImg = true, info = {} }) => (state, actions) =>
 {
+    const fileChange = event =>
+    {
+        const files = event.target.files
+        console.log(files)
+    }
+
+    const deleteFile = () =>
+    {
+        console.error('TODO')
+        // this.$emit('file', null)
+    }
+
+    const displayInfos = info => Object.keys(info).map(key => (
+        <div>
+            key === 'colors' ?
+                <small>
+                    <strong>{ key }</strong>:
+                    info[key].map(color => <span class="color" style={ 'background:' + color }></span>)
+                </small>
+            :
+                <small>
+                    <strong>{ key }</strong>: { info[key] }
+                </small>
+        </div>
+    ))
 
     return (
         <div>
-            (
+            {
                 !src ? 
                 
-                <input type="file" @change="filesChange($event.target.files)" accept={ onlyImg ? 'image/*' : '*' }>
+                <input type="file" onchange="filesChange" accept={ onlyImg ? 'image/*' : '*' } />
                 
                 :
 
-                <button @click="deleteFile">Delete image</button>
-            )
+                <button onclick="deleteFile">Delete image</button>
+            }
             
+            {
+                isImg && src !== '' ?
 
-            <div v-if="isImg && finalSrc !== ''" class="file-img" :style="{ backgroundImage: 'url(' + finalSrc + ')' }">
-                
-                <div v-if="info" v-for="(data, key) of info">
+                    <div class="file-img" style={ 'background-image:url(' + src + ')' }>
+                        displayInfos(info || {})
+                    </div>
 
-                    <small v-if="key === 'colors'">
-                        <strong>{{ key }}</strong>:
-                        <span v-for="color of data" class="color" :style="{ background: color }"></span>
-                    </small>
-                    <small v-else>
-                        <strong>{{ key }}</strong>: {{ data }}
-                    </small>
-                </div>
-
-            </div>
-            <div v-else-if="info" v-for="(data, key) of info">
-                <small v-if="key === 'colors'">
-                    <strong>{{ key }}</strong>:
-                    <span v-for="color of data" class="color" :style="{ background: color }"></span>
-                </small>
-                <small v-else>
-                    <strong>{{ key }}</strong>: {{ data }}
-                </small>
-            </div>
+                : 
+                    displayInfos(info || {})
+            }
 
         </div>
     )

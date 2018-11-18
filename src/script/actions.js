@@ -27,33 +27,67 @@ const filterTags = list =>
     return { tags, noTags, types, noTypes }
 }
 
+const deepAssign = (target, source) =>
+{
+    if (source === undefined)
+    {
+        return target
+    }
+    else if (target === undefined)
+    {
+        return JSON.parse(JSON.stringify(source))
+    }
+    else if (target === Object(target) && source === Object(source))
+    {
+        const keys = [...new Set([...Object.keys(target), ...Object.keys(source)])].forEach(key =>
+        {
+            target[key] = deepAssign(target[key], source[key])
+        })
+
+        return target
+    }
+    else
+    {
+        return target
+    }
+}
+
 const actions = {
+
+    custom: data => state =>
+    {
+        const out = { }
+        Object.keys(data).forEach(key => {
+            out[key] = deepAssign(data[key], state[key])
+        })
+        return out
+    },
 
     location: location.actions,
 
     onEdit : ({uid, type = 'post', data = { stage: 0 }}) => state =>
     {
-        const post = state.posts.find(post => post.uid === uid)
-        console.log(uid, type, data)
+        const data = JSON.parse(JSON.stringify(state.posts.find(post => post.uid === uid) || { uid }))
+
         return {
             edit: {
-                uid,
-                type,
-                isOpen: true,
-                data,
-                post
+                modal: {
+                    state: 0,
+                    type,
+                    isFile: true
+                },
+                data
             }
         }
     },
 
     onEditClose : () => state =>
     {
-        return { edit: { isOpen: false } }
+        return { edit: null }
     },
 
     loadPosts: (tags = []) => (state, actions) =>
     {
-        console.log('actions.loadPosts(', tags, ')')
         api.getPosts(data =>
         {
             if (data.success)

@@ -21,7 +21,6 @@ const cleanPost = data =>
         data.content.src = getFileURL(data.uid)
     }
 
-    console.log("->", data)
     return data
 }
 

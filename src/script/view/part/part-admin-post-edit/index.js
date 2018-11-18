@@ -1,7 +1,9 @@
 import { h, app } from 'hyperapp'
-// import PartAdminFileLoader from '../part-admin-file-loader'
+import PartAdminFileLoader from '../part-admin-file-loader'
 import './style.sass'
-import Post from '../../../model/Post';
+import Post from '../../../model/Post'
+import PartInputTexarea from '../part-input-textarea'
+import PartContent from '../part-content'
 
 export default ({ onClose }) => (state, actions) =>
 {
@@ -9,16 +11,28 @@ export default ({ onClose }) => (state, actions) =>
 
     return (
         <div class="admin-post-edit">
-            <label>
-                <input type="checkbox" v-model="isFile" /> File
-            </label>
-            
+
             {
-                (state.edit.data.stage === 0) ?
+                (state.edit.modal.state === 0) ? (
                     <div>
-                        <PartAdminFileLoader src={ post.getFileSrc() || ''}/>
+                        <label>
+                            <input type="checkbox" checked={ state.edit.modal.isFile } onchange={ event => actions.custom({edit: { modal: {isFile: event.target.checked }}}) } /> File
+                        </label>
+
+                        { state.edit.modal.isFile ? (
+                            <div>
+                                <PartAdminFileLoader src={ post.getFileSrc() || ''}/>
+                            </div>
+                        ) : (
+                            <div>
+                                <PartInputTexarea onsubmit="validContent" value="contentRaw" onchange="argValue => contentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></PartInputTexarea>
+                                <PartContent post={ post }></PartContent>
+                            </div>
+                        ) }
+                        
+                        <button onclick={ () => actions.custom({edit: { modal: { state: 1 }}}) }>Ok</button>
                     </div>
-                : (state.edit.data.stage === 1) ?
+                ) : (state.edit.modal.state === 1) ?
                     <span>State 1</span>
                 :
                     <span>State 2</span>

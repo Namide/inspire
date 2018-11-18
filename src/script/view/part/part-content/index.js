@@ -1,3 +1,74 @@
+import { h, app } from 'hyperapp'
+import './style.sass'
+import Post from '../../../model/Post'
+
+const getTypeRatioHtml = post =>
+{
+    const content = post.content
+    if (post.isURL())
+    {
+        return {
+            ratio: null,
+            type: 'url',
+            html: '<a href="' + content.raw
+                + '" target="_blank" rel="noreferrer noopener">'
+                + content.raw.replace(/http:\/\/|https:\/\//, '')
+                + '</a>'
+        }
+    }
+    else if (post.isEmbed())
+    {
+        let ratio
+        if (content.height && content.width) {
+            ratio = (100 * content.height / content.width).toFixed(3) + '%'
+        } else {
+            ratio = '56.25%'
+        }
+
+        return {
+            ratio,
+            type: 'embed',
+            html: content.raw
+        }
+        
+    }
+    else if (post.isText())
+    {
+        return {
+            ratio: null,
+            type: 'text',
+            html: content.raw // marked(content.raw)
+        }
+    }
+    else 
+    {
+        const html = Object.keys(content || {}).map(key => html += '<div><strong>'
+            + key + '</strong>: '
+            + content[key] + '</div>').join('')
+
+        return {
+            html,
+            ratio: null,
+            type: 'raw'
+        }
+    }
+}
+
+export default ({ post }) => (state, actions) =>
+{
+    const { html, type, ratio } = getTypeRatioHtml(post)
+
+    return (<div class={ 'content is-' + type + ' ' + (ratio ? 'content_has-ratio' : '') }>
+
+        { ratio ? <div class="content_dummy" style={ 'padding-top:' + ratio }></div> : '' }
+        <div innerHTML={ html } class="content_data"></div>
+        
+    </div>)
+}
+
+
+
+/*
 import marked from 'marked'
 import GetPostContent from '../utils/GetPostContent'
 
@@ -7,11 +78,6 @@ console.log(marked)
 
 export default
 {
-    /*components:
-    {
-        
-    },*/
-
     props:
     {
         data: { type: Object }
@@ -29,25 +95,6 @@ export default
     {
         data: 'setContent'
     },
-
-    /*data()
-    {
-        return {
-            
-        }
-    },
-
-    watch:
-    {
-        data(data) {
-
-        }
-    },
-
-    created()
-    {
-        
-    },*/
 
     methods:
     {
@@ -92,4 +139,4 @@ export default
             }
         }
     }
-}
+}*/
