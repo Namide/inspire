@@ -1,18 +1,20 @@
 import { h, app } from 'hyperapp'
 import './style.sass'
 
-export default ({ src = '', onlyImg = false, isImg = true, info = {} }) => (state, actions) =>
+export default ({ src = '', onlyImg = false, isImg = true, onchange, info = {} }) => (state, actions) =>
 {
     const fileChange = event =>
     {
         const files = event.target.files
         console.log(files)
+        onchange(files)
     }
 
     const deleteFile = () =>
     {
         console.error('TODO')
         // this.$emit('file', null)
+        onchange(null)
     }
 
     const displayInfos = info => Object.keys(info).map(key => (
@@ -34,11 +36,11 @@ export default ({ src = '', onlyImg = false, isImg = true, info = {} }) => (stat
             {
                 !src ? 
                 
-                <input type="file" onchange="filesChange" accept={ onlyImg ? 'image/*' : '*' } />
+                <input type="file" onchange={ event => onchange(event.target.files) } accept={ onlyImg ? 'image/*' : '*' } />
                 
                 :
 
-                <button onclick="deleteFile">Delete image</button>
+                <button onclick={ () => onchange(null) }>Delete image</button>
             }
             
             {

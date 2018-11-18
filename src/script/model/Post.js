@@ -25,6 +25,11 @@ export default class Post
         return this.data.content && this.data.content.type && this.data.content.type === 'file' && this.data.content.src
     }
 
+    getContentRaw()
+    {
+        return this.data.content && this.data.content.raw ? this.data.content.raw : null
+    }
+
     isEmbed()
     {
         return this.data.content && this.data.content.type && this.data.content.type === 'embed'

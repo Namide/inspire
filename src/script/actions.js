@@ -60,6 +60,7 @@ const actions = {
         Object.keys(data).forEach(key => {
             out[key] = deepAssign(data[key], state[key])
         })
+
         return out
     },
 
@@ -76,7 +77,7 @@ const actions = {
                     type,
                     isFile: true
                 },
-                data
+                data // displayed data in modal = original data + modified data
             }
         }
     },

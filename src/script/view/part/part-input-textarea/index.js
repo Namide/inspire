@@ -14,11 +14,8 @@ export default ({ placeholder, value, onchange }) => (state, actions) =>
 
     const resizeContentRaw = () =>
     {
-        requestAnimationFrame(() =>
-        {
-            el.style.cssText = 'height:auto;padding:0'
-            el.style.cssText = 'height:' + el.scrollHeight + 'px'
-        })
+        el.style.cssText = 'height:auto;padding:0'
+        el.style.cssText = 'height:' + el.scrollHeight + 'px'
     }
 
     const onCreate = element => 
@@ -28,17 +25,21 @@ export default ({ placeholder, value, onchange }) => (state, actions) =>
     }
     const onDestroy = el => window.removeEventListener('resize', resizeContentRaw)
 
+    const change = () =>
+    {
+        resizeContentRaw()
+        onchange(el.value)
+    }
 
     // window.removeEventListener('resize', this.resizeContentRaw)
     window.addEventListener('resize', resizeContentRaw)
 
     return <textarea
-        oncreate={ onCreate }
-        ondestroy={ onDestroy }
-        onchange={ resizeContentRaw }
-        onkeydown={ resizeContentRaw }
+        oncreate={ (el) => onCreate(el) }
+        ondestroy={ (el) => onDestroy(el) }
+        onchange={ () => change() }
+        onkeydown={ () => change() }
         class="input-textarea"
-        ref="contentRaw"
         rows="1"
         placeholder={ placeholder }
     >{ value }</textarea>

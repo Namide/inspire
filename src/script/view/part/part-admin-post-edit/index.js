@@ -4,16 +4,96 @@ import './style.sass'
 import Post from '../../../model/Post'
 import PartInputTexarea from '../part-input-textarea'
 import PartContent from '../part-content'
+import SetPostContent from '../../../utils/SetPostContent';
+
+const copy = obj => JSON.parse(JSON.stringify(obj))
+const getToday = () => new Date(Date.now()).toJSON().split('.')[0]
 
 export default ({ onClose }) => (state, actions) =>
 {
     const post = new Post(state.edit.post)
+    let modifiedData = {  }
+
+    const nextState = (state, actions, modifiedData) =>
+    {
+        const num = state.edit.modal.state + 1
+        actions.custom({ edit: { modify: modifiedData, modal: { state: num } } })
+        modifiedData = { }
+    }
+
+    const thumbChange = (file, modifiedData) =>
+    {
+        if (!file)
+        {
+            modifiedData.thumb = null
+        }
+        else
+        {
+            modifiedData.thumb = file
+        }
+    }
+
+    const fileChange = (file, modifiedData) =>
+    {
+        if (!file)
+        {
+            modifiedData.content = null
+            modifiedData.content_format = []
+            return
+        }
+
+        const content_format = ['file', ...file.type.split('/').map(type => type.toLowerCase())]
+        const content = {
+            name: file.name,
+            size: file.size,
+            type: file.type
+        }
+
+        modifiedData.content_format = content_format
+        modifiedData.content = content
+        modifiedData.file = file
+
+        
+        // this.file = file
+        // this._modified.content_file = file
+
+        const types = file.type ? file.type.split('/') : []
+        if (types.length > 0 && this.types.indexOf(types[0]) < 0)
+            modifiedData.types = [ ...( post.data.type || [] ), types[0] ]
+
+        if (file.name && file.name !== ''
+            && (modifiedData.title == '' || modifiedData.title == undefined)
+            && (post.data.title == '' || post.data.title == undefined))
+        {
+            const arr = file.name.trim().split('.')
+            arr.pop()
+
+            const title = arr.join(' ')
+                .split('_').join(' ')
+                .split('-').join(' ')
+            
+            if (title.length > 0)
+                modifiedData.title = title.charAt(0).toUpperCase() + title.slice(1)
+        }
+    }
+
+    const setContent = (text, modifiedData) =>
+    {
+        if (text !== null)
+        {
+            const content = SetPostContent.extractContent(text)
+            const format = SetPostContent.extractFormat(content)
+            modifiedData.content = content
+            modifiedData.content_format = format
+        }
+    }
 
     return (
         <div class="admin-post-edit">
 
             {
                 (state.edit.modal.state === 0) ? (
+                    
                     <div>
                         <label>
                             <input type="checkbox" checked={ state.edit.modal.isFile } onchange={ event => actions.custom({edit: { modal: {isFile: event.target.checked }}}) } /> File
@@ -21,21 +101,27 @@ export default ({ onClose }) => (state, actions) =>
 
                         { state.edit.modal.isFile ? (
                             <div>
-                                <PartAdminFileLoader src={ post.getFileSrc() || ''}/>
+                                <PartAdminFileLoader onchange={ file => thumbChange(file, modifiedData) } src={ post.getFileSrc() || ''}/>
                             </div>
                         ) : (
                             <div>
-                                <PartInputTexarea onsubmit="validContent" value="contentRaw" onchange="argValue => contentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></PartInputTexarea>
+                                <PartInputTexarea value={ post.getContentRaw() } onchange={ val => setContent(val, modifiedData) } placeholder="Content (URL, markdown, HTML, embed...)"></PartInputTexarea>
                                 <PartContent post={ post }></PartContent>
                             </div>
                         ) }
                         
-                        <button onclick={ () => actions.custom({edit: { modal: { state: 1 }}}) }>Ok</button>
+                        <button onclick={ () => nextState(state, actions, modifiedData) }>Ok</button>
                     </div>
-                ) : (state.edit.modal.state === 1) ?
-                    <span>State 1</span>
-                :
+
+                ) : (state.edit.modal.state === 1) ? (
+
+                    <span>{ JSON.stringify(state.edit.modify) }</span>
+
+                ) : (
+
                     <span>State 2</span>
+
+                )
             }
             
         </div>
