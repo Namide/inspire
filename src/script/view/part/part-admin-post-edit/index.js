@@ -9,16 +9,17 @@ import SetPostContent from '../../../utils/SetPostContent';
 const copy = obj => JSON.parse(JSON.stringify(obj))
 const getToday = () => new Date(Date.now()).toJSON().split('.')[0]
 
-export default ({ onClose }) => (state, actions) =>
+export default ({ onClose, insert = false }) => (state, actions) =>
 {
     const post = new Post(state.edit.post)
-    let modifiedData = {  }
+    const date = copy(post.getDate() || getToday()).split(' ').join('T')
+
+    const modifiedData = Object.assign({ }, state.edit.modify)
 
     const nextState = (state, actions, modifiedData) =>
     {
         const num = state.edit.modal.state + 1
         actions.custom({ edit: { modify: modifiedData, modal: { state: num } } })
-        modifiedData = { }
     }
 
     const thumbChange = (file, modifiedData) =>
@@ -77,6 +78,29 @@ export default ({ onClose }) => (state, actions) =>
         }
     }
 
+    const save = (modifiedData, insert) =>
+    {
+        console.log(modifiedData, insert)
+
+        if (insert)
+        {
+            actions.addPost(modifiedData)
+            onClose()
+        }
+        else
+        {
+            actions.updatePost({uid: state.edit.data.uid, post: modifiedData})
+            onClose()
+        }
+    }
+
+    const deletePost = (uid) =>
+    {
+        actions.deletePost(uid)
+    }
+
+    const getValue = key => state.edit.modify[key] || state.edit.data[key] || null
+
     const setContent = (text, modifiedData) =>
     {
         if (text !== null)
@@ -93,7 +117,7 @@ export default ({ onClose }) => (state, actions) =>
 
             {
                 (state.edit.modal.state === 0) ? (
-                    
+
                     <div>
                         <label>
                             <input type="checkbox" checked={ state.edit.modal.isFile } onchange={ event => actions.custom({edit: { modal: {isFile: event.target.checked }}}) } /> File
@@ -115,7 +139,40 @@ export default ({ onClose }) => (state, actions) =>
 
                 ) : (state.edit.modal.state === 1) ? (
 
-                    <span>{ JSON.stringify(state.edit.modify) }</span>
+                    <div>
+                        <input type="datetime-local" value={ date } class="date" />
+
+                        <input type="text" value={ getValue('title') || '' } placeholder="title" class="title" />
+
+                        <label>
+                            <input type="checkbox" checked={ state.edit.modal.isFile } onchange={ event => actions.custom({edit: { modal: {isFile: event.target.checked }}}) } /> File
+                        </label>
+                        <PartAdminFileLoader info={ getValue('thumb') || [] } onlyImage={ true } onchange={ file => thumbChange(file, modifiedData) } src={ post.getThumbSrc() || '' }/>
+
+                        <input type="text" value={ (getValue('types') || [] ).join(', ') } placeholder="types" />
+
+                        <PartInputTexarea value={ getValue('description') || '' } onchange={ val => modifiedData.description = val } placeholder="Description"></PartInputTexarea>
+
+                        {
+                            state.edit.modal.isFile ?
+                                <PartAdminFileLoader onlyImage={ false } onchange={ file => fileChange(file, modifiedData) } src={ post.getFileSrc() || '' }/>
+                            :
+                                <div>
+                                    <PartInputTexarea value={ post.getContentRaw() } onchange={ val => setContent(val, modifiedData) } placeholder="Content (URL, markdown, HTML, embed...)"></PartInputTexarea>
+                                    <PartContent post={ post }></PartContent>
+                                </div>
+                        }
+
+                        <input type="text" value={ getValue('tags') } onchange={ val => modifiedData.tags = val.split(',') } placeholder="tags" />
+
+
+                        <input type="checkbox" checked={ getValue('public') || false } onchange={ event => modifiedData.public = event.target.checked } /> Public
+                        
+                        <button onclick={ () => save(modifiedData, insert) }>{ insert ? 'Create' : 'Update' }</button>
+                        { !insert ? <button onclick={ () => deletePost(post.data.uid) }>Delete</button> : '' }
+                        <button onclick={ () => onClose() }>Cancel changes</button>
+
+                    </div>
 
                 ) : (
 
@@ -128,7 +185,8 @@ export default ({ onClose }) => (state, actions) =>
     )
 }
 
-/*<div v-if="state === 0">
+/*
+<div v-if="state === 0">
     <part-admin-file-loader v-if="isFile" @file="data => {fileChange(data); validContent()}" :src="getFileSrc() || ''" :only-img="false"></part-admin-file-loader>
     <template v-else>
         <part-input-textarea @submit="validContent" :value="contentRaw" @change="argValue => contentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></part-input-textarea>

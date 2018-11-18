@@ -5,6 +5,11 @@ export default class Post
         this.data = data
     }
 
+    getDate()
+    {
+        return this.data.date || null
+    }
+
     getColor()
     {
         return this.data.thumb && this.data.thumb.colors && this.data.thumb.colors.length > 0 ? this.data.thumb.colors[0] : 'rgba(0,0,0,0)'

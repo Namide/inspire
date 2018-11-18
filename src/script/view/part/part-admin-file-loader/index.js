@@ -1,7 +1,7 @@
 import { h, app } from 'hyperapp'
 import './style.sass'
 
-export default ({ src = '', onlyImg = false, isImg = true, onchange, info = {} }) => (state, actions) =>
+export default ({ src = '', onlyImage = false, isImg = true, onchange, info = {} }) => (state, actions) =>
 {
     const fileChange = event =>
     {
@@ -19,15 +19,17 @@ export default ({ src = '', onlyImg = false, isImg = true, onchange, info = {} }
 
     const displayInfos = info => Object.keys(info).map(key => (
         <div>
-            key === 'colors' ?
-                <small>
-                    <strong>{ key }</strong>:
-                    info[key].map(color => <span class="color" style={ 'background:' + color }></span>)
-                </small>
-            :
-                <small>
-                    <strong>{ key }</strong>: { info[key] }
-                </small>
+            {
+                key === 'colors' ?
+                    <small>
+                        <strong>{ key }</strong>:
+                        { info[key].map(color => <span class="color" style={ 'background:' + color }></span>) }
+                    </small>
+                :
+                    <small>
+                        <strong>{ key }</strong>: { info[key] }
+                    </small>
+            }
         </div>
     ))
 
@@ -36,7 +38,7 @@ export default ({ src = '', onlyImg = false, isImg = true, onchange, info = {} }
             {
                 !src ? 
                 
-                <input type="file" onchange={ event => onchange(event.target.files) } accept={ onlyImg ? 'image/*' : '*' } />
+                <input type="file" onchange={ event => onchange(event.target.files) } accept={ onlyImage ? 'image/*' : '*' } />
                 
                 :
 
@@ -75,7 +77,7 @@ export default
     {
         src: { type: String, default: '' },
         info: { type: Object, default: null },
-        onlyImg: { type: Boolean, default: false }
+        onlyImage: { type: Boolean, default: false }
     },
 
     watch:

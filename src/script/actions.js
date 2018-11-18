@@ -87,6 +87,45 @@ const actions = {
         return { edit: null }
     },
 
+    addPost: post => state =>
+    {
+        console.log('post', post)
+        api.addPost(data =>
+        {
+            if (data.success)
+            {
+                console.warn('TODO')
+            }
+                // commit('addPost', data.data)
+
+        }, post)
+    },
+
+    updatePost: ({uid, post}) => state =>
+    {
+        api.updatePost(data =>
+        {
+            if (data.success)
+            {
+                console.warn('TODO')
+            }
+                // commit('updatePost', data.data)
+        
+        }, uid, post)
+    },
+
+    deletePost: uid => state =>
+    {
+        api.deletePost(data =>
+        {
+            if (data.success)
+            {
+                console.warn('TODO')
+            }
+                // commit('deletePost', data.data.uid)
+        }, uid)
+    },
+
     loadPosts: (tags = []) => (state, actions) =>
     {
         api.getPosts(data =>
