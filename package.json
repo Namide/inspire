@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "webpack-dev-server --env.development --open --hot",
     "build": "webpack --env.production --optimize-minimize --progress --hide-modules",
+    "start": "npm build && node ./start.js",
     "test": "node ./test/index.js"
   },
   "dependencies": {

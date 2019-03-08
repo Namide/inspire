@@ -22,9 +22,9 @@ module.exports = function(env, argv) {
             build: './src/main.js'
         },
 
-        // Export js builds in the dist/assets/js/ dir
+        // Export js builds in the public/assets/js/ dir
         output: {
-            path: path.resolve(__dirname, './dist'),
+            path: path.resolve(__dirname, './public'),
             publicPath: '/',
             filename: 'assets/js/[name].js',
         },
@@ -33,9 +33,9 @@ module.exports = function(env, argv) {
 
             // Optimize index.html file
             new HtmlWebpackPlugin({
-                template: prod ? 'src/index.php' : 'src/index.html',
-                inject: !prod,
-                filename: prod ? 'index.php' : 'index.html',
+                template: 'src/index.html',
+                // inject: !prod,
+                filename: 'index.html',
                 minify: {
                     removeComments: true,
                     collapseWhitespace: true,
@@ -43,11 +43,11 @@ module.exports = function(env, argv) {
                 }
             }),
 
-            // Copy .htaccess from src/ to dist/
-            new CopyWebpackPlugin([
-                { from: 'api', to: 'api', ignore: ['nbproject/**/*', 'config.php', 'data/**/*'] },
-                { from: 'src/.htaccess' }
-            ]),
+            // Copy .htaccess from src/ to public/
+            // new CopyWebpackPlugin([
+            //     { from: 'api', to: 'api', ignore: ['nbproject/**/*', 'config.php', 'data/**/*'] },
+            //     { from: 'src/.htaccess' }
+            // ]),
 
             ...(prod ? [
                 // Extract CSS code from js builds
@@ -66,7 +66,7 @@ module.exports = function(env, argv) {
                 // Gzip files
                 new CompressionPlugin({
                     filename: '[path].gz[query]',
-                    include: ['./dist/**/*.css'],
+                    include: ['./public/**/*.css'],
                     algorithm: 'gzip',
                     test: /\.(js|css|sass|scss|html)$/i, // /\.js$|\.css$|\.html$/,
                     threshold: 10240,
@@ -150,7 +150,7 @@ module.exports = function(env, argv) {
                 ]
             }*/,
 
-            contentBase: path.join(__dirname, 'dist'),
+            contentBase: path.join(__dirname, 'public'),
 
             noInfo: true,
             overlay: true,
