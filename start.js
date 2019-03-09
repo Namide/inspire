@@ -1,4 +1,4 @@
-const http = require('http')
+/*const http = require('http')
 const fs = require('fs')
 const zlib = require('zlib')
 
@@ -10,7 +10,7 @@ const config = require('./config.json')
 // https://developer.mozilla.org/en-US/docs/Learn/Server-side/Node_server_without_framework
 // https://blog.feedspot.com/game_development_rss_feeds/
 
-const CACHE_ENABLE = process.argv.indexOf('no-cache') < 0
+const CACHE_ENABLE = process.argv.indexOf('no-cache') < 0*/
 
 /*
 setInterval(() =>
@@ -20,9 +20,16 @@ setInterval(() =>
 }, 1000)
 */
 
+const MongoClient = require('mongodb').MongoClient
+const url = 'mongodb://docker:8081' // "mongodb://localhost:27017/mydb"
 
+MongoClient.connect(url, function(err, db) {
+    if (err) throw err;
+    console.log("Database created!");
+    db.close();
+});
 
 const port = 8125
-new Server(port)
+// new Server(port)
 
 console.log('Server running at http://127.0.0.1:' + port + '/')

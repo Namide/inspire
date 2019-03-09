@@ -4,6 +4,24 @@
 
 Todo: https://router.vuejs.org/guide/advanced/lazy-loading.html
 
+## mongo database run
+
+``` bash
+docker run -d --name inspire-mongo \
+    -e MONGO_INITDB_ROOT_USERNAME=admin \
+    -e MONGO_INITDB_ROOT_PASSWORD=secret \
+    -v ${pwd}/data/db:/data/db \
+    -p 8081:27017 \
+    mongo
+
+docker run -it --rm --link inspire-mongo:mongo mongo \
+    mongo --host mongo \
+        -u mongoadmin \
+        -p secret \
+        --authenticationDatabase admin \
+        some-db
+```
+
 ## front-end Setup
 
 ### Build
