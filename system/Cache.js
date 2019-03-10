@@ -28,7 +28,7 @@ const removeCache = dir =>
     }
 }
 
-export default class Cache
+module.exports = class Cache
 {
     constructor(dir)
     {

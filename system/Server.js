@@ -1,6 +1,7 @@
-import Signal from './utils/Signal'
+const http = require('http')
+const Signal = require('./utils/Signal')
 
-export default class Server
+module.exports = class Server
 {
     constructor(port)
     {
@@ -12,6 +13,8 @@ export default class Server
         this.onRequest = new Signal()
 
         this.init(port)
+
+        console.log('Server running at http://127.0.0.1:' + port + '/')
     }
 
     serveFile(response, file)
@@ -123,6 +126,7 @@ export default class Server
     {
         this.http = http.createServer((request, response) =>
         {
+            console.log('on request')
             this.onRequest.dispatch(request, response)
             /*const filePath = request.url === '/' ? this.homeFile : (this.viewPath + request.url)
 

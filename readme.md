@@ -7,12 +7,31 @@ Todo: https://router.vuejs.org/guide/advanced/lazy-loading.html
 ## mongo database run
 
 ``` bash
+
+"C:\Program Files\MongoDB\Server\3.2\bin\mongod.exe" --dbpath "${pwd}/data/db"
+"/d/software-64/MongoDB/Server/4.0/bin/mongod.exe" --dbpath "${pwd}/data/db"
+
+docker run -d --name inspire-mongo \
+    -v ${pwd}/data/db:/data/db \
+    -p 8081:27017 \
+    mongo
+
 docker run -d --name inspire-mongo \
     -e MONGO_INITDB_ROOT_USERNAME=admin \
     -e MONGO_INITDB_ROOT_PASSWORD=secret \
     -v ${pwd}/data/db:/data/db \
     -p 8081:27017 \
     mongo
+
+docker run -it --rm --name inspire-mongo \
+    -v ${pwd}/data/db:/data/db \
+    -p 8081:27017 \
+    mongo
+
+docker run -it --rm --name inspire-mongo \
+    -v ${pwd}/data/db:/bitnami \
+    -p 8081:27017 \
+    bitnami/mongodb:latest
 
 docker run -it --rm --link inspire-mongo:mongo mongo \
     mongo --host mongo \

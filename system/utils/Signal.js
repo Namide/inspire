@@ -1,4 +1,4 @@
-export default class Signal
+module.exports = class Signal
 {
     constructor()
     {

@@ -20,16 +20,15 @@ setInterval(() =>
 }, 1000)
 */
 
-const MongoClient = require('mongodb').MongoClient
-const url = 'mongodb://docker:8081' // "mongodb://localhost:27017/mydb"
 
-MongoClient.connect(url, function(err, db) {
-    if (err) throw err;
-    console.log("Database created!");
-    db.close();
-});
+const Server = require('./system/Server')
+const Router = require('./system/Router')
 
-const port = 8125
-// new Server(port)
+const server = new Server(8125)
+const router = new Router('./public')
 
-console.log('Server running at http://127.0.0.1:' + port + '/')
+server.onRequest.add(router.test.bind(router))
+
+router.add('/', 'GET', (request, response) => console.log('Home ok', request.url))
+router.add('/test', 'GET', (request, response) => console.log('test ok', request.url))
+router.add('*', 'GET', (request, response) => console.log('404 ok', request.url))

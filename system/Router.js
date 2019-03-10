@@ -1,40 +1,32 @@
-export default class Router
+module.exports = class Router
 {
     constructor(staticDir)
     {
         this.static = staticDir
-        this.routes = { }
+        this.routes = []
     }
 
     test(request, response)
     {
-        const pathName = url.parse(request.url, true, false).pathname
-        const methods = request.method // GET POST
-
+        const url = request.url
+        const method = request.method // GET POST
         // https://www.dev2qa.com/node-js-http-server-get-post-example/
         
-        // if (url === '/')
-
-        // const filePath = request.url === '/' ? this.homeFile : (this.viewPath + request.url)
+        const route = this.getRouteCallback(url, method)
+        route.callback(request, response)
     }
 
-    getRouteCallback(dirs, routes)
+    getRouteCallback(path, method)
     {
-
+        return this.routes.filter(route => route.equal).find(route => route.method === method && path === route.path)
+            || this.routes.filter(route => !route.equal).find(route => route.method === method && path.indexOf(route.path) === 0)
+            || this.routes.find(route => route.path === '*')
+            || (request => console.log('Route not found:', request.url))
     }
 
-    add(path, type, callback)
+    add(path, method, callback, equal = true)
     {
-        let route = this.routes
-        const routePath = [type, ...path.split('/')]
-        routePath.forEach(dir =>
-        {
-            if (!route[dir])
-                route[dir] = {}
-
-            route = route[dir]
-        })
-
-        route._callback = callback
+        this.routes.push({ path, method, callback, equal })
+        this.routes.sort((a, b) => b.path.length - a.path.length)
     }
 }
