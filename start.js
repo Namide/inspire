@@ -30,5 +30,5 @@ const router = new Router('./public')
 server.onRequest.add(router.test.bind(router))
 
 router.add('/', 'GET', (request, response) => console.log('Home ok', request.url))
-router.add('/test', 'GET', (request, response) => console.log('test ok', request.url))
+router.add('/api', 'GET', (request, response) => console.log('Api ok', request.url))
 router.add('*', 'GET', (request, response) => console.log('404 ok', request.url))

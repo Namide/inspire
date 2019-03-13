@@ -1,4 +1,4 @@
-module.exports = class Api
+module.exports = class User
 {
     constructor()
     {
