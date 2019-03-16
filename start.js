@@ -55,9 +55,6 @@ getDataBase(config.database)
             server.serveData('saved')
         })
         router.add('*', 'GET', server => console.log('404 ok', server.request.url))
-
-
-
     })
     .catch(error => console.log(error))
 
