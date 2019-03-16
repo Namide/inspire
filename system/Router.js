@@ -6,14 +6,14 @@ module.exports = class Router
         this.routes = []
     }
 
-    test(request, response)
+    test(server)
     {
-        const url = request.url
-        const method = request.method // GET POST
+        const url = server.request.url
+        const method = server.request.method // GET POST
         // https://www.dev2qa.com/node-js-http-server-get-post-example/
         
         const route = this.getRouteCallback(url, method)
-        route.callback(request, response)
+        route.callback(server)
     }
 
     getRouteCallback(path, method)

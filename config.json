@@ -1,0 +1,10 @@
+{
+    "server": {
+        "port": 8125
+    },
+    "database": {
+        "name": "inspire",
+        "host": "localhost",
+        "port": 27017
+    }
+}

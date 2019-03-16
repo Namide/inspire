@@ -1,16 +1,51 @@
 const http = require('http')
 const Signal = require('./utils/Signal')
+const { getExt, getMimeType, gzipable, isAsset, isDynamic } = require('./utils/FileUtils')
 
-module.exports = class Server
+class Server
+{
+    constructor(request, response)
+    {
+        this.request = request
+        this.response = response
+    }
+
+    getUrl() { return this.request.url }
+
+    serveData(raw, duration = 0)
+    {
+        const url = this.getUrl()
+
+        const head = { 'Content-Type': getMimeType(url) }
+        this.response.writeHead(200, head)
+        this.response.end(raw)
+
+        /*if (gzipable(url))
+        {
+            const gzip = this.gzipData(content)
+
+            if (CACHE_ENABLE)
+            {
+                saveCacheFile(url, gzip)
+                if (duration > 0)
+                    setTimeout(rmCacheFile, duration, url)
+            }
+
+            this.serveGZIP(response, gzip, url)
+        }
+        else
+        {
+            this.serveGZIP(response, content, url)
+        }*/
+    }
+}
+
+module.exports = class ServerManager
 {
     constructor(port)
     {
         this.port = port
-
-        // this.homeFile = this.viewPath + '/index.html'
-        // this.notFoundFile = this.viewPath + '/404.html'
-
-        this.onRequest = new Signal()
+        this.onServer = new Signal()
 
         this.init(port)
 
@@ -54,27 +89,6 @@ module.exports = class Server
         const head = { 'Content-Type': getMimeType(file) }
         response.writeHead(200, head)
         response.end(raw)
-    }
-
-    serveData(response, content, file, duration = 0)
-    {
-        if (gzipable(file))
-        {
-            const gzip = this.gzipData(content)
-
-            if (CACHE_ENABLE)
-            {
-                saveCacheFile(file, gzip)
-                if (duration > 0)
-                    setTimeout(rmCacheFile, duration, file)
-            }
-
-            this.serveGZIP(response, gzip, file)
-        }
-        else
-        {
-            this.serveGZIP(response, content, file)
-        }
     }
 
     serveError(response, message)
@@ -126,8 +140,8 @@ module.exports = class Server
     {
         this.http = http.createServer((request, response) =>
         {
-            console.log('on request')
-            this.onRequest.dispatch(request, response)
+            const server = new Server(request, response)
+            this.onServer.dispatch(server)
             /*const filePath = request.url === '/' ? this.homeFile : (this.viewPath + request.url)
 
             if (hasCacheFile(filePath))
