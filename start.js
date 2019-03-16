@@ -37,9 +37,7 @@ let postManager
 getDataBase(config.database)
     .then(database =>
     {
-        console.log('Database connection: OK')
         postManager = new PostManager(database)
-
 
         router.add('/', 'GET', server => console.log('Home ok', server.getUrl()))
         router.add('/api/get.json', 'GET', server =>

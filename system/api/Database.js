@@ -42,5 +42,9 @@ module.exports = getDataBase = ({ host = 'localhost', port = 27017, name = 'insp
 {
     const url = 'mongodb://' + host + ':' + port
     return MongoClient.connect(url, { useNewUrlParser: true })
-        .then(db => new DataBase(db.db(name)))
+        .then(db =>
+        {
+            console.log('Database connected ' + url + ' name: ' + name)
+            return new DataBase(db.db(name))
+        })
 }
