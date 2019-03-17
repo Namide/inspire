@@ -19,8 +19,9 @@ const MIME_TYPES = {
 
 const getExt = fileName => String(path.extname(fileName)).toLowerCase()
 const getMimeType = fileName => MIME_TYPES[getExt(fileName)] || 'application/octet-stream'
+const extToMimeType = ext => MIME_TYPES[ext] || 'application/octet-stream'
 const gzipable = fileName => ['.html', '.json', '.css', '.js'].indexOf(getExt(fileName)) > -1
 const isAsset = fileName => ['.html', '.css', '.js'].indexOf(getExt(fileName)) > -1
 const isDynamic = fileName => ['.json'].indexOf(getExt(fileName)) > -1
 
-module.exports = { getExt, getMimeType, gzipable, isAsset, isDynamic }
+module.exports = { getExt, getMimeType, extToMimeType, gzipable, isAsset, isDynamic }

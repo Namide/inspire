@@ -20,6 +20,7 @@ setInterval(() =>
 }, 1000)
 */
 
+const fs = require('fs')
 const config = require('./config')
 const ServerManager = require('./system/ServerManager')
 const PostManager = require('./system/api/PostManager')
@@ -29,7 +30,6 @@ const getDataBase = require('./system/api/DataBase')
 const serverManager = new ServerManager(config.server.port)
 const router = new Router('./public')
 
-serverManager.onServer.add(router.test.bind(router))
 
 let postManager
 
@@ -37,25 +37,43 @@ let postManager
 getDataBase(config.database)
     .then(database =>
     {
+        serverManager.onServer.add(router.test.bind(router))
         postManager = new PostManager(database)
 
-        router.add('/', 'GET', server => console.log('Home ok', server.getUrl()))
-        router.add('/api/get.json', 'GET', server =>
+        router.add('/', 'GET', server =>
         {
+            const file = config.assets.dir + server.getPath() + 'index.html'
+            server.setContentType('.html')
+            server.serveFile(file)
+        })
+        router.add('/api/get', 'GET', server =>
+        {
+            server.setContentType('.json')
             const post = postManager.getPosts({})
-                .then(post => server.serveData('-->' + JSON.stringify(post) + '<--'))
-                .catch(error => server.serveData('error:' + error))
-            
+                .then(post => server.serveStr('-->' + JSON.stringify(post) + '<--'))
+                .catch(error => server.serveStr('error:' + error))
         })
-        router.add('/api/add.json', 'GET', server =>
+        router.add('/api/add', 'GET', server =>
         {
+            server.setContentType('.json')
             const post = postManager.insertPost({ test: Math.random() })
-            server.serveData('saved')
+                .then(() => server.serveStr('saved'))
         })
-        router.add('*', 'GET', server => console.log('404 ok', server.request.url))
+        router.add('/api', 'GET', server =>
+        {
+            server.setContentType('.json')
+            server.serveStr('{"success":false,"message":"Bad route"}')
+        })
+        router.add('*', 'GET', server =>
+        {
+            const file = config.assets.dir + server.getPath()
+            if (fs.existsSync(file))
+                server.serveFile(file)
+            else
+                server.serveError('Page not found')
+        })
     })
-    .catch(error => console.log(error))
-
+    .catch(error => console.log('Database connection error:', error.message))
 
 
 // If application closed

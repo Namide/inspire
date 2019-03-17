@@ -6,5 +6,11 @@
         "name": "inspire",
         "host": "localhost",
         "port": 27017
+    },
+    "cache": {
+        "enable": true
+    },
+    "assets": {
+        "dir": "./public"
     }
 }

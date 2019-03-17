@@ -1,6 +1,7 @@
 const http = require('http')
 const Signal = require('./utils/Signal')
-const { getExt, getMimeType, gzipable, isAsset, isDynamic } = require('./utils/FileUtils')
+const { getExt, getMimeType, extToMimeType, gzipable, isAsset, isDynamic } = require('./utils/FileUtils')
+const fs = require('fs')
 
 class Server
 {
@@ -8,17 +9,40 @@ class Server
     {
         this.request = request
         this.response = response
+        this.head = {  }
+
+        this.setContentType(this.getPath())
     }
 
-    getUrl() { return this.request.url }
-
-    serveData(raw, duration = 0)
+    setContentType(ext)
     {
-        const url = this.getUrl()
+        this.head['Content-Type'] = extToMimeType(ext)
+    }
 
-        const head = { 'Content-Type': getMimeType(url) }
-        this.response.writeHead(200, head)
-        this.response.end(raw)
+    getPath() { return this.request.url }
+
+    serveFile(file)
+    {
+        fs.readFile(file, (error, content) =>
+        {
+            if (!error)
+                this.serveStr(content)
+            else 
+                this.serveError('Sorry, file not found: ' + error.code)
+        })
+    }
+
+    serveError(message)
+    {
+        this.response.writeHead(500, this.head)
+        this.response.end(message)
+        this.response.end()
+    }
+
+    serveStr(str, duration = 0)
+    {
+        this.response.writeHead(200, this.head)
+        this.response.end(str)
 
         /*if (gzipable(url))
         {
@@ -62,7 +86,7 @@ module.exports = class ServerManager
             }
             else 
             {
-                this.serveError(response, 'Sorry, file not found: ' + error.code + ' ..\n')
+                this.serveError(response, 'File not found: ' + error.code)
             }
         })
     }
