@@ -67,10 +67,7 @@ getDataBase(config.database)
         router.add('*', 'GET', server =>
         {
             const file = config.assets.dir + server.getPath()
-            if (fs.existsSync(file))
-                server.serveFile(file)
-            else
-                server.serveError('Page not found')
+            server.serveFile(file)
         })
     })
     .catch(error => console.log('Database connection error:', error.message))

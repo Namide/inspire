@@ -9,27 +9,34 @@ class Server
     {
         this.request = request
         this.response = response
-        this.head = {  }
-
-        this.setContentType(this.getPath())
+        this.head = {
+            'Content-Type': getMimeType(this.getPath())
+        }
     }
+
+    getPath() { return this.request.url }
 
     setContentType(ext)
     {
         this.head['Content-Type'] = extToMimeType(ext)
     }
 
-    getPath() { return this.request.url }
-
     serveFile(file)
     {
-        fs.readFile(file, (error, content) =>
+        if (fs.existsSync(file))
         {
-            if (!error)
-                this.serveStr(content)
-            else 
-                this.serveError('Sorry, file not found: ' + error.code)
-        })
+            fs.readFile(file, (error, content) =>
+            {
+                if (!error)
+                    this.serveStr(content)
+                else 
+                    this.serveError('File not found: ' + error.code)
+            })
+        }
+        else
+        {   
+            this.serveError('Page not found: ' + file)
+        }
     }
 
     serveError(message)
@@ -76,19 +83,26 @@ module.exports = class ServerManager
         console.log('Server running at http://127.0.0.1:' + port + '/')
     }
 
-    serveFile(response, file)
+    serveFile(file)
     {
-        fs.readFile(file, (error, content) =>
+        if (fs.existsSync(file))
         {
-            if (!error)
+            fs.readFile(file, (error, content) =>
             {
-                this.serveData(response, content, file)
-            }
-            else 
-            {
-                this.serveError(response, 'File not found: ' + error.code)
-            }
-        })
+                if (!error)
+                {
+                    this.serveData(response, content, file)
+                }
+                else 
+                {
+                    this.serveError(response, 'File not found: ' + error.code)
+                }
+            })
+        }
+        else
+        {   
+            server.serveError('Page not found ' + file)
+        }
     }
 
     gzipData(content)
