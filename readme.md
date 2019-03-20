@@ -7,7 +7,12 @@ Todo: https://router.vuejs.org/guide/advanced/lazy-loading.html
 ## mongo database run
 
 ``` bash
+brew tap mongodb/brew
+brew install mongodb-community@4.0
+mongod --config /usr/local/etc/mongod.conf
+```
 
+``` bash
 "C:\Program Files\MongoDB\Server\3.2\bin\mongod.exe" --dbpath "${pwd}/data/db"
 "/d/software-64/MongoDB/Server/4.0/bin/mongod.exe" --dbpath "${pwd}/data/db"
 
