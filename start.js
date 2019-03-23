@@ -55,9 +55,20 @@ getDataBase(config.database)
         })
         router.add('/api/add', 'GET', server =>
         {
+            const postData = {}
+
             server.setContentType('.json')
-            const post = postManager.insertPost({ test: Math.random() })
-                .then(() => server.serveStr('saved'))
+            const ifPostValid = postManager.isValid(postData)
+            if (ifPostValid === true)
+            {
+                const post = postManager.insertPost(postData)
+                    .then(() => server.serveStr('saved'))
+
+            }
+            else
+            {
+                server.serveError(ifPostValid)
+            }
         })
         router.add('/api', 'GET', server =>
         {
