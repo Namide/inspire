@@ -46,38 +46,48 @@ getDataBase(config.database)
             server.setContentType('.html')
             server.serveFile(file)
         })
-        router.add('/api/get', 'GET', server =>
+        router.add('/api/post', 'GET', server =>
         {
             server.setContentType('.json')
             const post = postManager.getPosts({})
                 .then(post => server.serveStr('-->' + JSON.stringify(post) + '<--'))
                 .catch(error => server.serveStr('error:' + error))
         })
-        router.add('/api/add', 'GET', server =>
+        router.add('/api/post', 'POST', server =>
         {
-            const postData = {}
+            server.getForm()
+                .then(({ fields, files }) =>
+                {
+                    const postData = fields
+                    if (fields.tags)
+                        fields.tags = fields.tags.split(',')
+                    
 
-            server.setContentType('.json')
-            const ifPostValid = postManager.isValid(postData)
-            if (ifPostValid === true)
-            {
-                const post = postManager.insertPost(postData)
-                    .then(() => server.serveStr('saved'))
-
-            }
-            else
-            {
-                server.serveError(ifPostValid)
-            }
+                    const isPostValid = postManager.isValid(postData)
+                    if (isPostValid === true)
+                    {
+                        server.setContentType('.json')
+                        const post = postManager.insertPost(postData)
+                            .then(() => server.serveStr('saved'))
+                            .catch(err => server.serveError(err))
+                    }
+                    else
+                    {
+                        server.serveError(isPostValid)
+                    }
+                })
+                .catch(error => server.serveError(error))
+            
         })
         router.add('/api', 'GET', server =>
         {
             server.setContentType('.json')
             server.serveStr('{"success":false,"message":"Bad route"}')
-        })
+        }, false)
         router.add('*', 'GET', server =>
         {
             const file = config.assets.dir + server.getPath()
+            console.log('//>', file)
             server.serveFile(file)
         })
     })

@@ -19,7 +19,7 @@ module.exports = class Router
     getRouteCallback(path, method)
     {
         return this.routes.filter(route => route.equal).find(route => route.method === method && path === route.path)
-            || this.routes.filter(route => !route.equal).find(route => route.method === method && path.indexOf(route.path) === 0)
+            || this.routes.filter(route => !route.equal).find(route => route.method === method && !route.equal && path.indexOf(route.path) === 0)
             || this.routes.find(route => route.path === '*')
             || (request => console.log('Route not found:', request.url))
     }

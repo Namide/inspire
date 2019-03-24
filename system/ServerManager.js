@@ -16,6 +16,34 @@ class Server
 
     getPath() { return this.request.url }
 
+    getForm()
+    {
+        return new Promise((resolve, reject)=>
+        {
+            const Formidable = require('formidable')
+            const form = new Formidable.IncomingForm()
+            form.on('end', (...data) =>
+            {
+                console.log('--')
+                console.log(data)
+                console.log('--')
+            })
+            form.parse(this.request, (err, fields, files) =>
+            {
+                // console.log('==')
+                // console.log('==>', err.message)
+                // console.log('==')
+                if (err)
+                    reject(err.message)
+                else
+                {
+                    // const util = require('util')
+                    resolve({ fields, files }) // util.inspect({ fields, files }))
+                }
+            })
+        })
+    }
+
     setContentType(ext)
     {
         this.head['Content-Type'] = extToMimeType(ext)
@@ -30,20 +58,22 @@ class Server
                 if (!error)
                     this.serveStr(content)
                 else 
-                    this.serveError('File not found: ' + error.code)
+                    this.serveError('Can not serve file: ' + error.code)
             })
         }
         else
-        {   
-            this.serveError('Page not found: ' + file)
+        {
+            this.serveError('Page not found')
         }
     }
 
     serveError(message)
     {
-        this.response.writeHead(500, this.head)
+        this.setContentType('.html')
+        this.response.writeHead(404, this.head)
+        // this.response.writeHead(500, this.head)
+        // this.response.write(message)
         this.response.end(message)
-        this.response.end()
     }
 
     serveStr(str, duration = 0)
@@ -95,13 +125,13 @@ module.exports = class ServerManager
                 }
                 else 
                 {
-                    this.serveError(response, 'File not found: ' + error.code)
+                    this.serveError(response, 'Can not serve file: ' + error.code)
                 }
             })
         }
         else
         {   
-            server.serveError('Page not found ' + file)
+            server.serveError('Page not found ')
         }
     }
 
