@@ -12,5 +12,8 @@
     },
     "assets": {
         "dir": "./public"
+    },
+    "upload": {
+        "dir": "./data/upload"
     }
 }

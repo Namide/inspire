@@ -24,7 +24,7 @@ class DataBase
 
     findOne(collectionName, query, options = {})
     {
-        return this.db.collection(collectionName).findOne(query)
+        return this.db.collection(collectionName).findOne(query, options)
     }
 
     delete(collectionName, query, options = {})

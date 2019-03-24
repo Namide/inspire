@@ -16,33 +16,60 @@ class Server
 
     getPath() { return this.request.url }
 
-    getForm()
+    /*getForm()
     {
-        return new Promise((resolve, reject)=>
+        return new Promise((resolve, reject) =>
         {
-            const Formidable = require('formidable')
-            const form = new Formidable.IncomingForm()
-            form.on('end', (...data) =>
-            {
-                console.log('--')
-                console.log(data)
-                console.log('--')
-            })
+            const formidable = require('formidable')
+            const form = new formidable.IncomingForm()
+            // form.on('end', (...data) =>
+            // {
+            //     console.log('--')
+            //     console.log(data)
+            //     console.log('--')
+            // })
             form.parse(this.request, (err, fields, files) =>
             {
                 // console.log('==')
                 // console.log('==>', err.message)
                 // console.log('==')
-                if (err)
-                    reject(err.message)
+                // console.log('*>', require('util').inspect({ fields, files }))
+
+                fields.date = fields.date || Date.now()
+                const date = new Date(fields.date)
+                const year = date.getFullYear()
+                const month = ('0' + (date.getMonth() + 1)).slice(-2)
+
+                const file = files.file
+                if (file)
+                {
+                    const { path: oldPath, size, name, type } = file
+                    const newPath = this.uploadDir + '/' + year + '/' + month + '/' + name // files.filetoupload.name
+                    const { mvFile } = require('./utils/FileUtils')
+
+                    fields.content = Object.assign({ name, type, size, path: newPath }, fields.content)
+                    
+                    mvFile(oldPath, newPath)
+                        .then(file =>
+                        {
+                            fields.content.path = require('path').relative(this.uploadDir, file)
+                            resolve({ fields, files })
+                        })
+                        .catch(reject)
+                }
                 else
                 {
-                    // const util = require('util')
-                    resolve({ fields, files }) // util.inspect({ fields, files }))
+                    if (err)
+                        reject(err.message)
+                    else
+                    {
+                        // const util = require('util')
+                        resolve({ fields, files }) // util.inspect({ fields, files }))
+                    }
                 }
             })
         })
-    }
+    }*/
 
     setContentType(ext)
     {
@@ -73,7 +100,7 @@ class Server
         this.response.writeHead(404, this.head)
         // this.response.writeHead(500, this.head)
         // this.response.write(message)
-        this.response.end(message)
+        this.response.end(JSON.stringify({ success: false, message }))
     }
 
     serveStr(str, duration = 0)
@@ -113,7 +140,7 @@ module.exports = class ServerManager
         console.log('Server running at http://127.0.0.1:' + port + '/')
     }
 
-    serveFile(file)
+    /*serveFile(file)
     {
         if (fs.existsSync(file))
         {
@@ -202,12 +229,35 @@ module.exports = class ServerManager
                 }
             })
         })
-    }
+    }*/
 
     init(port)
     {
         this.http = http.createServer((request, response) =>
         {
+            /*{   // Fix formidable file uploads
+                const chunks = [];
+                const dataBufferedHandler = function(chunk)
+                {
+                    chunks.push(chunk)
+                }
+
+                req.on('data', dataBufferedHandler)
+
+                doSomethingWithTimeDelayAndInvoke(() =>
+                {
+                    req.removeListener("data", dataBufferedHandler)
+
+                    // handle any incoming chunks
+                    formidable.parse(req, () => 1)
+
+                    // pass to formidable all missed chunks
+                    for(const i in chunks)
+                        req.emit('data', chunks[i])
+                })
+            }*/
+
+
             const server = new Server(request, response)
             this.onServer.dispatch(server)
             /*const filePath = request.url === '/' ? this.homeFile : (this.viewPath + request.url)

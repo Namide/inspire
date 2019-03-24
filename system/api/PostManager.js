@@ -31,9 +31,10 @@ module.exports = class PostManager
      * 
      * @param {DataBase} database
      */
-    constructor(database)
+    constructor(database, uploadDir)
     {
         this.database = database
+        this.uploadDir = uploadDir
 
         /*this.skeleton = {
             title: val => IS_STRING(val, 128),
@@ -57,9 +58,74 @@ module.exports = class PostManager
         return postIsValid(post)
     }
 
+    inputToContent(request)
+    {
+        const formidable = require('formidable')
+        const form = new formidable.IncomingForm()
+        
+        return new Promise((resolve, reject) =>
+        {
+            form.parse(request, (err, fields, files) =>
+            {
+                fields.date = fields.date || Date.now()
+
+                if (fields.tags)
+                    fields.tags = fields.tags.split(',')
+
+                const isPostValid = this.isValid(fields)
+                if (isPostValid === true)
+                {
+                    const file = files.file
+                    if (file)
+                    {
+                        const date = new Date(fields.date)
+                        const year = date.getFullYear()
+                        const month = ('0' + (date.getMonth() + 1)).slice(-2)
+        
+                        const { path: oldPath, size, name, type } = file
+                        const newPath = this.uploadDir + '/' + year + '/' + month + '/' + name
+                        const { mvFile } = require('../utils/FileUtils')
+        
+                        if (!fields.content)
+                            fields.content = {}
+                        
+                        fields.content.data = Object.assign({ name, type, size, path: newPath }, fields.content.data || {})
+
+                        mvFile(oldPath, newPath)
+                            .then(file =>
+                            {
+                                fields.content.data.path = require('path').relative(this.uploadDir, file)
+                                resolve(fields)
+                            })
+                            .catch(reject)
+                    }
+                    else
+                    {
+                        if (err)
+                            reject(err.message)
+                        else
+                        {
+                            resolve(fields)
+                        }
+                    }
+
+                    // server.setContentType('.json')
+                    // const post = postManager.insertPost(postData)
+                    //     .then(() => server.serveStr(JSON.stringify(fields)))
+                    //     .catch(err => server.serveError(err))
+                }
+                else
+                {
+                    reject(isPostValid)
+                }
+            })
+        })
+    }
+
     insertPost(content, user)
     {
-        return this.database.insert(COLLECTION_NAME, content)
+        this.database.insert(COLLECTION_NAME, content)
+        return this.getLastPost(user)
     }
 
     updatePost(query, content, user)
@@ -80,5 +146,10 @@ module.exports = class PostManager
     getPost(query, user)
     {
         return this.database.findOne(COLLECTION_NAME, query)
+    }
+
+    getLastPost(user)
+    {
+        return this.database.findOne(COLLECTION_NAME, {}, { sort: { _id: -1 }})
     }
 }

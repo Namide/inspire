@@ -38,7 +38,7 @@ getDataBase(config.database)
     .then(database =>
     {
         serverManager.onServer.add(router.test.bind(router))
-        postManager = new PostManager(database)
+        postManager = new PostManager(database, config.upload.dir)
 
         router.add('/', 'GET', server =>
         {
@@ -50,25 +50,34 @@ getDataBase(config.database)
         {
             server.setContentType('.json')
             const post = postManager.getPosts({})
-                .then(post => server.serveStr('-->' + JSON.stringify(post) + '<--'))
+                .then(post => server.serveStr(JSON.stringify(post)))
                 .catch(error => server.serveStr('error:' + error))
         })
         router.add('/api/post', 'POST', server =>
         {
-            server.getForm()
+            postManager.inputToContent(server.request)
+                .then(postData => postManager.insertPost(postData))
+                .then(data =>
+                {
+                    server.setContentType('.json')
+                    server.serveStr(JSON.stringify(data))
+                    return data
+                })
+                .catch(err => server.serveError(err))
+
+            /*server.getForm()
                 .then(({ fields, files }) =>
                 {
                     const postData = fields
                     if (fields.tags)
                         fields.tags = fields.tags.split(',')
                     
-
                     const isPostValid = postManager.isValid(postData)
                     if (isPostValid === true)
                     {
                         server.setContentType('.json')
                         const post = postManager.insertPost(postData)
-                            .then(() => server.serveStr('saved'))
+                            .then(() => server.serveStr(JSON.stringify(fields)))
                             .catch(err => server.serveError(err))
                     }
                     else
@@ -76,7 +85,7 @@ getDataBase(config.database)
                         server.serveError(isPostValid)
                     }
                 })
-                .catch(error => server.serveError(error))
+                .catch(error => server.serveError(error.message))*/
             
         })
         router.add('/api', 'GET', server =>
@@ -87,7 +96,6 @@ getDataBase(config.database)
         router.add('*', 'GET', server =>
         {
             const file = config.assets.dir + server.getPath()
-            console.log('//>', file)
             server.serveFile(file)
         })
     })

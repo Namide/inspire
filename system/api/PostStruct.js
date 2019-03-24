@@ -64,7 +64,7 @@ const postIsValid = post =>
             case 'date' :
                 if (typeof value !== typeof 2)
                     return 'Date must be a number'
-                if (value > -1 && value < Infinity)
+                if (!(value > -1 && value < Infinity))
                     return 'Date must be positive and finite'
             
                 break
@@ -76,7 +76,7 @@ const postIsValid = post =>
             case 'score' :
                 if (typeof value !== typeof 2)
                     return 'Score must be a number'
-                if (value >= 0 && value <= 10)
+                if (!(value >= 0 && value <= 10))
                     return 'Scrore must be between 0 and 10'
             
                 break
@@ -84,11 +84,11 @@ const postIsValid = post =>
                 const isValid = imgIsValid(value, 'Thumb')
                 if (!isValid)
                     return isValid
-            
                 break
             case 'content' :
                 if (typeof value !== typeof {})
                     return 'Content must be an object'
+                break
             default :
                 return 'The property "' + key + '" don\'t exist'
         }
