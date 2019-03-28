@@ -26,21 +26,23 @@ const isDynamic = fileName => ['.json'].indexOf(getExt(fileName)) > -1
 const mvFile = (oldFile, newFile) =>
 {
     const fs = require('fs')
+    const path = require('path')
+
     const mkdirSyncRecursive = file =>
     {
-        const path = file.replace(/\/$/, '').split('/')
-        path.pop()
+        const tempPath = file.replace(/\/$/, '').split('/')
+        tempPath.pop()
 
-        for (let i = 1; i <= path.length; i++)
+        for (let i = 1; i <= tempPath.length; i++)
         {
-            const segment = path.slice(0, i).join('/')
-            !fs.existsSync(segment) ? fs.mkdirSync(segment) : null
+            const segment = tempPath.slice(0, i).join('/')
+            if (!fs.existsSync(segment))
+                fs.mkdirSync(segment)
         }
     }
 
     if (fs.existsSync(newFile))
     {
-        const path = require('path')
         const { dir, name, ext } = path.parse(newFile)
         let i = 1
         newFile = dir + '/' + name + '-' + i + ext

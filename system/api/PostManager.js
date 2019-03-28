@@ -83,8 +83,8 @@ module.exports = class PostManager
                         const month = ('0' + (date.getMonth() + 1)).slice(-2)
         
                         const { path: oldPath, size, name, type } = file
-                        const newPath = this.uploadDir + '/' + year + '/' + month + '/' + name
                         const { mvFile } = require('../utils/FileUtils')
+                        const newPath = this.uploadDir + '/' + year + '/' + month + '/' + name
         
                         if (!fields.content)
                             fields.content = {}
@@ -94,7 +94,8 @@ module.exports = class PostManager
                         mvFile(oldPath, newPath)
                             .then(file =>
                             {
-                                fields.content.data.path = require('path').relative(this.uploadDir, file)
+                                const path = require('path')
+                                fields.content.data.path = path.relative(this.uploadDir, file).split(path.sep).join('/')
                                 resolve(fields)
                             })
                             .catch(reject)

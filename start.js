@@ -30,20 +30,23 @@ const getDataBase = require('./system/api/DataBase')
 const serverManager = new ServerManager(config.server.port)
 const router = new Router('./public')
 
-
-let postManager
-
 // Database connection
 getDataBase(config.database)
     .then(database =>
     {
         serverManager.onServer.add(router.test.bind(router))
-        postManager = new PostManager(database, config.upload.dir)
+        const postManager = new PostManager(database, config.upload.dir)
 
         router.add('/', 'GET', server =>
         {
             const file = config.assets.dir + server.getPath() + 'index.html'
             server.setContentType('.html')
+            server.serveFile(file)
+        })
+        router.add('/api/file', 'GET', server =>
+        {
+            const file = config.upload.dir + server.getPath().replace('/api/file', '')
+            console.log(file)
             server.serveFile(file)
         })
         router.add('/api/post', 'GET', server =>
@@ -63,30 +66,7 @@ getDataBase(config.database)
                     server.serveStr(JSON.stringify(data))
                     return data
                 })
-                .catch(err => server.serveError(err))
-
-            /*server.getForm()
-                .then(({ fields, files }) =>
-                {
-                    const postData = fields
-                    if (fields.tags)
-                        fields.tags = fields.tags.split(',')
-                    
-                    const isPostValid = postManager.isValid(postData)
-                    if (isPostValid === true)
-                    {
-                        server.setContentType('.json')
-                        const post = postManager.insertPost(postData)
-                            .then(() => server.serveStr(JSON.stringify(fields)))
-                            .catch(err => server.serveError(err))
-                    }
-                    else
-                    {
-                        server.serveError(isPostValid)
-                    }
-                })
-                .catch(error => server.serveError(error.message))*/
-            
+                .catch(err => server.serveError(err))            
         })
         router.add('/api', 'GET', server =>
         {
