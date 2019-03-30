@@ -1,5 +1,3 @@
-const { postIsValid } = require('./PostStruct')
-
 const COLLECTION_NAME = 'post'
 
 const POST_TYPE = {
@@ -53,26 +51,40 @@ module.exports = class PostManager
         }*/
     }
 
-    isValid(post)
+    inputDelete(request)
     {
-        return postIsValid(post)
-    }
-
-    inputToContent(request)
-    {
-        const formidable = require('formidable')
-        const form = new formidable.IncomingForm()
-        
         return new Promise((resolve, reject) =>
         {
+            const formidable = require('formidable')
+            const form = new formidable.IncomingForm()
+
+            form.parse(request, (err, fields, files) =>
+            {
+                const post = require('./PostStruct').formatPost(fields)
+
+                if (Object.keys(post).length > 0)
+                    resolve(post)
+                else
+                    reject('One property minimum required')
+            })
+        })
+    }
+
+    inputPost(request)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            const formidable = require('formidable')
+            const form = new formidable.IncomingForm()
+    
             form.parse(request, (err, fields, files) =>
             {
                 fields.date = fields.date || Date.now()
 
                 if (fields.tags)
                     fields.tags = fields.tags.split(',')
-
-                const isPostValid = this.isValid(fields)
+    
+                const isPostValid = require('./PostStruct').postIsValid(fields)
                 if (isPostValid === true)
                 {
                     const file = files.file
@@ -85,7 +97,7 @@ module.exports = class PostManager
                         const { path: oldPath, size, name, type } = file
                         const { mvFile } = require('../utils/FileUtils')
                         const newPath = this.uploadDir + '/' + year + '/' + month + '/' + name
-        
+
                         if (!fields.content)
                             fields.content = {}
                         
@@ -123,10 +135,22 @@ module.exports = class PostManager
         })
     }
 
+    deleteFile(path)
+    {
+        try
+        {
+            require('fs').unlinkSync(path)
+            return true
+        }
+        catch (err)
+        {
+            return err.message
+        }
+    }
+
     insertPost(content, user)
     {
-        this.database.insert(COLLECTION_NAME, content)
-        return this.getLastPost(user)
+        return this.database.insert(COLLECTION_NAME, content)
     }
 
     updatePost(query, content, user)
@@ -134,9 +158,31 @@ module.exports = class PostManager
         return this.database.update(COLLECTION_NAME, query, content)
     }
 
-    deletePost(query, user)
+    deletePosts(query, user)
     {
-        return this.database.delete(COLLECTION_NAME, query)
+        return this.getPosts(query, user)
+            .then(posts => 
+            {
+                posts.forEach(post =>
+                {
+                    if (post.thumb && post.thumb.path)
+                    {
+                        const deleted = this.deleteFile(this.uploadDir + '/' + post.thumb.path)
+                        if (deleted !== true)
+                            throw 'Error when delete the thumb: ' + JSON.stringify(post.thumb) + ': ' + deleted
+                    }
+    
+                    if (post.content && post.content.data && post.content.data.path)
+                    {
+                        const deleted = this.deleteFile(this.uploadDir + '/' + post.content.data.path)
+                        if (deleted !== true)
+                            throw 'Error when delete the file: ' + JSON.stringify(post.content) + ': ' + deleted
+                    }
+                })
+
+                return posts      
+            })
+            .then(() => this.database.delete(COLLECTION_NAME, query))
     }
 
     getPosts(query, user)

@@ -52,14 +52,26 @@ getDataBase(config.database)
         router.add('/api/post', 'GET', server =>
         {
             server.setContentType('.json')
-            const post = postManager.getPosts({})
-                .then(post => server.serveStr(JSON.stringify(post)))
+            postManager.getPosts({})
+                .then(posts => server.serveStr(JSON.stringify(posts)))
                 .catch(error => server.serveStr('error:' + error))
         })
         router.add('/api/post', 'POST', server =>
         {
-            postManager.inputToContent(server.request)
+            postManager.inputPost(server.request, 'POST')
                 .then(postData => postManager.insertPost(postData))
+                .then(data =>
+                {
+                    server.setContentType('.json')
+                    server.serveStr(JSON.stringify(data))
+                    return data
+                })
+                .catch(err => server.serveError(err))            
+        })
+        router.add('/api/post', 'DELETE', server =>
+        {
+            postManager.inputDelete(server.request)
+                .then(postData => postManager.deletePosts(postData))
                 .then(data =>
                 {
                     server.setContentType('.json')

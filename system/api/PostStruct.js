@@ -5,11 +5,11 @@ const imgIsValid = (obj, label) =>
         const value = value[key]
         switch (key)
         {
-            case 'src' :
+            case 'path' :
                 if (typeof value !== typeof '')
-                    return label + '.src must be a string'
+                    return label + '.path must be a string'
                 if (value.length > 1024)
-                    return label + '.src can not exceed 1024 characters'
+                    return label + '.path can not exceed 1024 characters'
                 break
             case 'width' :
                 if (typeof value !== typeof 2)
@@ -97,4 +97,40 @@ const postIsValid = post =>
     return true
 }
 
-module.exports = { postIsValid }
+const formatPost = post =>
+{
+    const base = {
+        title: String,
+        description: String,
+        tags: [String],
+        date: Number,
+        public: Boolean,
+        score: Number,
+        thumb: {},
+        content: {}
+    }
+
+    const test = (post, base) =>
+    {
+        if (Array.isArray(base))
+            return post.map(value => test(value, base[0]))
+        else if (typeof base === typeof {})
+        {
+            for (key in post)
+                post[key] = test(post[key], base[key])
+            return post
+        }
+        else if (base === String)
+            return String(post)
+        else if (base === Boolean)
+            return Boolean(post)
+        else if (base === Number)
+            return Number(post)
+        else
+            return post
+    }
+
+    return test(post, base)
+}
+
+module.exports = { postIsValid, formatPost }
