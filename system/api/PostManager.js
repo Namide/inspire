@@ -70,6 +70,58 @@ module.exports = class PostManager
         })
     }
 
+    inputUpdate(request)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            const formidable = require('formidable')
+            const form = new formidable.IncomingForm()
+
+            form.parse(request, (err, fields, files) =>
+            {
+                const post = require('./PostStruct').formatPost(fields)
+
+                if (fields._id === undefined)
+                    reject('_id property is required')
+                else if (files.file)
+                    this.inputFile(files.file)
+                        .then(content =>
+                        {
+                            post.content = Object.assign(post.content || {}, content)
+                            resolve(post)
+                        })
+                        .catch(reject)
+                else if (Object.keys(post).length > 1)
+                    resolve(post)
+                else
+                    reject('Two properties minimum required')
+            })
+        })
+    }
+
+    inputFile(file, { date = new Date() } = {})
+    {
+        return new Promise((resolve, reject) =>
+        {
+            const year = date.getFullYear()
+            const month = ('0' + (date.getMonth() + 1)).slice(-2)
+
+            const { path: oldPath, size, name, type } = file
+            const { mvFile } = require('../utils/FileUtils')
+            const newPath = this.uploadDir + '/' + year + '/' + month + '/' + name              
+            const content = { name, type, size, path: newPath }
+
+            mvFile(oldPath, newPath)
+                .then(file =>
+                {
+                    const path = require('path')
+                    content.path = path.relative(this.uploadDir, file).split(path.sep).join('/')
+                    resolve(content)
+                })
+                .catch(reject)
+        })
+    }
+
     inputPost(request)
     {
         return new Promise((resolve, reject) =>
@@ -87,45 +139,16 @@ module.exports = class PostManager
                 const isPostValid = require('./PostStruct').postIsValid(fields)
                 if (isPostValid === true)
                 {
-                    const file = files.file
-                    if (file)
-                    {
-                        const date = new Date(fields.date)
-                        const year = date.getFullYear()
-                        const month = ('0' + (date.getMonth() + 1)).slice(-2)
-        
-                        const { path: oldPath, size, name, type } = file
-                        const { mvFile } = require('../utils/FileUtils')
-                        const newPath = this.uploadDir + '/' + year + '/' + month + '/' + name
-
-                        if (!fields.content)
-                            fields.content = {}
-                        
-                        fields.content.data = Object.assign({ name, type, size, path: newPath }, fields.content.data || {})
-
-                        mvFile(oldPath, newPath)
-                            .then(file =>
+                    if (files.file)
+                        this.inputFile(files.file, { date: new Date(fields.date) })
+                            .then(content =>
                             {
-                                const path = require('path')
-                                fields.content.data.path = path.relative(this.uploadDir, file).split(path.sep).join('/')
+                                fields.content = Object.assign(fields.content || {}, content)
                                 resolve(fields)
                             })
                             .catch(reject)
-                    }
                     else
-                    {
-                        if (err)
-                            reject(err.message)
-                        else
-                        {
-                            resolve(fields)
-                        }
-                    }
-
-                    // server.setContentType('.json')
-                    // const post = postManager.insertPost(postData)
-                    //     .then(() => server.serveStr(JSON.stringify(fields)))
-                    //     .catch(err => server.serveError(err))
+                        resolve(fields)
                 }
                 else
                 {
@@ -148,14 +171,43 @@ module.exports = class PostManager
         }
     }
 
-    insertPost(content, user)
+    insertPost(data, user)
     {
-        return this.database.insert(COLLECTION_NAME, content)
+        return this.database.insert(COLLECTION_NAME, data)
     }
 
-    updatePost(query, content, user)
+    updatePost(data, user)
     {
-        return this.database.update(COLLECTION_NAME, query, content)
+        const query = { _id: data._id }
+        delete data._id
+
+        if (data.content)
+        {
+            return this.getPost(query, user)
+                .then(post => 
+                {
+                    if (post.thumb && post.thumb.path)
+                    {
+                        const deleted = this.deleteFile(this.uploadDir + '/' + post.thumb.path)
+                        if (deleted !== true)
+                            throw 'Error when delete thumb: ' + JSON.stringify(post.thumb) + ': ' + deleted
+                    }
+    
+                    if (post.content && post.content.path)
+                    {
+                        const deleted = this.deleteFile(this.uploadDir + '/' + post.content.path)
+                        if (deleted !== true)
+                            throw 'Error when delete file: ' + JSON.stringify(post.content) + ': ' + deleted
+                    }
+
+                    return post      
+                })
+                .then(() => this.database.update(COLLECTION_NAME, query, data))
+        }
+        else
+        {
+            return this.database.update(COLLECTION_NAME, query, data)
+        }
     }
 
     deletePosts(query, user)
@@ -172,9 +224,9 @@ module.exports = class PostManager
                             throw 'Error when delete the thumb: ' + JSON.stringify(post.thumb) + ': ' + deleted
                     }
     
-                    if (post.content && post.content.data && post.content.data.path)
+                    if (post.content && post.content && post.content.path)
                     {
-                        const deleted = this.deleteFile(this.uploadDir + '/' + post.content.data.path)
+                        const deleted = this.deleteFile(this.uploadDir + '/' + post.content.path)
                         if (deleted !== true)
                             throw 'Error when delete the file: ' + JSON.stringify(post.content) + ': ' + deleted
                     }

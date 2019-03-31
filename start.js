@@ -46,9 +46,8 @@ getDataBase(config.database)
         router.add('/api/file', 'GET', server =>
         {
             const file = config.upload.dir + server.getPath().replace('/api/file', '')
-            console.log(file)
             server.serveFile(file)
-        })
+        }, false)
         router.add('/api/post', 'GET', server =>
         {
             server.setContentType('.json')
@@ -58,8 +57,20 @@ getDataBase(config.database)
         })
         router.add('/api/post', 'POST', server =>
         {
-            postManager.inputPost(server.request, 'POST')
+            postManager.inputPost(server.request)
                 .then(postData => postManager.insertPost(postData))
+                .then(data =>
+                {
+                    server.setContentType('.json')
+                    server.serveStr(JSON.stringify(data))
+                    return data
+                })
+                .catch(err => server.serveError(err))            
+        })
+        router.add('/api/post', 'PUT', server =>
+        {
+            postManager.inputUpdate(server.request)
+                .then(postData => postManager.updatePost(postData))
                 .then(data =>
                 {
                     server.setContentType('.json')

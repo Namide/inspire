@@ -26,7 +26,22 @@ class DataBase
 
     update(collectionName, query, content, options = {})
     {
-        return this.db.collection(collectionName).updateOne(query, { $set: content })
+        if (query._id)
+            query._id = new MongoDB.ObjectID(query._id)
+
+        return new Promise((resolve, reject) =>
+        {
+            this.db.collection(collectionName).updateOne(query, { $set: content }, (error, results) =>
+            {
+                console.log(results.modifiedCount > 0, ' -> ',results)
+                if (error)
+                    reject(error.message)
+                else if (results.modifiedCount === 0)
+                    reject('Element not modified')
+                else
+                    resolve(this.findOne(collectionName, query))
+            })
+        })
     }
 
     find(collectionName, query, options = {})
@@ -43,12 +58,13 @@ class DataBase
                         .catch(error => reject(error))
             })
         })
-
-        // return this.db.collection(collectionName).find(query).toArray()
     }
 
     findOne(collectionName, query, options = {})
     {
+        if (query._id)
+            query._id = new MongoDB.ObjectID(query._id)
+
         return new Promise((resolve, reject) =>
         {
             this.db.collection(collectionName).findOne(query, (error, results) =>
