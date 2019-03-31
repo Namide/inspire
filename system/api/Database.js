@@ -45,6 +45,9 @@ class DataBase
 
     find(collectionName, query, options = {})
     {
+        if (query._id)
+            query._id = new MongoDB.ObjectID(query._id)
+
         return new Promise((resolve, reject) =>
         {
             this.db.collection(collectionName).find(query, (error, results) =>

@@ -35,7 +35,7 @@ getDataBase(config.database)
     .then(database =>
     {
         serverManager.onServer.add(router.test.bind(router))
-        const postManager = new PostManager(database, config.upload.dir)
+        const postManager = new PostManager(database)
 
         router.add('/', 'GET', server =>
         {

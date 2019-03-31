@@ -1,3 +1,5 @@
+const CONFIG = require('../../config.json')
+
 const COLLECTION_NAME = 'post'
 
 const POST_TYPE = {
@@ -29,10 +31,9 @@ module.exports = class PostManager
      * 
      * @param {DataBase} database
      */
-    constructor(database, uploadDir)
+    constructor(database)
     {
         this.database = database
-        this.uploadDir = uploadDir
 
         /*this.skeleton = {
             title: val => IS_STRING(val, 128),
@@ -85,9 +86,10 @@ module.exports = class PostManager
                     reject('_id property is required')
                 else if (files.file)
                     this.inputFile(files.file)
-                        .then(content =>
+                        .then(({ content, thumb = null }) =>
                         {
                             post.content = Object.assign(post.content || {}, content)
+                            post.thumb = Object.assign(post.thumb || {}, thumb)
                             resolve(post)
                         })
                         .catch(reject)
@@ -99,24 +101,82 @@ module.exports = class PostManager
         })
     }
 
+    createThumb(originalImage)
+    {
+        const path = require('path')
+        const sharp = require('sharp')
+        const sizeOf = require('image-size')
+        const { getFilenameAvailable, mkDirForFile } = require('../utils/FileUtils')
+
+        const { width, height } = sizeOf(originalImage)
+        const pixels = width * height
+        let thumbWidth, thumbHeight
+        if (pixels > CONFIG.thumb.pixels)
+        {
+            const mult = Math.sqrt(CONFIG.thumb.pixels / pixels)
+            thumbWidth = Math.round(width * mult)
+            thumbHeight = Math.round(height * mult)
+        }
+        else
+        {
+            thumbWidth = width
+            thumbHeight = height
+        }
+        
+        let thumbName = originalImage.replace(CONFIG.upload.dir + '/' + CONFIG.upload.file, CONFIG.upload.dir + '/' + CONFIG.thumb.dir)
+        thumbName = getFilenameAvailable(thumbName)
+        mkDirForFile(thumbName)
+
+        return new Promise((resolve, reject) =>
+        {
+            sharp(originalImage)
+                .resize(thumbWidth, thumbHeight) // 512 * 1024 CONFIG.thumb.pixels
+                .toFile(thumbName, (err, info) =>
+                {
+                    if (err)
+                        return reject(err.message)
+
+                    const thumb = {
+                        type: 'image/' + info.format,
+                        size: info.size,
+                        path: path.relative(CONFIG.upload.dir, thumbName).split(path.sep).join('/'),
+                        width: info.width,
+                        height: info.height
+                    }
+
+                    resolve(thumb)
+                })
+        })
+    }
+
     inputFile(file, { date = new Date() } = {})
     {
         return new Promise((resolve, reject) =>
         {
+            const path = require('path')
+            const { mvFile, isImage } = require('../utils/FileUtils')
+
             const year = date.getFullYear()
             const month = ('0' + (date.getMonth() + 1)).slice(-2)
-
             const { path: oldPath, size, name, type } = file
-            const { mvFile } = require('../utils/FileUtils')
-            const newPath = this.uploadDir + '/' + year + '/' + month + '/' + name              
+            const newPath = CONFIG.upload.dir + '/' + CONFIG.upload.file + '/' + year + '/' + month + '/' + name              
             const content = { name, type, size, path: newPath }
 
             mvFile(oldPath, newPath)
                 .then(file =>
                 {
-                    const path = require('path')
-                    content.path = path.relative(this.uploadDir, file).split(path.sep).join('/')
-                    resolve(content)
+                    content.path = path.relative(CONFIG.upload.dir, file).split(path.sep).join('/')
+
+                    if (isImage(file))
+                    {
+                        this.createThumb(file)
+                            .then(thumb => resolve({ content, thumb }))
+                            .catch(reject)
+                    }
+                    else
+                    {
+                        resolve({ content })
+                    }
                 })
                 .catch(reject)
         })
@@ -141,9 +201,10 @@ module.exports = class PostManager
                 {
                     if (files.file)
                         this.inputFile(files.file, { date: new Date(fields.date) })
-                            .then(content =>
+                            .then(({ content, thumb = null }) =>
                             {
                                 fields.content = Object.assign(fields.content || {}, content)
+                                fields.thumb = Object.assign(fields.thumb || {}, thumb)
                                 resolve(fields)
                             })
                             .catch(reject)
@@ -188,14 +249,14 @@ module.exports = class PostManager
                 {
                     if (post.thumb && post.thumb.path)
                     {
-                        const deleted = this.deleteFile(this.uploadDir + '/' + post.thumb.path)
+                        const deleted = this.deleteFile(CONFIG.upload.dir + '/' + post.thumb.path)
                         if (deleted !== true)
                             throw 'Error when delete thumb: ' + JSON.stringify(post.thumb) + ': ' + deleted
                     }
     
                     if (post.content && post.content.path)
                     {
-                        const deleted = this.deleteFile(this.uploadDir + '/' + post.content.path)
+                        const deleted = this.deleteFile(CONFIG.upload.dir + '/' + post.content.path)
                         if (deleted !== true)
                             throw 'Error when delete file: ' + JSON.stringify(post.content) + ': ' + deleted
                     }
@@ -219,16 +280,16 @@ module.exports = class PostManager
                 {
                     if (post.thumb && post.thumb.path)
                     {
-                        const deleted = this.deleteFile(this.uploadDir + '/' + post.thumb.path)
+                        const deleted = this.deleteFile(CONFIG.upload.dir + '/' + post.thumb.path)
                         if (deleted !== true)
-                            throw 'Error when delete the thumb: ' + JSON.stringify(post.thumb) + ': ' + deleted
+                            throw 'Error when delete thumb: ' + JSON.stringify(post.thumb) + ': ' + deleted
                     }
     
-                    if (post.content && post.content && post.content.path)
+                    if (post.content && post.content.path)
                     {
-                        const deleted = this.deleteFile(this.uploadDir + '/' + post.content.path)
+                        const deleted = this.deleteFile(CONFIG.upload.dir + '/' + post.content.path)
                         if (deleted !== true)
-                            throw 'Error when delete the file: ' + JSON.stringify(post.content) + ': ' + deleted
+                            throw 'Error when delete file: ' + JSON.stringify(post.content) + ': ' + deleted
                     }
                 })
 
