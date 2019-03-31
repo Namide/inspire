@@ -33,7 +33,6 @@ class DataBase
         {
             this.db.collection(collectionName).updateOne(query, { $set: content }, (error, results) =>
             {
-                console.log(results.modifiedCount > 0, ' -> ',results)
                 if (error)
                     reject(error.message)
                 else if (results.modifiedCount === 0)

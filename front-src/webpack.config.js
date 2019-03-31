@@ -6,6 +6,7 @@ var WebpackCleanPlugin = require('webpack-clean')
 var MinifyPlugin = require('babel-minify-webpack-plugin')
 var CompressionPlugin = require('compression-webpack-plugin')
 var MiniCssExtractPlugin = require("mini-css-extract-plugin")
+var serverConfig = require('../config.json')
 
 module.exports = function(env, argv) {
 
@@ -24,7 +25,7 @@ module.exports = function(env, argv) {
 
         // Export js builds in the public/assets/js/ dir
         output: {
-            path: path.resolve(__dirname, './public'),
+            path: path.resolve(__dirname, '../public'),
             publicPath: '/',
             filename: 'assets/js/[name].js',
         },
@@ -66,7 +67,7 @@ module.exports = function(env, argv) {
                 // Gzip files
                 new CompressionPlugin({
                     filename: '[path].gz[query]',
-                    include: ['./public/**/*.css'],
+                    include: ['../public/**/*.css'],
                     algorithm: 'gzip',
                     test: /\.(js|css|sass|scss|html)$/i, // /\.js$|\.css$|\.html$/,
                     threshold: 10240,
@@ -150,13 +151,13 @@ module.exports = function(env, argv) {
                 ]
             }*/,
 
-            contentBase: path.join(__dirname, 'public'),
+            contentBase: path.join(__dirname, '../public'),
 
             noInfo: true,
             overlay: true,
 
             proxy: {
-                '/api': 'http://inspire.local'
+                '/api': serverConfig.server.host + ':' + serverConfig.server.port // 'http://inspire.local'
             }
 
             // headers: {
