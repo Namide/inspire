@@ -77,7 +77,7 @@ const postIsValid = post =>
                 if (typeof value !== typeof 2)
                     return 'Score must be a number'
                 if (!(value >= 0 && value <= 10))
-                    return 'Scrore must be between 0 and 10'
+                    return 'Score must be between 0 and 10'
             
                 break
             case 'thumb' :

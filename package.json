@@ -9,6 +9,7 @@
     "start": "node ./start.js"
   },
   "dependencies": {
+    "bcrypt": "^3.0.5",
     "formidable": "^1.2.1",
     "image-size": "^0.7.2",
     "mongodb": "^3.1.13",

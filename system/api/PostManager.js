@@ -247,6 +247,7 @@ module.exports = class PostManager
             return this.getPost(query, user)
                 .then(post => 
                 {
+                    // Replace thumb
                     if (post.thumb && post.thumb.path)
                     {
                         const deleted = this.deleteFile(CONFIG.upload.dir + '/' + post.thumb.path)
@@ -254,6 +255,7 @@ module.exports = class PostManager
                             throw 'Error when delete thumb: ' + JSON.stringify(post.thumb) + ': ' + deleted
                     }
     
+                    // Replace file
                     if (post.content && post.content.path)
                     {
                         const deleted = this.deleteFile(CONFIG.upload.dir + '/' + post.content.path)
