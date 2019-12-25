@@ -232,19 +232,19 @@ module.exports = class PostManager
         }
     }
 
-    insertPost(data, user)
+    insertPost(data, connectedUser)
     {
         return this.database.insert(COLLECTION_NAME, data)
     }
 
-    updatePost(data, user)
+    updatePost(data, connectedUser)
     {
         const query = { _id: data._id }
         delete data._id
 
         if (data.content)
         {
-            return this.getPost(query, user)
+            return this.getPost(query, connectedUser)
                 .then(post => 
                 {
                     // Replace thumb
@@ -273,9 +273,9 @@ module.exports = class PostManager
         }
     }
 
-    deletePosts(query, user)
+    deletePosts(query, connectedUser)
     {
-        return this.getPosts(query, user)
+        return this.getPosts(query, connectedUser)
             .then(posts => 
             {
                 posts.forEach(post =>
@@ -300,17 +300,17 @@ module.exports = class PostManager
             .then(() => this.database.delete(COLLECTION_NAME, query))
     }
 
-    getPosts(query, user)
+    getPosts(query, connectedUser)
     {
         return this.database.find(COLLECTION_NAME, query)
     }
 
-    getPost(query, user)
+    getPost(query, connectedUser)
     {
         return this.database.findOne(COLLECTION_NAME, query)
     }
 
-    getLastPost(user)
+    getLastPost(connectedUser)
     {
         return this.database.findOne(COLLECTION_NAME, {}, { sort: { _id: -1 }})
     }

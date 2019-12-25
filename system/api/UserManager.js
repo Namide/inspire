@@ -95,7 +95,6 @@ module.exports = class UserManager
 
     inputUser(data, connectedUser)
     {
-
     }
 
     insertUser(data, connectedUser)
@@ -137,19 +136,48 @@ module.exports = class UserManager
         })
     }
 
-    getUser(data, connectedUser)
+    getUser(query, connectedUser)
     {
-
+        return this.database.findOne(COLLECTION_NAME, query)
     }
 
-    getUsers(data, connectedUser)
+    getUsers(query, connectedUser)
     {
-
+        return this.database.find(COLLECTION_NAME, query)
     }
 
     updateUser(data, connectedUser)
     {
+        const query = { _id: data._id }
+        delete data._id
 
+        return new Promise((resolve, reject) =>
+        {
+            const isUserValid = checkUser(data)
+    
+            if (isUserValid !== true)
+                reject(isUserValid)
+            else
+            {
+                const insert = userData => this.database.update(COLLECTION_NAME, query, userData)
+
+                if (data.pass)
+                {
+                    require('bcrypt').hash(data.pass, 10)
+                        .then(hash =>
+                        {
+                            data.pass = hash
+                            return data
+                        })
+                        .then(insert)
+                        .catch(err => reject(err.message))
+                }
+                else
+                {
+                    return insert
+                }
+            }
+        })
     }
 
     deleteUser(data, connectedUser)
