@@ -31,7 +31,7 @@ services:
         environment:
             PMA_HOST: inspire-sql
             PMA_USER: Motoko
-            PMA_PASSWORD: passw0rd*
+            PMA_PASSWORD: p455w0rd&inspire
 
 volumes:
     inspire-volume:
