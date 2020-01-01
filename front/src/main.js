@@ -5,6 +5,9 @@ import router from './router'
 
 Vue.config.productionTip = false
 
+fetch('/api/inspire/items/posts')
+  .then(console.log)
+
 new Vue({
   router,
   render: h => h(App)

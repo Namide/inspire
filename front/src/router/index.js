@@ -1,22 +1,44 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import PageHome from '../views/Home'
+import PagePosts from '../views/Posts'
+import PageBoards from '../views/Boards'
+
+// Dynamic load
+const PageAdminPosts = () => import(/* webpackChunkName: "admin" */ '../views/AdminPosts')
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
     name: 'home',
-    component: Home
+    path: '/',
+    component: PageHome
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    name: 'posts',
+    path: '/post',
+    component: PagePosts
+  },
+  {
+    name: 'boards',
+    path: '/board',
+    component: PageBoards
+  },
+  {
+    name: 'adminHome',
+    path: '/admin',
+    component: PageHome
+  },
+  {
+    name: 'adminPosts',
+    path: '/admin/post',
+    component: PageAdminPosts
+  },
+  {
+    name: 'adminBoards',
+    path: '/admin/board',
+    component: PageBoards
   }
 ]
 

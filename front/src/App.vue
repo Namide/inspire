@@ -1,32 +1,31 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
+  <main id="app">
+    <h1 class="main-title">
+      Inspire
+    </h1>
+
+    <nav class="main-nav">
+      <router-link :to="{ name: 'posts' }" class="link">Posts</router-link>
+      <router-link :to="{ name: 'adminPosts' }" class="link">Admin</router-link>
+      <router-link :to="{ name: 'boards' }" class="link">Boards</router-link>
+    </nav>
+
     <router-view/>
-  </div>
+  </main>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<style lang="sass" scoped>
+.main-title
+  text-align: center
+  font-weight: bold
+  text-transform: uppercase
+  margin-top: 8vh
+  margin-bottom: 1vh
 
-#nav {
-  padding: 30px;
+.main-nav
+  text-align: center
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
+.link
+  display: inline-block
+  margin: 0 0.4em
 </style>

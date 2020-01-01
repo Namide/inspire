@@ -1,18 +1,36 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div>
+    <h2>Home page</h2>
+    <Tags @update:tags="onFiltered"></Tags>
+    <Posts :filter-tags="filterTags"></Posts>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import Posts from '@/views/Posts.vue'
+import Tags from '@/components/Tags.vue'
 
-export default {
-  name: 'home',
+export default
+{
   components: {
-    HelloWorld
+    Posts,
+    Tags
+  },
+
+  data () {
+    return {
+      filterTags: [],
+      tags: []
+    }
+  },
+
+  created () {
+  },
+
+  methods: {
+    onFiltered (tags) {
+      this.filterTags.splice(0, this.filterTags.length, ...tags)
+    }
   }
 }
 </script>
