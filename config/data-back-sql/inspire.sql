@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : inspire-sql
--- Généré le :  mer. 01 jan. 2020 à 18:21
+-- Généré le :  jeu. 02 jan. 2020 à 20:46
 -- Version du serveur :  5.7.27
 -- Version de PHP :  7.2.19
 
@@ -294,7 +294,7 @@ INSERT INTO `directus_fields` (`id`, `collection`, `field`, `type`, `interface`,
 (166, 'directus_webhooks', 'directus_action', 'string', 'dropdown', '{\"choices\":{\"item.create:after\":\"Create\",\"item.update:after\":\"Update\",\"item.delete:after\":\"Delete\"}}', 1, NULL, 1, 0, 0, 0, 5, 'half', NULL, '', NULL),
 (167, 'directus_webhooks', 'info', 'alias', 'divider', '{\"style\":\"medium\",\"title\":\"How Webhooks Work\",\"hr\":true,\"margin\":false,\"description\":\"When the selected action occurs for the selected collection, Directus will send an HTTP request to the above URL.\"}', 1, NULL, 0, 0, 0, 1, 6, 'full', NULL, NULL, NULL),
 (173, 'posts', 'id', 'integer', 'primary-key', NULL, 0, NULL, 0, 0, 1, 1, 1, 'full', NULL, NULL, NULL),
-(174, 'posts', 'status', 'status', 'status', '{\"status_mapping\":{\"published\":{\"name\":\"Published\",\"value\":\"published\",\"text_color\":\"white\",\"background_color\":\"accent\",\"browse_subdued\":false,\"browse_badge\":true,\"soft_delete\":false,\"published\":true,\"required_fields\":true},\"draft\":{\"name\":\"Draft\",\"value\":\"draft\",\"text_color\":\"white\",\"background_color\":\"blue-grey-100\",\"browse_subdued\":true,\"browse_badge\":true,\"soft_delete\":false,\"published\":false,\"required_fields\":false},\"deleted\":{\"name\":\"Deleted\",\"value\":\"deleted\",\"text_color\":\"white\",\"background_color\":\"red\",\"browse_subdued\":true,\"browse_badge\":true,\"soft_delete\":true,\"published\":false,\"required_fields\":false}}}', 0, NULL, 1, 0, 0, 0, 2, 'full', NULL, NULL, NULL),
+(174, 'posts', 'status', 'status', 'status', '{\"status_mapping\":{\"public\":{\"name\":\"Public\",\"value\":\"public\",\"text_color\":\"white\",\"background_color\":\"accent\",\"browse_subdued\":false,\"browse_badge\":true,\"soft_delete\":false,\"published\":true,\"required_fields\":true},\"protected\":{\"name\":\"Protected\",\"value\":\"protected\",\"text_color\":\"green\",\"published\":true,\"browse_subdued\":true,\"required_fields\":true},\"private\":{\"name\":\"Private\",\"value\":\"private\",\"text_color\":\"green\",\"published\":true,\"required_fields\":true,\"browse_badge\":true},\"draft\":{\"name\":\"Draft\",\"value\":\"draft\",\"text_color\":\"white\",\"background_color\":\"blue-grey-100\",\"browse_subdued\":true,\"browse_badge\":true,\"soft_delete\":false,\"published\":false,\"required_fields\":false},\"deleted\":{\"name\":\"Deleted\",\"value\":\"deleted\",\"text_color\":\"white\",\"background_color\":\"red\",\"browse_subdued\":true,\"browse_badge\":true,\"soft_delete\":true,\"published\":false,\"required_fields\":false}}}', 0, NULL, 1, 0, 0, 0, 2, 'full', NULL, '', '[]'),
 (175, 'posts', 'created_by', 'user_created', 'user-created', '{\"template\":\"{{first_name}} {{last_name}}\",\"display\":\"both\"}', 0, NULL, 0, 1, 1, 1, 14, 'full', NULL, NULL, NULL),
 (176, 'posts', 'created_on', 'datetime_created', 'datetime-created', NULL, 0, NULL, 0, 1, 1, 1, 15, 'full', NULL, NULL, NULL),
 (177, 'posts', 'title', 'string', 'text-input', '{\"trim\":true,\"showCharacterCount\":true,\"formatValue\":false,\"monospace\":false}', 0, NULL, 0, 0, 0, 0, 3, 'half-left', NULL, 'Headline of the post', '[]'),
@@ -306,8 +306,7 @@ INSERT INTO `directus_fields` (`id`, `collection`, `field`, `type`, `interface`,
 (183, 'posts', 'content_file', 'file', 'file', '{\"crop\":true,\"viewType\":\"cards\",\"viewOptions\":{\"title\":\"title\",\"subtitle\":\"type\",\"content\":\"description\",\"src\":\"data\"},\"viewQuery\":[],\"filters\":[]}', 0, NULL, 0, 0, 0, 0, 11, 'half', NULL, NULL, '[]'),
 (184, 'posts', 'types', 'array', 'multiselect', '{\"choices\":[{\"0\":\"O\",\"1\":\"p\",\"2\":\"t\",\"3\":\"i\",\"4\":\"o\",\"5\":\"n\",\"6\":\" \",\"7\":\"1\",\"name\":\"image\",\"value\":\"img\"},{\"0\":\"O\",\"1\":\"p\",\"2\":\"t\",\"3\":\"i\",\"4\":\"o\",\"5\":\"n\",\"6\":\" \",\"7\":\"2\",\"name\":\"video\",\"value\":\"video\"},{\"0\":\"O\",\"1\":\"p\",\"2\":\"t\",\"3\":\"i\",\"4\":\"o\",\"5\":\"n\",\"6\":\" \",\"7\":\"3\",\"name\":\"audio\",\"value\":\"audio\"},{\"0\":\"O\",\"1\":\"p\",\"2\":\"t\",\"3\":\"i\",\"4\":\"o\",\"5\":\"n\",\"6\":\" \",\"7\":\"4\",\"name\":\"document\",\"value\":\"document\"},{\"0\":\"O\",\"1\":\"p\",\"2\":\"t\",\"3\":\"i\",\"4\":\"o\",\"5\":\"n\",\"6\":\" \",\"7\":\"5\",\"name\":\"embed\",\"value\":\"embed\"},{\"name\":\"text\",\"value\":\"text\"},{\"name\":\"URL\",\"value\":\"url\"}],\"size\":\"7\",\"wrapWithDelimiter\":true,\"formatting\":\"text\"}', 0, NULL, 0, 0, 0, 0, 5, 'half', NULL, NULL, '[]'),
 (185, 'posts', 'score', 'decimal', 'rating', '{\"active_color\":\"amber\",\"max_stars\":5,\"display\":\"number\"}', 0, NULL, 0, 0, 0, 0, 13, 'half', NULL, NULL, '[]'),
-(186, 'posts', 'tags', 'array', 'tags', '{\"iconRight\":\"local_offer\",\"validationMessage\":\"Please enter a valid tag\",\"alphabetize\":true,\"lowercase\":false,\"wrap\":true,\"format\":false,\"sanitize\":false}', 0, NULL, 0, 0, 0, 0, 6, 'half', NULL, NULL, '[]'),
-(187, 'posts', 'visibility', 'string', 'dropdown', '{\"choices\":{\"public\":\"public\",\"protected\":\"protected\",\"private\":\"private\"},\"placeholder\":\"Choose an option...\",\"formatting\":true}', 0, NULL, 1, 0, 0, 0, 12, 'half', NULL, NULL, '[]');
+(186, 'posts', 'tags', 'array', 'tags', '{\"iconRight\":\"local_offer\",\"validationMessage\":\"Please enter a valid tag\",\"alphabetize\":true,\"lowercase\":false,\"wrap\":true,\"format\":false,\"sanitize\":false}', 0, NULL, 0, 0, 0, 0, 6, 'half', NULL, NULL, '[]');
 
 -- --------------------------------------------------------
 
@@ -461,6 +460,70 @@ CREATE TABLE `directus_permissions` (
   `status_blacklist` varchar(1000) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Déchargement des données de la table `directus_permissions`
+--
+
+INSERT INTO `directus_permissions` (`id`, `collection`, `role`, `status`, `create`, `read`, `update`, `delete`, `comment`, `explain`, `read_field_blacklist`, `write_field_blacklist`, `status_blacklist`) VALUES
+(1, 'directus_activity', 3, NULL, 'full', 'mine', 'none', 'none', 'update', 'none', NULL, NULL, NULL),
+(2, 'directus_collection_presets', 3, NULL, 'full', 'full', 'mine', 'mine', 'none', 'none', NULL, NULL, NULL),
+(3, 'directus_collections', 3, NULL, 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(4, 'directus_fields', 3, NULL, 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(5, 'directus_files', 3, NULL, 'full', 'full', 'full', 'full', 'none', 'none', NULL, NULL, NULL),
+(6, 'directus_folders', 3, NULL, 'full', 'full', 'full', 'full', 'none', 'none', NULL, NULL, NULL),
+(7, 'directus_permissions', 3, NULL, 'none', 'mine', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(8, 'directus_relations', 3, NULL, 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(9, 'directus_revisions', 3, NULL, 'full', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(10, 'directus_roles', 3, NULL, 'none', 'mine', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(11, 'directus_settings', 3, NULL, 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(12, 'directus_users', 3, 'active', 'none', 'full', 'mine', 'mine', 'none', 'none', NULL, NULL, NULL),
+(13, 'directus_users', 3, 'deleted', 'none', 'none', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(14, 'directus_users', 3, 'draft', 'none', 'none', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(15, 'directus_users', 3, 'invited', 'none', 'none', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(16, 'directus_users', 3, 'suspended', 'none', 'none', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(17, 'directus_activity', 4, NULL, 'full', 'mine', 'none', 'none', 'update', 'none', NULL, NULL, NULL),
+(18, 'directus_collection_presets', 4, NULL, 'full', 'full', 'mine', 'mine', 'none', 'none', NULL, NULL, NULL),
+(19, 'directus_collections', 4, NULL, 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(20, 'directus_fields', 4, NULL, 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(21, 'directus_files', 4, NULL, 'full', 'full', 'full', 'full', 'none', 'none', NULL, NULL, NULL),
+(22, 'directus_folders', 4, NULL, 'full', 'full', 'full', 'full', 'none', 'none', NULL, NULL, NULL),
+(23, 'directus_permissions', 4, NULL, 'none', 'mine', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(24, 'directus_relations', 4, NULL, 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(25, 'directus_revisions', 4, NULL, 'full', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(26, 'directus_roles', 4, NULL, 'none', 'mine', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(27, 'directus_settings', 4, NULL, 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(28, 'directus_users', 4, 'active', 'none', 'full', 'mine', 'mine', 'none', 'none', NULL, NULL, NULL),
+(29, 'directus_users', 4, 'deleted', 'none', 'none', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(30, 'directus_users', 4, 'draft', 'none', 'none', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(31, 'directus_users', 4, 'invited', 'none', 'none', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(32, 'directus_users', 4, 'suspended', 'none', 'none', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(33, 'directus_activity', 5, NULL, 'full', 'mine', 'none', 'none', 'update', 'none', NULL, NULL, NULL),
+(34, 'directus_collection_presets', 5, NULL, 'full', 'full', 'mine', 'mine', 'none', 'none', NULL, NULL, NULL),
+(35, 'directus_collections', 5, NULL, 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(36, 'directus_fields', 5, NULL, 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(37, 'directus_files', 5, NULL, 'full', 'full', 'full', 'full', 'none', 'none', NULL, NULL, NULL),
+(38, 'directus_folders', 5, NULL, 'full', 'full', 'full', 'full', 'none', 'none', NULL, NULL, NULL),
+(39, 'directus_permissions', 5, NULL, 'none', 'mine', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(40, 'directus_relations', 5, NULL, 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(41, 'directus_revisions', 5, NULL, 'full', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(42, 'directus_roles', 5, NULL, 'none', 'mine', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(43, 'directus_settings', 5, NULL, 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(44, 'directus_users', 5, 'active', 'none', 'full', 'mine', 'mine', 'none', 'none', NULL, NULL, NULL),
+(45, 'directus_users', 5, 'deleted', 'none', 'none', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(46, 'directus_users', 5, 'draft', 'none', 'none', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(47, 'directus_users', 5, 'invited', 'none', 'none', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(48, 'directus_users', 5, 'suspended', 'none', 'none', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(49, 'posts', 2, 'public', 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(50, 'posts', 3, 'public', 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(51, 'posts', 3, 'protected', 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(52, 'posts', 4, 'public', 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(53, 'posts', 4, 'protected', 'none', 'full', 'none', 'none', 'none', 'none', NULL, NULL, NULL),
+(54, 'posts', 5, 'public', 'full', 'full', 'full', 'mine', 'none', 'none', NULL, NULL, NULL),
+(55, 'posts', 5, 'protected', 'full', 'full', 'full', 'mine', 'none', 'none', NULL, NULL, NULL),
+(56, 'posts', 5, 'private', 'full', 'mine', 'mine', 'mine', 'none', 'none', NULL, NULL, NULL),
+(57, 'posts', 5, 'draft', 'full', 'mine', 'mine', 'mine', 'none', 'none', NULL, NULL, NULL),
+(58, 'posts', 5, 'deleted', 'full', 'mine', 'mine', 'mine', 'none', 'none', NULL, NULL, NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -534,7 +597,10 @@ CREATE TABLE `directus_roles` (
 
 INSERT INTO `directus_roles` (`id`, `name`, `description`, `ip_whitelist`, `external_id`, `module_listing`, `collection_listing`, `enforce_2fa`) VALUES
 (1, 'Administrator', 'Admins have access to all managed data within the system by default', NULL, NULL, NULL, NULL, 0),
-(2, 'Public', 'Controls what API data is publicly available without authenticating', NULL, NULL, NULL, NULL, 0);
+(2, 'Public', 'Controls what API data is publicly available without authenticating', NULL, NULL, NULL, NULL, 0),
+(3, 'Subscriber', 'Can see protected posts and boards', NULL, '9c82e66a-5f08-4144-9887-4528f66e6ef0', NULL, NULL, 0),
+(4, 'Author', 'Can only edit own protected posts and boardss', NULL, '6448f040-0866-4b49-84d8-7614fba20624', NULL, NULL, 0),
+(5, 'Editor', 'Can edit all protected posts and boards', NULL, '0a2b2447-7f07-417f-a326-7fd5b566a805', NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -610,7 +676,7 @@ CREATE TABLE `directus_users` (
 --
 
 INSERT INTO `directus_users` (`id`, `status`, `role`, `first_name`, `last_name`, `email`, `password`, `token`, `timezone`, `locale`, `locale_options`, `avatar`, `company`, `title`, `email_notifications`, `last_access_on`, `last_page`, `external_id`, `theme`, `2fa_secret`) VALUES
-(1, 'active', 1, 'Admin', 'User', 'inspire@inspire.com', '$2y$10$/xo1klwqxdLXERFRd4s7L.P3Npu7Vvgz61TZxxxzBNfF7TxOFVy9u', 'RafLEJvhnfecZkewgKg1yC9D', 'UTC', 'en-US', NULL, NULL, NULL, NULL, 0, '2020-01-01 18:21:26', '/inspire/collections', NULL, 'auto', NULL);
+(1, 'active', 1, 'Admin', 'User', 'inspire@inspire.com', '$2y$10$/xo1klwqxdLXERFRd4s7L.P3Npu7Vvgz61TZxxxzBNfF7TxOFVy9u', 'RafLEJvhnfecZkewgKg1yC9D', 'UTC', 'en-US', NULL, NULL, NULL, NULL, 0, '2020-01-02 20:46:10', '/inspire/users/1', NULL, 'auto', NULL);
 
 -- --------------------------------------------------------
 
@@ -628,6 +694,13 @@ CREATE TABLE `directus_user_sessions` (
   `created_on` datetime DEFAULT NULL,
   `token_expired_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Déchargement des données de la table `directus_user_sessions`
+--
+
+INSERT INTO `directus_user_sessions` (`id`, `user`, `token_type`, `token`, `ip_address`, `user_agent`, `created_on`, `token_expired_at`) VALUES
+(2, 1, 'cookie', 'RafLEJvhnfecZkewgKg1yC9D-2', '192.168.99.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36', '2020-01-02 19:50:18', '2020-01-09 20:46:22');
 
 -- --------------------------------------------------------
 
@@ -664,8 +737,7 @@ CREATE TABLE `posts` (
   `content_file` int(10) UNSIGNED DEFAULT NULL,
   `types` varchar(100) DEFAULT NULL,
   `score` float(5,0) DEFAULT '0',
-  `tags` varchar(2000) DEFAULT NULL,
-  `visibility` char(255) DEFAULT 'private'
+  `tags` varchar(2000) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -815,7 +887,7 @@ ALTER TABLE `directus_folders`
 -- AUTO_INCREMENT pour la table `directus_permissions`
 --
 ALTER TABLE `directus_permissions`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT pour la table `directus_relations`
@@ -833,7 +905,7 @@ ALTER TABLE `directus_revisions`
 -- AUTO_INCREMENT pour la table `directus_roles`
 --
 ALTER TABLE `directus_roles`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT pour la table `directus_settings`
@@ -851,7 +923,7 @@ ALTER TABLE `directus_users`
 -- AUTO_INCREMENT pour la table `directus_user_sessions`
 --
 ALTER TABLE `directus_user_sessions`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT pour la table `directus_webhooks`

@@ -5,6 +5,15 @@ Tool to collect and storage or embed datas (URL, images, scripts, files, videos)
 
 ## Start dev
 
+### Requirements
+
+- PHP 7.2+
+- PDO / Sqlite
+- mail (SMTP configured)
+
+
+### Commands
+
 ```bash
 # back-end
 docker-compose -f config/back-serve-dev/docker-compose.yml up
@@ -21,6 +30,8 @@ npm --prefix ./front/ run serve
 
 - [Front-end](http://localhost:8080/)
 - [Admin](http://192.168.99.100:8100/admin)
+  - user: `inspire@inspire.com`
+  - pass: `inspire`
 - [API](http://192.168.99.100:8100/)
 - [phpMyAdmin](http://192.168.99.100:8101/)
 
@@ -28,7 +39,35 @@ npm --prefix ./front/ run serve
 
 `i4rKc3fSc15KvXwSFH39JN708A`
 
+
+## Users roles
+
+Users has many roles, this is the list of those ones:
+
+| id | role          | public data         | protected data    | private data      | users            |
+|----|---------------|---------------------|---------------------------------------|------------------|
+| 0  | Public        | see                 | X                 | X                 | X                |
+| 1  | Subscriber    | see                 | see               | X                 | edit his own     |
+| 2  | Author        | add, edit his own   | add, edit his own | add, edit his own | edit his own     |
+| 3  | Editor        | add, edit all       | add, edit all     | add, edit his own | edit his own     |
+| 4  | Administrator | add, edit all       | add, edit all     | add, edit all     | add, edit all    |
+
+> A data can be a post, a group, etc.  
+- _*Add = create_  
+- _*Edit = modify and delete_  
+- _*Users roles: Only admin can modify users roles_
+
+
 ## Collections
+
+**Status:**
+
+- Public (can be see by all user)
+- Protected (can be see by all exept public user)
+- Private (can be see only by owner)
+- Draft (can be see only by owner and editors)
+- Deteled
+
 
 - posts
   - id
