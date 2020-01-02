@@ -43,7 +43,7 @@
         <!-- <InputTextarea :value="contentRaw" @change="argValue => contentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
         <Content :data="content"></Content> -->
 
-        <input type="checkbox" v-model="public"> Public
+        <input type="checkbox" v-model="isPublic"> Public
         <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>
         <button v-if="!insert" @click="deletePost">Delete</button>
         <button @click="cancel">Cancel changes</button>
@@ -83,11 +83,11 @@ export default
       thumb: null,
       date: null,
       content: null,
-      content_format: [],
+      contentFormat: [],
       contentRaw: null,
       tags: [],
       types: [],
-      public: null,
+      isPublic: false,
 
       state: 0
     }
@@ -123,9 +123,9 @@ export default
         const content = SetPostContent.extractContent(text)
         const format = SetPostContent.extractFormat(content)
         this._modified.content = content
-        this._modified.content_format = format
+        this._modified.contentFormat = format
         this.content = content
-        this.content_format = format
+        this.contentFormat = format
 
         // console.log('content formated:', content)
       }
@@ -192,10 +192,10 @@ export default
       this.description = copy((this.post && this.post.description) || '')
       this.thumb = copy((this.post && this.post.thumb) || null)
       this.date = copy((this.post && this.post.date) || getToday()).split(' ').join('T')
-      this.content_format = copy((this.post && this.post.content_format) || [])
+      this.contentFormat = copy((this.post && this.post.contentFormat) || [])
       this.content = copy((this.post && this.post.content) || null)
       this.contentRaw = this.post && this.post.content && this.post.content.raw ? copy(this.post.content.raw) : null
-      this.public = this.post ? !!this.post.public : true
+      this.isPublic = this.post ? !!this.post.public : true
 
       this.tags = copy((this.post && this.post.tags) || [])
       this.types = copy((this.post && this.post.types) || [])
@@ -266,9 +266,9 @@ export default
 
     getFileSrc () {
       return this.post &&
-                   this.content_format &&
-                   this.content_format.indexOf('file') > -1 &&
-                   this.content_format.indexOf('image') > -1 &&
+                   this.contentFormat &&
+                   this.contentFormat.indexOf('file') > -1 &&
+                   this.contentFormat.indexOf('image') > -1 &&
                    this.content
         ? api.getFileURL(this.post.uid) : ''
     },
@@ -284,7 +284,7 @@ export default
         distantPage.write(data.data)
         distantPage.close()
 
-        if (distantPage.title != '' && this.title == '') { this.title = distantPage.title }
+        if (distantPage.title !== '' && this.title === '') { this.title = distantPage.title }
 
         const description = distantPage.querySelector('meta[name="description"]')
         if (description && description.content !== '') {
@@ -325,23 +325,23 @@ export default
     fileChange (file) {
       if (!file) {
         this.content = null
-        this.content_format = []
+        this.contentFormat = []
         this._modified.file = null
         this._modified.content = null
-        this._modified.content_format = []
+        this._modified.contentFormat = []
         return
       }
 
-      const content_format = ['file', ...file.type.split('/').map(type => type.toLowerCase())]
+      const contentFormat = ['file', ...file.type.split('/').map(type => type.toLowerCase())]
       const content = {
         name: file.name,
         size: file.size,
         type: file.type
       }
 
-      this.content_format = copy(content_format)
+      this.contentFormat = copy(contentFormat)
       this.content = copy(content)
-      this._modified.content_format = content_format
+      this._modified.contentFormat = contentFormat
       this._modified.content = content
       this._modified.file = file
 
@@ -351,7 +351,7 @@ export default
       const types = file.type ? file.type.split('/') : []
       if (types.length > 0 && this.types.indexOf(types[0]) < 0) { this.types.push(types[0]) }
 
-      if (file.name && file.name !== '' && this.title == '') {
+      if (file.name && file.name !== '' && this.title === '') {
         const arr = file.name.trim().split('.')
         arr.pop()
 

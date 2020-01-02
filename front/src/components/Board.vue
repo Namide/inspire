@@ -7,17 +7,17 @@
       {{ data.description }}
     </p>
     <ul>
-      <li v-for="type of data.types">
+      <li v-for="type of data.types" :key="type">
         {{ type }}
       </li>
     </ul>
     <ul>
-      <li v-for="tag of data.tags">
+      <li v-for="tag of data.tags" :key="tag">
         {{ tag }}
       </li>
     </ul>
     <ul>
-      <li v-for="tag of data.excluded">
+      <li v-for="tag of data.excluded" :key="tag">
         {{ tag }}
       </li>
     </ul>

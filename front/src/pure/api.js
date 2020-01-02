@@ -1,11 +1,13 @@
 // import config from '../../config'
 
-import { RemoteInstance } from 'directus-sdk-javascript'
-const client = new RemoteInstance({
+import DirectusSDK from '@directus/sdk-js'
+
+const options = {
   url: '/api',
-  version: '1.1'
-  // accessToken: [user-token]
-})
+  project: 'inspire',
+  storage: window.localStorage
+}
+const directus = new DirectusSDK(options)
 
 const config = {}
 
@@ -36,10 +38,14 @@ class Api {
     return '' // config.api.abs + '/files/' + uid
   }
 
-  getPosts (onLoad, { tags = [], types = [], noTags = [], noTypes = [], limit = 100, offset = 0 } = {}, onError = msg => console.error(msg)) {
-    client.getItems('posts')
-      .then(res => console.log(res))
-      .catch(err => console.log(err))
+  getPosts ({ tags = [], types = [], noTags = [], noTypes = [], limit = 100, offset = 0 } = {}) {
+    return directus.getItems('posts', {})
+      .then(console.log)
+      .catch(console.error)
+
+    // client.getItems('posts')
+    //   .then(res => console.log(res))
+    //   .catch(err => console.log(err))
     // const args = (tags.length > 0 ? '/tags/' + encodeURIComponent(tags.join(',')) : '') +
     //         (noTags.length > 0 ? '/notags/' + encodeURIComponent(noTags.join(',')) : '') +
     //         (types.length > 0 ? '/types/' + encodeURIComponent(types.join(',')) : '') +
@@ -63,9 +69,14 @@ class Api {
     //   .catch(error => onError(error.message))
   }
 
-  connect (mail, pass,
-    onConnected = data => console.log(data.name, 'connected'),
-    onError = msg => console.error(msg)) {
+  connect (email, password) {
+    return directus.login({
+      email,
+      password
+    })
+      .then(console.log)
+      .catch(console.error)
+    /*
     const form = Api.dataToFormData({ mail, pass })
     const url = config.api.abs + '/auth/signin'
     const request = new Request(url)
@@ -92,45 +103,52 @@ class Api {
       .then(Api.testSuccess)
       .then(saveSession)
       .then(onConnected)
-      .catch(onError)
+      .catch(onError) */
   }
 
-  addPost (onLoad, data, onError = msg => console.error(msg)) {
-    const form = Api.dataToFormData(data)
-    const url = config.api.abs + '/posts/add'
-    const request = new Request(url)
-    const params = {
-      method: 'POST',
-      headers: this.getHeaders(),
-      mode: 'cors',
-      cache: 'default',
-      body: form
-    }
+  addPost (body) {
+    return directus.createItem('posts', body)
+      .then(console.log)
+      .catch(console.error)
+    // const form = Api.dataToFormData(data)
+    // const url = config.api.abs + '/posts/add'
+    // const request = new Request(url)
+    // const params = {
+    //   method: 'POST',
+    //   headers: this.getHeaders(),
+    //   mode: 'cors',
+    //   cache: 'default',
+    //   body: form
+    // }
 
-    fetch(request, params)
-      .then(data => data.json())
-      .then(Api.testSuccess)
-      .then(onLoad)
-      .catch(err => console.error(err))
+    // fetch(request, params)
+    //   .then(data => data.json())
+    //   .then(Api.testSuccess)
+    //   .then(onLoad)
+    //   .catch(err => console.error(err))
   }
 
-  deletePost (onLoad, uid, onError = msg => console.error(msg)) {
-    const url = config.api.abs + '/posts/delete/' + uid
-    const form = Api.dataToFormData({})
-    const request = new Request(url)
-    const params = {
-      method: 'POST',
-      headers: this.getHeaders(),
-      mode: 'cors',
-      cache: 'default',
-      body: form
-    }
+  deletePost (key) {
+    return directus.deleteItem('posts', key)
+      .then(console.log)
+      .catch(console.error)
 
-    fetch(request, params)
-      .then(data => data.json())
-      .then(Api.testSuccess)
-      .then(onLoad)
-      .catch(err => console.error(err))
+    // const url = config.api.abs + '/posts/delete/' + uid
+    // const form = Api.dataToFormData({})
+    // const request = new Request(url)
+    // const params = {
+    //   method: 'POST',
+    //   headers: this.getHeaders(),
+    //   mode: 'cors',
+    //   cache: 'default',
+    //   body: form
+    // }
+
+    // fetch(request, params)
+    //   .then(data => data.json())
+    //   .then(Api.testSuccess)
+    //   .then(onLoad)
+    //   .catch(err => console.error(err))
   }
 
   updatePost (onLoad, uid, data, onError = msg => console.error(msg)) {

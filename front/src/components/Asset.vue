@@ -19,7 +19,7 @@ export default {
 
   methods: {
     isImg () {
-      return this.data.type == 'image/jpeg'
+      return this.data.type === 'image/jpeg'
     }
   }
 }

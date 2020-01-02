@@ -2,7 +2,7 @@
   <div @click="focusNewTag()" :class="{'read-only': readOnly}" class="tags">
     <span v-for="(tag, index) in innerTags" :key="index" class="input-tag" :class="{ 'is-type': tag[0] === '@' || (tag[0] + tag[1] === '@!') }">
       <span :class="{ 'is-not': tag[0] === '!' || (tag[0] + tag[1] === '@!') }">
-        {{ tag[0] + tag[1] == '!@' || tag[0] + tag[1] == '@!' ? tag.substr(2) : tag[0] == '!' || tag[0] == '@' ? tag.substr(1) : tag }}
+        {{ tag[0] + tag[1] === '!@' || tag[0] + tag[1] === '@!' ? tag.substr(2) : tag[0] === '!' || tag[0] === '@' ? tag.substr(1) : tag }}
       </span>
       <a v-if="!readOnly" @click.prevent.stop="remove(index)" class="remove"></a>
     </span>
@@ -22,11 +22,11 @@
 <script>
 // Original code from vue-input-tag (https://www.npmjs.com/package/vue-input-tag)
 const VALIDATORS = {
-  email: /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-  url: /^(https?|ftp|rmtp|mms):\/\/(([A-Z0-9][A-Z0-9_-]*)(\.[A-Z0-9][A-Z0-9_-]*)+)(:(\d+))?\/?/i,
-  text: /^[a-zA-Z]+$/,
-  digits: /^[\d() \.\:\-\+#]+$/,
-  isodate: /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/
+  // email: /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+  // url: /^(https?|ftp|rmtp|mms):\/\/(([A-Z0-9][A-Z0-9_-]*)(\.[A-Z0-9][A-Z0-9_-]*)+)(:(\d+))?\/?/i,
+  // text: /^[a-zA-Z]+$/,
+  // digits: /^[\d() \.\:\-\+#]+$/,
+  // isodate: /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/
 }
 
 const VALIDATE = ''

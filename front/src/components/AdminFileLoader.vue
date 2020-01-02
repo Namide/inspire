@@ -5,26 +5,30 @@
 
     <div v-if="isImg && finalSrc !== ''" class="file-img" :style="{ backgroundImage: 'url(' + finalSrc + ')' }">
 
-      <div v-if="info" v-for="(data, key) of info">
+      <template v-if="info">
+        <div v-for="(data, key) of info" :key="key + data">
+          <small v-if="key === 'colors'">
+            <strong>{{ key }}</strong>:
+            <span v-for="color of data" class="color" :style="{ background: color }" :key="color"></span>
+          </small>
+          <small v-else>
+            <strong>{{ key }}</strong>: {{ data }}
+          </small>
+        </div>
+      </template>
+
+    </div>
+    <template v-else-if="info">
+      <div v-for="(data, key) of info" :key="key + data">
         <small v-if="key === 'colors'">
           <strong>{{ key }}</strong>:
-          <span v-for="color of data" class="color" :style="{ background: color }"></span>
+          <span v-for="color of data" class="color" :style="{ background: color }" :key="color"></span>
         </small>
         <small v-else>
           <strong>{{ key }}</strong>: {{ data }}
         </small>
       </div>
-
-    </div>
-    <div v-else-if="info" v-for="(data, key) of info">
-      <small v-if="key === 'colors'">
-        <strong>{{ key }}</strong>:
-        <span v-for="color of data" class="color" :style="{ background: color }"></span>
-      </small>
-      <small v-else>
-        <strong>{{ key }}</strong>: {{ data }}
-      </small>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -86,7 +90,9 @@ export default
       }
 
       const reader = new FileReader()
-      reader.addEventListener('load', event => this.finalSrc = event.target.result)
+      reader.addEventListener('load', event => {
+        this.finalSrc = event.target.result
+      })
       reader.readAsDataURL(file)
     }
   }
