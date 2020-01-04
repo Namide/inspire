@@ -104,3 +104,11 @@ Users has many roles, this is the list of those ones:
   - tags (search -> paint,!digital)
   - formats (ou types -> video-file,video-embed)
   - scores (>4...)
+
+
+## Add dependencies to back
+
+```bash
+docker run --rm --interactive --tty --volume /d/DAMIEN/scripts/lib/inspire/back:/app composer require league/color-extractor:0.3.* --ignore-platform-reqs --no-scripts
+docker run --rm --interactive --tty --volume /d/DAMIEN/scripts/lib/inspire/back:/app composer remove league/color-extractor:0.3.* --ignore-platform-reqs --no-scripts
+```
