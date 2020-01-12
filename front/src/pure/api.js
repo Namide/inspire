@@ -2,22 +2,24 @@
 
 import DirectusSDK from '@directus/sdk-js'
 
-const options = {
-  url: '/api',
-  project: 'inspire',
-  storage: window.localStorage
-}
-const directus = new DirectusSDK(options)
-
-const config = {}
+// const config = {}
 
 class Api {
   constructor () {
+    const options = {
+      url: '/api',
+      project: 'inspire',
+      storage: window.localStorage
+    }
+
+    this.directus = new DirectusSDK(options)
     this.boards = null
     this.posts = null
 
-    this.user = null
-    this.token = null
+    this.directus.
+
+    // this.user = null
+    // this.token = null
   }
 
   getHeaders () {
@@ -69,13 +71,27 @@ class Api {
     //   .catch(error => onError(error.message))
   }
 
-  connect (email, password) {
-    return directus.login({
+  logout () {
+    return this.directus.logout()
+  }
+
+  login (email, password) {
+
+    if (this.directus.loggedIn) {
+      return new Promise(resolve => resolve())
+    }
+
+    return this.directus.login({
       email,
-      password
+      password,
     })
-      .then(console.log)
-      .catch(console.error)
+
+    // return directus.login({
+    //   email,
+    //   password
+    // })
+    //   .then(console.log)
+    //   .catch(console.error)
     /*
     const form = Api.dataToFormData({ mail, pass })
     const url = config.api.abs + '/auth/signin'
@@ -152,44 +168,49 @@ class Api {
   }
 
   updatePost (onLoad, uid, data, onError = msg => console.error(msg)) {
-    const newData = Object.assign({}, data)
-    const url = config.api.abs + '/posts/edit/' + uid
-    delete newData.uid
-    const form = Api.dataToFormData(newData)
+    // const newData = Object.assign({}, data)
+    // const url = config.api.abs + '/posts/edit/' + uid
+    // delete newData.uid
+    // const form = Api.dataToFormData(newData)
 
-    const request = new Request(url)
-    const params = {
-      method: 'POST',
-      headers: this.getHeaders(),
-      mode: 'cors',
-      cache: 'default',
-      body: form
-    }
+    // const request = new Request(url)
+    // const params = {
+    //   method: 'POST',
+    //   headers: this.getHeaders(),
+    //   mode: 'cors',
+    //   cache: 'default',
+    //   body: form
+    // }
 
-    fetch(request, params)
-      .then(data => data.json())
-      .then(Api.testSuccess)
-      .then(onLoad)
-      .catch(err => console.error(err))
+    // fetch(request, params)
+    //   .then(data => data.json())
+    //   .then(Api.testSuccess)
+    //   .then(onLoad)
+    //   .catch(err => console.error(err))
   }
 
-  getDistantLink (onLoad, link, onError = msg => console.error(msg)) {
-    const form = Api.dataToFormData({ link })
-    const url = config.api.abs + '/distant'
-    const request = new Request(url)
-    const params = {
-      method: 'POST',
-      headers: this.getHeaders(),
-      mode: 'cors',
-      cache: 'default',
-      body: form
-    }
+  getDistantLink (link) {
+    // const form = Api.dataToFormData({ link })
+    // const url = config.api.abs + '/distant'
+    // const request = new Request(url)
+    // const params = {
+    //   method: 'POST',
+    //   headers: this.getHeaders(),
+    //   mode: 'cors',
+    //   cache: 'default',
+    //   body: form
+    // }
 
-    fetch(request, params)
+    return directus.request('get', '/custom/gateway')
+      .then((data) => {
+        dispatch('global', data)
+      })
+
+    directus
+
+      .fetch(request, params)
       .then(data => data.json())
       .then(Api.testSuccess)
-      .then(onLoad)
-      .catch(onError)
   }
 }
 
