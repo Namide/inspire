@@ -16,13 +16,11 @@ class Api {
     this.boards = null
     this.posts = null
 
-    this.directus.
-
     // this.user = null
     // this.token = null
   }
 
-  getHeaders () {
+  /* getHeaders () {
     const init = {
       Accept: 'application/json'
     }
@@ -30,7 +28,7 @@ class Api {
     if (this.token) { init['Content-Type'] = this.token }
 
     return new Headers(init)
-  }
+  } */
 
   getThumbURL (uid) {
     return '' // config.api.abs + '/thumbs/' + uid
@@ -41,7 +39,7 @@ class Api {
   }
 
   getPosts ({ tags = [], types = [], noTags = [], noTypes = [], limit = 100, offset = 0 } = {}) {
-    return directus.getItems('posts', {})
+    return this.directus.getItems('posts', {})
       .then(console.log)
       .catch(console.error)
 
@@ -76,14 +74,13 @@ class Api {
   }
 
   login (email, password) {
-
     if (this.directus.loggedIn) {
       return new Promise(resolve => resolve())
     }
 
     return this.directus.login({
       email,
-      password,
+      password
     })
 
     // return directus.login({
@@ -123,7 +120,7 @@ class Api {
   }
 
   addPost (body) {
-    return directus.createItem('posts', body)
+    return this.directus.createItem('posts', body)
       .then(console.log)
       .catch(console.error)
     // const form = Api.dataToFormData(data)
@@ -145,7 +142,7 @@ class Api {
   }
 
   deletePost (key) {
-    return directus.deleteItem('posts', key)
+    return this.directus.deleteItem('posts', key)
       .then(console.log)
       .catch(console.error)
 
@@ -167,7 +164,7 @@ class Api {
     //   .catch(err => console.error(err))
   }
 
-  updatePost (onLoad, uid, data, onError = msg => console.error(msg)) {
+  updatePost (uid, data) {
     // const newData = Object.assign({}, data)
     // const url = config.api.abs + '/posts/edit/' + uid
     // delete newData.uid
@@ -201,36 +198,27 @@ class Api {
     //   body: form
     // }
 
-    return directus.request('get', '/custom/gateway')
-      .then((data) => {
-        dispatch('global', data)
-      })
-
-    directus
-
-      .fetch(request, params)
-      .then(data => data.json())
-      .then(Api.testSuccess)
+    return this.directus.request('get', '/custom/gateway')
   }
 }
 
-Api.testSuccess = data => {
-  if (!data.success) { throw Error('API error: ' + data.message) }
+// Api.testSuccess = data => {
+//   if (!data.success) { throw Error('API error: ' + data.message) }
 
-  return data
-}
+//   return data
+// }
 
-Api.dataToFormData = data => {
-  const form = new FormData()
-  for (const key of Object.keys(data)) {
-    const val = data[key]
-    if (typeof val === typeof 'a' || typeof val === typeof 2) { form.append(key, val) } else if (Array.isArray(val)) { form.append(key, val.join(',')) } else if (val instanceof File) { form.append(key, val, val.name) } else { form.append(key, JSON.stringify(val)) }
-  }
+// Api.dataToFormData = data => {
+//   const form = new FormData()
+//   for (const key of Object.keys(data)) {
+//     const val = data[key]
+//     if (typeof val === typeof 'a' || typeof val === typeof 2) { form.append(key, val) } else if (Array.isArray(val)) { form.append(key, val.join(',')) } else if (val instanceof File) { form.append(key, val, val.name) } else { form.append(key, JSON.stringify(val)) }
+//   }
 
-  return form
-}
+//   return form
+// }
 
-const api = new Api()
+// const api = new Api()
 
-export { Api }
-export default api
+// export { Api }
+export default Api
