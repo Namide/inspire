@@ -2,12 +2,13 @@
 
 import DirectusSDK from '@directus/sdk-js'
 
+const API_DIR = '/api'
 // const config = {}
 
 class Api {
   constructor () {
     const options = {
-      url: '/api',
+      url: API_DIR,
       project: 'inspire',
       storage: window.localStorage
     }
@@ -186,6 +187,10 @@ class Api {
     //   .catch(err => console.error(err))
   }
 
+  /**
+   * @param {String} link
+   * @returns {Promise}
+   */
   getDistantLink (link) {
     // const form = Api.dataToFormData({ link })
     // const url = config.api.abs + '/distant'
@@ -198,7 +203,10 @@ class Api {
     //   body: form
     // }
 
-    return this.directus.request('get', '/custom/gateway')
+    var url = new URL(API_DIR + '/inspire/custom/gateway', window.location.origin)
+    url.searchParams.append('link', link)
+
+    return fetch(url) // request('get', '/custom/gateway')
   }
 }
 
@@ -218,7 +226,7 @@ class Api {
 //   return form
 // }
 
-// const api = new Api()
+const api = new Api()
 
-// export { Api }
-export default Api
+export { Api }
+export default api

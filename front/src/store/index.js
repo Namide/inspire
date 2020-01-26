@@ -41,6 +41,10 @@ export default new Vuex.Store({
       api.updatePost(data => {
         if (data.success) { commit('updatePost', data.data) }
       }, uid, data)
+    },
+
+    getDistantLink (url) {
+      return api.getDistantLink(url)
     }
   },
 

@@ -28,15 +28,10 @@
 </template>
 
 <script>
-// import api from '../utils/api'
-// import AdminFileLoader from '@/components/AdminFileLoader.vue'
-// import Content from '@/components/Content.vue'
 import AdminPostModal from '@/components/AdminPostModal.vue'
 
 export default {
   components: {
-    // AdminFileLoader,
-    // Content,
     AdminPostModal
   },
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="content" :class="[ 'is-' + type, (ratio ? 'has-ratio' : '') ]">
+  <div class="content" :class="[ 'is-' + type, (ratio !== '' ? 'has-ratio' : '') ]">
 
     <div v-if="ratio" class="dummy" :style="{ paddingTop: ratio }"></div>
     <div v-html="html" class="data">
@@ -11,87 +11,58 @@
 
 <script>
 import marked from 'marked'
-import GetPostContent from '@/pure/GetPostContent'
+import PostContent from '@/data/PostContent'
 
 // https://css-tricks.com/choosing-right-markdown-parser/#article-header-id-0
 
 console.log(marked)
 
 export default {
-  /* components:
-    {
-
-    }, */
-
   props: {
-    data: { type: Object }
+    json: { type: Object }
   },
 
-  data () {
-    return {
-      html: '',
-      type: 'raw',
-      ratio: null
-    }
-  },
+  computed: {
+    html () {
+      const postContent = new PostContent(this.json)
 
-  watch: {
-    data: 'setContent'
-  },
-
-  /* data()
-    {
-        return {
-
-        }
-    },
-
-    watch:
-    {
-        data(data) {
-
-        }
-    },
-
-    created()
-    {
-
-    }, */
-
-  methods: {
-    setContent (data) {
-      if (GetPostContent.isURL(data)) {
-        this.ratio = null
-        this.type = 'url'
-        this.html = '<a href="' + data.raw +
-                            '" target="_blank" rel="noreferrer noopener">' +
-                            data.raw.replace(/http:\/\/|https:\/\//, '') +
-                            '</a>'
-      } else if (GetPostContent.isEmbed(data)) {
-        if (data.height && data.width) {
-          this.ratio = (100 * data.height / data.width).toFixed(3) + '%'
-        } else {
-          this.ratio = '56.25%'
-        }
-        this.type = 'embed'
-        this.html = data.raw
-      } else if (GetPostContent.isText(data)) {
-        this.ratio = null
-        this.type = 'text'
-        this.html = marked(data.raw)
-      } else {
-        let html = ''
-        for (const key in data) {
-          html += '<div><strong>' + key + '</strong>: ' +
-                            data[key] + '</div>'
-        }
-
-        this.ratio = null
-        this.type = 'raw'
-        this.html = html
+      if (postContent.isURL()) {
+        return '<a href="' + postContent.getRaw() +
+          '" target="_blank" rel="noreferrer noopener">' +
+          postContent.getRaw().replace(/http:\/\/|https:\/\//, '') +
+          '</a>'
+      } else if (postContent.isEmbed()) {
+        return postContent.getRaw()
+      } else if (postContent.isText()) {
+        return marked(postContent.getRaw())
       }
+
+      return postContent.isText() + ' not know'
+    },
+
+    type () {
+      const postContent = new PostContent(this.json)
+      return postContent.getType()
+    },
+
+    ratio () {
+      const postContent = new PostContent(this.json)
+
+      if (postContent.isEmbed()) {
+        if (postContent.json.height && postContent.json.width) {
+          return (100 * postContent.json.height / postContent.json.width).toFixed(3) + '%'
+        } else {
+          return '56.25%'
+        }
+      }
+
+      return ''
     }
   }
+
+  // watch: {
+  //   data: 'setContent'
+  // },
 }
 </script>
 
