@@ -301,31 +301,48 @@ export default
     },
 
     updateByLink (URL) {
-      return api.getDistantLink(URL)
+      return api.distantObject(URL)
         .then(data => {
+          console.log('-->')
           console.log(data)
-          const distantPage = document.implementation.createHTMLDocument('')
-          distantPage.open()
-          distantPage.write(data.data)
-          distantPage.close()
-
-          if (distantPage.title !== '' && this.title === '') { this.title = distantPage.title }
-
-          const description = distantPage.querySelector('meta[name="description"]')
-          if (description && description.content !== '') {
-            this.description = description.content
-          }
-
-          const image = distantPage.querySelector('meta[property="og:image"]')
-          const images = distantPage.querySelectorAll('a[href]')
-          if (image) {
-            const URL = image.getAttribute('content')
-            console.log(URL)
-          } else if (images.length > 0) {
-            const URL = images[0].getAttribute('src')
-            console.log(URL)
-          }
         })
+        /* .then(data => {
+          console.log(data)
+          return data
+          // const distantPage = document.implementation.createHTMLDocument('')
+          // distantPage.open()
+          // distantPage.write(data.data)
+          // distantPage.close()
+
+          // if (distantPage.title !== '' && this.title === '') { this.title = distantPage.title }
+
+          // const description = distantPage.querySelector('meta[name="description"]')
+          // if (description && description.content !== '') {
+          //   this.description = description.content
+          // }
+
+          // const image = distantPage.querySelector('meta[property="og:image"]')
+          // const images = distantPage.querySelectorAll('a[href]')
+          // if (image) {
+          //   const URL = image.getAttribute('content')
+          //   console.log(URL)
+          // } else if (images.length > 0) {
+          //   const URL = images[0].getAttribute('src')
+          //   console.log(URL)
+          // }
+        })
+        .then(response => {
+          try {
+            const blob = response.blob()
+            const objectURL = URL.createObjectURL(blob)
+            return {
+              type: 'img',
+              base64: objectURL
+            }
+          } catch (error) {
+            return response
+          }
+        }) */
     },
 
     thumbChange (file) {

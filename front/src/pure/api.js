@@ -208,6 +208,77 @@ class Api {
 
     return fetch(url) // request('get', '/custom/gateway')
   }
+
+  distantObject (link) {
+    return this.getDistantLink(link)
+      .then(response => {
+        var contentType = response.headers.get('content-type')
+
+        // https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
+        if (!contentType) {
+
+        } else if (contentType.indexOf('audio/') !== -1) {
+
+        } else if (contentType.indexOf('video/') !== -1) {
+
+        } else if (contentType.indexOf('text/html') !== -1) {
+
+        } else if (contentType.indexOf('application/xhtml+xml') !== -1) {
+
+        } else if (contentType.indexOf('text/') !== -1) {
+
+        } else if (contentType.indexOf('image/') !== -1) {
+          return response.blob()
+            .then(blob => ({
+              types: contentType.split('/'),
+              content: URL.createObjectURL(blob)
+            }))
+        } else if (contentType.indexOf('application/javascript') !== -1) {
+
+        } else if (contentType.indexOf('application/json') !== -1) {
+          return response.json()
+            .then(json => ({
+              types: ['json', 'file'],
+              content: json
+            }))
+        } else if (contentType.indexOf('application/pdf') !== -1) {
+
+        } else if (contentType.indexOf('application/rtf') !== -1) {
+
+        } else if (contentType.indexOf('application/zip') !== -1) {
+
+        } else if (contentType.indexOf('application/x-7z-compressed') !== -1) {
+
+        } else if (contentType.indexOf('application/x-tar') !== -1) {
+
+        } else {
+          throw new Error('Content type unaccepted (' + contentType + ')')
+        }
+
+        return response
+        // const distantPage = document.implementation.createHTMLDocument('')
+        // distantPage.open()
+        // distantPage.write(data.data)
+        // distantPage.close()
+
+        // if (distantPage.title !== '' && this.title === '') { this.title = distantPage.title }
+
+        // const description = distantPage.querySelector('meta[name="description"]')
+        // if (description && description.content !== '') {
+        //   this.description = description.content
+        // }
+
+        // const image = distantPage.querySelector('meta[property="og:image"]')
+        // const images = distantPage.querySelectorAll('a[href]')
+        // if (image) {
+        //   const URL = image.getAttribute('content')
+        //   console.log(URL)
+        // } else if (images.length > 0) {
+        //   const URL = images[0].getAttribute('src')
+        //   console.log(URL)
+        // }
+      })
+  }
 }
 
 // Api.testSuccess = data => {

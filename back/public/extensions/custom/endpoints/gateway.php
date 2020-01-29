@@ -21,8 +21,12 @@ return [
                 ]
             ]);*/
             if ($link != null) {
-                $html = file_get_contents($link);
+                $headers = get_headers($link);
+                $html = file_get_contents($link, false);
                 // \Inspire\Helper\IOHelp::outputSuccess($response, $html, 'distant', 'get', $user->getData());
+                foreach ($headers as $key => $value) {
+                    header($value);
+                }
                 echo $html;
                 exit();
             } else {
