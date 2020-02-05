@@ -13,12 +13,10 @@ class Api {
       storage: window.localStorage
     }
 
+    this.apiURL = API_DIR
     this.directus = new DirectusSDK(options)
     this.boards = null
     this.posts = null
-
-    // this.user = null
-    // this.token = null
   }
 
   /* getHeaders () {
@@ -68,6 +66,10 @@ class Api {
     //   .then(Api.testSuccess)
     //   .then(json => onLoad(json))
     //   .catch(error => onError(error.message))
+  }
+
+  get loggedIn () {
+    return this.directus.loggedIn
   }
 
   logout () {
@@ -185,99 +187,6 @@ class Api {
     //   .then(Api.testSuccess)
     //   .then(onLoad)
     //   .catch(err => console.error(err))
-  }
-
-  /**
-   * @param {String} link
-   * @returns {Promise}
-   */
-  getDistantLink (link) {
-    // const form = Api.dataToFormData({ link })
-    // const url = config.api.abs + '/distant'
-    // const request = new Request(url)
-    // const params = {
-    //   method: 'POST',
-    //   headers: this.getHeaders(),
-    //   mode: 'cors',
-    //   cache: 'default',
-    //   body: form
-    // }
-
-    var url = new URL(API_DIR + '/inspire/custom/gateway', window.location.origin)
-    url.searchParams.append('link', link)
-
-    return fetch(url) // request('get', '/custom/gateway')
-  }
-
-  distantObject (link) {
-    return this.getDistantLink(link)
-      .then(response => {
-        var contentType = response.headers.get('content-type')
-
-        // https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
-        if (!contentType) {
-
-        } else if (contentType.indexOf('audio/') !== -1) {
-
-        } else if (contentType.indexOf('video/') !== -1) {
-
-        } else if (contentType.indexOf('text/html') !== -1) {
-
-        } else if (contentType.indexOf('application/xhtml+xml') !== -1) {
-
-        } else if (contentType.indexOf('text/') !== -1) {
-
-        } else if (contentType.indexOf('image/') !== -1) {
-          return response.blob()
-            .then(blob => ({
-              types: contentType.split('/'),
-              content: URL.createObjectURL(blob)
-            }))
-        } else if (contentType.indexOf('application/javascript') !== -1) {
-
-        } else if (contentType.indexOf('application/json') !== -1) {
-          return response.json()
-            .then(json => ({
-              types: ['json', 'file'],
-              content: json
-            }))
-        } else if (contentType.indexOf('application/pdf') !== -1) {
-
-        } else if (contentType.indexOf('application/rtf') !== -1) {
-
-        } else if (contentType.indexOf('application/zip') !== -1) {
-
-        } else if (contentType.indexOf('application/x-7z-compressed') !== -1) {
-
-        } else if (contentType.indexOf('application/x-tar') !== -1) {
-
-        } else {
-          throw new Error('Content type unaccepted (' + contentType + ')')
-        }
-
-        return response
-        // const distantPage = document.implementation.createHTMLDocument('')
-        // distantPage.open()
-        // distantPage.write(data.data)
-        // distantPage.close()
-
-        // if (distantPage.title !== '' && this.title === '') { this.title = distantPage.title }
-
-        // const description = distantPage.querySelector('meta[name="description"]')
-        // if (description && description.content !== '') {
-        //   this.description = description.content
-        // }
-
-        // const image = distantPage.querySelector('meta[property="og:image"]')
-        // const images = distantPage.querySelectorAll('a[href]')
-        // if (image) {
-        //   const URL = image.getAttribute('content')
-        //   console.log(URL)
-        // } else if (images.length > 0) {
-        //   const URL = images[0].getAttribute('src')
-        //   console.log(URL)
-        // }
-      })
   }
 }
 

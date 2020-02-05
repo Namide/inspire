@@ -12,7 +12,7 @@
         <AdminFileLoader v-if="isFile" @file="data => { fileChange(data); validContent() }" :src="getFileSrc() || ''" :only-img="false"></AdminFileLoader>
         <template v-else>
           <InputTextarea @submit="validContent" :value="input.contentRaw" @change="val => $set(input, 'contentRaw', val)" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
-          <Content :json="contentJson"></Content>
+          <!-- <Content :json="contentJson"></Content> -->
         </template>
         <button @click="validContent">Ok</button>
 
@@ -40,8 +40,8 @@
         <Content :data="content"></Content> -->
 
         <input type="checkbox" v-model="isPublic"> Public
-        <button @click="save" v-html="insert ? 'Create' : 'Update'"></button>
-        <button v-if="!insert" @click="deletePost">Delete</button>
+        <button @click="save" v-html="create ? 'Create' : 'Update'"></button>
+        <button v-if="!create" @click="deletePost">Delete</button>
         <button @click="cancel">Cancel changes</button>
       </div>
 
@@ -50,12 +50,16 @@
 </template>
 
 <script>
-import api from '../pure/api'
+import api from '../pure/apiSave'
 // import api from '../pure/api'
 import AdminFileLoader from '@/components/AdminFileLoader.vue'
-import PostContent from '@/data/PostContent'
+// import PostContent from '@/data/PostContent'
 import Content from '@/components/Content.vue'
 import InputTextarea from '@/components/InputTextarea.vue'
+import PostSave from '@/data/PostSave'
+
+const copy = obj => JSON.parse(JSON.stringify(obj))
+const getToday = () => new Date(Date.now()).toJSON().split('.')[0]
 
 export default
 {
@@ -66,8 +70,16 @@ export default
   },
 
   props: {
-    post: { type: Object, default: null },
-    insert: { type: Boolean, default: false }
+    post: {
+      type: Object,
+      default () {
+        return {}
+      }
+    },
+    create: {
+      type: Boolean,
+      default: false
+    }
   },
 
   data () {
@@ -75,7 +87,16 @@ export default
       isFile: false,
 
       input: {
-        contentRaw: ''
+        contentRaw: '',
+        title: '',
+        description: '',
+        thumb: null,
+        content_data: null,
+        tags: [],
+        types: [],
+        status: 0,
+        score: 0,
+        created_on: getToday().split(' ').join('T')
       },
 
       // inputContentRaw: '',
@@ -94,19 +115,19 @@ export default
     }
   },
 
-  computed: {
-    content () {
-      const post = new PostContent()
-      post.fromRaw(this.input.contentRaw)
-      return post.getJson()
-    },
+  // computed: {
+  //   content () {
+  //     const post = new PostContent()
+  //     post.fromRaw(this.input.contentRaw)
+  //     return post.getJson()
+  //   },
 
-    contentJson () {
-      const post = new PostContent()
-      post.fromRaw(this.input.contentRaw)
-      return post.getJson()
-    }
-  },
+  //   contentJson () {
+  //     const post = new PostContent()
+  //     post.fromRaw(this.input.contentRaw)
+  //     return post.getJson()
+  //   }
+  // },
 
   watch: {
     // title (title, before) {
@@ -194,7 +215,7 @@ export default
 
     this.init()
 
-    if (!this.insert) {
+    if (!this.create) {
       this._modified.uid = this.post && this.post.uid
       this.state = 1
     }
@@ -215,6 +236,7 @@ export default
       // this.contentFormat = copy((this.post && this.post.contentFormat) || [])
       // this.content = copy((this.post && this.post.content) || null)
 
+      this.inputFile = null
       this.$set(this.input, 'contentRaw', copy((this.post && this.post.content && this.post.content.raw) || ''))
 
       // this.inputContentRaw = this.post && this.post.content && this.post.content.raw ? copy(this.post.content.raw) : null
@@ -225,12 +247,21 @@ export default
     },
 
     validContent () {
-      if (this.content && this.content.url) {
-        this.updateByLink(this.content.url)
-          .then(() => this.state++)
-      } else {
-        this.state++
-      }
+      const content = new PostSave()
+      content.setContentRaw(this.input.contentRaw)
+        .then(content => {
+          console.log(content)
+          this.state++
+        })
+
+      // if (this.content && this.content.url) {
+      //   this.updateByLink(this.content.url)
+      //     .then(() => {
+      //       this.state++
+      //     })
+      // } else {
+      //   this.state++
+      // }
     },
 
     deletePost () {
@@ -246,9 +277,9 @@ export default
 
     save () {
       const data = this._modified
-      console.log(data, this.insert)
+      console.log(data, this.create)
 
-      if (this.insert) {
+      if (this.create) {
         this.$store.dispatch('addPost', { post: data })
         /* api.addPost(data =>
                 {
@@ -300,50 +331,65 @@ export default
       if (keyEvent.keyCode === 27) { this.close() }
     },
 
-    updateByLink (URL) {
-      return api.distantObject(URL)
-        .then(data => {
-          console.log('-->')
-          console.log(data)
-        })
-        /* .then(data => {
-          console.log(data)
-          return data
-          // const distantPage = document.implementation.createHTMLDocument('')
-          // distantPage.open()
-          // distantPage.write(data.data)
-          // distantPage.close()
+    // updateByLink (URL) {
+    //   return api.distantObject(URL)
+    //     .then(fileInfos => {
+    //       if (fileInfos.formats.indexOf('link') > -1) {
+    //         this.parseHtmlLink(fileInfos.text)
+    //       } else {
+    //         this.parseFile(fileInfos)
+    //       }
+    //     })
+    //     // .then(response => {
+    //     //   try {
+    //     //     const blob = response.blob()
+    //     //     const objectURL = URL.createObjectURL(blob)
+    //     //     return {
+    //     //       type: 'img',
+    //     //       base64: objectURL
+    //     //     }
+    //     //   } catch (error) {
+    //     //     return response
+    //     //   }
+    //     // })
+    //     /* .then(data => {
+    //       console.log(data)
+    //       return data
+    //       // const distantPage = document.implementation.createHTMLDocument('')
+    //       // distantPage.open()
+    //       // distantPage.write(data.data)
+    //       // distantPage.close()
 
-          // if (distantPage.title !== '' && this.title === '') { this.title = distantPage.title }
+    //       // if (distantPage.title !== '' && this.title === '') { this.title = distantPage.title }
 
-          // const description = distantPage.querySelector('meta[name="description"]')
-          // if (description && description.content !== '') {
-          //   this.description = description.content
-          // }
+    //       // const description = distantPage.querySelector('meta[name="description"]')
+    //       // if (description && description.content !== '') {
+    //       //   this.description = description.content
+    //       // }
 
-          // const image = distantPage.querySelector('meta[property="og:image"]')
-          // const images = distantPage.querySelectorAll('a[href]')
-          // if (image) {
-          //   const URL = image.getAttribute('content')
-          //   console.log(URL)
-          // } else if (images.length > 0) {
-          //   const URL = images[0].getAttribute('src')
-          //   console.log(URL)
-          // }
-        })
-        .then(response => {
-          try {
-            const blob = response.blob()
-            const objectURL = URL.createObjectURL(blob)
-            return {
-              type: 'img',
-              base64: objectURL
-            }
-          } catch (error) {
-            return response
-          }
-        }) */
-    },
+    //       // const image = distantPage.querySelector('meta[property="og:image"]')
+    //       // const images = distantPage.querySelectorAll('a[href]')
+    //       // if (image) {
+    //       //   const URL = image.getAttribute('content')
+    //       //   console.log(URL)
+    //       // } else if (images.length > 0) {
+    //       //   const URL = images[0].getAttribute('src')
+    //       //   console.log(URL)
+    //       // }
+    //     })
+    //     .then(response => {
+    //       try {
+    //         const blob = response.blob()
+    //         const objectURL = URL.createObjectURL(blob)
+    //         return {
+    //           type: 'img',
+    //           base64: objectURL
+    //         }
+    //       } catch (error) {
+    //         return response
+    //       }
+    //     }) */
+    // },
 
     thumbChange (file) {
       if (!file) {
@@ -404,9 +450,6 @@ export default
     }
   }
 }
-
-const copy = obj => JSON.parse(JSON.stringify(obj))
-// const getToday = () => new Date(Date.now()).toJSON().split('.')[0]
 </script>
 
 <style lang="sass" scoped>

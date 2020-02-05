@@ -1,0 +1,254 @@
+{
+  "image": [
+    {
+      "ext": "gif",
+      "mimeType": "image/gif"
+    },
+    {
+      "ext": "jpg",
+      "mimeType": "image/jpeg"
+    },
+    {
+      "ext": "png",
+      "mimeType": "image/png"
+    },
+    {
+      "ext": "svg",
+      "mimeType": "image/svg+xml"
+    },
+    {
+      "ext": "tiff",
+      "mimeType": "image/tiff"
+    },
+    {
+      "ext": "webp",
+      "mimeType": "image/webp"
+    }
+  ],
+  "audio": [
+    {
+      "ext": "midi",
+      "mimeType": "audio/midi"
+    },
+    {
+      "ext": "oga",
+      "mimeType": "audio/ogg"
+    },
+    {
+      "ext": "wav",
+      "mimeType": "audio/x-wav"
+    },
+    {
+      "ext": "weba",
+      "mimeType": "audio/webm"
+    },
+    {
+      "ext": "aac",
+      "mimeType": "audio/aac"
+    },
+    {
+      "ext": "3gp",
+      "mimeType": "audio/3gpp"
+    },
+    {
+      "ext": "3g2",
+      "mimeType": "audio/3gpp2"
+    },
+    {
+      "ext": "mp3",
+      "mimeType": "audio/mpeg"
+    },
+    {
+      "ext": "flac",
+      "mimeType": "audio/x-flac"
+    },
+    {
+      "ext": "flac",
+      "mimeType": "audio/x-ogg"
+    }
+  ],
+  "video": [
+    {
+      "ext": "avi",
+      "mimeType": "video/x-msvideo"
+    },
+    {
+      "ext": "mpeg",
+      "mimeType": "video/mpeg"
+    },
+    {
+      "ext": "ogv",
+      "mimeType": "video/ogg"
+    },
+    {
+      "ext": "webm",
+      "mimeType": "video/webm"
+    },
+    {
+      "ext": "3gp",
+      "mimeType": "video/3gpp"
+    },
+    {
+      "ext": "3g2",
+      "mimeType": "video/3gpp2"
+    },
+    {
+      "ext": "mp4",
+      "mimeType": "video/mp4"
+    }
+  ],
+  "sheet": [
+    {
+      "ext": "csv",
+      "mimeType": "text/csv"
+    },
+    {
+      "ext": "ods",
+      "mimeType": "application/vnd.oasis.opendocument.spreadsheet"
+    },
+    {
+      "ext": "xls",
+      "mimeType": "application/vnd.ms-excel"
+    },
+    {
+      "ext": "xlsx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    }
+  ],
+  "text": [
+    {
+      "ext": "txt",
+      "mimeType": "text/plain"
+    },
+    {
+      "ext": "abw",
+      "mimeType": "application/x-abiword"
+    },
+    {
+      "ext": "doc",
+      "mimeType": "application/msword"
+    },
+    {
+      "ext": "docx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    },
+    {
+      "ext": "odt",
+      "mimeType": "application/vnd.oasis.opendocument.text"
+    },
+    {
+      "ext": "rtf",
+      "mimeType": "application/rtf"
+    }
+  ],
+  "presentation": [
+    {
+      "ext": "odp",
+      "mimeType": "application/vnd.oasis.opendocument.presentation"
+    },
+    {
+      "ext": "ppt",
+      "mimeType": "application/vnd.ms-powerpoint"
+    },
+    {
+      "ext": "pptx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    }
+  ],
+  "archive": [
+    {
+      "ext": "bz",
+      "mimeType": "application/x-bzip"
+    },
+    {
+      "ext": "bz2",
+      "mimeType": "application/x-bzip2"
+    },
+    {
+      "ext": "tar",
+      "mimeType": "application/x-tar"
+    },
+    {
+      "ext": "rar",
+      "mimeType": "application/x-rar-compressed"
+    },
+    {
+      "ext": "zip",
+      "mimeType": "application/zip"
+    },
+    {
+      "ext": "7z",
+      "mimeType": "application/x-7z-compressed"
+    }
+  ],
+  "media": [
+    {
+      "ext": "azw",
+      "mimeType": "application/vnd.amazon.ebook"
+    },
+    {
+      "ext": "epub",
+      "mimeType": "application/epub+zip"
+    },{
+      "ext": "pdf",
+      "mimeType": "application/pdf"
+    },
+    {
+      "ext": "pdf",
+      "mimeType": "application/x-pdf"
+    },
+    {
+      "ext": "pdf",
+      "mimeType": "application/x-bzpdf"
+    },
+    {
+      "ext": "pdf",
+      "mimeType": "application/x-gzpdf"
+    }
+  ],
+  "script": [
+    {
+      "ext": "sh",
+      "mimeType": "application/x-sh"
+    },
+    {
+      "ext": "css",
+      "mimeType": "text/css"
+    },
+    {
+      "ext": "html",
+      "mimeType": "text/html"
+    },
+    {
+      "ext": "jar",
+      "mimeType": "application/java-archive"
+    },
+    {
+      "ext": "js",
+      "mimeType": "application/javascript"
+    },
+    {
+      "ext": "js",
+      "mimeType": "text/javascript"
+    },
+    {
+      "ext": "ts",
+      "mimeType": "application/typescript"
+    },
+    {
+      "ext": "xhtml",
+      "mimeType": "application/xhtml+xml"
+    },
+    {
+      "ext": "xml",
+      "mimeType": "application/xml"
+    }
+  ]
+}
+
+
+
+
+
+
+

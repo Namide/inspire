@@ -57,7 +57,7 @@ const extractJson = raw => {
   }
 }
 
-class PostContent {
+class PostContentSave {
   constructor (json = {}) {
     this.json = json
   }
@@ -119,6 +119,6 @@ class PostContent {
   }
 }
 
-export default PostContent
+export default PostContentSave
 
-export const contentRawToJson = raw => new PostContent().fromRaw(raw).getJson()
+export const contentRawToJson = raw => new PostContentSave().fromRaw(raw).getJson()

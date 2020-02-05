@@ -1,17 +1,27 @@
 <template>
   <div>
-    <part-admin-post :insert="true"></part-admin-post>
-    <part-admin-post v-for="post of posts" :key="post.uid" :post="post"></part-admin-post>
+
+    <div>
+      <button @click="isModalOpen = true">+ Add new post</button>
+    </div>
+
+    <part-admin-post v-for="post of posts" :key="post.id" :post="post"></part-admin-post>
+
+    <!-- Modal -->
+    <AdminPostModal v-if="isModalOpen" :create="true" @close="isModalOpen = false"></AdminPostModal>
+
   </div>
 </template>
 
 <script>
 import PartAdminPost from '@/components/AdminPost.vue'
+import AdminPostModal from '@/components/AdminPostModal.vue'
 
 export default
 {
   components: {
-    PartAdminPost
+    PartAdminPost,
+    AdminPostModal
   },
 
   props: {
@@ -21,6 +31,7 @@ export default
 
   data () {
     return {
+      isModalOpen: false,
       displayMode: 'thumb'
     }
   },

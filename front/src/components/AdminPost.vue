@@ -22,7 +22,7 @@
     </div>
 
     <!-- Modal -->
-    <AdminPostModal v-if="isModalOpen" :post="post" :insert="insert" @close="isModalOpen = false"></AdminPostModal>
+    <AdminPostModal v-if="isModalOpen" :post="post" :create="insert" @close="isModalOpen = false"></AdminPostModal>
 
   </div>
 </template>

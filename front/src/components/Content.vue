@@ -11,7 +11,7 @@
 
 <script>
 import marked from 'marked'
-import PostContent from '@/data/PostContent'
+import PostContentSave from '@/data/PostContentSave'
 
 // https://css-tricks.com/choosing-right-markdown-parser/#article-header-id-0
 
@@ -24,7 +24,7 @@ export default {
 
   computed: {
     html () {
-      const postContent = new PostContent(this.json)
+      const postContent = new PostContentSave(this.json)
 
       if (postContent.isURL()) {
         return '<a href="' + postContent.getRaw() +
@@ -41,12 +41,12 @@ export default {
     },
 
     type () {
-      const postContent = new PostContent(this.json)
+      const postContent = new PostContentSave(this.json)
       return postContent.getType()
     },
 
     ratio () {
-      const postContent = new PostContent(this.json)
+      const postContent = new PostContentSave(this.json)
 
       if (postContent.isEmbed()) {
         if (postContent.json.height && postContent.json.width) {
