@@ -19,27 +19,34 @@
       </div>
       <div v-else-if="state === 1">
 
-        <input type="datetime-local" v-model="date" class="date">
-        <input type="text" v-model="title" placeholder="title" class="title">
+        <input type="datetime-local" v-model="input.date" class="date">
+        <input type="text" v-model="input.title" placeholder="title" class="title">
         <AdminFileLoader @file="thumbChange" :src="getThumbSrc() || ''" :info="thumb" :only-img="true"></AdminFileLoader>
-        <input type="text" v-model="types" placeholder="types">
-        <InputTextarea :value="description" @change="argValue => description = argValue" placeholder="Description"></InputTextarea>
+        <input type="text" v-model="input.types" placeholder="types">
+        <InputTextarea :value="input.description" @change="argValue => input.description = argValue" placeholder="Description"></InputTextarea>
 
         <AdminFileLoader v-if="isFile" @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></AdminFileLoader>
         <template v-else>
-          <InputTextarea @submit="validContent" :value="inputContentRaw" @change="argValue => inputContentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
-          <Content :data="content"></Content>
+          <InputTextarea @submit="validContent" :value="input.contentObject.raw" @change="argValue => input.contentObject.raw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
+          <Content :data="input.contentObject"></Content>
         </template>
 
         <!-- :info="content"  -->
         <!-- <AdminFileLoader @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></AdminFileLoader> -->
 
-        <input type="text" v-model="tags" placeholder="tags">
+        <input type="text" v-model="input.tags" placeholder="tags">
 
         <!-- <InputTextarea :value="inputContentRaw" @change="argValue => inputContentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
         <Content :data="content"></Content> -->
 
-        <input type="checkbox" v-model="isPublic"> Public
+        <select v-model="input.status">
+          <option value="public">Public</option>
+          <option value="protected">Protected</option>
+          <option value="private">Private</option>
+          <option value="draft">Draft</option>
+          <option value="deleted">Deleted</option>
+        </select>
+
         <button @click="save" v-html="create ? 'Create' : 'Update'"></button>
         <button v-if="!create" @click="deletePost">Delete</button>
         <button @click="cancel">Cancel changes</button>
@@ -59,7 +66,6 @@ import InputTextarea from '@/components/InputTextarea.vue'
 import PostSave from '@/data/PostSave'
 
 const copy = obj => JSON.parse(JSON.stringify(obj))
-const getToday = () => new Date(Date.now()).toJSON().split('.')[0]
 
 export default
 {
@@ -86,18 +92,7 @@ export default
     return {
       isFile: false,
 
-      input: {
-        contentRaw: '',
-        title: '',
-        description: '',
-        thumb: null,
-        content_data: null,
-        tags: [],
-        types: [],
-        status: 0,
-        score: 0,
-        created_on: getToday().split(' ').join('T')
-      },
+      input: new PostSave().getObject(),
 
       // inputContentRaw: '',
 
@@ -237,7 +232,7 @@ export default
       // this.content = copy((this.post && this.post.content) || null)
 
       this.inputFile = null
-      this.$set(this.input, 'contentRaw', copy((this.post && this.post.content && this.post.content.raw) || ''))
+      // this.$set(this.input, 'contentRaw', copy((this.post && this.post.content && this.post.content.raw) || ''))
 
       // this.inputContentRaw = this.post && this.post.content && this.post.content.raw ? copy(this.post.content.raw) : null
       // this.isPublic = this.post ? !!this.post.public : true
@@ -250,7 +245,7 @@ export default
       const content = new PostSave()
       content.setContentRaw(this.input.contentRaw)
         .then(content => {
-          console.log(content)
+          this.input = content.getObject()
           this.state++
         })
 

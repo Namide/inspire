@@ -18,7 +18,9 @@ export default
 
   watch: {
     value (value) {
-      if (value !== this.modelValue) { this.modelValue = value }
+      if (value !== this.modelValue) {
+        this.modelValue = value
+      }
     },
 
     modelValue (modelValue) {
@@ -45,7 +47,7 @@ export default
 
   mounted () {
     this.resizeContentRaw()
-    window.removeEventListener('resize', this.resizeContentRaw)
+    window.addEventListener('resize', this.resizeContentRaw)
   },
 
   destroyed () {

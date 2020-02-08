@@ -4,7 +4,6 @@ import PostContentSave from '@/data/PostContentSave'
 import mimeTypes from '@/data/mime-types.json'
 
 /**
- *
  * URL.revokeObjectURL(blob)
  * URL.createObjectURL(blob)
  *
@@ -93,10 +92,9 @@ export default class PostSave extends Post {
   setContentRaw (value) {
     const content = new PostContentSave()
     content.fromRaw(value)
-    this.content = content.getJson()
-    console.log(content)
+    this.contentObject = content.getJson()
     if (content.isURL()) {
-      return this.updateByLink(this.content.url)
+      return this.updateByLink(this.contentObject.url)
     }
 
     return new Promise(resolve => resolve(this))
