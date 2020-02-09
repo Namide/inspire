@@ -17,10 +17,10 @@ class ApiSave extends Api {
     //   body: form
     // }
 
-    var url = new URL(this.apiURL + '/inspire/custom/gateway', window.location.origin)
+    const url = new URL(this.apiURL + '/inspire/custom/gateway', window.location.origin)
     url.searchParams.append('link', link)
 
-    return fetch(url) // request('get', '/custom/gateway')
+    return fetch(link) // request('get', '/custom/gateway')
   }
 }
 

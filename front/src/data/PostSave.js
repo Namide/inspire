@@ -2,6 +2,24 @@ import Post from '@/data/Post'
 import apiSave from '@/pure/apiSave'
 import PostContentSave from '@/data/PostContentSave'
 import mimeTypes from '@/data/mime-types.json'
+import extractColors from 'extract-colors'
+
+const getMimeData = _mimeType => {
+  const mimeData = { ext: '', mimeType: '', type: '' }
+  Object.keys(mimeTypes)
+    .forEach(type => {
+      mimeTypes[type]
+        .forEach(({ ext, mimeType }) => {
+          if (_mimeType === mimeType) {
+            mimeData.ext = ext
+            mimeData.mimeType = mimeType
+            mimeData.type = type
+          }
+        })
+    })
+
+  return mimeData
+}
 
 /**
  * URL.revokeObjectURL(blob)
@@ -34,17 +52,7 @@ const fetchUrl = url => {
 
       return response.blob()
         .then(blob => {
-          let mimeData = null
-          Object.keys(mimeTypes)
-            .forEach(type => {
-              mimeTypes[type]
-                .forEach(({ ext, mimeType }) => {
-                  if (mimeType === blob.type) {
-                    mimeData = { ext, mimeType, type }
-                  }
-                })
-            })
-
+          const mimeData = getMimeData(blob.type)
           const fileName = url.substring(url.lastIndexOf('/') + 1).split(/#|\?/)[0] || (mimeData ? mimeData.type + '.' + mimeData.ext : 'file')
           // return {
           //   file: new File([blob], fileName, { type: blob.type }),
@@ -100,17 +108,85 @@ export default class PostSave extends Post {
     return new Promise(resolve => resolve(this))
   }
 
+  setImage (fileInfos) {
+    const src = URL.createObjectURL(fileInfos.blob)
+    this.image = {
+      src
+    }
+
+    const title = fileInfos.name
+      .split('-').join(' ')
+      .split('_').join(' ')
+      .split('  ').join(' ')
+
+    this.title = title.substring(0, title.lastIndexOf('.'))
+
+    this._disposeList.push(() => URL.revokeObjectURL(src))
+
+    return extractColors(src)
+      .then(colors => {
+        const accuracy = 4 // 4 * 4 * 4 => 64 colors
+
+        this.colors = colors.map(color => color.hex)
+
+        // optimise test : http://glslsandbox.com/e#61168.0
+        this.colorsRound = [...new Set(colors.map(({ red, green, blue }) => {
+          return Math.round(red * (accuracy - 1) / 255) * accuracy * accuracy +
+            Math.round(green * (accuracy - 1) / 255) * accuracy +
+            Math.round(blue * (accuracy - 1) / 255)
+        }))]
+      })
+  }
+
+  updateFileByFileInfos (fileInfos) {
+    this.types = [...fileInfos.types]
+    this.image = null
+    this.file = null
+    if (fileInfos.types.indexOf('image') > -1) {
+      return this.setImage(fileInfos)
+        .then(() => this)
+    } else {
+      return this.setFile(fileInfos)
+        .then(() => this)
+    }
+  }
+
   updateByLink (url) {
     return fetchUrl(url)
       .then(fileInfos => {
         if (fileInfos.types.indexOf('link') > -1) {
+          this.types = [...fileInfos.types]
           this.setLink(url, fileInfos.text)
           return this
         } else {
-          this.setFile(fileInfos)
-          return this
+          return this.updateFileByFileInfos(fileInfos)
         }
       })
+  }
+
+  removeFile () {
+    this.types = []
+    this.image = null
+    this.file = null
+    this.colors = []
+    this.colorsRound = []
+
+    return new Promise(resolve => resolve(this))
+  }
+
+  updateByFile (file) {
+    this.removeFile()
+
+    const mimeData = getMimeData(file.type)
+    const fileInfos = {
+      name: file.name,
+      ext: mimeData ? mimeData.ext : file.name.split('.').pop(),
+      types: mimeData ? [mimeData.type, 'file'] : ['file'],
+      size: file.size,
+      blob: file
+    }
+
+    return this.updateFileByFileInfos(fileInfos)
   }
 
   setFile ({ name, ext, types, size, blob }) {
@@ -119,6 +195,8 @@ export default class PostSave extends Post {
       name,
       blob
     }
+
+    return new Promise(resolve => resolve(this))
   }
 
   setLink (url, html) {

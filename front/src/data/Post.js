@@ -4,7 +4,14 @@
 
 export default class Post {
   constructor () {
-    this.fromPayload({})
+    this.fromPayload()
+    this._disposeList = []
+  }
+
+  dispose () {
+    this._disposeList.forEach(callback => callback())
+    this._disposeList = []
+    this.fromPayload()
   }
 
   fromPayload (json = {}) {
@@ -19,7 +26,7 @@ export default class Post {
     this.date = new Date(json.created_on || Date.now())
 
     this.file = json.content_file || null
-    this.thumb = json.thumb || null
+    this.image = json.image || null
     this.author = null // this.api.getUser()
   }
 
@@ -34,12 +41,12 @@ export default class Post {
       colors_round: this.colorsRound,
       content_data: this.contentObject,
       content_file: this.file,
-      thumb: this.thumb,
+      image: this.image,
       created_on: this.date.toISOString().replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ''),
       created_by: this.author
     }
   }
-  // yyyy-MM-ddThh:mm
+
   getObject () {
     return {
       status: this.status,
@@ -51,7 +58,7 @@ export default class Post {
       colorsRound: this.colorsRound,
       contentObject: this.contentObject,
       contentFile: this.file,
-      thumb: this.thumb,
+      image: this.image,
       date: this.date.toISOString().replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ''),
       author: this.author
     }

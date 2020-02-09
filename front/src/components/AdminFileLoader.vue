@@ -1,25 +1,15 @@
 <template>
   <div>
-    <input v-if="!finalSrc" type="file" :disabled="false" @change="filesChange($event.target.files)" :accept="onlyImg ? 'image/*' : '*'">
+    <input v-if="!src" type="file" :disabled="false" @change="filesChange($event.target.files)" :accept="onlyImg ? 'image/*' : '*'">
     <button v-else @click="deleteFile">Delete image</button>
 
-    <div v-if="isImg && finalSrc !== ''" class="file-img" :style="{ backgroundImage: 'url(' + finalSrc + ')' }">
-
-      <template v-if="info">
-        <div v-for="(data, key) of info" :key="key + data">
-          <small v-if="key === 'colors'">
-            <strong>{{ key }}</strong>:
-            <span v-for="color of data" class="color" :style="{ background: color }" :key="color"></span>
-          </small>
-          <small v-else>
-            <strong>{{ key }}</strong>: {{ data }}
-          </small>
-        </div>
-      </template>
-
+    <div v-if="colors" class="colors">
+      <span v-for="color of colors" class="color" :style="{ background: color }" :key="color"></span>
     </div>
-    <template v-else-if="info">
-      <div v-for="(data, key) of info" :key="key + data">
+    <img v-if="isImg && src !== ''" :src="src" class="file-img">
+
+    <!-- <template v-else-if="colors">
+      <div v-for="(data, key) of colors" :key="key + data">
         <small v-if="key === 'colors'">
           <strong>{{ key }}</strong>:
           <span v-for="color of data" class="color" :style="{ background: color }" :key="color"></span>
@@ -28,90 +18,72 @@
           <strong>{{ key }}</strong>: {{ data }}
         </small>
       </div>
-    </template>
+    </template> -->
   </div>
 </template>
 
 <script>
-const STATE = {
-  INITIAL: 0,
-  MODIFY: 1,
-  MODIFIED: 2,
-  UPDATE: 3,
-  ERROR: 4
-}
-
 export default
 {
   props: {
     src: { type: String, default: '' },
-    info: { type: Object, default: null },
+    colors: { type: Array, default: () => [] },
     onlyImg: { type: Boolean, default: false }
-  },
-
-  watch: {
-    src (src) {
-      this.finalSrc = src
-    }
   },
 
   data () {
     return {
-      finalSrc: '',
-      isImg: true,
-      state: STATE.INITIAL
+      isImg: true
     }
-  },
-
-  created () {
-    this.finalSrc = this.src || ''
   },
 
   methods: {
     filesChange ([file]) {
-      const isImage = file.type.split('/').shift().toLowerCase() === 'image'
-      if (isImage) {
-        this.imgViewer(file)
-      }
+      // const isImage = file.type.split('/').shift().toLowerCase() === 'image'
+      // if (isImage) {
+      //   this.imgViewer(file)
+      // }
 
-      this.$emit('file', file)
-
-      this.state = STATE.MODIFY
+      this.$emit('change', file)
     },
 
     deleteFile () {
-      this.$emit('file', null)
-    },
-
-    imgViewer (file) {
-      if (file.size > 1e9) {
-        this.finalSrc = ''
-        return console.warn('image too big!')
-      }
-
-      const reader = new FileReader()
-      reader.addEventListener('load', event => {
-        this.finalSrc = event.target.result
-      })
-      reader.readAsDataURL(file)
+      this.$emit('change', null)
     }
+
+    // imgViewer (file) {
+    //   if (file.size > 1e9) {
+    //     this.finalSrc = ''
+    //     return console.warn('image too big!')
+    //   }
+
+    //   const reader = new FileReader()
+    //   reader.addEventListener('load', event => {
+    //     this.finalSrc = event.target.result
+    //   })
+    //   reader.readAsDataURL(file)
+    // }
   }
 }
 </script>
 
 <style lang="sass" scoped>
+.colors
+  display: flex
+
 .color
   width: 16px
   height: 16px
   display: inline-block
 
 .file-img
-  width: 256px
-  height: 256px
-  background-repeat: no-repeat
-  background-position: center
-  background-size: cover
-
-  &:hover
-    background-size: contain
+  max-width: 256px
+  max-height: 256px
+  height: auto
+//   width: 256px
+//   height: 256px
+//   background-repeat: no-repeat
+//   background-position: center
+//   background-size: contain
+//   background-color: #000
 </style>
