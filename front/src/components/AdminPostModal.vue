@@ -34,7 +34,7 @@
         <!-- :info="content"  -->
         <!-- <AdminFileLoader @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></AdminFileLoader> -->
 
-        <input type="text" v-model="input.tags" placeholder="tags">
+        <Tags :tags="input.tags ? input.tags : []" @update:tags="val => input.tags = val" placeholder="Tags (separated by comas)"/>
 
         <!-- <InputTextarea :value="inputContentRaw" @change="argValue => inputContentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
         <Content :data="content"></Content> -->
@@ -60,7 +60,7 @@
 // import api from '../pure/apiSave'
 // import api from '../pure/api'
 import AdminFileLoader from '@/components/AdminFileLoader.vue'
-// import PostContent from '@/data/PostContent'
+import Tags from '@/components/Tags'
 // import Content from '@/components/Content.vue'
 import InputTextarea from '@/components/InputTextarea.vue'
 import PostSave from '@/data/PostSave'
@@ -72,7 +72,8 @@ export default
   components: {
     AdminFileLoader,
     // Content,
-    InputTextarea
+    InputTextarea,
+    Tags
   },
 
   props: {

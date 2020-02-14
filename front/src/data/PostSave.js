@@ -129,7 +129,7 @@ export default class PostSave extends Post {
 
         this.colors = colors.map(color => color.hex)
 
-        // optimise test : http://glslsandbox.com/e#61168.0
+        // optimise test : http://glslsandbox.com/e#61168.1
         this.colorsRound = [...new Set(colors.map(({ red, green, blue }) => {
           return Math.round(red * (accuracy - 1) / 255) * accuracy * accuracy +
             Math.round(green * (accuracy - 1) / 255) * accuracy +
