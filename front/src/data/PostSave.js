@@ -3,6 +3,7 @@ import apiSave from '@/pure/apiSave'
 import PostContentSave from '@/data/PostContentSave'
 import mimeTypes from '@/data/mime-types.json'
 import extractColors from 'extract-colors'
+import externalURL from '@/data/externalURL.js'
 
 const getMimeData = _mimeType => {
   const mimeData = { ext: '', mimeType: '', type: '' }
@@ -199,6 +200,23 @@ export default class PostSave extends Post {
     return new Promise(resolve => resolve(this))
   }
 
+  analyseHtml (link, doc) {
+    const url = new URL(link)
+    const data = externalURL(url, doc)
+    Object.keys(data).forEach(label => {
+      switch (label) {
+        case 'types':
+          this.types = data[label]
+          break
+        case 'contentObject':
+          this.contentObject = Object.assign(this.contentObject, data[label])
+          break
+        default:
+          console.log(label + ' not defined')
+      }
+    })
+  }
+
   setLink (url, html) {
     const parser = new DOMParser()
     const doc = parser.parseFromString(html, 'text/html')
@@ -218,5 +236,7 @@ export default class PostSave extends Post {
     }
 
     this.types = ['link']
+
+    this.analyseHtml(url, doc)
   }
 }

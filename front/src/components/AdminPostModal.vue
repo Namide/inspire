@@ -28,7 +28,7 @@
         <AdminFileLoader v-if="isFile" @change="fileChange" :src="input.image ? input.image.src : ''" :colors="input.colors" :only-img="false"></AdminFileLoader>
         <template v-else>
           <InputTextarea @submit="validContent" :value="input.contentObject.raw" @change="argValue => input.contentObject.raw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
-          <Content :data="input.contentObject"></Content>
+          <Content :contentObject="input.contentObject"></Content>
         </template>
 
         <!-- :info="content"  -->
@@ -61,7 +61,7 @@
 // import api from '../pure/api'
 import AdminFileLoader from '@/components/AdminFileLoader.vue'
 import Tags from '@/components/Tags'
-// import Content from '@/components/Content.vue'
+import Content from '@/components/Content.vue'
 import InputTextarea from '@/components/InputTextarea.vue'
 import PostSave from '@/data/PostSave'
 
@@ -71,7 +71,7 @@ export default
 {
   components: {
     AdminFileLoader,
-    // Content,
+    Content,
     InputTextarea,
     Tags
   },

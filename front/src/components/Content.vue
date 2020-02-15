@@ -11,58 +11,54 @@
 
 <script>
 import marked from 'marked'
-import PostContentSave from '@/data/PostContentSave'
+// import PostContentSave from '@/data/PostContentSave'
 
 // https://css-tricks.com/choosing-right-markdown-parser/#article-header-id-0
 
-console.log(marked)
+// console.log(marked)
 
 export default {
   props: {
-    json: { type: Object }
+    contentObject: {
+      type: Object,
+      required: true
+    }
   },
 
   computed: {
     html () {
-      const postContent = new PostContentSave(this.json)
-
-      if (postContent.isURL()) {
-        return '<a href="' + postContent.getRaw() +
+      if (this.contentObject.embed) {
+        return this.contentObject.embed
+      } else if (this.contentObject.url) {
+        return '<a href="' + this.contentObject.url +
           '" target="_blank" rel="noreferrer noopener">' +
-          postContent.getRaw().replace(/http:\/\/|https:\/\//, '') +
+          this.contentObject.url.replace(/http:\/\/|https:\/\//, '') +
           '</a>'
-      } else if (postContent.isEmbed()) {
-        return postContent.getRaw()
-      } else if (postContent.isText()) {
-        return marked(postContent.getRaw())
+      } else if (this.contentObject.raw) {
+        return marked(this.contentObject.raw)
       }
 
-      return postContent.isText() + ' not know'
+      return 'type not know'
     },
 
     type () {
-      const postContent = new PostContentSave(this.json)
-      return postContent.getType()
+      if (this.contentObject.embed) {
+        return 'embed'
+      } else if (this.contentObject.url) {
+        return 'url'
+      }
+
+      return 'text'
     },
 
     ratio () {
-      const postContent = new PostContentSave(this.json)
-
-      if (postContent.isEmbed()) {
-        if (postContent.json.height && postContent.json.width) {
-          return (100 * postContent.json.height / postContent.json.width).toFixed(3) + '%'
-        } else {
-          return '56.25%'
-        }
+      if (this.contentObject.embed) {
+        return '56.25%'
       }
 
       return ''
     }
   }
-
-  // watch: {
-  //   data: 'setContent'
-  // },
 }
 </script>
 
@@ -78,7 +74,7 @@ export default {
     width: 100%
     height: 100%
 
-    &>*
+    &>::v-deep *
       position: absolute
       top: 0
       left: 0

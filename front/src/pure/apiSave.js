@@ -20,7 +20,7 @@ class ApiSave extends Api {
     const url = new URL(this.apiURL + '/inspire/custom/gateway', window.location.origin)
     url.searchParams.append('link', link)
 
-    return fetch(link) // request('get', '/custom/gateway')
+    return fetch(url.href /*, { mode: 'cors' } */) // request('get', '/custom/gateway')
   }
 }
 
