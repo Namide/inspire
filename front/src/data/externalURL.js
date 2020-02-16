@@ -35,10 +35,11 @@ const LIST = [
             console.error('youtube error: ' + error.message)
             resolve({
               types: ['embed', 'video'],
-              isEmbed: true,
               contentObject: {
                 type: 'embed',
                 url: url.href,
+                width: 640,
+                height: 360,
                 raw: `<iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/${video}?color=white&amp;controls=1&amp;iv_load_policy=3&amp;modestbranding=1&amp;rel=0&amp;showinfo=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`
               }
             })
@@ -80,26 +81,17 @@ const LIST = [
             console.error('vimeo error: ' + error.message)
             resolve({
               types: ['embed', 'video'],
-              isEmbed: true,
               contentObject: {
                 type: 'embed',
                 url: url.href,
+                width: 640,
+                height: 360,
                 raw: `<iframe src="https://player.vimeo.com/video/${video}" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`
               }
             })
           })
       })
     }
-    /* process: (url) => {
-      const video = url.pathname.split('/')[1]
-      return {
-        types: ['embed', 'video'],
-        contentObject: {
-          type: 'embed',
-          embed: `<iframe src="https://player.vimeo.com/video/${video}" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`
-        }
-      }
-    } */
   },
   {
     regexList: [/dailymotion\.com\/video\/[a-z0-1]+/i],
@@ -137,10 +129,11 @@ const LIST = [
             console.error('dailymotion error: ' + error.message)
             resolve({
               types: ['embed', 'video'],
-              isEmbed: true,
               contentObject: {
                 type: 'embed',
                 url: url.href,
+                width: 640,
+                height: 360,
                 raw: `<iframe frameborder="0" width="640" height="360" src="https://www.dailymotion.com/embed/video/${video}" allowfullscreen allow="autoplay"></iframe>
                 `
               }
@@ -148,17 +141,54 @@ const LIST = [
           })
       })
     }
-    /* process: (url) => {
-      const video = url.pathname.split('/')[2]
-      return {
-        types: ['embed', 'video'],
-        contentObject: {
-          type: 'embed',
-          embed: `<iframe frameborder="0" width="640" height="360" src="https://www.dailymotion.com/embed/video/${video}" allowfullscreen allow="autoplay"></iframe>
-          `
-        }
-      }
-    } */
+  },
+  {
+    regexList: [/sketchfab\.com\/3d-models\/\w+/i],
+    process: (url) => {
+      return new Promise(resolve => {
+        const id = url.pathname.split('/')[2].split('-').pop()
+        const dataURL = new URL('https://sketchfab.com/oembed')
+        dataURL.searchParams.set('url', url.href)
+
+        apiSave.getDistantLink(dataURL.href)
+          .then(response => {
+            if (response.ok) {
+              return response.json()
+            } else {
+              throw new Error('Link not found')
+            }
+          })
+          .then(json => {
+            resolve({
+              title: json.title,
+              description: json.description,
+              types: ['embed', '3d'],
+              contentObject: {
+                type: 'embed',
+                url: url.url,
+                width: json.width,
+                height: json.height,
+                image: json.thumbnail_url,
+                author: json.author_name,
+                raw: `<iframe width="${json.width}" height="${json.height}" src="https://sketchfab.com/models/${id}/embed?camera=0" frameborder="0" allow="autoplay; fullscreen; vr" allowfullscreen></iframe>`
+              }
+            })
+          })
+          .catch(error => {
+            console.error('sketchfab error: ' + error.message)
+            resolve({
+              types: ['embed', '3d'],
+              contentObject: {
+                type: 'embed',
+                width: 640,
+                height: 480,
+                url: url.href,
+                raw: `<iframe src="https://sketchfab.com/models/${id}/embed?camera=0" width="640" height="480" frameborder="0" allow="autoplay; fullscreen; vr" allowfullscreen></iframe>`
+              }
+            })
+          })
+      })
+    }
   }
 ]
 

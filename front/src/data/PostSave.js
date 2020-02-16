@@ -211,21 +211,33 @@ export default class PostSave extends Post {
         Object.keys(data).forEach(label => {
           this[label] = data[label]
         })
+
+        if (!!this.title || !!this.description || !!this.image) {
+          throw new Error('need more data')
+        }
+
         return data
       })
       .catch(() => {
-        this.title = doc.title
-        const metaDescription = doc.querySelector('meta[name="description"]')
-        if (metaDescription) {
-          this.description = metaDescription.getAttribute('content')
+        if (!this.title) {
+          this.title = doc.title
         }
 
-        const image = doc.querySelector('meta[property="og:image"]')
-        const images = doc.querySelectorAll('a[href]')
-        if (image) {
-          this.image = image.getAttribute('content')
-        } else if (images.length > 0) {
-          this.image = images[0].getAttribute('src')
+        if (!this.description) {
+          const metaDescription = doc.querySelector('meta[name="description"]')
+          if (metaDescription) {
+            this.description = metaDescription.getAttribute('content')
+          }
+        }
+
+        if (!this.image) {
+          const image = doc.querySelector('meta[property="og:image"]')
+          const images = doc.querySelectorAll('a[href]')
+          if (image) {
+            this.image = image.getAttribute('content')
+          } else if (images.length > 0) {
+            this.image = images[0].getAttribute('src')
+          }
         }
       })
   }
