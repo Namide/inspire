@@ -61,10 +61,10 @@ const LIST = [
               throw new Error('Link not found')
             }
           })
-          .then(json => {
+          .then(([json]) => {
             resolve({
               title: json.title,
-              description: json.description,
+              description: json.description.split('<br />').join(' '),
               types: ['embed', 'video'],
               contentObject: {
                 type: 'embed',
