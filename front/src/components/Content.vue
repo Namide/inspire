@@ -1,7 +1,7 @@
 <template>
-  <div class="content" :class="[ 'is-' + type, (ratio !== '' ? 'has-ratio' : '') ]">
+  <div class="content" :class="[ 'is-' + type, (invRatio !== '' ? 'has-ratio' : '') ]">
 
-    <div v-if="ratio" class="dummy" :style="{ paddingTop: ratio }"></div>
+    <div v-if="invRatio" class="dummy" :style="{ paddingTop: invRatio }"></div>
     <div v-html="html" class="data">
       (Content here)
     </div>
@@ -27,14 +27,14 @@ export default {
 
   computed: {
     html () {
-      if (this.contentObject.embed) {
-        return this.contentObject.embed
-      } else if (this.contentObject.url) {
-        return '<a href="' + this.contentObject.url +
+      if (this.contentObject.type === 'embed') {
+        return this.contentObject.raw
+      } else if (this.contentObject.type === 'url') {
+        return '<a href="' + this.contentObject.raw +
           '" target="_blank" rel="noreferrer noopener">' +
-          this.contentObject.url.replace(/http:\/\/|https:\/\//, '') +
+          this.contentObject.raw.replace(/http:\/\/|https:\/\//, '') +
           '</a>'
-      } else if (this.contentObject.raw) {
+      } else if (this.contentObject.type === 'text') {
         return marked(this.contentObject.raw)
       }
 
@@ -42,17 +42,14 @@ export default {
     },
 
     type () {
-      if (this.contentObject.embed) {
-        return 'embed'
-      } else if (this.contentObject.url) {
-        return 'url'
-      }
-
-      return 'text'
+      return this.contentObject.type || 'text'
     },
 
-    ratio () {
-      if (this.contentObject.embed) {
+    invRatio () {
+      if (this.contentObject.type === 'embed') {
+        if (this.contentObject.width && this.contentObject.height) {
+          return (100 * this.contentObject.height / this.contentObject.width) + '%'
+        }
         return '56.25%'
       }
 

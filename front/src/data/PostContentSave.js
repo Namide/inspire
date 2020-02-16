@@ -7,11 +7,13 @@ const extractUrlData = url => {
   a.href = url.trim()
 
   return {
+    type: 'url',
     url: a.href,
     authority: a.host,
     path: a.pathname,
     search: a.search,
-    anchor: a.hash
+    anchor: a.hash,
+    raw: a.href
   }
 }
 
@@ -26,8 +28,6 @@ const extractJson = raw => {
       ...urlData
     }
   } else if (raw && raw.trim().match(/<iframe(.+)<\/iframe>/g) !== null) {
-    console.log('<iframe>')
-
     const regExS = /<iframe[^>]+src=["']?(.+?)["'\s>]/gi
     const regExW = /<iframe[^>]+width=["']?(\d+%?)/gi
     const regExH = /<iframe[^>]+height=["']?(\d+%?)/gi
@@ -43,11 +43,11 @@ const extractJson = raw => {
     const urlData = extractUrlData(src)
 
     return {
+      ...urlData,
       type: 'embed',
       raw: raw.trim(),
       width,
-      height,
-      ...urlData
+      height
     }
   } else {
     return {

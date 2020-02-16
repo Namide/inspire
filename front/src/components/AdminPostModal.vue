@@ -27,8 +27,8 @@
         </ul>
         <AdminFileLoader v-if="isFile" @change="fileChange" :src="input.image ? input.image.src : ''" :colors="input.colors" :only-img="false"></AdminFileLoader>
         <template v-else>
-          <InputTextarea @submit="validContent" :value="input.contentObject.raw" @change="argValue => input.contentObject.raw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
           <Content :contentObject="input.contentObject"></Content>
+          <InputTextarea @submit="validContent" :value="input.contentObject.raw" @change="argValue => input.contentObject.raw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
         </template>
 
         <!-- :info="content"  -->

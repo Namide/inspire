@@ -60,6 +60,7 @@ const fetchUrl = url => {
           //   types: mimeData ? ['file', mimeData.type] : ['file']
           // }
           return {
+            isFile: true,
             name: fileName,
             ext: mimeData ? mimeData.ext : fileName.split('.').pop(),
             types: mimeData ? [mimeData.type, 'file'] : ['file'],
@@ -102,8 +103,8 @@ export default class PostSave extends Post {
     const content = new PostContentSave()
     content.fromRaw(value)
     this.contentObject = content.getJson()
-    if (content.isURL()) {
-      return this.updateByLink(this.contentObject.url)
+    if (this.contentObject.type === 'url') {
+      return this.updateByLink(this.contentObject.raw)
     }
 
     return new Promise(resolve => resolve(this))
@@ -157,8 +158,8 @@ export default class PostSave extends Post {
       .then(fileInfos => {
         if (fileInfos.types.indexOf('link') > -1) {
           this.types = [...fileInfos.types]
-          this.setLink(url, fileInfos.text)
-          return this
+          return this.setLink(url, fileInfos.text)
+            .then(() => this)
         } else {
           return this.updateFileByFileInfos(fileInfos)
         }
@@ -171,6 +172,7 @@ export default class PostSave extends Post {
     this.file = null
     this.colors = []
     this.colorsRound = []
+    this.contentObject = {}
 
     return new Promise(resolve => resolve(this))
   }
@@ -180,6 +182,7 @@ export default class PostSave extends Post {
 
     const mimeData = getMimeData(file.type)
     const fileInfos = {
+      type: 'file',
       name: file.name,
       ext: mimeData ? mimeData.ext : file.name.split('.').pop(),
       types: mimeData ? [mimeData.type, 'file'] : ['file'],
@@ -193,6 +196,7 @@ export default class PostSave extends Post {
   setFile ({ name, ext, types, size, blob }) {
     this.types = types
     this.file = {
+      type: 'file',
       name,
       blob
     }
@@ -202,41 +206,36 @@ export default class PostSave extends Post {
 
   analyseHtml (link, doc) {
     const url = new URL(link)
-    const data = externalURL(url, doc)
-    Object.keys(data).forEach(label => {
-      switch (label) {
-        case 'types':
-          this.types = data[label]
-          break
-        case 'contentObject':
-          this.contentObject = Object.assign(this.contentObject, data[label])
-          break
-        default:
-          console.log(label + ' not defined')
-      }
-    })
+    return externalURL(url, doc)
+      .then(data => {
+        Object.keys(data).forEach(label => {
+          this[label] = data[label]
+        })
+        return data
+      })
+      .catch(() => {
+        this.title = doc.title
+        const metaDescription = doc.querySelector('meta[name="description"]')
+        if (metaDescription) {
+          this.description = metaDescription.getAttribute('content')
+        }
+
+        const image = doc.querySelector('meta[property="og:image"]')
+        const images = doc.querySelectorAll('a[href]')
+        if (image) {
+          this.image = image.getAttribute('content')
+        } else if (images.length > 0) {
+          this.image = images[0].getAttribute('src')
+        }
+      })
   }
 
   setLink (url, html) {
     const parser = new DOMParser()
     const doc = parser.parseFromString(html, 'text/html')
 
-    this.title = doc.title
-    const metaDescription = doc.querySelector('meta[name="description"]')
-    if (metaDescription) {
-      this.description = metaDescription.getAttribute('content')
-    }
-
-    const image = doc.querySelector('meta[property="og:image"]')
-    const images = doc.querySelectorAll('a[href]')
-    if (image) {
-      this.thumb = image.getAttribute('content')
-    } else if (images.length > 0) {
-      this.thumb = images[0].getAttribute('src')
-    }
-
     this.types = ['link']
 
-    this.analyseHtml(url, doc)
+    return this.analyseHtml(url, doc)
   }
 }
