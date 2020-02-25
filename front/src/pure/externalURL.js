@@ -20,6 +20,7 @@ const LIST = [
             resolve({
               title: json.title,
               types: ['embed', 'video'],
+              tags: [json.author_name],
               contentObject: {
                 type: 'embed',
                 url: url.href,
@@ -65,6 +66,7 @@ const LIST = [
             resolve({
               title: json.title,
               description: json.description.split('<br />').join(' '),
+              tags: [json.user_name],
               types: ['embed', 'video'],
               contentObject: {
                 type: 'embed',
@@ -114,6 +116,7 @@ const LIST = [
               title: json.title,
               description: json.description,
               types: ['embed', 'video'],
+              tags: [json.author_name],
               contentObject: {
                 type: 'embed',
                 url: url.url,
@@ -163,6 +166,7 @@ const LIST = [
               title: json.title,
               description: json.description,
               types: ['embed', '3d'],
+              tags: [json.author_name],
               contentObject: {
                 type: 'embed',
                 url: url.url,

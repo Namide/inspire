@@ -1,69 +1,64 @@
 <template>
-  <div class="modal">
+  <div>
 
-    <div class="bg" @click="close"></div>
+    <label><input type="checkbox" v-model="isFile">File</label>
 
-    <div class="box">
+    <div v-if="state === 0">
 
-      <label><input type="checkbox" v-model="isFile">File</label>
-
-      <div v-if="state === 0">
-
-        <AdminFileLoader v-if="isFile" @change="fileChange" :src="input.image ? input.image.src : ''" :colors="input.colors" :only-img="false"></AdminFileLoader>
-        <template v-else>
-          <InputTextarea @submit="validContent" :value="input.contentRaw" @change="val => $set(input, 'contentRaw', val)" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
-          <!-- <Content :json="contentJson"></Content> -->
-        </template>
-        <button @click="validContent">Ok</button>
-
-      </div>
-      <div v-else-if="state === 1">
-
-        <input type="datetime-local" v-model="input.date" class="date">
-        <input type="text" v-model="input.title" placeholder="title" class="title">
-        <InputTextarea :value="input.description" @change="argValue => input.description = argValue" placeholder="Description"></InputTextarea>
-        <ul>
-          <li type="text" v-for="type of input.types" v-html="type" :key="type"></li>
-        </ul>
-        <AdminFileLoader v-if="isFile" @change="fileChange" :src="input.image ? input.image.src : ''" :colors="input.colors" :only-img="false"></AdminFileLoader>
-        <template v-else>
-          <Content :contentObject="input.contentObject"></Content>
-          <InputTextarea @submit="validContent" :value="input.contentObject.raw" @change="argValue => input.contentObject.raw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
-        </template>
-
-        <!-- :info="content"  -->
-        <!-- <AdminFileLoader @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></AdminFileLoader> -->
-
-        <Tags :tags="input.tags ? input.tags : []" @update:tags="val => input.tags = val" placeholder="Tags (separated by comas)"/>
-
-        <!-- <InputTextarea :value="inputContentRaw" @change="argValue => inputContentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
-        <Content :data="content"></Content> -->
-
-        <select v-model="input.status">
-          <option value="public">Public</option>
-          <option value="protected">Protected</option>
-          <option value="private">Private</option>
-          <option value="draft">Draft</option>
-          <option value="deleted">Deleted</option>
-        </select>
-
-        <button @click="save" v-html="create ? 'Create' : 'Update'"></button>
-        <button v-if="!create" @click="deletePost">Delete</button>
-        <button @click="cancel">Cancel changes</button>
-      </div>
+      <AdminFileLoader v-if="isFile" @change="fileChange" :src="input.image ? input.image.src : ''" :colors="input.colors" :only-img="false"></AdminFileLoader>
+      <template v-else>
+        <InputTextarea @submit="validContent" :value="input.contentRaw" @change="val => $set(input, 'contentRaw', val)" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
+        <!-- <Content :json="contentJson"></Content> -->
+      </template>
+      <button @click="validContent">Ok</button>
 
     </div>
+    <div v-else-if="state === 1">
+
+      <input type="datetime-local" v-model="input.date" class="date">
+      <input type="text" v-model="input.title" placeholder="title" class="title">
+      <InputTextarea :value="input.description" @change="val => $set(input, 'description', val)" placeholder="Description"></InputTextarea>
+      <ul>
+        <li type="text" v-for="type of input.types" v-html="type" :key="type"></li>
+      </ul>
+      <AdminFileLoader v-if="isFile" @change="fileChange" :src="input.image ? input.image.src : ''" :colors="input.colors" :only-img="false"></AdminFileLoader>
+      <template v-else>
+        <Content :contentObject="input.contentObject"></Content>
+        <InputTextarea @submit="validContent" :value="input.contentObject.raw" @change="val => $set(input.contentObject, 'raw', val)" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
+      </template>
+
+      <!-- :info="content"  -->
+      <!-- <AdminFileLoader @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></AdminFileLoader> -->
+
+      <Tags :tags="input.tags ? input.tags : []" @update:tags="val => input.tags = val" placeholder="Tags (separated by comas)"/>
+
+      <!-- <InputTextarea :value="inputContentRaw" @change="argValue => inputContentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
+      <Content :data="content"></Content> -->
+
+      <select v-model="input.status">
+        <option value="public">Public</option>
+        <option value="protected">Protected</option>
+        <option value="private">Private</option>
+        <option value="draft">Draft</option>
+        <option value="deleted">Deleted</option>
+      </select>
+
+      <button @click="save" v-html="create ? 'Create' : 'Update'"></button>
+      <button v-if="!create" @click="deletePost">Delete</button>
+      <button @click="cancel">Cancel changes</button>
+    </div>
+
   </div>
 </template>
 
 <script>
-// import api from '../pure/apiSave'
+import apiSave from '@/pure/apiSave'
 // import api from '../pure/api'
 import AdminFileLoader from '@/components/AdminFileLoader.vue'
 import Tags from '@/components/Tags'
 import Content from '@/components/Content.vue'
 import InputTextarea from '@/components/InputTextarea.vue'
-import PostSave from '@/data/PostSave'
+import PostSave from '@/pure/PostSave'
 
 // const copy = obj => JSON.parse(JSON.stringify(obj))
 
@@ -95,6 +90,17 @@ export default
       input: null,
       state: 0
     }
+  },
+
+  watch: {
+    'input.date' (val) { this.postSave.date = new Date(val) },
+    'input.title' (val) { this.postSave.title = val },
+    'input.description' (val) { this.postSave.description = val },
+    'input.types' (val) { this.postSave.types = val },
+    'input.contentObject' (val) { this.postSave.contentObject = val },
+    'input.tags' (val) { this.postSave.tags = val },
+    'input.status' (val) { this.postSave.status = val },
+    'input.contentObject.raw' (val) { this.postSave.contentObject.raw = val }
   },
 
   created () {
@@ -138,38 +144,37 @@ export default
     },
 
     save () {
-      const data = this._modified
-      console.log(data, this.create)
+      if (typeof this.postSave.image === typeof '') {
+        return this.postSave.setImageByURL(this.postSave.image)
+          .then(postSave => {
+            apiSave.addPost(postSave.getPayload())
+            console.log(postSave)
+          })
+      }
+
+      const payload = this.postSave.getPayload()
 
       if (this.create) {
-        this.$store.dispatch('addPost', { post: data })
-        /* api.addPost(data =>
-                {
-                    if (data.success)
-                        this.$store.commit('addPost', data.data)
+        apiSave.addPost(payload)
+        this.cancel()
+      } else {
+        apiSave.updatePost(payload)
+        this.cancel()
+      }
 
-                }, data) */
+      /* if (this.create) {
+        this.$store.dispatch('addPost', { post: data })
         this.cancel()
       } else {
         this.$store.dispatch('updatePost', { uid: this.post.uid, data: data })
-        /* api.updatePost(data =>
-                {
-                    if (data.success)
-                        this.$store.commit('updatePost', data.data)
-
-                }, this.post.uid, data) */
         this.cancel()
-      }
-    },
-
-    close () {
-      this.$emit('close')
+      } */
     },
 
     cancel () {
       // this.init()
       // this.$nextTick(this.close)
-      this.close()
+      this.$emit('cancel')
     },
 
     keyUp (keyEvent) {
@@ -236,27 +241,6 @@ export default
 <style lang="sass" scoped>
 input
   // border: none
-
-.modal
-  position: absolute
-  left: 0
-  top: 0
-  width: 100%
-  height: 100%
-  z-index: 2
-
-.bg
-  position: absolute
-  left: 0
-  top: 0
-  width: 100%
-  height: 100%
-  background: rgba(0, 0, 0, 0.5)
-
-.box
-  position: relative
-  background: #FFF
-  margin: 10%
 
 .date
   margin-left: auto

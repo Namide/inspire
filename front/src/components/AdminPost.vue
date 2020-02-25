@@ -22,17 +22,21 @@
     </div>
 
     <!-- Modal -->
-    <AdminPostModal v-if="isModalOpen" :post="post" :create="insert" @close="isModalOpen = false"></AdminPostModal>
+    <Modal :is-open="isModalOpen" @close="isModalOpen = false">
+      <AdminPostForm :post="post" :create="insert" @cancel="isModalOpen = false"></AdminPostForm>
+    </Modal>
 
   </div>
 </template>
 
 <script>
-import AdminPostModal from '@/components/AdminPostModal.vue'
+import AdminPostForm from '@/components/AdminPostForm.vue'
+import Modal from '@/components/Modal.vue'
 
 export default {
   components: {
-    AdminPostModal
+    AdminPostForm,
+    Modal
   },
 
   props: {

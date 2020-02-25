@@ -13,32 +13,50 @@ const routes = [
   {
     name: 'home',
     path: '/',
-    component: PageHome
+    component: PageHome,
+    meta: {
+      auth: false
+    }
   },
   {
     name: 'posts',
     path: '/post',
-    component: PagePosts
+    component: PagePosts,
+    meta: {
+      auth: false
+    }
   },
   {
     name: 'boards',
     path: '/board',
-    component: PageBoards
+    component: PageBoards,
+    meta: {
+      auth: false
+    }
   },
   {
     name: 'adminHome',
     path: '/admin',
-    component: PageHome
+    component: PageHome,
+    meta: {
+      auth: true
+    }
   },
   {
     name: 'adminPosts',
     path: '/admin/post',
-    component: PageAdminPosts
+    component: PageAdminPosts,
+    meta: {
+      auth: true
+    }
   },
   {
     name: 'adminBoards',
     path: '/admin/board',
-    component: PageBoards
+    component: PageBoards,
+    meta: {
+      auth: true
+    }
   }
 ]
 

@@ -1,9 +1,9 @@
-import Post from '@/data/Post'
+import Post from '@/pure/Post'
 import apiSave from '@/pure/apiSave'
-import PostContentSave from '@/data/PostContentSave'
+import PostContentSave from '@/pure/PostContentSave'
 import mimeTypes from '@/data/mime-types.json'
 import extractColors from 'extract-colors'
-import externalURL from '@/data/externalURL.js'
+import externalURL from '@/pure/externalURL.js'
 
 const getMimeData = _mimeType => {
   const mimeData = { ext: '', mimeType: '', type: '' }
@@ -110,21 +110,7 @@ export default class PostSave extends Post {
     return new Promise(resolve => resolve(this))
   }
 
-  setImage (fileInfos) {
-    const src = URL.createObjectURL(fileInfos.blob)
-    this.image = {
-      src
-    }
-
-    const title = fileInfos.name
-      .split('-').join(' ')
-      .split('_').join(' ')
-      .split('  ').join(' ')
-
-    this.title = title.substring(0, title.lastIndexOf('.'))
-
-    this._disposeList.push(() => URL.revokeObjectURL(src))
-
+  extractColors (src) {
     return extractColors(src)
       .then(colors => {
         const accuracy = 4 // 4 * 4 * 4 => 64 colors
@@ -138,6 +124,32 @@ export default class PostSave extends Post {
             Math.round(blue * (accuracy - 1) / 255)
         }))]
       })
+      .then(() => this)
+  }
+
+  setImageByURL (url) {
+    return fetchUrl(url)
+      .then(fileInfos => {
+        return this.setImage(fileInfos)
+      })
+  }
+
+  setImage (fileInfos) {
+    const src = URL.createObjectURL(fileInfos.blob)
+    this.image = {
+      src,
+      blob: fileInfos.blob
+    }
+
+    const title = fileInfos.name
+      .split('-').join(' ')
+      .split('_').join(' ')
+      .split('  ').join(' ')
+
+    this.title = title.substring(0, title.lastIndexOf('.'))
+
+    this._disposeList.push(() => URL.revokeObjectURL(src))
+    return this.extractColors(src)
   }
 
   updateFileByFileInfos (fileInfos) {

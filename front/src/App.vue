@@ -11,8 +11,29 @@
     </nav>
 
     <router-view/>
+
+    <User v-if="authRequired"/>
   </main>
 </template>
+
+<script>
+const User = () => import(/* webpackChunkName: "admin" */ '@/components/User')
+
+export default {
+  components: {
+    User
+  },
+
+  computed: {
+    authRequired () {
+      return this.$route.meta.auth
+    }
+  },
+
+  constructor () {
+  }
+}
+</script>
 
 <style lang="sass" scoped>
 .main-title

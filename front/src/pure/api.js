@@ -1,22 +1,31 @@
 // import config from '../../config'
 
 import DirectusSDK from '@directus/sdk-js'
+import Signal from './Signal'
 
-const API_DIR = '/api'
+const API_DIR = '/api/'
 // const config = {}
+
+const options = {
+  url: API_DIR,
+  project: 'inspire',
+  storage: window.localStorage
+}
+
+const directus = new DirectusSDK(options)
 
 class Api {
   constructor () {
-    const options = {
-      url: API_DIR,
-      project: 'inspire',
-      storage: window.localStorage
-    }
-
     this.apiURL = API_DIR
-    this.directus = new DirectusSDK(options)
+    this.directus = directus
     this.boards = null
     this.posts = null
+
+    console.log('->')
+    console.log(this.directus)
+
+    this.isLogged = false
+    this.onLogin = new Signal()
   }
 
   /* getHeaders () {
@@ -68,23 +77,52 @@ class Api {
     //   .catch(error => onError(error.message))
   }
 
-  get loggedIn () {
-    return this.directus.loggedIn
+  isLoggedIn () {
+    return this.directus.isLoggedIn()
+  }
+
+  getMe () {
+    return this.directus.getMe(/* { fields: [
+      'id',
+      'avatar',
+      'email',
+      'first_name',
+      'last_name',
+      'locale',
+      'role'
+    ]
+    } */)
   }
 
   logout () {
     return this.directus.logout()
+      .then(data => {
+        this.isLogged = false
+        this.onLogin.dispatch(false)
+        return data
+      })
   }
 
   login (email, password) {
-    if (this.directus.loggedIn) {
-      return new Promise(resolve => resolve())
-    }
+    // this.directus.isLoggedIn()
+    //   .then(console.log)
+    //   .catch(console.log)
+    //   return new Promise(resolve => resolve())
+    // }
 
     return this.directus.login({
       email,
       password
     })
+      .then(data => {
+        this.isLogged = data
+        this.onLogin.dispatch(data)
+      })
+      .catch(error => {
+        this.isLogged = false
+        this.onLogin.dispatch(false)
+        throw error
+      })
 
     // return directus.login({
     //   email,
@@ -120,73 +158,6 @@ class Api {
       .then(saveSession)
       .then(onConnected)
       .catch(onError) */
-  }
-
-  addPost (body) {
-    return this.directus.createItem('posts', body)
-      .then(console.log)
-      .catch(console.error)
-    // const form = Api.dataToFormData(data)
-    // const url = config.api.abs + '/posts/add'
-    // const request = new Request(url)
-    // const params = {
-    //   method: 'POST',
-    //   headers: this.getHeaders(),
-    //   mode: 'cors',
-    //   cache: 'default',
-    //   body: form
-    // }
-
-    // fetch(request, params)
-    //   .then(data => data.json())
-    //   .then(Api.testSuccess)
-    //   .then(onLoad)
-    //   .catch(err => console.error(err))
-  }
-
-  deletePost (key) {
-    return this.directus.deleteItem('posts', key)
-      .then(console.log)
-      .catch(console.error)
-
-    // const url = config.api.abs + '/posts/delete/' + uid
-    // const form = Api.dataToFormData({})
-    // const request = new Request(url)
-    // const params = {
-    //   method: 'POST',
-    //   headers: this.getHeaders(),
-    //   mode: 'cors',
-    //   cache: 'default',
-    //   body: form
-    // }
-
-    // fetch(request, params)
-    //   .then(data => data.json())
-    //   .then(Api.testSuccess)
-    //   .then(onLoad)
-    //   .catch(err => console.error(err))
-  }
-
-  updatePost (uid, data) {
-    // const newData = Object.assign({}, data)
-    // const url = config.api.abs + '/posts/edit/' + uid
-    // delete newData.uid
-    // const form = Api.dataToFormData(newData)
-
-    // const request = new Request(url)
-    // const params = {
-    //   method: 'POST',
-    //   headers: this.getHeaders(),
-    //   mode: 'cors',
-    //   cache: 'default',
-    //   body: form
-    // }
-
-    // fetch(request, params)
-    //   .then(data => data.json())
-    //   .then(Api.testSuccess)
-    //   .then(onLoad)
-    //   .catch(err => console.error(err))
   }
 }
 

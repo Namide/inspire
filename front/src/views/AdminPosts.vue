@@ -8,20 +8,25 @@
     <part-admin-post v-for="post of posts" :key="post.id" :post="post"></part-admin-post>
 
     <!-- Modal -->
-    <AdminPostModal v-if="isModalOpen" :create="true" @close="isModalOpen = false"></AdminPostModal>
+
+    <Modal :is-open="isModalOpen" @close="isModalOpen = false">
+      <AdminPostForm :create="true" @cancel="isModalOpen = false"></AdminPostForm>
+    </Modal>
 
   </div>
 </template>
 
 <script>
 import PartAdminPost from '@/components/AdminPost.vue'
-import AdminPostModal from '@/components/AdminPostModal.vue'
+import AdminPostForm from '@/components/AdminPostForm.vue'
+import Modal from '@/components/Modal.vue'
 
 export default
 {
   components: {
     PartAdminPost,
-    AdminPostModal
+    AdminPostForm,
+    Modal
   },
 
   props: {
