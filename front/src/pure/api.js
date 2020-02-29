@@ -5,11 +5,12 @@ import Signal from './Signal'
 
 const API_DIR = '/api/'
 // const config = {}
-
 const options = {
   url: API_DIR,
   project: 'inspire',
-  storage: window.localStorage
+  // storage: window.localStorage,
+  // persist: true,
+  mode: 'cookie'
 }
 
 const directus = new DirectusSDK(options)
@@ -21,8 +22,11 @@ class Api {
     this.boards = null
     this.posts = null
 
-    console.log('->')
-    console.log(this.directus)
+    // console.log('->')
+    // console.log(this.directus)
+
+    // directus
+    //   .sessionStorage.getItem('inspire_token')
 
     this.isLogged = false
     this.onLogin = new Signal()
@@ -99,6 +103,7 @@ class Api {
       .then(data => {
         this.isLogged = false
         this.onLogin.dispatch(false)
+        // sessionStorage.removeItem('inspire_token')
         return data
       })
   }
@@ -115,6 +120,7 @@ class Api {
       password
     })
       .then(data => {
+        // sessionStorage.setItem('inspire_token', data.token)
         this.isLogged = data
         this.onLogin.dispatch(data)
       })
