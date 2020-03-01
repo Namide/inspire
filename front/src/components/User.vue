@@ -1,5 +1,5 @@
 <template>
-  <div class="connect">
+  <div v-if="adminPage || isLogged" class="connect">
 
     <button v-if="!isLogged" @click="isModalConnectOpen = true">Signin</button>
     <button v-else @click="logout">Signout</button>
@@ -21,6 +21,13 @@ export default {
   components: {
     Modal,
     Connect
+  },
+
+  props: {
+    adminPage: {
+      type: Boolean,
+      default: false
+    }
   },
 
   data () {

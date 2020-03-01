@@ -12,7 +12,7 @@
 
     <router-view/>
 
-    <User v-if="authRequired"/>
+    <User :adminPage="authRequired"/>
   </main>
 </template>
 
