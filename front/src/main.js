@@ -7,8 +7,8 @@ import '@/style/basic.sass'
 
 Vue.config.productionTip = false
 
-fetch('/api/inspire/items/posts')
-  .then(console.log)
+// fetch('/api/inspire/items/posts')
+//   .then(console.log)
 
 new Vue({
   store,

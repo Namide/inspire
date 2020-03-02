@@ -35,11 +35,59 @@ class ApiSave extends Api {
       .uploadFiles(formData, onProgress)
   }
 
-  addPost (body) {
-    console.log(body)
-    this.addFile(body.image.blob, (data) => console.log(data))
-      .then(data => console.log('added:', data))
-    return { }
+  addPost (payload, onProgress = ({ loaded, total }) => loaded / total) {
+    console.log(payload)
+
+    if (payload.content_file) {
+      let l1 = 0
+      let t1 = 1
+      let l2 = 0
+      let t2 = 1
+
+      const dispatchProgress = () => onProgress({ loaded: l1 + l2, total: t1 + t2 })
+
+      if (payload.image) {
+        return Promise.all([
+          this.addFile(payload.content_file.blob, ({ loaded, total }) => {
+            l1 = loaded
+            t1 = total
+            dispatchProgress()
+          }),
+          this.addFile(payload.image.blob, ({ loaded, total }) => {
+            l2 = loaded
+            t2 = total
+            dispatchProgress()
+          })
+        ])
+          .then(([content_file, image]) => {
+            console.log(content_file, image)
+            return this.directus.createItem(
+              'posts',
+              Object.assign(
+                {},
+                payload,
+                {
+                  content_file: content_file.data.data.id,
+                  image: image.data.data.id
+                }
+              ))
+          })
+      } else {
+        return this.addFile(payload.content_file.blob, onProgress)
+          .then(content_file => {
+            console.log(content_file)
+            return this.directus.createItem('posts', Object.assign({}, payload, { content_file: content_file.data.data.id }))
+          })
+      }
+    } else if (payload.image) {
+      return this.addFile(payload.image.blob, onProgress)
+        .then(image => {
+          console.log(image)
+          return this.directus.createItem('posts', Object.assign({}, payload, { image: image.data.data.id }))
+        })
+    } else {
+      return this.directus.createItem('posts', payload)
+    }
 
     // return this.directus.createItem('posts', body)
     //   .then(console.log)
@@ -69,7 +117,7 @@ class ApiSave extends Api {
     //   .catch(err => console.error(err))
   }
 
-  updatePost (uid, data) {
+  setPost (uid, data) {
     // const newData = Object.assign({}, data)
     // const url = config.api.abs + '/posts/edit/' + uid
     // delete newData.uid

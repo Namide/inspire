@@ -23,9 +23,6 @@ const getMimeData = _mimeType => {
 }
 
 /**
- * URL.revokeObjectURL(blob)
- * URL.createObjectURL(blob)
- *
  * @param {String} url
  * @returns {Promise<Object>}
  */
@@ -55,10 +52,7 @@ const fetchUrl = url => {
         .then(blob => {
           const mimeData = getMimeData(blob.type)
           const fileName = url.substring(url.lastIndexOf('/') + 1).split(/#|\?/)[0] || (mimeData ? mimeData.type + '.' + mimeData.ext : 'file')
-          // return {
-          //   file: new File([blob], fileName, { type: blob.type }),
-          //   types: mimeData ? ['file', mimeData.type] : ['file']
-          // }
+
           return {
             isFile: true,
             name: fileName,
@@ -69,29 +63,6 @@ const fetchUrl = url => {
           }
         })
     })
-
-  // https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
-  //   if (!contentType) {
-  //     throw new Error('Need content type')
-  //   } else {
-  //     console.log(mimeData, contentType)
-
-  //     if (mimeData && mimeData.format === 'image') {
-  //       return response.blob()
-  //         .then(blob => ({
-  //           ext: mimeData.ext,
-  //           types: ['file', mimeData.format],
-  //           blob
-  //         }))
-  //     } else {
-  //       return response.blob()
-  //         .then(blob => ({
-  //           ext: url.split('.').pop().split(/#|\?/)[0],
-  //           types: ['file'],
-  //           blob
-  //         }))
-  //     }
-  //   }
 }
 
 export default class PostSave extends Post {
@@ -104,13 +75,13 @@ export default class PostSave extends Post {
     content.fromRaw(value)
     this.contentObject = content.getJson()
     if (this.contentObject.type === 'url') {
-      return this.updateByLink(this.contentObject.raw)
+      return this._updateByLink(this.contentObject.raw)
     }
 
-    return new Promise(resolve => resolve(this))
+    return Promise.resolve(this)
   }
 
-  extractColors (src) {
+  _extractColors (src) {
     return extractColors(src)
       .then(colors => {
         const accuracy = 4 // 4 * 4 * 4 => 64 colors
@@ -130,15 +101,15 @@ export default class PostSave extends Post {
   setImageByURL (url) {
     return fetchUrl(url)
       .then(fileInfos => {
-        return this.setImage(fileInfos)
+        return this._setImage(fileInfos)
       })
   }
 
-  setImage (fileInfos) {
+  _setImage (fileInfos) {
     const src = URL.createObjectURL(fileInfos.blob)
     this.image = {
       src,
-      blob: fileInfos.blob
+      blob: new File([fileInfos.blob], fileInfos.name)
     }
 
     const title = fileInfos.name
@@ -149,31 +120,31 @@ export default class PostSave extends Post {
     this.title = title.substring(0, title.lastIndexOf('.'))
 
     this._disposeList.push(() => URL.revokeObjectURL(src))
-    return this.extractColors(src)
+    return this._extractColors(src)
   }
 
-  updateFileByFileInfos (fileInfos) {
+  _updateFileByFileInfos (fileInfos) {
     this.types = [...fileInfos.types]
     this.image = null
     this.file = null
     if (fileInfos.types.indexOf('image') > -1) {
-      return this.setImage(fileInfos)
+      return this._setImage(fileInfos)
         .then(() => this)
     } else {
-      return this.setFile(fileInfos)
+      return this._setFile(fileInfos)
         .then(() => this)
     }
   }
 
-  updateByLink (url) {
+  _updateByLink (url) {
     return fetchUrl(url)
       .then(fileInfos => {
         if (fileInfos.types.indexOf('link') > -1) {
           this.types = [...fileInfos.types]
-          return this.setLink(url, fileInfos.text)
+          return this._setDistant(url, fileInfos.text)
             .then(() => this)
         } else {
-          return this.updateFileByFileInfos(fileInfos)
+          return this._updateFileByFileInfos(fileInfos)
         }
       })
   }
@@ -202,10 +173,10 @@ export default class PostSave extends Post {
       blob: file
     }
 
-    return this.updateFileByFileInfos(fileInfos)
+    return this._updateFileByFileInfos(fileInfos)
   }
 
-  setFile ({ name, ext, types, size, blob }) {
+  _setFile ({ name, ext, types, size, blob }) {
     this.types = types
     this.file = {
       type: 'file',
@@ -216,7 +187,7 @@ export default class PostSave extends Post {
     return new Promise(resolve => resolve(this))
   }
 
-  analyseHtml (link, doc) {
+  _analyseHtml (link, doc) {
     const url = new URL(link)
     return externalURL(url, doc)
       .then(data => {
@@ -254,12 +225,12 @@ export default class PostSave extends Post {
       })
   }
 
-  setLink (url, html) {
+  _setDistant (url, html) {
     const parser = new DOMParser()
     const doc = parser.parseFromString(html, 'text/html')
 
     this.types = ['link']
 
-    return this.analyseHtml(url, doc)
+    return this._analyseHtml(url, doc)
   }
 }

@@ -9,6 +9,11 @@
       <Connect @logged="update"></Connect>
     </Modal>
 
+    <span v-if="firstName">{{ firstName }}</span>
+    <span v-if="lastName">{{ lastName }}</span>
+
+    <img v-if="avatar" :src="avatar.src" :width="avatar.width" :height="avatar.height" alt="avatar" class="avatar"/>
+
   </div>
 </template>
 
@@ -33,7 +38,10 @@ export default {
   data () {
     return {
       isLogged: false,
-      isModalConnectOpen: false
+      isModalConnectOpen: false,
+      avatar: null,
+      firstName: '',
+      lastName: ''
     }
   },
 
@@ -60,22 +68,20 @@ export default {
     logout () {
       api.logout()
         .then(data => {
-          console.log(data)
           this.update()
         })
     },
 
     update () {
-      console.log(api.directus)
-      console.log('api:', api)
       api.isLoggedIn().then(isLogged => {
-        console.log('isLogged:', isLogged)
         this.isLogged = isLogged
         if (isLogged) {
           api.getMe()
             .then(data => {
               this.isLogged = true
-              console.log(data)
+              this.avatar = data.avatar
+              this.firstName = data.firstName
+              this.lastName = data.lastName
             })
         }
       })
@@ -89,4 +95,8 @@ export default {
   position: absolute
   top: 50px
   right: 50px
+
+.avatar
+  width: 64px
+  height: 64px
 </style>

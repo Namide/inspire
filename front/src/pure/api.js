@@ -28,6 +28,8 @@ class Api {
     // directus
     //   .sessionStorage.getItem('inspire_token')
 
+    console.log(this.directus)
+
     this.isLogged = false
     this.onLogin = new Signal()
   }
@@ -86,16 +88,38 @@ class Api {
   }
 
   getMe () {
-    return this.directus.getMe(/* { fields: [
+    return this.directus.getMe({ fields: [
       'id',
       'avatar',
       'email',
       'first_name',
       'last_name',
       'locale',
-      'role'
-    ]
-    } */)
+      // 'role',
+      'avatar.*'
+    ] })
+      .then(({ data }) => {
+        let avatar = null
+        if (data.avatar) {
+          const img = data.avatar.data.thumbnails.find(({ dimension }) => dimension === '300x300')
+          if (img) {
+            const src = API_DIR + img.relative_url.substring(1)
+            avatar = {
+              src,
+              width: img.width,
+              height: img.height
+            }
+          }
+        }
+
+        return {
+          avatar,
+          firstName: data.first_name,
+          lastName: data.last_name,
+          email: data.email,
+          locale: data.locale
+        }
+      })
   }
 
   logout () {
@@ -105,6 +129,9 @@ class Api {
         this.onLogin.dispatch(false)
         // sessionStorage.removeItem('inspire_token')
         return data
+      })
+      .catch(error => {
+        console.log(error)
       })
   }
 

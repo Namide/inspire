@@ -15,8 +15,6 @@ import marked from 'marked'
 
 // https://css-tricks.com/choosing-right-markdown-parser/#article-header-id-0
 
-// console.log(marked)
-
 export default {
   props: {
     contentObject: {

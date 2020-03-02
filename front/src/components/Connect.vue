@@ -26,7 +26,6 @@ export default {
     login () {
       api.login(this.mail, this.pass)
         .then(data => {
-          console.log('->', data)
           this.$emit('logged')
         })
     }

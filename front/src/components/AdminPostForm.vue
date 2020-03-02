@@ -128,6 +128,7 @@ export default
       this.postSave.setContentRaw(this.input.contentRaw)
         .then(postSave => {
           this.input = JSON.parse(JSON.stringify(postSave.getObject()))
+          this.isFile = this.input.types.indexOf('image') > -1 || this.input.types.indexOf('file') > -1
           this.state++
         })
     },
@@ -147,8 +148,11 @@ export default
       if (typeof this.postSave.image === typeof '') {
         return this.postSave.setImageByURL(this.postSave.image)
           .then(postSave => {
-            apiSave.addPost(postSave.getPayload())
             console.log(postSave)
+            apiSave.addPost(postSave.getPayload())
+          })
+          .catch(error => {
+            console.log(error)
           })
       }
 
@@ -156,9 +160,15 @@ export default
 
       if (this.create) {
         apiSave.addPost(payload)
+          .catch(error => {
+            console.log(error)
+          })
         this.cancel()
       } else {
         apiSave.updatePost(payload)
+          .catch(error => {
+            console.log(error)
+          })
         this.cancel()
       }
 
