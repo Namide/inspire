@@ -19,7 +19,7 @@ export default new Vuex.Store({
      */
     getPosts ({ commit }, { tags = [], noTags = [], types = [], noTypes = [] } = {}) {
       api.getPosts(data => {
-        console.log('OK', data.success)
+        // console.log('OK', data.success)
         if (data.success) { commit('updatePosts', data.data) }
       }, { tags, noTags, types, noTypes })
     },
@@ -31,7 +31,7 @@ export default new Vuex.Store({
     },
 
     addPost ({ commit }, { post }) {
-      console.log('post', post)
+      // console.log('post', post)
       api.addPost(data => {
         if (data.success) { commit('addPost', data.data) }
       }, post)

@@ -31,7 +31,7 @@ export default class Post {
   }
 
   getPayload () {
-    return {
+    const payload = {
       status: this.status,
       title: this.title,
       description: this.description,
@@ -45,6 +45,14 @@ export default class Post {
       created_on: this.date.toISOString().replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ''),
       created_by: this.author
     }
+
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === null || (Array.isArray(payload[key]) && payload[key].length < 1)) {
+        delete payload[key]
+      }
+    })
+
+    return payload
   }
 
   getObject () {
@@ -56,7 +64,7 @@ export default class Post {
       tags: [...this.tags],
       colors: [...this.colors],
       colorsRound: [...this.colorsRound],
-      contentObject: this.contentObject,
+      contentObject: JSON.parse(JSON.stringify(this.contentObject)),
       contentFile: this.file,
       image: this.image,
       date: this.date.toISOString().replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ''),

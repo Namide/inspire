@@ -28,7 +28,7 @@ class Api {
     // directus
     //   .sessionStorage.getItem('inspire_token')
 
-    console.log(this.directus)
+    // console.log(this.directus)
 
     this.isLogged = false
     this.onLogin = new Signal()

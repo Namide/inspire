@@ -104,8 +104,8 @@ const LIST = [
         apiSave.getDistantLink(dataURL.href)
           .then(response => {
             if (response.ok) {
-              console.log(dataURL.href)
-              console.log(response)
+              // console.log(dataURL.href)
+              // console.log(response)
               return response.json()
             } else {
               throw new Error('Link not found')
@@ -201,7 +201,7 @@ const LIST = [
  * @param {DOMParser} doc
  */
 const process = (url, doc) => {
-  console.log(url)
+  // console.log(url)
   const data = LIST.find(({ regexList }) => regexList.find(regex => regex.test(url.href)))
 
   return new Promise((resolve, reject) => {

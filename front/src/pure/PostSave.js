@@ -1,26 +1,8 @@
 import Post from '@/pure/Post'
 import apiSave from '@/pure/apiSave'
-import PostContentSave from '@/pure/PostContentSave'
-import mimeTypes from '@/data/mime-types.json'
 import extractColors from 'extract-colors'
 import externalURL from '@/pure/externalURL.js'
-
-const getMimeData = _mimeType => {
-  const mimeData = { ext: '', mimeType: '', type: '' }
-  Object.keys(mimeTypes)
-    .forEach(type => {
-      mimeTypes[type]
-        .forEach(({ ext, mimeType }) => {
-          if (_mimeType === mimeType) {
-            mimeData.ext = ext
-            mimeData.mimeType = mimeType
-            mimeData.type = type
-          }
-        })
-    })
-
-  return mimeData
-}
+import { extractType, getMimeData } from '@/pure/contentHelpers.js'
 
 /**
  * @param {String} url
@@ -67,15 +49,16 @@ const fetchUrl = url => {
 
 export default class PostSave extends Post {
   /**
-   * @param {String} value
+   * @param {String} raw
    * @returns {Promise}
    */
-  setContentRaw (value) {
-    const content = new PostContentSave()
-    content.fromRaw(value)
-    this.contentObject = content.getJson()
-    if (this.contentObject.type === 'url') {
-      return this._updateByLink(this.contentObject.raw)
+  setByRaw (raw) {
+    // const content = new analyseRaw()
+    // content.fromRaw(raw)
+    // this.contentObject = content.getJson()
+    const { type } = extractType(raw)
+    if (type === 'url') {
+      return this._updateByLink(raw.trim())
     }
 
     return Promise.resolve(this)
@@ -98,7 +81,7 @@ export default class PostSave extends Post {
       .then(() => this)
   }
 
-  setImageByURL (url) {
+  _setImageByURL (url) {
     return fetchUrl(url)
       .then(fileInfos => {
         return this._setImage(fileInfos)
@@ -195,8 +178,8 @@ export default class PostSave extends Post {
           this[label] = data[label]
         })
 
-        if (!!this.title || !!this.description || !!this.image) {
-          throw new Error('need more data')
+        if (typeof data.image === typeof '') {
+          return this._setImageByURL(data.image)
         }
 
         return data

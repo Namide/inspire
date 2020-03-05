@@ -30,13 +30,13 @@ class ApiSave extends Api {
   addFile (file, onProgress = () => 1) {
     const formData = new FormData()
     formData.append('file', file)
-    console.log(formData)
+    // console.log(formData)
     return this.directus
       .uploadFiles(formData, onProgress)
   }
 
   addPost (payload, onProgress = ({ loaded, total }) => loaded / total) {
-    console.log(payload)
+    // console.log(payload)
 
     if (payload.content_file) {
       let l1 = 0
@@ -60,7 +60,7 @@ class ApiSave extends Api {
           })
         ])
           .then(([content_file, image]) => {
-            console.log(content_file, image)
+            // console.log(content_file, image)
             return this.directus.createItem(
               'posts',
               Object.assign(
@@ -75,14 +75,14 @@ class ApiSave extends Api {
       } else {
         return this.addFile(payload.content_file.blob, onProgress)
           .then(content_file => {
-            console.log(content_file)
+            // console.log(content_file)
             return this.directus.createItem('posts', Object.assign({}, payload, { content_file: content_file.data.data.id }))
           })
       }
     } else if (payload.image) {
       return this.addFile(payload.image.blob, onProgress)
         .then(image => {
-          console.log(image)
+          // console.log(image)
           return this.directus.createItem('posts', Object.assign({}, payload, { image: image.data.data.id }))
         })
     } else {

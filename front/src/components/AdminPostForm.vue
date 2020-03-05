@@ -125,7 +125,7 @@ export default
 
   methods: {
     validContent () {
-      this.postSave.setContentRaw(this.input.contentRaw)
+      this.postSave.setByRaw(this.input.contentRaw)
         .then(postSave => {
           this.input = JSON.parse(JSON.stringify(postSave.getObject()))
           this.isFile = this.input.types.indexOf('image') > -1 || this.input.types.indexOf('file') > -1
@@ -145,17 +145,6 @@ export default
     },
 
     save () {
-      if (typeof this.postSave.image === typeof '') {
-        return this.postSave.setImageByURL(this.postSave.image)
-          .then(postSave => {
-            console.log(postSave)
-            apiSave.addPost(postSave.getPayload())
-          })
-          .catch(error => {
-            console.log(error)
-          })
-      }
-
       const payload = this.postSave.getPayload()
 
       if (this.create) {
@@ -196,13 +185,13 @@ export default
         this.postSave.updateByFile(file)
           .then(postSave => {
             this.input = JSON.parse(JSON.stringify(postSave.getObject()))
-            console.log(postSave)
+            // console.log(postSave)
           })
       } else {
         this.postSave.removeFile()
           .then(postSave => {
             this.input = JSON.parse(JSON.stringify(postSave.getObject()))
-            console.log(postSave)
+            // console.log(postSave)
           })
       }
 

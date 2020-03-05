@@ -196,7 +196,7 @@ class Api {
       return true
     }
 
-    console.log(tagsIn, tagsOut)
+    // console.log(tagsIn, tagsOut)
 
     this.client.getItems('post', params)
     // this.client._get('tables/post/rows' + search, params)
