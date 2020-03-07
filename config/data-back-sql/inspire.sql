@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : inspire-sql
--- Généré le :  sam. 08 fév. 2020 à 18:12
+-- Généré le :  sam. 07 mars 2020 à 12:34
 -- Version du serveur :  5.7.27
 -- Version de PHP :  7.2.19
 
@@ -299,14 +299,15 @@ INSERT INTO `directus_fields` (`id`, `collection`, `field`, `type`, `interface`,
 (176, 'posts', 'created_on', 'datetime_created', 'datetime-created', NULL, 0, NULL, 0, 1, 1, 1, 15, 'full', NULL, NULL, NULL),
 (177, 'posts', 'title', 'string', 'text-input', '{\"trim\":true,\"showCharacterCount\":true,\"formatValue\":false,\"monospace\":false}', 0, NULL, 0, 0, 0, 0, 3, 'half-left', NULL, 'Headline of the post', '[]'),
 (178, 'posts', 'description', 'string', 'textarea', '{\"rows\":8,\"serif\":false}', 0, NULL, 0, 0, 0, 0, 4, 'full', NULL, 'Abstract of your post', '[]'),
-(180, 'posts', 'colors', 'array', 'tags', '{\"iconRight\":\"local_offer\",\"validationMessage\":\"Please enter a valid tag\",\"alphabetize\":false,\"lowercase\":true,\"wrap\":true,\"format\":false,\"sanitize\":true}', 0, NULL, 0, 0, 0, 0, 9, 'half', NULL, 'Extracted colors of the thumb', '[]'),
-(181, 'posts', 'colors_round', 'array', 'tags', '{\"iconRight\":\"local_offer\",\"validationMessage\":\"Please enter a valid tag\",\"alphabetize\":false,\"lowercase\":true,\"wrap\":true,\"format\":false,\"sanitize\":true}', 0, NULL, 0, 0, 0, 0, 10, 'half', NULL, 'Rounded colors for search', '[]'),
-(183, 'posts', 'content_file', 'file', 'file', '{\"crop\":true,\"viewType\":\"cards\",\"viewOptions\":{\"title\":\"title\",\"subtitle\":\"type\",\"content\":\"description\",\"src\":\"data\"},\"viewQuery\":[],\"filters\":[]}', 0, NULL, 0, 0, 0, 0, 12, 'half', NULL, NULL, '[]'),
+(180, 'posts', 'colors', 'array', 'tags', '{\"iconRight\":\"local_offer\",\"validationMessage\":\"Please enter a valid tag\",\"alphabetize\":false,\"lowercase\":true,\"wrap\":true,\"format\":false,\"sanitize\":true}', 0, NULL, 0, 0, 0, 0, 7, 'half', NULL, 'Extracted colors of the thumb', '[]'),
+(181, 'posts', 'colors_round', 'array', 'tags', '{\"iconRight\":\"local_offer\",\"validationMessage\":\"Please enter a valid tag\",\"alphabetize\":false,\"lowercase\":true,\"wrap\":true,\"format\":false,\"sanitize\":true}', 0, NULL, 0, 0, 0, 0, 8, 'half', NULL, 'Rounded colors for search', '[]'),
 (185, 'posts', 'score', 'decimal', 'rating', '{\"active_color\":\"amber\",\"max_stars\":5,\"display\":\"number\"}', 0, NULL, 0, 0, 0, 0, 13, 'half', NULL, NULL, '[]'),
 (186, 'posts', 'tags', 'array', 'tags', '{\"iconRight\":\"local_offer\",\"validationMessage\":\"Please enter a valid tag\",\"alphabetize\":true,\"lowercase\":false,\"wrap\":true,\"format\":false,\"sanitize\":false}', 0, NULL, 0, 0, 0, 0, 6, 'half', NULL, NULL, '[]'),
 (188, 'posts', 'types', 'array', 'checkboxes', '{\"choices\":{\"image\":\"image\",\"video\":\"video\",\"audio\":\"audio\",\"document\":\"document\",\"embed\":\"embed\",\"text\":\"text\",\"url\":\"URL\"},\"allow_other\":false,\"draggable\":false,\"wrap\":true,\"formatting\":true,\"single\":false}', 0, NULL, 0, 0, 0, 0, 5, 'half', NULL, NULL, '[]'),
-(189, 'posts', 'content_data', 'json', 'json', '{\"template\":{\"type\":\"text\",\"raw\":\"\"}}', 0, NULL, 0, 0, 0, 0, 11, 'full', NULL, NULL, '[]'),
-(190, 'posts', 'image', 'file', 'file', '{\"crop\":false,\"viewType\":\"cards\",\"viewOptions\":{\"title\":\"title\",\"subtitle\":\"type\",\"content\":\"description\",\"src\":\"data\"},\"viewQuery\":[],\"filters\":[],\"accept\":\"gif,jpg,png,svg\"}', 0, NULL, 0, 0, 0, 0, 7, 'half', NULL, NULL, '[]');
+(190, 'posts', 'image', 'file', 'file', '{\"crop\":false,\"viewType\":\"cards\",\"viewOptions\":{\"title\":\"title\",\"subtitle\":\"type\",\"content\":\"description\",\"src\":\"data\"},\"viewQuery\":[],\"filters\":[],\"accept\":\"gif,jpg,png,svg\"}', 0, NULL, 0, 0, 0, 0, 9, 'half', NULL, NULL, '[]'),
+(191, 'posts', 'file', 'file', 'file', '{\"crop\":true,\"viewType\":\"cards\",\"viewOptions\":{\"title\":\"title\",\"subtitle\":\"type\",\"content\":\"description\",\"src\":\"data\"},\"viewQuery\":[],\"filters\":[]}', 0, NULL, 0, 0, 0, 0, 12, 'half', NULL, NULL, '[]'),
+(192, 'posts', 'input', 'string', 'textarea', '{\"rows\":8,\"serif\":false,\"toolbar\":[\"bold\",\"italic\",\"underline\",\"removeformat\",\"link\",\"bullist\",\"numlist\",\"blockquote\",\"h1\",\"h2\",\"h3\",\"image\",\"media\",\"hr\",\"code\"],\"custom_formats\":null,\"trim\":true,\"showCharacterCount\":true,\"formatValue\":false,\"monospace\":false}', 0, NULL, 0, 0, 0, 0, 10, 'full', NULL, NULL, '[]'),
+(193, 'posts', 'content', 'string', 'textarea', '{\"rows\":8,\"serif\":false,\"toolbar\":[\"bold\",\"italic\",\"underline\",\"removeformat\",\"link\",\"bullist\",\"numlist\",\"blockquote\",\"h1\",\"h2\",\"h3\",\"image\",\"media\",\"hr\",\"code\"],\"custom_formats\":null,\"trim\":true,\"showCharacterCount\":true,\"formatValue\":false,\"monospace\":false}', 0, NULL, 0, 0, 0, 0, 16, 'full', NULL, NULL, '[]');
 
 -- --------------------------------------------------------
 
@@ -337,6 +338,13 @@ CREATE TABLE `directus_files` (
   `checksum` varchar(32) DEFAULT NULL,
   `metadata` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Déchargement des données de la table `directus_files`
+--
+
+INSERT INTO `directus_files` (`id`, `storage`, `private_hash`, `filename_disk`, `filename_download`, `title`, `type`, `uploaded_by`, `uploaded_on`, `charset`, `filesize`, `width`, `height`, `duration`, `embed`, `folder`, `description`, `location`, `tags`, `checksum`, `metadata`) VALUES
+(2, 'local', 'hu0dbk2num0wowgc', '9aae57db-aee1-49f9-af21-1a8703a95c1c.jpg', 'avatar-namide-square.jpg', 'Avatar Namide Square', 'image/jpeg', 1, '2020-03-01 17:48:16', 'binary', 30167, 338, 338, 0, NULL, NULL, '', '', '', 'e13db9c7c9776903f66b747bd2d362d5', NULL);
 
 -- --------------------------------------------------------
 
@@ -676,7 +684,7 @@ CREATE TABLE `directus_users` (
 --
 
 INSERT INTO `directus_users` (`id`, `status`, `role`, `first_name`, `last_name`, `email`, `password`, `token`, `timezone`, `locale`, `locale_options`, `avatar`, `company`, `title`, `email_notifications`, `last_access_on`, `last_page`, `external_id`, `theme`, `2fa_secret`) VALUES
-(1, 'active', 1, 'Admin', 'User', 'inspire@inspire.com', '$2y$10$/xo1klwqxdLXERFRd4s7L.P3Npu7Vvgz61TZxxxzBNfF7TxOFVy9u', 'RafLEJvhnfecZkewgKg1yC9D', 'UTC', 'en-US', NULL, NULL, NULL, NULL, 0, '2020-02-08 18:10:27', '/inspire/settings/collections/posts', NULL, 'auto', NULL);
+(1, 'active', 1, 'Damien', 'Doussaud', 'inspire@inspire.com', '$2y$10$/xo1klwqxdLXERFRd4s7L.P3Npu7Vvgz61TZxxxzBNfF7TxOFVy9u', 'RafLEJvhnfecZkewgKg1yC9D', 'UTC', 'en-US', NULL, 2, NULL, NULL, 0, '2020-03-07 12:33:08', '/inspire/collections', NULL, 'auto', NULL);
 
 -- --------------------------------------------------------
 
@@ -694,13 +702,6 @@ CREATE TABLE `directus_user_sessions` (
   `created_on` datetime DEFAULT NULL,
   `token_expired_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Déchargement des données de la table `directus_user_sessions`
---
-
-INSERT INTO `directus_user_sessions` (`id`, `user`, `token_type`, `token`, `ip_address`, `user_agent`, `created_on`, `token_expired_at`) VALUES
-(1, 1, 'cookie', 'RafLEJvhnfecZkewgKg1yC9D-1', '192.168.99.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36', '2020-02-02 15:40:36', '2020-02-15 18:11:58');
 
 -- --------------------------------------------------------
 
@@ -732,12 +733,13 @@ CREATE TABLE `posts` (
   `description` text COMMENT 'Abstract of your post',
   `colors` varchar(2000) DEFAULT NULL COMMENT 'Extracted colors of the thumb',
   `colors_round` varchar(2000) DEFAULT NULL COMMENT 'Rounded colors for search',
-  `content_file` int(10) UNSIGNED DEFAULT NULL,
   `score` float(5,0) DEFAULT '0',
   `tags` varchar(2000) DEFAULT NULL,
   `types` varchar(255) DEFAULT NULL,
-  `content_data` longtext,
-  `image` int(10) UNSIGNED DEFAULT NULL
+  `image` int(10) UNSIGNED DEFAULT NULL,
+  `file` int(10) UNSIGNED DEFAULT NULL,
+  `input` longtext,
+  `content` longtext
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -857,7 +859,7 @@ ALTER TABLE `posts`
 -- AUTO_INCREMENT pour la table `directus_activity`
 --
 ALTER TABLE `directus_activity`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT pour la table `directus_collection_presets`
@@ -869,13 +871,13 @@ ALTER TABLE `directus_collection_presets`
 -- AUTO_INCREMENT pour la table `directus_fields`
 --
 ALTER TABLE `directus_fields`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=191;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=194;
 
 --
 -- AUTO_INCREMENT pour la table `directus_files`
 --
 ALTER TABLE `directus_files`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT pour la table `directus_folders`
