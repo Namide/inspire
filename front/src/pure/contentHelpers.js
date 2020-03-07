@@ -15,12 +15,9 @@ export const extractData = raw => {
   const type = extractType(raw)
   // https://mathiasbynens.be/demo/url-regex
   if (type === 'url') {
-    // const urlData = extractUrlData(raw)
-
     return {
       type,
       raw: raw.trim()
-      // ...urlData
     }
   } else if (type === 'embed') {
     const regExS = /<iframe[^>]+src=["']?(.+?)["'\s>]/gi
@@ -35,10 +32,7 @@ export const extractData = raw => {
     const width = exW && exW.length > 1 ? exW[1] || 640 : 640
     const height = exH && exH.length > 1 ? exH[1] || 360 : 360
 
-    // const urlData = extractUrlData(src)
-
     return {
-      // ...urlData,
       type,
       raw: raw.trim(),
       src,
@@ -48,7 +42,7 @@ export const extractData = raw => {
   } else {
     return {
       type,
-      raw: raw
+      raw
     }
   }
 }

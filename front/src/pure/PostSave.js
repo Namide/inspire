@@ -19,56 +19,37 @@ const fetchUrl = url => {
         throw new Error('Link not found')
       }
     })
-    .then(response => {
-      const contentType = response.headers.get('content-type')
-      if (contentType.indexOf('text/html') > -1) {
-        return response.text()
-          .then(text => {
-            return {
-              types: ['link'],
-              url,
-              text
-            }
-          })
-      }
+}
 
-      return response.blob()
-        .then(blob => {
-          const mimeData = getMimeData(blob.type)
-          const fileName = url.substring(url.lastIndexOf('/') + 1).split(/#|\?/)[0] || (mimeData ? mimeData.type + '.' + mimeData.ext : 'file')
+const responseToFile = response => {
+  return response.blob()
+    .then(blob => {
+      const mimeData = getMimeData(blob.type)
+      const url = response.url
+      const fileName = url.substring(url.lastIndexOf('/') + 1).split(/#|\?/)[0] || (mimeData ? mimeData.type + '.' + mimeData.ext : mimeData.type)
 
-          return {
-            isFile: true,
-            name: fileName,
-            ext: mimeData ? mimeData.ext : fileName.split('.').pop(),
-            types: mimeData ? [mimeData.type, 'file'] : ['file'],
-            size: blob.size,
-            blob
-          }
-        })
+      return new File([blob], fileName)
     })
 }
 
 export default class PostSave extends Post {
   /**
-   * @param {String} raw
+   * @param {String} input
    * @returns {Promise}
    */
-  setByRaw (raw) {
-    // const content = new analyseRaw()
-    // content.fromRaw(raw)
-    // this.contentObject = content.getJson()
-    const type = extractType(raw)
+  setInput (input) {
+    this.input = input
+    const type = extractType(input)
     if (type === 'url') {
-      this.input = raw.trim()
+      this.input = input.trim()
       return this._updateByLink(this.input)
     } else if (type === 'embed') {
       this.types = [type]
-      this.input = raw.trim()
+      this.input = input.trim()
       this.content = this.input
     } else {
       this.types = [type]
-      this.input = raw
+      this.input = input
       this.content = marked(this.input)
     }
 
@@ -94,53 +75,74 @@ export default class PostSave extends Post {
 
   _setImageByURL (url) {
     return fetchUrl(url)
-      .then(fileInfos => {
-        return this._setImage(fileInfos)
-      })
+      .then(responseToFile)
+      .then(file => this._setImage(file))
   }
 
-  _setImage (fileInfos) {
-    const src = URL.createObjectURL(fileInfos.blob)
-    this.image = {
-      src,
-      blob: new File([fileInfos.blob], fileInfos.name)
+  _setImage (file) {
+    if (!this.title) {
+      const title = file.name
+        .split('-').join(' ')
+        .split('_').join(' ')
+        .split('  ').join(' ')
+        .substring(0, file.name.lastIndexOf('.'))
+
+      this.title = title
     }
+    this.image = file
 
-    const title = fileInfos.name
-      .split('-').join(' ')
-      .split('_').join(' ')
-      .split('  ').join(' ')
-
-    this.title = title.substring(0, title.lastIndexOf('.'))
-
-    this._disposeList.push(() => URL.revokeObjectURL(src))
+    const src = URL.createObjectURL(file)
     return this._extractColors(src)
+      .then(() => URL.revokeObjectURL(src))
   }
 
-  _updateFileByFileInfos (fileInfos) {
-    this.types = [...fileInfos.types]
-    this.image = null
-    this.file = null
-    if (fileInfos.types.indexOf('image') > -1) {
-      return this._setImage(fileInfos)
-        .then(() => this)
-    } else {
-      return this._setFile(fileInfos)
-        .then(() => this)
-    }
-  }
+  // _updateFileByFileInfos (fileInfos) {
+  //   this.types = [...fileInfos.types]
+  //   this.image = null
+  //   this.file = null
+  //   if (fileInfos.types.indexOf('image') > -1) {
+  //     return this._setImage(fileInfos)
+  //       .then(() => this)
+  //   } else {
+  //     return this._setFile(fileInfos)
+  //       .then(() => this)
+  //   }
+  // }
 
   _updateByLink (url) {
     return fetchUrl(url)
-      .then(fileInfos => {
-        if (fileInfos.types.indexOf('link') > -1) {
-          this.types = [...fileInfos.types]
-          return this._setDistant(url, fileInfos.text)
-            .then(() => this)
+      .then(response => {
+        const contentType = response.headers.get('content-type')
+
+        // HTML
+        if (contentType.indexOf('text/html') > -1) {
+          return response.text()
+            .then(text => {
+              const parser = new DOMParser()
+              const doc = parser.parseFromString(text, 'text/html')
+              return this._analyseHtml(url, doc)
+            })
+
+        // FILE
         } else {
-          return this._updateFileByFileInfos(fileInfos)
+          return response.blob()
+            .then(blob => {
+              const mimeData = getMimeData(blob.type)
+              const fileName = url.substring(url.lastIndexOf('/') + 1).split(/#|\?/)[0] || (mimeData ? mimeData.type + '.' + mimeData.ext : 'file')
+
+              return this.updateByFile(new File([blob], fileName))
+            })
         }
       })
+      // .then(fileInfos => {
+      //   if (fileInfos.types.indexOf('link') > -1) {
+      //     this.types = [...fileInfos.types]
+      //     return this._setDistant(url, fileInfos.text)
+      //       .then(() => this)
+      //   } else {
+      //     return this._updateFileByFileInfos(fileInfos)
+      //   }
+      // })
   }
 
   removeFile () {
@@ -159,43 +161,49 @@ export default class PostSave extends Post {
     this.removeFile()
 
     const mimeData = getMimeData(file.type)
-    const fileInfos = {
-      type: 'file',
+    const types = mimeData ? [mimeData.type, 'file'] : ['file']
+
+    this.types = types
+
+    // Image
+    if (types.indexOf('image') > -1) {
+      return this._setImage(file)
+        .then(() => this)
+
+    // File
+    } else {
+      return this._setFile(file)
+        .then(() => this)
+    }
+  }
+
+  _setFile (file) {
+    this.file = {
       name: file.name,
-      ext: mimeData ? mimeData.ext : file.name.split('.').pop(),
-      types: mimeData ? [mimeData.type, 'file'] : ['file'],
-      size: file.size,
       blob: file
     }
 
-    return this._updateFileByFileInfos(fileInfos)
-  }
-
-  _setFile ({ name, ext, types, size, blob }) {
-    this.types = types
-    this.file = {
-      type: 'file',
-      name,
-      blob
-    }
-
-    return new Promise(resolve => resolve(this))
+    return Promise.resolve(this)
   }
 
   _analyseHtml (link, doc) {
     const url = new URL(link)
+
     return externalURL(url, doc)
-      .then(data => {
-        Object.keys(data).forEach(label => {
-          this[label] = data[label]
+      // Know URL
+      .then(object => {
+        Object.keys(object).forEach(label => {
+          this[label] = object[label]
         })
-        console.log(data)
-        if (typeof data.image === typeof '') {
-          return this._setImageByURL(data.image)
+
+        if (object.image && typeof object.image === typeof '') {
+          return this._setImageByURL(object.image)
         }
 
-        return data
+        return object
       })
+
+      // Unknow URL
       .catch(() => {
         if (!this.title) {
           this.title = doc.title
@@ -220,12 +228,12 @@ export default class PostSave extends Post {
       })
   }
 
-  _setDistant (url, html) {
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(html, 'text/html')
+  // _setDistant (url, html) {
+  //   const parser = new DOMParser()
+  //   const doc = parser.parseFromString(html, 'text/html')
 
-    this.types = ['link']
+  //   // this.types = ['link']
 
-    return this._analyseHtml(url, doc)
-  }
+  //   return this._analyseHtml(url, doc)
+  // }
 }

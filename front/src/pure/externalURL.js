@@ -7,7 +7,6 @@ const LIST = EXTERNALS.keys().map(key => EXTERNALS(key).default).flat()
  * @param {DOMParser} doc
  */
 const process = (url, doc) => {
-  // console.log(url)
   const data = LIST.find(({ regexList }) => regexList.find(regex => regex.test(url.href)))
 
   return new Promise((resolve, reject) => {

@@ -5,9 +5,9 @@
 
     <div v-if="state === 0">
 
-      <AdminFileLoader v-if="isFile" @change="fileChange" :src="input.image ? input.image.src : ''" :colors="input.colors" :only-img="false"></AdminFileLoader>
+      <AdminFileLoader v-if="input.image || input.file" @change="fileChange" :image="input.image || input.file" :colors="input.colors" :only-img="false"/>
       <template v-else>
-        <InputTextarea @submit="validContent" :value="input.input" @change="val => $set(input, 'input', val)" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
+        <InputTextarea @submit="validContent" :value="input.input" @change="val => $set(input, 'input', val)" placeholder="Content (URL, markdown, HTML, embed...)"/>
         <!-- <Content :json="contentJson"></Content> -->
       </template>
       <button @click="validContent">Ok</button>
@@ -17,14 +17,14 @@
 
       <input type="datetime-local" v-model="input.date" class="date">
       <input type="text" v-model="input.title" placeholder="title" class="title">
-      <InputTextarea :value="input.description" @change="val => $set(input, 'description', val)" placeholder="Description"></InputTextarea>
+      <InputTextarea :value="input.description" @change="val => $set(input, 'description', val)" placeholder="Description"/>
       <ul>
         <li type="text" v-for="type of input.types" v-html="type" :key="type"></li>
       </ul>
-      <AdminFileLoader v-if="input.image || input.file" @change="fileChange" :src="input.image ? input.image.src : ''" :colors="input.colors" :only-img="false"></AdminFileLoader>
+      <AdminFileLoader v-if="input.image || input.file" @change="fileChange" :image="input.image" :colors="input.colors" :only-img="false"/>
 
-      <Content :type="mainType" :content="input.content"></Content>
-      <InputTextarea @submit="validContent" :value="input.input" @change="val => input.input = val" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
+      <Content v-if="input.content" :type="mainType" :content="input.content"/>
+      <InputTextarea @submit="validContent" :value="input.input" @change="val => input.input = val" placeholder="Content (URL, markdown, HTML, embed...)"/>
 
       <!-- :info="content"  -->
       <!-- <AdminFileLoader @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></AdminFileLoader> -->
@@ -104,10 +104,10 @@ export default
 
   computed: {
     mainType () {
-      if (this.input.type) {
-        if (this.input.type.indexOf('embed')) {
+      if (this.input.types) {
+        if (this.input.types.indexOf('embed') > -1) {
           return 'embed'
-        } else if (this.input.type.indexOf('url')) {
+        } else if (this.input.types.indexOf('url') > -1) {
           return 'url'
         }
       }
@@ -138,9 +138,9 @@ export default
 
   methods: {
     validContent () {
-      this.postSave.setByRaw(this.input.input)
+      this.postSave.setInput(this.input.input)
         .then(postSave => {
-          this.input = JSON.parse(JSON.stringify(postSave.getObject()))
+          this.input = this.postSave.getObject()
           this.isFile = this.input.types.indexOf('image') > -1 || this.input.types.indexOf('file') > -1
           this.state++
         })

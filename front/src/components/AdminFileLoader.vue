@@ -26,14 +26,37 @@
 export default
 {
   props: {
-    src: { type: String, default: '' },
+    image: { type: File, default: null },
     colors: { type: Array, default: () => [] },
     onlyImg: { type: Boolean, default: false }
   },
 
   data () {
     return {
-      isImg: true
+      isImg: true,
+      src: ''
+    }
+  },
+
+  watch: {
+    image: {
+      handler (file) {
+        if (this.src) {
+          URL.revokeObjectURL(this.src)
+          this.src = ''
+        }
+        if (file) {
+          this.src = URL.createObjectURL(file)
+        }
+      },
+      immediate: true
+    }
+  },
+
+  destroyed () {
+    if (this.src) {
+      URL.revokeObjectURL(this.src)
+      this.src = ''
     }
   },
 
