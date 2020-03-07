@@ -54,6 +54,7 @@ export default
 
 .container
   position: relative
+  min-height: 100vh
 
   &:before, &:after
     content: ""

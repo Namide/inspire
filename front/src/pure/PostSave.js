@@ -3,6 +3,8 @@ import apiSave from '@/pure/apiSave'
 import extractColors from 'extract-colors'
 import externalURL from '@/pure/externalURL.js'
 import { extractType, getMimeData } from '@/pure/contentHelpers.js'
+import marked from 'marked'
+// https://css-tricks.com/choosing-right-markdown-parser/#article-header-id-0
 
 /**
  * @param {String} url
@@ -56,9 +58,18 @@ export default class PostSave extends Post {
     // const content = new analyseRaw()
     // content.fromRaw(raw)
     // this.contentObject = content.getJson()
-    const { type } = extractType(raw)
+    const type = extractType(raw)
     if (type === 'url') {
-      return this._updateByLink(raw.trim())
+      this.input = raw.trim()
+      return this._updateByLink(this.input)
+    } else if (type === 'embed') {
+      this.types = [type]
+      this.input = raw.trim()
+      this.content = this.input
+    } else {
+      this.types = [type]
+      this.input = raw
+      this.content = marked(this.input)
     }
 
     return Promise.resolve(this)
@@ -138,7 +149,8 @@ export default class PostSave extends Post {
     this.file = null
     this.colors = []
     this.colorsRound = []
-    this.contentObject = {}
+    this.content = null
+    this.input = null
 
     return new Promise(resolve => resolve(this))
   }
@@ -177,7 +189,7 @@ export default class PostSave extends Post {
         Object.keys(data).forEach(label => {
           this[label] = data[label]
         })
-
+        console.log(data)
         if (typeof data.image === typeof '') {
           return this._setImageByURL(data.image)
         }

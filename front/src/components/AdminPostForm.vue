@@ -7,7 +7,7 @@
 
       <AdminFileLoader v-if="isFile" @change="fileChange" :src="input.image ? input.image.src : ''" :colors="input.colors" :only-img="false"></AdminFileLoader>
       <template v-else>
-        <InputTextarea @submit="validContent" :value="input.contentRaw" @change="val => $set(input, 'contentRaw', val)" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
+        <InputTextarea @submit="validContent" :value="input.input" @change="val => $set(input, 'input', val)" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
         <!-- <Content :json="contentJson"></Content> -->
       </template>
       <button @click="validContent">Ok</button>
@@ -21,18 +21,17 @@
       <ul>
         <li type="text" v-for="type of input.types" v-html="type" :key="type"></li>
       </ul>
-      <AdminFileLoader v-if="isFile" @change="fileChange" :src="input.image ? input.image.src : ''" :colors="input.colors" :only-img="false"></AdminFileLoader>
-      <template v-else>
-        <Content :contentObject="input.contentObject"></Content>
-        <InputTextarea @submit="validContent" :value="input.contentObject.raw" @change="val => $set(input.contentObject, 'raw', val)" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
-      </template>
+      <AdminFileLoader v-if="input.image || input.file" @change="fileChange" :src="input.image ? input.image.src : ''" :colors="input.colors" :only-img="false"></AdminFileLoader>
+
+      <Content :type="mainType" :content="input.content"></Content>
+      <InputTextarea @submit="validContent" :value="input.input" @change="val => input.input = val" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
 
       <!-- :info="content"  -->
       <!-- <AdminFileLoader @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></AdminFileLoader> -->
 
       <Tags :tags="input.tags ? input.tags : []" @update:tags="val => input.tags = val" placeholder="Tags (separated by comas)"/>
 
-      <!-- <InputTextarea :value="inputContentRaw" @change="argValue => inputContentRaw = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
+      <!-- <InputTextarea :value="inputinput" @change="argValue => inputinput = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
       <Content :data="content"></Content> -->
 
       <select v-model="input.status">
@@ -97,17 +96,31 @@ export default
     'input.title' (val) { this.postSave.title = val },
     'input.description' (val) { this.postSave.description = val },
     'input.types' (val) { this.postSave.types = val },
-    'input.contentObject' (val) { this.postSave.contentObject = val },
+    'input.content' (val) { this.postSave.content = val },
     'input.tags' (val) { this.postSave.tags = val },
     'input.status' (val) { this.postSave.status = val },
-    'input.contentObject.raw' (val) { this.postSave.contentObject.raw = val }
+    'input.input' (val) { this.postSave.input = val }
+  },
+
+  computed: {
+    mainType () {
+      if (this.input.type) {
+        if (this.input.type.indexOf('embed')) {
+          return 'embed'
+        } else if (this.input.type.indexOf('url')) {
+          return 'url'
+        }
+      }
+
+      return 'text'
+    }
   },
 
   created () {
     // this.postContent = new PostContent()
 
     this.postSave = new PostSave()
-    this.input = new PostSave().getObject()
+    this.input = this.postSave.getObject()
     this.inputFile = null
 
     window.addEventListener('keyup', this.keyUp)
@@ -125,7 +138,7 @@ export default
 
   methods: {
     validContent () {
-      this.postSave.setByRaw(this.input.contentRaw)
+      this.postSave.setByRaw(this.input.input)
         .then(postSave => {
           this.input = JSON.parse(JSON.stringify(postSave.getObject()))
           this.isFile = this.input.types.indexOf('image') > -1 || this.input.types.indexOf('file') > -1

@@ -18,15 +18,8 @@ export default [{
             description: json.description.split('<br />').join(' '),
             tags: ['video', json.user_name],
             types: ['embed', 'video'],
-            contentObject: {
-              type: 'embed',
-              url: url.url,
-              width: json.width,
-              height: json.height,
-              image: json.thumbnail_large,
-              author: json.user_name,
-              raw: `<iframe src="https://player.vimeo.com/video/${video}" width="${json.width}" height="${json.height}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`
-            }
+            image: json.thumbnail_large,
+            content: `<iframe src="https://player.vimeo.com/video/${video}" width="${json.width}" height="${json.height}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`
           })
         })
         .catch(error => {
@@ -34,13 +27,7 @@ export default [{
           resolve({
             types: ['embed', 'video'],
             tags: ['video'],
-            contentObject: {
-              type: 'embed',
-              url: url.href,
-              width: 640,
-              height: 360,
-              raw: `<iframe src="https://player.vimeo.com/video/${video}" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`
-            }
+            content: `<iframe src="https://player.vimeo.com/video/${video}" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`
           })
         })
     })

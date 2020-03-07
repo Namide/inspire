@@ -18,15 +18,8 @@ export default [{
             title: json.title,
             types: ['embed', 'video'],
             tags: ['video', json.author_name],
-            contentObject: {
-              type: 'embed',
-              url: url.href,
-              width: json.width,
-              height: json.height,
-              image: json.thumbnail_url,
-              author: json.author_name,
-              raw: `<iframe width="${json.width}" height="${json.height}" src="https://www.youtube-nocookie.com/embed/${video}?color=white&amp;controls=1&amp;iv_load_policy=3&amp;modestbranding=1&amp;rel=0&amp;showinfo=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`
-            }
+            image: json.thumbnail_url,
+            content: `<iframe width="${json.width}" height="${json.height}" src="https://www.youtube-nocookie.com/embed/${video}?color=white&amp;controls=1&amp;iv_load_policy=3&amp;modestbranding=1&amp;rel=0&amp;showinfo=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`
           })
         })
         .catch(error => {
@@ -34,13 +27,7 @@ export default [{
           resolve({
             types: ['embed', 'video'],
             tags: ['video'],
-            contentObject: {
-              type: 'embed',
-              url: url.href,
-              width: 640,
-              height: 360,
-              raw: `<iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/${video}?color=white&amp;controls=1&amp;iv_load_policy=3&amp;modestbranding=1&amp;rel=0&amp;showinfo=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`
-            }
+            content: `<iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/${video}?color=white&amp;controls=1&amp;iv_load_policy=3&amp;modestbranding=1&amp;rel=0&amp;showinfo=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`
           })
         })
     })

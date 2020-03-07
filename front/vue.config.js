@@ -7,5 +7,10 @@ module.exports = {
         changeOrigin: false
       }
     }
+  },
+
+  pwa: {
+    themeColor: '#FF0077',
+    msTileColor: '#FFFFFF'
   }
 }

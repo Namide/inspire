@@ -38,7 +38,7 @@ class ApiSave extends Api {
   addPost (payload, onProgress = ({ loaded, total }) => loaded / total) {
     // console.log(payload)
 
-    if (payload.content_file) {
+    if (payload.file) {
       let l1 = 0
       let t1 = 1
       let l2 = 0
@@ -48,7 +48,7 @@ class ApiSave extends Api {
 
       if (payload.image) {
         return Promise.all([
-          this.addFile(payload.content_file.blob, ({ loaded, total }) => {
+          this.addFile(payload.file.blob, ({ loaded, total }) => {
             l1 = loaded
             t1 = total
             dispatchProgress()
@@ -59,24 +59,24 @@ class ApiSave extends Api {
             dispatchProgress()
           })
         ])
-          .then(([content_file, image]) => {
-            // console.log(content_file, image)
+          .then(([file, image]) => {
+            // console.log(file, image)
             return this.directus.createItem(
               'posts',
               Object.assign(
                 {},
                 payload,
                 {
-                  content_file: content_file.data.data.id,
+                  file: file.data.data.id,
                   image: image.data.data.id
                 }
               ))
           })
       } else {
-        return this.addFile(payload.content_file.blob, onProgress)
-          .then(content_file => {
-            // console.log(content_file)
-            return this.directus.createItem('posts', Object.assign({}, payload, { content_file: content_file.data.data.id }))
+        return this.addFile(payload.file.blob, onProgress)
+          .then(file => {
+            // console.log(file)
+            return this.directus.createItem('posts', Object.assign({}, payload, { file: file.data.data.id }))
           })
       }
     } else if (payload.image) {

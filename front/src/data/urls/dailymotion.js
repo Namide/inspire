@@ -20,15 +20,8 @@ export default [{
             description: json.description,
             types: ['embed', 'video'],
             tags: ['video', json.author_name],
-            contentObject: {
-              type: 'embed',
-              url: url.url,
-              width: json.width,
-              height: json.height,
-              image: json.thumbnail_url,
-              author: json.author_name,
-              raw: `<iframe frameborder="0" width="${json.width}" height="${json.height}" src="https://www.dailymotion.com/embed/video/${video}" allowfullscreen allow="autoplay"></iframe>`
-            }
+            image: json.thumbnail_url,
+            content: `<iframe frameborder="0" width="${json.width}" height="${json.height}" src="https://www.dailymotion.com/embed/video/${video}" allowfullscreen allow="autoplay"></iframe>`
           })
         })
         .catch(error => {
@@ -36,14 +29,7 @@ export default [{
           resolve({
             types: ['embed', 'video'],
             tags: ['video'],
-            contentObject: {
-              type: 'embed',
-              url: url.href,
-              width: 640,
-              height: 360,
-              raw: `<iframe frameborder="0" width="640" height="360" src="https://www.dailymotion.com/embed/video/${video}" allowfullscreen allow="autoplay"></iframe>
-              `
-            }
+            content: `<iframe frameborder="0" width="640" height="360" src="https://www.dailymotion.com/embed/video/${video}" allowfullscreen allow="autoplay"></iframe>`
           })
         })
     })

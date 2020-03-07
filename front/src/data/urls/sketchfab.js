@@ -20,15 +20,8 @@ export default [{
             description: json.description,
             types: ['embed', '3d'],
             tags: ['3d', json.author_name],
-            contentObject: {
-              type: 'embed',
-              url: url.url,
-              width: json.width,
-              height: json.height,
-              image: json.thumbnail_url,
-              author: json.author_name,
-              raw: `<iframe width="${json.width}" height="${json.height}" src="https://sketchfab.com/models/${id}/embed?camera=0" frameborder="0" allow="autoplay; fullscreen; vr" allowfullscreen></iframe>`
-            }
+            image: json.thumbnail_url,
+            content: `<iframe width="${json.width}" height="${json.height}" src="https://sketchfab.com/models/${id}/embed?camera=0" frameborder="0" allow="autoplay; fullscreen; vr" allowfullscreen></iframe>`
           })
         })
         .catch(error => {
@@ -36,13 +29,7 @@ export default [{
           resolve({
             types: ['embed', '3d'],
             tags: ['3d'],
-            contentObject: {
-              type: 'embed',
-              width: 640,
-              height: 480,
-              url: url.href,
-              raw: `<iframe src="https://sketchfab.com/models/${id}/embed?camera=0" width="640" height="480" frameborder="0" allow="autoplay; fullscreen; vr" allowfullscreen></iframe>`
-            }
+            content: `<iframe src="https://sketchfab.com/models/${id}/embed?camera=0" width="640" height="480" frameborder="0" allow="autoplay; fullscreen; vr" allowfullscreen></iframe>`
           })
         })
     })

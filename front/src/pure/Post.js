@@ -22,10 +22,11 @@ export default class Post {
     this.tags = json.tags || []
     this.colors = json.colors || []
     this.colorsRound = json.colors_round || []
-    this.contentObject = json.content_data || { raw: '' }
+    this.content = json.content || ''
+    this.input = json.input || ''
     this.date = new Date(json.created_on || Date.now())
 
-    this.file = json.content_file || null
+    this.file = json.file || null
     this.image = json.image || null
     this.author = null // this.api.getUser()
   }
@@ -39,8 +40,9 @@ export default class Post {
       tags: [...this.tags],
       colors: [...this.colors],
       colors_round: [...this.colorsRound],
-      content_data: JSON.parse(JSON.stringify(this.contentObject)),
-      content_file: this.file,
+      input: this.input,
+      content: this.content,
+      file: this.file,
       image: this.image,
       created_on: this.date.toISOString().replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ''),
       created_by: this.author
@@ -64,8 +66,9 @@ export default class Post {
       tags: [...this.tags],
       colors: [...this.colors],
       colorsRound: [...this.colorsRound],
-      contentObject: JSON.parse(JSON.stringify(this.contentObject)),
-      contentFile: this.file,
+      input: this.input,
+      content: this.content,
+      file: this.file,
       image: this.image,
       date: this.date.toISOString().replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ''),
       author: this.author

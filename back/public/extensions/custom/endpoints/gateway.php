@@ -8,6 +8,15 @@ return [
         'method' => 'GET',
         'handler' => function (Request $request, Response $response) {
 
+            // Enable only if you are connected
+            if (!$this['auth']->check()) {
+                return $response->withJson([
+                    'error' => [
+                        'code' => 300,
+                        'message' => 'Not connected'
+                    ]
+                ]);
+            }
             /*if (CORS) {
                 $response->header('Access-Control-Allow-Origin', CORS);
             }*/

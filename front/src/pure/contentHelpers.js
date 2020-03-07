@@ -3,14 +3,26 @@ import mimeTypes from '@/data/mime-types.json'
 export const extractType = raw => {
   // https://mathiasbynens.be/demo/url-regex
   if (raw && raw.trim().match(/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/is) !== null) {
+    return 'url'
+  } else if (raw && raw.trim().match(/<iframe(.+)<\/iframe>/g) !== null) {
+    return 'embed'
+  }
+
+  return 'text'
+}
+
+export const extractData = raw => {
+  const type = extractType(raw)
+  // https://mathiasbynens.be/demo/url-regex
+  if (type === 'url') {
     // const urlData = extractUrlData(raw)
 
     return {
-      type: 'url',
+      type,
       raw: raw.trim()
       // ...urlData
     }
-  } else if (raw && raw.trim().match(/<iframe(.+)<\/iframe>/g) !== null) {
+  } else if (type === 'embed') {
     const regExS = /<iframe[^>]+src=["']?(.+?)["'\s>]/gi
     const regExW = /<iframe[^>]+width=["']?(\d+%?)/gi
     const regExH = /<iframe[^>]+height=["']?(\d+%?)/gi
@@ -27,7 +39,7 @@ export const extractType = raw => {
 
     return {
       // ...urlData,
-      type: 'embed',
+      type,
       raw: raw.trim(),
       src,
       width,
@@ -35,7 +47,7 @@ export const extractType = raw => {
     }
   } else {
     return {
-      type: 'text',
+      type,
       raw: raw
     }
   }
