@@ -2,8 +2,9 @@
 
 import DirectusSDK from '@directus/sdk-js'
 import Signal from './Signal'
+import Post from './Post'
 
-const API_DIR = '/api/'
+const API_DIR = '/api'
 // const config = {}
 const options = {
   url: API_DIR,
@@ -14,6 +15,12 @@ const options = {
 }
 
 const directus = new DirectusSDK(options)
+
+const parsePost = payload => {
+  const post = new Post()
+  post.fromPayload(payload)
+  return post
+}
 
 class Api {
   constructor () {
@@ -53,8 +60,20 @@ class Api {
   }
 
   getPosts ({ tags = [], types = [], noTags = [], noTypes = [], limit = 100, offset = 0 } = {}) {
-    return this.directus.getItems('posts', {})
-      .then(console.log)
+    return this.directus.getItems('posts', {
+      fields: [
+        '*',
+        'image.*',
+        'file.*'
+      ]
+      /* filter: {
+        runtime: {
+          eq: 200
+          gt: 200
+        }
+      } */
+    })
+      .then(({ data }) => data.map(parsePost))
       .catch(console.error)
 
     // client.getItems('posts')

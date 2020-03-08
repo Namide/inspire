@@ -1,12 +1,13 @@
 <template>
   <div class="posts" :class="[ 'is-' + displayMode ]">
-    <Post v-for="post of posts" :key="post.uid" :data="post" :display-mode="displayMode"></Post>
+    <Post v-for="post of posts" :key="post.id" :data="post" :display-mode="displayMode"></Post>
   </div>
 </template>
 
 <script>
 // import apiGet from '../utils/apiGet'
 import Post from '@/components/Post.vue'
+import api from '@/pure/api'
 
 export default
 {
@@ -21,15 +22,16 @@ export default
 
   data () {
     return {
-      displayMode: 'thumb'
+      displayMode: 'thumb',
+      posts: []
     }
   },
 
-  computed: {
-    posts () {
-      return this.$store.state.posts
-    }
-  },
+  // computed: {
+  //   posts () {
+  //     return this.$store.state.posts
+  //   }
+  // },
 
   watch: {
     filterTags (list) {
@@ -50,8 +52,14 @@ export default
   },
 
   created () {
-    this.$store.dispatch('getPosts')
+    // this.$store.dispatch('getPosts')
     // apiGet.getPosts(this.onPosts)
+
+    api.getPosts()
+      .then(posts => posts.map(posts => posts.getObject()))
+      .then(posts => {
+        this.posts = posts
+      })
   },
 
   methods: {

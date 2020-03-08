@@ -159,7 +159,8 @@ export default
 
     save () {
       const payload = this.postSave.getPayload()
-
+      console.log(this.postSave)
+      console.log(payload)
       if (this.create) {
         apiSave.addPost(payload)
           .catch(error => {

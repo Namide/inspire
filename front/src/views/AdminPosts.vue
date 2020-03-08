@@ -20,6 +20,7 @@
 import PartAdminPost from '@/components/AdminPost.vue'
 import AdminPostForm from '@/components/AdminPostForm.vue'
 import Modal from '@/components/Modal.vue'
+import apiSave from '@/pure/apiSave'
 
 export default
 {
@@ -37,15 +38,16 @@ export default
   data () {
     return {
       isModalOpen: false,
-      displayMode: 'thumb'
+      displayMode: 'thumb',
+      posts: []
     }
   },
 
-  computed: {
-    posts () {
-      return this.$store.state.posts
-    }
-  },
+  // computed: {
+  //   posts () {
+  //     return this.$store.state.posts
+  //   }
+  // },
 
   watch: {
     filterTags (list) {
@@ -65,7 +67,12 @@ export default
   },
 
   created () {
-    this.$store.dispatch('getPosts')
+    // this.$store.dispatch('getPosts')
+    apiSave.getPosts()
+      .then(posts => posts.map(posts => posts.getObject()))
+      .then(posts => {
+        this.posts = posts
+      })
   },
 
   methods: {

@@ -21,11 +21,10 @@ const fetchUrl = url => {
     })
 }
 
-const responseToFile = response => {
+const responseToFile = (response, url = response.url) => {
   return response.blob()
     .then(blob => {
       const mimeData = getMimeData(blob.type)
-      const url = response.url
       const fileName = url.substring(url.lastIndexOf('/') + 1).split(/#|\?/)[0] || (mimeData ? mimeData.type + '.' + mimeData.ext : mimeData.type)
 
       return new File([blob], fileName)
@@ -75,7 +74,7 @@ export default class PostSave extends Post {
 
   _setImageByURL (url) {
     return fetchUrl(url)
-      .then(responseToFile)
+      .then(response => responseToFile(response, url))
       .then(file => this._setImage(file))
   }
 

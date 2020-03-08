@@ -48,12 +48,12 @@ class ApiSave extends Api {
 
       if (payload.image) {
         return Promise.all([
-          this.addFile(payload.file.blob, ({ loaded, total }) => {
+          this.addFile(payload.file, ({ loaded, total }) => {
             l1 = loaded
             t1 = total
             dispatchProgress()
           }),
-          this.addFile(payload.image.blob, ({ loaded, total }) => {
+          this.addFile(payload.image, ({ loaded, total }) => {
             l2 = loaded
             t2 = total
             dispatchProgress()
@@ -73,14 +73,14 @@ class ApiSave extends Api {
               ))
           })
       } else {
-        return this.addFile(payload.file.blob, onProgress)
+        return this.addFile(payload.file, onProgress)
           .then(file => {
             // console.log(file)
             return this.directus.createItem('posts', Object.assign({}, payload, { file: file.data.data.id }))
           })
       }
     } else if (payload.image) {
-      return this.addFile(payload.image.blob, onProgress)
+      return this.addFile(payload.image, onProgress)
         .then(image => {
           // console.log(image)
           return this.directus.createItem('posts', Object.assign({}, payload, { image: image.data.data.id }))

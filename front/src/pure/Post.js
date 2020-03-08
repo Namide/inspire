@@ -2,6 +2,21 @@
 
 // const getToday = () => new Date(Date.now()).toJSON().split('.')[0]
 
+const parseImagePayload = payload => {
+  return {
+    id: payload.id,
+    name: payload.filename_download,
+    width: payload.width,
+    height: payload.height,
+    src: '/api' + payload.data.url,
+    srcSet: payload.data.thumbnails
+      .filter(thumb => thumb.width > 300 || thumb.height > 300)
+      .map(thumb => '/api' + thumb.relative_url + ' ' + thumb.width + 'w')
+      .join(', '),
+    alt: payload.description || payload.title
+  }
+}
+
 export default class Post {
   constructor () {
     this.fromPayload()
@@ -15,6 +30,7 @@ export default class Post {
   }
 
   fromPayload (json = {}) {
+    this.id = json.id || ('' + Math.random())
     this.status = json.status || 'draft'
     this.title = json.title || ''
     this.description = json.description || ''
@@ -25,14 +41,15 @@ export default class Post {
     this.content = json.content || ''
     this.input = json.input || ''
     this.date = new Date(json.created_on || Date.now())
-
     this.file = json.file || null
-    this.image = json.image || null
+    this.score = json.score || 0
+    this.image = json.image ? parseImagePayload(json.image) : null
     this.author = null // this.api.getUser()
   }
 
   getPayload () {
     const payload = {
+      id: this.id,
       status: this.status,
       title: this.title,
       description: this.description,
@@ -44,6 +61,7 @@ export default class Post {
       content: this.content,
       file: this.file,
       image: this.image,
+      score: this.score || 0,
       created_on: this.date.toISOString().replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ''),
       created_by: this.author
     }
@@ -59,6 +77,7 @@ export default class Post {
 
   getObject () {
     return {
+      id: this.id,
       status: this.status,
       title: this.title,
       description: this.description,
@@ -70,6 +89,7 @@ export default class Post {
       content: this.content,
       file: this.file,
       image: this.image,
+      score: this.score,
       date: this.date.toISOString().replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ''),
       author: this.author
     }
