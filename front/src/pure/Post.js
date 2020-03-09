@@ -75,6 +75,24 @@ export default class Post {
     return payload
   }
 
+  fromObject (object = {}) {
+    this.id = object.id
+    this.status = object.status
+    this.title = object.title
+    this.description = object.description
+    this.types = [...object.types]
+    this.tags = [...object.tags]
+    this.colors = [...object.colors]
+    this.colorsRound = [...object.colorsRound]
+    this.input = object.input
+    this.content = object.content
+    this.file = object.file
+    this.image = object.image
+    this.score = object.score
+    this.date = object.date ? new Date(object.date) : null
+    this.author = object.author
+  }
+
   getObject () {
     return {
       id: this.id,

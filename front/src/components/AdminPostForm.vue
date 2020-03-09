@@ -120,15 +120,16 @@ export default
     // this.postContent = new PostContent()
 
     this.postSave = new PostSave()
+
+    if (!this.create) {
+      this.postSave.fromObject(this.post)
+      this.state = 1
+    }
+
     this.input = this.postSave.getObject()
     this.inputFile = null
 
     window.addEventListener('keyup', this.keyUp)
-
-    if (!this.create) {
-      this._modified.uid = this.post && this.post.uid
-      this.state = 1
-    }
   },
 
   destroyed () {
@@ -147,7 +148,7 @@ export default
     },
 
     deletePost () {
-      this.$store.dispatch('deletePost', { uid: this.post.uid })
+      this.$store.dispatch('deletePost', { id: this.post.id })
       /* api.deletePost(data =>
       {
           if (data.success)

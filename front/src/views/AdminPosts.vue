@@ -5,7 +5,7 @@
       <button @click="isModalOpen = true">+ Add new post</button>
     </div>
 
-    <part-admin-post v-for="post of posts" :key="post.id" :post="post"></part-admin-post>
+    <PartAdminPost v-for="post of posts" :key="post.id" :post="post"></PartAdminPost>
 
     <!-- Modal -->
 
@@ -59,7 +59,15 @@ export default
         const s = item[0] + item[1]
         const f = item[0]
 
-        if (s === '!@' || s === '@!') { noTypes.push(item.substr(2)) } else if (f === '@') { types.push(item.substr(1)) } else if (f === '!') { noTags.push(item.substr(1)) } else { tags.push(item) }
+        if (s === '!@' || s === '@!') {
+          noTypes.push(item.substr(2))
+        } else if (f === '@') {
+          types.push(item.substr(1))
+        } else if (f === '!') {
+          noTags.push(item.substr(1))
+        } else {
+          tags.push(item)
+        }
       })
 
       this.$store.dispatch('getPosts', { tags, noTags, types, noTypes })

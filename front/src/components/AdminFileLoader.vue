@@ -26,7 +26,7 @@
 export default
 {
   props: {
-    image: { type: File, default: null },
+    image: { default: null },
     colors: { type: Array, default: () => [] },
     onlyImg: { type: Boolean, default: false }
   },
@@ -41,12 +41,15 @@ export default
   watch: {
     image: {
       handler (file) {
-        if (this.src) {
+        if (this.image instanceof File && this.src) {
           URL.revokeObjectURL(this.src)
           this.src = ''
         }
-        if (file) {
+        if (file instanceof File) {
           this.src = URL.createObjectURL(file)
+        }
+        if (this.image && this.image.src) {
+          this.src = this.image.src
         }
       },
       immediate: true
@@ -54,7 +57,7 @@ export default
   },
 
   destroyed () {
-    if (this.src) {
+    if (this.image instanceof File && this.src) {
       URL.revokeObjectURL(this.src)
       this.src = ''
     }
