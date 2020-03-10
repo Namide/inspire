@@ -1,24 +1,31 @@
 <template>
-  <div class="posts" :class="[ 'is-' + displayMode ]">
-    <Post v-for="post of posts" :key="post.id" :data="post" :display-mode="displayMode"></Post>
+  <div>
+    <Tags @change="filter" />
+    <div class="posts" :class="['is-' + displayMode]">
+      <Post
+        v-for="post of posts"
+        :key="post.id"
+        :data="post"
+        :display-mode="displayMode"
+      ></Post>
+    </div>
   </div>
 </template>
 
 <script>
 // import apiGet from '../utils/apiGet'
 import Post from '@/components/Post.vue'
+import Tags from '@/components/Tags.vue'
 import api from '@/pure/api'
+import { itemsToFilter } from '@/pure/tagHelpers'
 
-export default
-{
+export default {
   components: {
-    Post
+    Post,
+    Tags
   },
 
-  props: {
-    filterTypes: { type: Array, default: function () { return [] } },
-    filterTags: { type: Array, default: function () { return [] } }
-  },
+  props: {},
 
   data () {
     return {
@@ -27,42 +34,21 @@ export default
     }
   },
 
-  // computed: {
-  //   posts () {
-  //     return this.$store.state.posts
-  //   }
-  // },
-
-  watch: {
-    filterTags (list) {
-      const tags = []
-      const types = []
-      const noTags = []
-      const noTypes = []
-      list.forEach(item => {
-        const s = item[0] + item[1]
-        const f = item[0]
-
-        if (s === '!@' || s === '@!') { noTypes.push(item.substr(2)) } else if (f === '@') { types.push(item.substr(1)) } else if (f === '!') { noTags.push(item.substr(1)) } else { tags.push(item) }
-      })
-
-      this.$store.dispatch('getPosts', { tags, noTags, types, noTypes })
-      // apiGet.getPosts(this.onPosts, { tags, noTags, types, noTypes })
-    }
-  },
-
   created () {
-    // this.$store.dispatch('getPosts')
-    // apiGet.getPosts(this.onPosts)
-
-    api.getPosts()
-      .then(posts => posts.map(posts => posts.getObject()))
-      .then(posts => {
-        this.posts = posts
-      })
+    this.filter()
   },
 
   methods: {
+    filter (items = []) {
+      const { tags, noTags, types, noTypes } = itemsToFilter(items)
+
+      api
+        .getPosts({ tags, types, noTags, noTypes })
+        .then(posts => posts.map(post => post.getObject()))
+        .then(posts => {
+          this.posts = posts
+        })
+    },
     onPosts ({ data, meta }) {
       this.displayMode = 'thumb'
       this.$store.commit('updatePosts', data)
@@ -110,5 +96,4 @@ export default
 // @media screen and (max-width: 512px)
 //     &.is-thumb
 //         --columns: 2
-
 </style>
