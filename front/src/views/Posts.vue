@@ -17,7 +17,6 @@
 import Post from '@/components/Post.vue'
 import Tags from '@/components/Tags.vue'
 import api from '@/pure/api'
-import { itemsToFilter } from '@/pure/tagHelpers'
 
 export default {
   components: {
@@ -40,10 +39,8 @@ export default {
 
   methods: {
     filter (items = []) {
-      const { tags, noTags, types, noTypes } = itemsToFilter(items)
-
       api
-        .getPosts({ tags, types, noTags, noTypes })
+        .getPosts(items)
         .then(posts => posts.map(post => post.getObject()))
         .then(posts => {
           this.posts = posts

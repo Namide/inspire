@@ -1,8 +1,6 @@
 <template>
   <main id="app">
-    <h1 class="main-title">
-      Inspire
-    </h1>
+    <h1 class="main-title">Inspire</h1>
 
     <nav class="main-nav">
       <router-link :to="{ name: 'posts' }" class="link">Posts</router-link>
@@ -28,9 +26,7 @@ export default {
     authRequired () {
       return this.$route.meta.auth
     }
-  },
-
-  constructor () {}
+  }
 }
 </script>
 

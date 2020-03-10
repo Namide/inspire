@@ -3,6 +3,7 @@
 import DirectusSDK from '@directus/sdk-js'
 import Signal from './Signal'
 import Post from './Post'
+import { itemsToFilter } from '@/pure/tagHelpers'
 
 const API_DIR = '/api'
 // const config = {}
@@ -59,14 +60,11 @@ class Api {
     return '' // config.api.abs + '/files/' + uid
   }
 
-  getPosts ({
-    tags = [],
-    noTags = [],
-    types = [],
-    noTypes = [],
+  getPosts (items, {
     limit = 100,
     offset = 0
   } = {}) {
+    const { tags, noTags, types, noTypes } = itemsToFilter(items)
     const options = {
       // depth: 1,
       limit,

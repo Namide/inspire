@@ -1,5 +1,7 @@
 <template>
   <div>
+    <Tags @change="filter" />
+
     <div>
       <button @click="isModalOpen = true">+ Add new post</button>
     </div>
@@ -22,6 +24,7 @@
 </template>
 
 <script>
+import Tags from '@/components/Tags.vue'
 import PartAdminPost from '@/components/AdminPost.vue'
 import AdminPostForm from '@/components/AdminPostForm.vue'
 import Modal from '@/components/Modal.vue'
@@ -31,7 +34,8 @@ export default {
   components: {
     PartAdminPost,
     AdminPostForm,
-    Modal
+    Modal,
+    Tags
   },
 
   props: {
@@ -57,48 +61,19 @@ export default {
     }
   },
 
-  // computed: {
-  //   posts () {
-  //     return this.$store.state.posts
-  //   }
-  // },
-
-  watch: {
-    filterTags (list) {
-      const tags = []
-      const types = []
-      const noTags = []
-      const noTypes = []
-      list.forEach(item => {
-        const s = item[0] + item[1]
-        const f = item[0]
-
-        if (s === '!@' || s === '@!') {
-          noTypes.push(item.substr(2))
-        } else if (f === '@') {
-          types.push(item.substr(1))
-        } else if (f === '!') {
-          noTags.push(item.substr(1))
-        } else {
-          tags.push(item)
-        }
-      })
-
-      this.$store.dispatch('getPosts', { tags, noTags, types, noTypes })
-    }
-  },
-
   created () {
-    // this.$store.dispatch('getPosts')
-    apiSave
-      .getPosts()
-      .then(posts => posts.map(posts => posts.getObject()))
-      .then(posts => {
-        this.posts = posts
-      })
+    this.filter()
   },
 
   methods: {
+    filter (items = []) {
+      apiSave
+        .getPosts(items)
+        .then(posts => posts.map(post => post.getObject()))
+        .then(posts => {
+          this.posts = posts
+        })
+    },
     onPosts ({ data, meta }) {
       this.displayMode = 'text' // 'thumb' // text
       this.$store.commit('updatePosts', data)
