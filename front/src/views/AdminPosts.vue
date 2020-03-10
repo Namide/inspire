@@ -1,18 +1,23 @@
 <template>
   <div>
-
     <div>
       <button @click="isModalOpen = true">+ Add new post</button>
     </div>
 
-    <PartAdminPost v-for="post of posts" :key="post.id" :post="post"></PartAdminPost>
+    <PartAdminPost
+      v-for="post of posts"
+      :key="post.id"
+      :post="post"
+    ></PartAdminPost>
 
     <!-- Modal -->
 
     <Modal :is-open="isModalOpen" @close="isModalOpen = false">
-      <AdminPostForm :create="true" @cancel="isModalOpen = false"></AdminPostForm>
+      <AdminPostForm
+        :create="true"
+        @cancel="isModalOpen = false"
+      ></AdminPostForm>
     </Modal>
-
   </div>
 </template>
 
@@ -22,8 +27,7 @@ import AdminPostForm from '@/components/AdminPostForm.vue'
 import Modal from '@/components/Modal.vue'
 import apiSave from '@/pure/apiSave'
 
-export default
-{
+export default {
   components: {
     PartAdminPost,
     AdminPostForm,
@@ -31,8 +35,18 @@ export default
   },
 
   props: {
-    filterTypes: { type: Array, default: function () { return [] } },
-    filterTags: { type: Array, default: function () { return [] } }
+    filterTypes: {
+      type: Array,
+      default: function () {
+        return []
+      }
+    },
+    filterTags: {
+      type: Array,
+      default: function () {
+        return []
+      }
+    }
   },
 
   data () {
@@ -76,7 +90,8 @@ export default
 
   created () {
     // this.$store.dispatch('getPosts')
-    apiSave.getPosts()
+    apiSave
+      .getPosts()
       .then(posts => posts.map(posts => posts.getObject()))
       .then(posts => {
         this.posts = posts
@@ -92,6 +107,4 @@ export default
 }
 </script>
 
-<style lang="sass" scoped>
-
-</style>
+<style lang="sass" scoped></style>

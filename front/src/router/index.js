@@ -5,7 +5,8 @@ import PagePosts from '../views/Posts'
 import PageBoards from '../views/Boards'
 
 // Dynamic load
-const PageAdminPosts = () => import(/* webpackChunkName: "admin" */ '../views/AdminPosts')
+const PageAdminPosts = () =>
+  import(/* webpackChunkName: "admin" */ '../views/AdminPosts')
 
 Vue.use(VueRouter)
 

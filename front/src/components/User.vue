@@ -1,6 +1,5 @@
 <template>
   <div v-if="adminPage || isLogged" class="connect">
-
     <button v-if="!isLogged" @click="isModalConnectOpen = true">Signin</button>
     <button v-else @click="logout">Signout</button>
 
@@ -12,8 +11,14 @@
     <span v-if="firstName">{{ firstName }}</span>
     <span v-if="lastName">{{ lastName }}</span>
 
-    <img v-if="avatar" :src="avatar.src" :width="avatar.width" :height="avatar.height" alt="avatar" class="avatar"/>
-
+    <img
+      v-if="avatar"
+      :src="avatar.src"
+      :width="avatar.width"
+      :height="avatar.height"
+      alt="avatar"
+      class="avatar"
+    />
   </div>
 </template>
 
@@ -61,28 +66,24 @@ export default {
       this.isLogged = isLogged
     },
 
-    login () {
-
-    },
+    login () {},
 
     logout () {
-      api.logout()
-        .then(data => {
-          this.update()
-        })
+      api.logout().then(data => {
+        this.update()
+      })
     },
 
     update () {
       api.isLoggedIn().then(isLogged => {
         this.isLogged = isLogged
         if (isLogged) {
-          api.getMe()
-            .then(data => {
-              this.isLogged = true
-              this.avatar = data.avatar
-              this.firstName = data.firstName
-              this.lastName = data.lastName
-            })
+          api.getMe().then(data => {
+            this.isLogged = true
+            this.avatar = data.avatar
+            this.firstName = data.firstName
+            this.lastName = data.lastName
+          })
         }
       })
     }

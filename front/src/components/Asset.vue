@@ -1,21 +1,24 @@
 <template>
   <div>
-    <img v-if="isImg()" :width="data.width" :height="data.height" :src="data.url" :alt="data.title">
+    <img
+      v-if="isImg()"
+      :width="data.width"
+      :height="data.height"
+      :src="data.url"
+      :alt="data.title"
+    />
   </div>
 </template>
 
 <script>
 export default {
-  components: {
-
-  },
+  components: {},
 
   props: {
     data: { type: Object }
   },
 
-  created () {
-  },
+  created () {},
 
   methods: {
     isImg () {
@@ -25,5 +28,4 @@ export default {
 }
 </script>
 
-<style lang="sass" scoped>
-</style>
+<style lang="sass" scoped></style>

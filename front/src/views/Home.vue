@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Home page</h2>
-    <Tags @update:tags="onFiltered"></Tags>
+    <Tags @change="onFiltered"></Tags>
     <Posts :filter-tags="filterTags"></Posts>
   </div>
 </template>
@@ -10,8 +10,7 @@
 import Posts from '@/views/Posts.vue'
 import Tags from '@/components/Tags.vue'
 
-export default
-{
+export default {
   components: {
     Posts,
     Tags
@@ -24,8 +23,7 @@ export default
     }
   },
 
-  created () {
-  },
+  created () {},
 
   methods: {
     onFiltered (tags) {

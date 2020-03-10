@@ -5,7 +5,6 @@ import api from '@/pure/api'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-
   state: {
     // postFilter: post => true,
     posts: []
@@ -17,30 +16,48 @@ export default new Vuex.Store({
      * @param {Object} context
      * @param {Object} { tags, noTags, types, noTypes }
      */
-    getPosts ({ commit }, { tags = [], noTags = [], types = [], noTypes = [] } = {}) {
-      api.getPosts(data => {
-        // console.log('OK', data.success)
-        if (data.success) { commit('updatePosts', data.data) }
-      }, { tags, noTags, types, noTypes })
+    getPosts (
+      { commit },
+      { tags = [], noTags = [], types = [], noTypes = [] } = {}
+    ) {
+      api.getPosts(
+        data => {
+          // console.log('OK', data.success)
+          if (data.success) {
+            commit('updatePosts', data.data)
+          }
+        },
+        { tags, noTags, types, noTypes }
+      )
     },
 
     deletePost ({ commit }, { uid }) {
       api.deletePost(data => {
-        if (data.success) { commit('deletePost', data.data.uid) }
+        if (data.success) {
+          commit('deletePost', data.data.uid)
+        }
       }, uid)
     },
 
     addPost ({ commit }, { post }) {
       // console.log('post', post)
       api.addPost(data => {
-        if (data.success) { commit('addPost', data.data) }
+        if (data.success) {
+          commit('addPost', data.data)
+        }
       }, post)
     },
 
     updatePost ({ commit }, { uid, data }) {
-      api.updatePost(data => {
-        if (data.success) { commit('updatePost', data.data) }
-      }, uid, data)
+      api.updatePost(
+        data => {
+          if (data.success) {
+            commit('updatePost', data.data)
+          }
+        },
+        uid,
+        data
+      )
     },
 
     getDistantLink (url) {

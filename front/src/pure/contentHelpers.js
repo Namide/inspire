@@ -2,7 +2,10 @@ import mimeTypes from '@/data/mime-types.json'
 
 export const extractType = raw => {
   // https://mathiasbynens.be/demo/url-regex
-  if (raw && raw.trim().match(/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/is) !== null) {
+  if (
+    raw &&
+    raw.trim().match(/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/is) !== null
+  ) {
     return 'url'
   } else if (raw && raw.trim().match(/<iframe(.+)<\/iframe>/g) !== null) {
     return 'embed'
@@ -49,17 +52,15 @@ export const extractData = raw => {
 
 export const getMimeData = mimeType => {
   const mimeData = { ext: '', mimeType: '', type: '' }
-  Object.keys(mimeTypes)
-    .forEach(type => {
-      mimeTypes[type]
-        .forEach(data => {
-          if (mimeType === data.mimeType) {
-            mimeData.ext = data.ext
-            mimeData.mimeType = data.mimeType
-            mimeData.type = type
-          }
-        })
+  Object.keys(mimeTypes).forEach(type => {
+    mimeTypes[type].forEach(data => {
+      if (mimeType === data.mimeType) {
+        mimeData.ext = data.ext
+        mimeData.mimeType = data.mimeType
+        mimeData.type = type
+      }
     })
+  })
 
   return mimeData
 }

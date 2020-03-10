@@ -1,6 +1,11 @@
 <template>
-  <a :href="href" target="blank" class="post" :class="classData" :style="postStyle">
-
+  <a
+    :href="href"
+    target="blank"
+    class="post"
+    :class="classData"
+    :style="postStyle"
+  >
     <h1 class="title">
       {{ data.title }}
     </h1>
@@ -19,15 +24,21 @@
       </li>
     </ul>
 
-    <span class="score">
-      {{ data.score }}/5
-    </span>
+    <span class="score"> {{ data.score }}/5 </span>
 
     <!-- <transition v-if="data.image" name="thumbfade"> -->
-      <!-- <div v-if="isThumbLoaded && thumbStyle" :style="thumbStyle" class="thumb"></div> -->
-    <img :src="data.image.src" :srcset="data.image.srcset" :width="data.image.width" :height="data.image.height" :alt="data.image.alt" @load="() => isThumbLoaded = true" class="thumb" :class="{ 'is-show': showThumb && isThumbLoaded }">
+    <!-- <div v-if="isThumbLoaded && thumbStyle" :style="thumbStyle" class="thumb"></div> -->
+    <img
+      :src="data.image.src"
+      :srcset="data.image.srcset"
+      :width="data.image.width"
+      :height="data.image.height"
+      :alt="data.image.alt"
+      @load="() => (isThumbLoaded = true)"
+      class="thumb"
+      :class="{ 'is-show': showThumb && isThumbLoaded }"
+    />
     <!-- </transition> -->
-
   </a>
 </template>
 
@@ -44,8 +55,7 @@ const getPgcd = (a, b) => {
   return a
 }
 
-export default
-{
+export default {
   props: {
     data: { type: Object },
     displayMode: { type: String, default: 'text' }
@@ -56,7 +66,7 @@ export default
       displayImage: false,
       classData: [],
       // isHidden: true,
-      postStyle: { },
+      postStyle: {},
       // thumbStyle: false,
       showThumb: false,
       isThumbLoaded: false,
@@ -84,10 +94,10 @@ export default
     let h = 1
     if (size[0] > size[1]) {
       w = max
-      h = Math.round(w * size[1] / size[0]) || 1
+      h = Math.round((w * size[1]) / size[0]) || 1
     } else {
       h = max
-      w = Math.round(h * size[0] / size[1]) || 1
+      w = Math.round((h * size[0]) / size[1]) || 1
     }
 
     const p = getPgcd(w, h)
@@ -97,10 +107,19 @@ export default
     this.setSize(w, h)
 
     if (this.data.image && this.displayMode === 'thumb') {
-      this.$set(this.postStyle, 'background-color', this.data.colors && this.data.colors[0] ? this.data.colors[0] : 'rgba(0,0,0,0)')
+      this.$set(
+        this.postStyle,
+        'background-color',
+        this.data.colors && this.data.colors[0]
+          ? this.data.colors[0]
+          : 'rgba(0,0,0,0)'
+      )
     }
 
-    if (this.displayMode === 'text' && this.data.content_format.indexOf('URL') > -1) {
+    if (
+      this.displayMode === 'text' &&
+      this.data.content_format.indexOf('URL') > -1
+    ) {
       this.href = this.data.content.URL
     }
   },
@@ -160,8 +179,15 @@ export default
       // const sideMin = 1
 
       let mult = 5
-      while (w * (mult + 1) * h * (mult + 1) <= areaDo && Math.max(w * mult + 1, h * mult + 1) < sideMax) { mult++ }
-      while (Math.max(w * mult, h * mult) > sideMax) { mult-- }
+      while (
+        w * (mult + 1) * h * (mult + 1) <= areaDo &&
+        Math.max(w * mult + 1, h * mult + 1) < sideMax
+      ) {
+        mult++
+      }
+      while (Math.max(w * mult, h * mult) > sideMax) {
+        mult--
+      }
 
       w *= mult
       h *= mult

@@ -10,10 +10,8 @@
 </template>
 
 <script>
-export default
-{
-  components: {
-  },
+export default {
+  components: {},
 
   props: {
     isOpen: {
@@ -36,7 +34,9 @@ export default
     },
 
     keyUp (keyEvent) {
-      if (keyEvent.keyCode === 27) { this.close() }
+      if (keyEvent.keyCode === 27) {
+        this.close()
+      }
     }
   }
 }

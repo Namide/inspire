@@ -17,7 +17,10 @@ class ApiSave extends Api {
     //   body: form
     // }
 
-    const url = new URL(this.apiURL + '/inspire/custom/gateway', window.location.origin)
+    const url = new URL(
+      this.apiURL + '/inspire/custom/gateway',
+      window.location.origin
+    )
     url.searchParams.append('link', link)
 
     return fetch(url.href /*, { mode: 'cors' } */) // request('get', '/custom/gateway')
@@ -31,8 +34,7 @@ class ApiSave extends Api {
     const formData = new FormData()
     formData.append('file', file)
     // console.log(formData)
-    return this.directus
-      .uploadFiles(formData, onProgress)
+    return this.directus.uploadFiles(formData, onProgress)
   }
 
   addPost (payload, onProgress = ({ loaded, total }) => loaded / total) {
@@ -44,7 +46,8 @@ class ApiSave extends Api {
       let l2 = 0
       let t2 = 1
 
-      const dispatchProgress = () => onProgress({ loaded: l1 + l2, total: t1 + t2 })
+      const dispatchProgress = () =>
+        onProgress({ loaded: l1 + l2, total: t1 + t2 })
 
       if (payload.image) {
         return Promise.all([
@@ -58,33 +61,33 @@ class ApiSave extends Api {
             t2 = total
             dispatchProgress()
           })
-        ])
-          .then(([file, image]) => {
-            // console.log(file, image)
-            return this.directus.createItem(
-              'posts',
-              Object.assign(
-                {},
-                payload,
-                {
-                  file: file.data.data.id,
-                  image: image.data.data.id
-                }
-              ))
-          })
+        ]).then(([file, image]) => {
+          // console.log(file, image)
+          return this.directus.createItem(
+            'posts',
+            Object.assign({}, payload, {
+              file: file.data.data.id,
+              image: image.data.data.id
+            })
+          )
+        })
       } else {
-        return this.addFile(payload.file, onProgress)
-          .then(file => {
-            // console.log(file)
-            return this.directus.createItem('posts', Object.assign({}, payload, { file: file.data.data.id }))
-          })
+        return this.addFile(payload.file, onProgress).then(file => {
+          // console.log(file)
+          return this.directus.createItem(
+            'posts',
+            Object.assign({}, payload, { file: file.data.data.id })
+          )
+        })
       }
     } else if (payload.image) {
-      return this.addFile(payload.image, onProgress)
-        .then(image => {
-          // console.log(image)
-          return this.directus.createItem('posts', Object.assign({}, payload, { image: image.data.data.id }))
-        })
+      return this.addFile(payload.image, onProgress).then(image => {
+        // console.log(image)
+        return this.directus.createItem(
+          'posts',
+          Object.assign({}, payload, { image: image.data.data.id })
+        )
+      })
     } else {
       return this.directus.createItem('posts', payload)
     }
@@ -95,7 +98,8 @@ class ApiSave extends Api {
   }
 
   deletePost (key) {
-    return this.directus.deleteItem('posts', key)
+    return this.directus
+      .deleteItem('posts', key)
       .then(console.log)
       .catch(console.error)
 
@@ -122,7 +126,6 @@ class ApiSave extends Api {
     // const url = config.api.abs + '/posts/edit/' + uid
     // delete newData.uid
     // const form = Api.dataToFormData(newData)
-
     // const request = new Request(url)
     // const params = {
     //   method: 'POST',
@@ -131,7 +134,6 @@ class ApiSave extends Api {
     //   cache: 'default',
     //   body: form
     // }
-
     // fetch(request, params)
     //   .then(data => data.json())
     //   .then(Api.testSuccess)

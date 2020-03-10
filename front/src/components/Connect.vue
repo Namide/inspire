@@ -1,10 +1,8 @@
 <template>
   <div class="connect">
-
-    <input type="text" v-model="mail" placeholder="login"/>
-    <input type="password" v-model="pass" placeholder="password"/>
+    <input type="text" v-model="mail" placeholder="login" />
+    <input type="password" v-model="pass" placeholder="password" />
     <button @click="login">Signin</button>
-
   </div>
 </template>
 
@@ -12,8 +10,7 @@
 import api from '@/pure/api'
 
 export default {
-  components: {
-  },
+  components: {},
 
   data () {
     return {
@@ -24,10 +21,9 @@ export default {
 
   methods: {
     login () {
-      api.login(this.mail, this.pass)
-        .then(data => {
-          this.$emit('logged')
-        })
+      api.login(this.mail, this.pass).then(data => {
+        this.$emit('logged')
+      })
     }
   }
 }

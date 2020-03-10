@@ -1,21 +1,37 @@
 <template>
-  <div @click="focusNewTag()" :class="{'read-only': readOnly}" class="tags">
-    <span v-for="(tag, index) in innerTags" :key="index" class="input-tag" :class="{ 'is-type': tag[0] === '@' || (tag[0] + tag[1] === '@!') }">
-      <span :class="{ 'is-not': tag[0] === '!' || (tag[0] + tag[1] === '@!') }">
-        {{ tag[0] + tag[1] === '!@' || tag[0] + tag[1] === '@!' ? tag.substr(2) : tag[0] === '!' || tag[0] === '@' ? tag.substr(1) : tag }}
+  <div @click="focusNewTag()" :class="{ 'read-only': readOnly }" class="tags">
+    <span
+      v-for="(tag, index) in innerTags"
+      :key="index"
+      class="input-tag"
+      :class="{ 'is-type': tag[0] === '@' || tag[0] + tag[1] === '@!' }"
+    >
+      <span :class="{ 'is-not': tag[0] === '!' || tag[0] + tag[1] === '@!' }">
+        {{
+          tag[0] + tag[1] === "!@" || tag[0] + tag[1] === "@!"
+            ? tag.substr(2)
+            : tag[0] === "!" || tag[0] === "@"
+            ? tag.substr(1)
+            : tag
+        }}
       </span>
-      <a v-if="!readOnly" @click.prevent.stop="remove(index)" class="remove"></a>
+      <a
+        v-if="!readOnly"
+        @click.prevent.stop="remove(index)"
+        class="remove"
+      ></a>
     </span>
     <input
-      v-if = "!readOnly && !isLimit"
-      ref = "inputtag"
-      :placeholder = "placeholder"
-      type = "text"
-      v-model = "newTag"
-      v-on:keydown.delete.stop = "removeLastTag"
-      v-on:keydown = "addNew"
-      v-on:blur = "addNew"
-      class = "new-tag"/>
+      v-if="!readOnly && !isLimit"
+      ref="inputtag"
+      :placeholder="placeholder"
+      type="text"
+      v-model="newTag"
+      v-on:keydown.delete.stop="removeLastTag"
+      v-on:keydown="addNew"
+      v-on:blur="addNew"
+      class="new-tag"
+    />
   </div>
 </template>
 
@@ -66,7 +82,9 @@ export default {
 
   methods: {
     focusNewTag () {
-      if (this.readOnly || !this.$el.querySelector('.new-tag')) { return }
+      if (this.readOnly || !this.$el.querySelector('.new-tag')) {
+        return
+      }
 
       this.$el.querySelector('.new-tag').focus()
     },
@@ -74,17 +92,25 @@ export default {
     addNew (e) {
       // Do nothing if the current key code is
       // not within those defined within the ADD_TAG_ON_KEYS prop array.
-      if ((e && ADD_TAG_ON_KEYS.indexOf(e.keyCode) === -1 &&
-                (e.type !== 'blur' || !ADD_TAG_ON_BLUR)) || this.isLimit) { return }
+      if (
+        (e &&
+          ADD_TAG_ON_KEYS.indexOf(e.keyCode) === -1 &&
+          (e.type !== 'blur' || !ADD_TAG_ON_BLUR)) ||
+        this.isLimit
+      ) {
+        return
+      }
 
       if (e) {
         e.stopPropagation()
         e.preventDefault()
       }
 
-      if (this.newTag &&
-                this.innerTags.indexOf(this.newTag) === -1 &&
-                this.validateIfNeeded(this.newTag)) {
+      if (
+        this.newTag &&
+        this.innerTags.indexOf(this.newTag) === -1 &&
+        this.validateIfNeeded(this.newTag)
+      ) {
         this.innerTags.push(this.newTag)
         this.newTag = ''
         this.tagChange()
@@ -92,7 +118,16 @@ export default {
     },
 
     validateIfNeeded (tagValue) {
-      if (VALIDATE === '' || VALIDATE === undefined) { return true } else if (typeof (VALIDATE) === 'string' && Object.keys(VALIDATORS).indexOf(VALIDATE) > -1) { return VALIDATORS[VALIDATE].test(tagValue) } else if (typeof (VALIDATE) === 'object' && VALIDATE.test !== undefined) { return VALIDATE.test(tagValue) }
+      if (VALIDATE === '' || VALIDATE === undefined) {
+        return true
+      } else if (
+        typeof VALIDATE === 'string' &&
+        Object.keys(VALIDATORS).indexOf(VALIDATE) > -1
+      ) {
+        return VALIDATORS[VALIDATE].test(tagValue)
+      } else if (typeof VALIDATE === 'object' && VALIDATE.test !== undefined) {
+        return VALIDATE.test(tagValue)
+      }
 
       return true
     },
@@ -103,18 +138,19 @@ export default {
     },
 
     removeLastTag () {
-      if (this.newTag) { return }
+      if (this.newTag) {
+        return
+      }
 
       this.innerTags.pop()
       this.tagChange()
     },
 
     tagChange () {
-      this.$emit('update:tags', this.innerTags)
+      this.$emit('change', this.innerTags)
     }
   }
 }
-
 </script>
 
 <style lang="sass" scoped>

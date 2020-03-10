@@ -1,10 +1,16 @@
 <template>
-  <textarea @keydown="resizeContentRaw" @keyup.ctrl.enter="submit" ref="contentRaw" rows="1" v-model="modelValue" :placeholder="placeholder"></textarea>
+  <textarea
+    @keydown="resizeContentRaw"
+    @keyup.ctrl.enter="submit"
+    ref="contentRaw"
+    rows="1"
+    v-model="modelValue"
+    :placeholder="placeholder"
+  ></textarea>
 </template>
 
 <script>
-export default
-{
+export default {
   props: {
     placeholder: { type: String },
     value: { type: String }

@@ -1,35 +1,71 @@
 <template>
   <div>
-
-    <label><input type="checkbox" v-model="isFile">File</label>
+    <label><input type="checkbox" v-model="isFile" />File</label>
 
     <div v-if="state === 0">
-
-      <AdminFileLoader v-if="input.image || input.file" @change="fileChange" :image="input.image || input.file" :colors="input.colors" :only-img="false"/>
+      <AdminFileLoader
+        v-if="input.image || input.file"
+        @change="fileChange"
+        :image="input.image || input.file"
+        :colors="input.colors"
+        :only-img="false"
+      />
       <template v-else>
-        <InputTextarea @submit="validContent" :value="input.input" @change="val => $set(input, 'input', val)" placeholder="Content (URL, markdown, HTML, embed...)"/>
+        <InputTextarea
+          @submit="validContent"
+          :value="input.input"
+          @change="val => $set(input, 'input', val)"
+          placeholder="Content (URL, markdown, HTML, embed...)"
+        />
         <!-- <Content :json="contentJson"></Content> -->
       </template>
       <button @click="validContent">Ok</button>
-
     </div>
     <div v-else-if="state === 1">
-
-      <input type="datetime-local" v-model="input.date" class="date">
-      <input type="text" v-model="input.title" placeholder="title" class="title">
-      <InputTextarea :value="input.description" @change="val => $set(input, 'description', val)" placeholder="Description"/>
+      <input type="datetime-local" v-model="input.date" class="date" />
+      <input
+        type="text"
+        v-model="input.title"
+        placeholder="title"
+        class="title"
+      />
+      <InputTextarea
+        :value="input.description"
+        @change="val => $set(input, 'description', val)"
+        placeholder="Description"
+      />
       <ul>
-        <li type="text" v-for="type of input.types" v-html="type" :key="type"></li>
+        <li
+          type="text"
+          v-for="type of input.types"
+          v-html="type"
+          :key="type"
+        ></li>
       </ul>
-      <AdminFileLoader v-if="input.image || input.file" @change="fileChange" :image="input.image" :colors="input.colors" :only-img="false"/>
+      <AdminFileLoader
+        v-if="input.image || input.file"
+        @change="fileChange"
+        :image="input.image"
+        :colors="input.colors"
+        :only-img="false"
+      />
 
-      <Content v-if="input.content" :type="mainType" :content="input.content"/>
-      <InputTextarea @submit="validContent" :value="input.input" @change="val => input.input = val" placeholder="Content (URL, markdown, HTML, embed...)"/>
+      <Content v-if="input.content" :type="mainType" :content="input.content" />
+      <InputTextarea
+        @submit="validContent"
+        :value="input.input"
+        @change="val => (input.input = val)"
+        placeholder="Content (URL, markdown, HTML, embed...)"
+      />
 
       <!-- :info="content"  -->
       <!-- <AdminFileLoader @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></AdminFileLoader> -->
 
-      <Tags :tags="input.tags ? input.tags : []" @update:tags="val => input.tags = val" placeholder="Tags (separated by comas)"/>
+      <Tags
+        :tags="input.tags ? input.tags : []"
+        @change="val => (input.tags = val)"
+        placeholder="Tags (separated by comas)"
+      />
 
       <!-- <InputTextarea :value="inputinput" @change="argValue => inputinput = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
       <Content :data="content"></Content> -->
@@ -46,7 +82,6 @@
       <button v-if="!create" @click="deletePost">Delete</button>
       <button @click="cancel">Cancel changes</button>
     </div>
-
   </div>
 </template>
 
@@ -61,8 +96,7 @@ import PostSave from '@/pure/PostSave'
 
 // const copy = obj => JSON.parse(JSON.stringify(obj))
 
-export default
-{
+export default {
   components: {
     AdminFileLoader,
     Content,
@@ -92,14 +126,30 @@ export default
   },
 
   watch: {
-    'input.date' (val) { this.postSave.date = new Date(val) },
-    'input.title' (val) { this.postSave.title = val },
-    'input.description' (val) { this.postSave.description = val },
-    'input.types' (val) { this.postSave.types = val },
-    'input.content' (val) { this.postSave.content = val },
-    'input.tags' (val) { this.postSave.tags = val },
-    'input.status' (val) { this.postSave.status = val },
-    'input.input' (val) { this.postSave.input = val }
+    'input.date' (val) {
+      this.postSave.date = new Date(val)
+    },
+    'input.title' (val) {
+      this.postSave.title = val
+    },
+    'input.description' (val) {
+      this.postSave.description = val
+    },
+    'input.types' (val) {
+      this.postSave.types = val
+    },
+    'input.content' (val) {
+      this.postSave.content = val
+    },
+    'input.tags' (val) {
+      this.postSave.tags = val
+    },
+    'input.status' (val) {
+      this.postSave.status = val
+    },
+    'input.input' (val) {
+      this.postSave.input = val
+    }
   },
 
   computed: {
@@ -139,12 +189,13 @@ export default
 
   methods: {
     validContent () {
-      this.postSave.setInput(this.input.input)
-        .then(postSave => {
-          this.input = this.postSave.getObject()
-          this.isFile = this.input.types.indexOf('image') > -1 || this.input.types.indexOf('file') > -1
-          this.state++
-        })
+      this.postSave.setInput(this.input.input).then(postSave => {
+        this.input = this.postSave.getObject()
+        this.isFile =
+          this.input.types.indexOf('image') > -1 ||
+          this.input.types.indexOf('file') > -1
+        this.state++
+      })
     },
 
     deletePost () {
@@ -163,16 +214,14 @@ export default
       console.log(this.postSave)
       console.log(payload)
       if (this.create) {
-        apiSave.addPost(payload)
-          .catch(error => {
-            console.log(error)
-          })
+        apiSave.addPost(payload).catch(error => {
+          console.log(error)
+        })
         this.cancel()
       } else {
-        apiSave.updatePost(payload)
-          .catch(error => {
-            console.log(error)
-          })
+        apiSave.updatePost(payload).catch(error => {
+          console.log(error)
+        })
         this.cancel()
       }
 
@@ -192,22 +241,22 @@ export default
     },
 
     keyUp (keyEvent) {
-      if (keyEvent.keyCode === 27) { this.close() }
+      if (keyEvent.keyCode === 27) {
+        this.close()
+      }
     },
 
     fileChange (file) {
       if (file) {
-        this.postSave.updateByFile(file)
-          .then(postSave => {
-            this.input = JSON.parse(JSON.stringify(postSave.getObject()))
-            // console.log(postSave)
-          })
+        this.postSave.updateByFile(file).then(postSave => {
+          this.input = JSON.parse(JSON.stringify(postSave.getObject()))
+          // console.log(postSave)
+        })
       } else {
-        this.postSave.removeFile()
-          .then(postSave => {
-            this.input = JSON.parse(JSON.stringify(postSave.getObject()))
-            // console.log(postSave)
-          })
+        this.postSave.removeFile().then(postSave => {
+          this.input = JSON.parse(JSON.stringify(postSave.getObject()))
+          // console.log(postSave)
+        })
       }
 
       /* if (!file) {

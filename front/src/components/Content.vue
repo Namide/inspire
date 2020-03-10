@@ -1,16 +1,16 @@
 <template>
-  <div class="content" :class="[ 'is-' + type, (invRatio !== '' ? 'has-ratio' : '') ]">
-
+  <div
+    class="content"
+    :class="['is-' + type, invRatio !== '' ? 'has-ratio' : '']"
+  >
     <div v-if="invRatio" class="dummy" :style="{ paddingTop: invRatio }"></div>
     <div v-html="html" class="data">
       (Content here)
     </div>
-
   </div>
 </template>
 
 <script>
-
 export default {
   props: {
     type: {
@@ -28,10 +28,13 @@ export default {
       if (this.type === 'embed') {
         return this.content
       } else if (this.type === 'url') {
-        return '<a href="' + this.content +
+        return (
+          '<a href="' +
+          this.content +
           '" target="_blank" rel="noreferrer noopener">' +
           this.content.replace(/http:\/\/|https:\/\//, '') +
           '</a>'
+        )
       } else if (this.type === 'text') {
         return this.content
       }
@@ -55,7 +58,7 @@ export default {
           const height = exH && exH.length > 1 ? exH[1] || 360 : 360
 
           if (width && height) {
-            return (100 * height / width) + '%'
+            return (100 * height) / width + '%'
           }
         }
 

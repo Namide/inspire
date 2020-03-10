@@ -59,20 +59,46 @@ class Api {
     return '' // config.api.abs + '/files/' + uid
   }
 
-  getPosts ({ tags = [], types = [], noTags = [], noTypes = [], limit = 100, offset = 0 } = {}) {
-    return this.directus.getItems('posts', {
-      fields: [
-        '*',
-        'image.*',
-        'file.*'
-      ]
+  getPosts ({
+    tags = [],
+    noTags = [],
+    types = [],
+    noTypes = [],
+    limit = 100,
+    offset = 0
+  } = {}) {
+    const options = {
+      // depth: 1,
+      limit,
+      offset,
+      filter: {
+        tags: {},
+        types: {}
+      },
+      fields: ['*', 'image.*', 'file.*']
       /* filter: {
         runtime: {
           eq: 200
           gt: 200
         }
       } */
-    })
+    }
+
+    if (tags.length > 0) {
+      options.filter.tags.contains = tags.join(',')
+    }
+    if (noTags.length > 0) {
+      options.filter.tags.ncontains = noTags.join(',')
+    }
+    if (types.length > 0) {
+      options.filter.types.contains = types.join(',')
+    }
+    if (noTypes.length > 0) {
+      options.filter.types.ncontains = noTypes.join(',')
+    }
+
+    return this.directus
+      .getItems('posts', options)
       .then(({ data }) => data.map(parsePost))
       .catch(console.error)
 
@@ -107,20 +133,25 @@ class Api {
   }
 
   getMe () {
-    return this.directus.getMe({ fields: [
-      'id',
-      'avatar',
-      'email',
-      'first_name',
-      'last_name',
-      'locale',
-      // 'role',
-      'avatar.*'
-    ] })
+    return this.directus
+      .getMe({
+        fields: [
+          'id',
+          'avatar',
+          'email',
+          'first_name',
+          'last_name',
+          'locale',
+          // 'role',
+          'avatar.*'
+        ]
+      })
       .then(({ data }) => {
         let avatar = null
         if (data.avatar) {
-          const img = data.avatar.data.thumbnails.find(({ dimension }) => dimension === '300x300')
+          const img = data.avatar.data.thumbnails.find(
+            ({ dimension }) => dimension === '300x300'
+          )
           if (img) {
             const src = API_DIR + img.relative_url.substring(1)
             avatar = {
@@ -142,7 +173,8 @@ class Api {
   }
 
   logout () {
-    return this.directus.logout()
+    return this.directus
+      .logout()
       .then(data => {
         this.isLogged = false
         this.onLogin.dispatch(false)
@@ -161,10 +193,11 @@ class Api {
     //   return new Promise(resolve => resolve())
     // }
 
-    return this.directus.login({
-      email,
-      password
-    })
+    return this.directus
+      .login({
+        email,
+        password
+      })
       .then(data => {
         // sessionStorage.setItem('inspire_token', data.token)
         this.isLogged = data

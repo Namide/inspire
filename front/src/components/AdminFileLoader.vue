@@ -1,12 +1,23 @@
 <template>
   <div>
-    <input v-if="!src" type="file" :disabled="false" @change="filesChange($event.target.files)" :accept="onlyImg ? 'image/*' : '*'">
+    <input
+      v-if="!src"
+      type="file"
+      :disabled="false"
+      @change="filesChange($event.target.files)"
+      :accept="onlyImg ? 'image/*' : '*'"
+    />
     <button v-else @click="deleteFile">Delete image</button>
 
     <div v-if="colors" class="colors">
-      <span v-for="color of colors" class="color" :style="{ background: color }" :key="color"></span>
+      <span
+        v-for="color of colors"
+        class="color"
+        :style="{ background: color }"
+        :key="color"
+      ></span>
     </div>
-    <img v-if="isImg && src !== ''" :src="src" class="file-img">
+    <img v-if="isImg && src !== ''" :src="src" class="file-img" />
 
     <!-- <template v-else-if="colors">
       <div v-for="(data, key) of colors" :key="key + data">
@@ -23,8 +34,7 @@
 </template>
 
 <script>
-export default
-{
+export default {
   props: {
     image: { default: null },
     colors: { type: Array, default: () => [] },

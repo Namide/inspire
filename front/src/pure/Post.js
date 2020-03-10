@@ -30,7 +30,7 @@ export default class Post {
   }
 
   fromPayload (json = {}) {
-    this.id = json.id || ('' + Math.random())
+    this.id = json.id || '' + Math.random()
     this.status = json.status || 'draft'
     this.title = json.title || ''
     this.description = json.description || ''
@@ -62,12 +62,17 @@ export default class Post {
       file: this.file,
       image: this.image,
       score: this.score || 0,
-      created_on: this.date.toISOString().replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ''),
+      created_on: this.date
+        .toISOString()
+        .replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ''),
       created_by: this.author
     }
 
     Object.keys(payload).forEach(key => {
-      if (payload[key] === null || (Array.isArray(payload[key]) && payload[key].length < 1)) {
+      if (
+        payload[key] === null ||
+        (Array.isArray(payload[key]) && payload[key].length < 1)
+      ) {
         delete payload[key]
       }
     })

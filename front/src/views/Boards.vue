@@ -12,8 +12,7 @@
 <script>
 import Board from '@/components/Board.vue'
 
-export default
-{
+export default {
   components: {
     Board
   },
@@ -36,6 +35,4 @@ export default
 }
 </script>
 
-<style lang="sass" scoped>
-
-</style>
+<style lang="sass" scoped></style>

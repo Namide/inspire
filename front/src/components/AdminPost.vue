@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <!-- Line -->
     <div v-if="insert">
       <button @click="isModalOpen = true">+ Add new post</button>
@@ -15,17 +14,35 @@
       </div>
       <div>
         <template v-if="post.tags && post.tags.length">
-          <small v-html="tag" v-for="tag of post.tags" class="tag" :key="tag"></small>
+          <small
+            v-html="tag"
+            v-for="tag of post.tags"
+            class="tag"
+            :key="tag"
+          ></small>
         </template>
-        <span v-if="post.date" v-html="new Date(post.date).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})" class="date"></span>
+        <span
+          v-if="post.date"
+          v-html="
+            new Date(post.date).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })
+          "
+          class="date"
+        ></span>
       </div>
     </div>
 
     <!-- Modal -->
     <Modal :is-open="isModalOpen" @close="isModalOpen = false">
-      <AdminPostForm :post="post" :create="insert" @cancel="isModalOpen = false"></AdminPostForm>
+      <AdminPostForm
+        :post="post"
+        :create="insert"
+        @cancel="isModalOpen = false"
+      ></AdminPostForm>
     </Modal>
-
   </div>
 </template>
 
@@ -50,8 +67,7 @@ export default {
     }
   },
 
-  methods: {
-  }
+  methods: {}
 }
 </script>
 

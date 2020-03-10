@@ -10,9 +10,9 @@
       <router-link :to="{ name: 'boards' }" class="link">Boards</router-link>
     </nav>
 
-    <router-view/>
+    <router-view />
 
-    <User :adminPage="authRequired"/>
+    <User :adminPage="authRequired" />
   </main>
 </template>
 
@@ -30,8 +30,7 @@ export default {
     }
   },
 
-  constructor () {
-  }
+  constructor () {}
 }
 </script>
 
