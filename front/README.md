@@ -20,5 +20,10 @@ npm run build
 npm run lint
 ```
 
+### Serve backend
+```
+docker-compose -f ../config/back-serve-dev/docker-compose.yml up
+```
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
