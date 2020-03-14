@@ -1,7 +1,8 @@
 <template>
   <div>
     <Tags @change="filter" />
-    <div class="posts" :class="['is-' + displayMode]">
+    <Loader v-if="loading" />
+    <div v-else class="posts" :class="['is-' + displayMode]">
       <Post
         v-for="post of posts"
         :key="post.id"
@@ -17,11 +18,13 @@
 import Post from '@/components/Post.vue'
 import Tags from '@/components/Tags.vue'
 import api from '@/pure/api'
+import Loader from '@/components/Loader.vue'
 
 export default {
   components: {
     Post,
-    Tags
+    Tags,
+    Loader
   },
 
   props: {},
@@ -29,7 +32,8 @@ export default {
   data () {
     return {
       displayMode: 'thumb',
-      posts: []
+      posts: [],
+      loading: false
     }
   },
 
@@ -39,11 +43,16 @@ export default {
 
   methods: {
     filter (items = []) {
+      this.loading = true
       api
         .getPosts(items)
         .then(posts => posts.map(post => post.getObject()))
         .then(posts => {
           this.posts = posts
+        })
+        .catch(console.error)
+        .finally(() => {
+          this.loading = false
         })
     },
     onPosts ({ data, meta }) {

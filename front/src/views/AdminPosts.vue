@@ -6,7 +6,10 @@
       <button @click="isModalOpen = true">+ Add new post</button>
     </div>
 
+    <Loader v-if="loading" />
+
     <PartAdminPost
+      v-else
       v-for="post of posts"
       :key="post.id"
       :post="post"
@@ -29,25 +32,27 @@ import PartAdminPost from '@/components/AdminPost.vue'
 import AdminPostForm from '@/components/AdminPostForm.vue'
 import Modal from '@/components/Modal.vue'
 import apiSave from '@/pure/apiSave'
+import Loader from '@/components/Loader.vue'
 
 export default {
   components: {
     PartAdminPost,
     AdminPostForm,
     Modal,
-    Tags
+    Tags,
+    Loader
   },
 
   props: {
     filterTypes: {
       type: Array,
-      default: function () {
+      default () {
         return []
       }
     },
     filterTags: {
       type: Array,
-      default: function () {
+      default () {
         return []
       }
     }
@@ -57,7 +62,8 @@ export default {
     return {
       isModalOpen: false,
       displayMode: 'thumb',
-      posts: []
+      posts: [],
+      loading: false
     }
   },
 
@@ -67,11 +73,16 @@ export default {
 
   methods: {
     filter (items = []) {
+      this.loading = true
       apiSave
         .getPosts(items)
         .then(posts => posts.map(post => post.getObject()))
         .then(posts => {
           this.posts = posts
+        })
+        .catch(console.error)
+        .finally(() => {
+          this.loading = false
         })
     },
     onPosts ({ data, meta }) {
