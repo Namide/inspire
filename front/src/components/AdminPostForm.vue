@@ -213,7 +213,13 @@ export default {
     },
 
     deletePost () {
-      this.$store.dispatch('deletePost', { id: this.post.id })
+      const post = new PostSave()
+      post.fromObject(this.post)
+      apiSave.deletePost(post.getPayload())
+        .then(() => this.$emit('cancel'))
+        .catch(error => console.error(error))
+
+      // this.$store.dispatch('deletePost', { id: this.post.id })
       /* api.deletePost(data =>
       {
           if (data.success)
@@ -233,7 +239,10 @@ export default {
         })
         this.cancel()
       } else {
-        apiSave.updatePost(payload).catch(error => {
+        const oldPost = new PostSave()
+        oldPost.fromObject(this.post)
+
+        apiSave.updatePost(payload, oldPost.getPayload()).catch(error => {
           console.log(error)
         })
         this.cancel()
