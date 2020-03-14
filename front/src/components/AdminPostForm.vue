@@ -34,7 +34,14 @@
         @change="val => $set(input, 'description', val)"
         placeholder="Description"
       />
-      <ul>
+      <Tags
+        :tags="input.tags ? input.tags : []"
+        @change="val => (input.tags = val)"
+        placeholder="Tags (separated by comas)"
+      />
+
+      <span>Types:</span>
+      <ul class="types">
         <li
           type="text"
           v-for="type of input.types"
@@ -42,30 +49,35 @@
           :key="type"
         ></li>
       </ul>
-      <AdminFileLoader
-        v-if="input.image || input.file"
-        @change="fileChange"
-        :image="input.image"
-        :colors="input.colors"
-        :only-img="false"
-      />
 
-      <Content v-if="input.content" :type="mainType" :content="input.content" />
-      <InputTextarea
-        @submit="validContent"
-        :value="input.input"
-        @change="val => (input.input = val)"
-        placeholder="Content (URL, markdown, HTML, embed...)"
-      />
+      <Tabs :labels="[ 'content', 'thumb', 'initial' ]">
+
+        <template slot="content">
+          <Content v-if="input.content" :type="mainType" :content="input.content" />
+        </template>
+
+        <template slot="thumb">
+          <AdminFileLoader
+            v-if="input.image || input.file"
+            @change="fileChange"
+            :image="input.image"
+            :colors="input.colors"
+            :only-img="false"
+          />
+        </template>
+
+        <template slot="initial">
+          <InputTextarea
+            @submit="validContent"
+            :value="input.input"
+            @change="val => (input.input = val)"
+            placeholder="Content (URL, markdown, HTML, embed...)"
+          />
+        </template>
+      </Tabs>
 
       <!-- :info="content"  -->
       <!-- <AdminFileLoader @file="fileChange" :src="getFileSrc() || ''" :only-img="false"></AdminFileLoader> -->
-
-      <Tags
-        :tags="input.tags ? input.tags : []"
-        @change="val => (input.tags = val)"
-        placeholder="Tags (separated by comas)"
-      />
 
       <!-- <InputTextarea :value="inputinput" @change="argValue => inputinput = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
       <Content :data="content"></Content> -->
@@ -93,6 +105,7 @@ import Tags from '@/components/Tags'
 import Content from '@/components/Content.vue'
 import InputTextarea from '@/components/InputTextarea.vue'
 import PostSave from '@/pure/PostSave'
+import Tabs from '@/components/Tabs'
 
 // const copy = obj => JSON.parse(JSON.stringify(obj))
 
@@ -101,7 +114,8 @@ export default {
     AdminFileLoader,
     Content,
     InputTextarea,
-    Tags
+    Tags,
+    Tabs
   },
 
   props: {
@@ -304,6 +318,22 @@ export default {
 <style lang="sass" scoped>
 input
   // border: none
+
+.types
+  list-style: none
+  padding: 0
+  margin: 0
+  display: inline-block
+
+  li
+    display: inline-block
+
+    &:before
+     content: ", "
+
+    &:first-child
+      &:before
+        display: none
 
 .date
   margin-left: auto
