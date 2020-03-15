@@ -58,7 +58,6 @@
 
         <template slot="thumb">
           <AdminFileLoader
-            v-if="input.image || input.file"
             @change="fileChange"
             :image="input.image"
             :colors="input.colors"
@@ -203,7 +202,7 @@ export default {
 
   methods: {
     validContent () {
-      this.postSave.setInput(this.input.input).then(postSave => {
+      this.postSave.updateByInput(this.input.input).then(postSave => {
         this.input = this.postSave.getObject()
         this.isFile =
           this.input.types.indexOf('image') > -1 ||
@@ -242,9 +241,10 @@ export default {
         const oldPost = new PostSave()
         oldPost.fromObject(this.post)
 
-        apiSave.updatePost(payload, oldPost.getPayload()).catch(error => {
-          console.log(error)
-        })
+        apiSave.updatePost(payload, oldPost.getPayload())
+        // .catch(error => {
+        //   console.log(error)
+        // })
         this.cancel()
       }
 
@@ -272,12 +272,12 @@ export default {
     fileChange (file) {
       if (file) {
         this.postSave.updateByFile(file).then(postSave => {
-          this.input = JSON.parse(JSON.stringify(postSave.getObject()))
+          this.input = postSave.getObject()
           // console.log(postSave)
         })
       } else {
         this.postSave.removeFile().then(postSave => {
-          this.input = JSON.parse(JSON.stringify(postSave.getObject()))
+          this.input = postSave.getObject()
           // console.log(postSave)
         })
       }

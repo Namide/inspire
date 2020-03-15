@@ -50,16 +50,17 @@ export default {
 
   watch: {
     image: {
-      handler (file) {
-        if (this.image instanceof File && this.src) {
+      handler (image, oldImage) {
+        if (oldImage instanceof File && this.src) {
           URL.revokeObjectURL(this.src)
           this.src = ''
         }
-        if (file instanceof File) {
-          this.src = URL.createObjectURL(file)
-        }
-        if (this.image && this.image.src) {
-          this.src = this.image.src
+        if (image instanceof File) {
+          this.src = URL.createObjectURL(image)
+        } else if (image && image.src) {
+          this.src = image.src
+        } else if (!image) {
+          this.src = ''
         }
       },
       immediate: true

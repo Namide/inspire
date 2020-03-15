@@ -59,10 +59,6 @@ class ApiSave extends Api {
     ])
   }
 
-  deleteFile (id) {
-    // this.directus.
-  }
-
   addPost (payload, onProgress = ({ loaded, total }) => loaded / total) {
     if (payload.file && payload.image) {
       return this.addFiles(payload.file, payload.image, onProgress)
@@ -96,42 +92,70 @@ class ApiSave extends Api {
     }
   }
 
+  deleteFile (id) {
+    return this.directus.api.delete('files/' + id)
+  }
+
   deletePost (payload) {
     const list = [this.directus.deleteItem('posts', payload.id)]
     if (payload.file) {
-      list.push(this.directus.api.delete('files/' + payload.file.id))
+      list.push(this.deleteFile(payload.file.id))
     }
+
     if (payload.image) {
-      list.push(this.directus.api.delete('files/' + payload.image.id))
+      list.push(this.deleteFile(payload.image.id))
     }
 
     return Promise.all(list)
   }
 
-  updatePost (newPayload, oldPayload) {
-    console.log(this.directus)
-    console.log(oldPayload)
-    console.log(newPayload)
-    this.directus.deleteItem('files', newPayload.image.id)
+  updatePost (payload, oldPayload, onProgress) {
+    const addImage = payload.image instanceof File
+    const addFile = payload.file instanceof File
+    const removeImage = oldPayload.image && (!payload.image || addImage)
+    const removeFile = oldPayload.file && (!payload.file || addFile)
 
-    // deleteItem(collection, primaryKey)
-    // const newData = Object.assign({}, data)
-    // const url = config.api.abs + '/posts/edit/' + uid
-    // delete newData.uid
-    // const form = Api.dataToFormData(newData)
-    // const request = new Request(url)
-    // const params = {
-    //   method: 'POST',
-    //   headers: this.getHeaders(),
-    //   mode: 'cors',
-    //   cache: 'default',
-    //   body: form
-    // }
-    // fetch(request, params)
-    //   .then(data => data.json())
-    //   .then(Api.testSuccess)
-    //   .then(onLoad)
-    //   .catch(err => console.error(err))
+    const list = []
+
+    if (addImage && addFile) {
+      list.push(this.addFiles(payload.file, payload.image, onProgress))
+    } else if (addImage) {
+      list.push(this.addFile(payload.image, onProgress))
+    } else if (addFile) {
+      list.push(this.addFile(payload.file, onProgress))
+    }
+
+    if (removeImage) {
+      list.push(this.deleteFile(oldPayload.image.id))
+    }
+
+    if (removeFile) {
+      list.push(this.deleteFile(oldPayload.file.id))
+    }
+
+    return Promise.all(list)
+      .then(data => {
+        let file = removeFile ? null : (oldPayload.file && oldPayload.file.id) || null
+        let image = removeImage ? null : (oldPayload.image && oldPayload.image.id) || null
+
+        if (addImage && addFile) {
+          const [[newFile, newImage]] = data
+          file = newFile.data.data.id
+          image = newImage.data.data.id
+        } else if (addImage) {
+          const [newImage] = data
+          image = newImage.data.data.id
+        } else if (addFile) {
+          const [newFile] = data
+          file = newFile.data.data.id
+        }
+
+        return this.directus.updateItem(
+          'posts',
+          oldPayload.id,
+          Object.assign({}, payload, { file, image })
+        )
+      })
   }
 }
 

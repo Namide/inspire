@@ -34,21 +34,33 @@ const responseToFile = (response, url = response.url) => {
 export default class PostSave extends Post {
   /**
    * @param {String} input
-   * @returns {Promise}
    */
   setInput (input) {
-    this.input = input
     const type = extractType(input)
-    if (type === 'url') {
+    if (type === 'url' || type === 'embed') {
       this.input = input.trim()
+    } else {
+      this.input = input
+    }
+
+    return this
+  }
+
+  /**
+   * @param {String} input
+   * @returns {Promise}
+   */
+  updateByInput (input) {
+    this.setInput(input)
+
+    const type = extractType(this.input)
+    if (type === 'url') {
       return this._updateByLink(this.input)
     } else if (type === 'embed') {
       this.types = [type]
-      this.input = input.trim()
       this.content = this.input
     } else {
       this.types = [type]
-      this.input = input
       this.content = marked(this.input)
     }
 
@@ -128,7 +140,7 @@ export default class PostSave extends Post {
           return this._analyseHtml(url, doc)
         })
 
-        // FILE
+      // FILE
       } else {
         return response.blob().then(blob => {
           const mimeData = getMimeData(blob.type)
@@ -152,15 +164,15 @@ export default class PostSave extends Post {
   }
 
   removeFile () {
-    this.types = []
+    // this.types = []
     this.image = null
     this.file = null
     this.colors = []
     this.colorsRound = []
-    this.content = null
-    this.input = null
+    // this.content = null
+    // this.input = null
 
-    return new Promise(resolve => resolve(this))
+    return Promise.resolve(this)
   }
 
   updateByFile (file) {
