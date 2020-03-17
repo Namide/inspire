@@ -6,6 +6,7 @@
       <router-link :to="{ name: 'posts' }" class="link">Posts</router-link>
       <router-link :to="{ name: 'adminPosts' }" class="link">Admin</router-link>
       <router-link :to="{ name: 'boards' }" class="link">Boards</router-link>
+      <router-link :to="{ name: 'adminImport' }" class="link">Import</router-link>
     </nav>
 
     <router-view />

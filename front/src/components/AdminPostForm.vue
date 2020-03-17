@@ -202,13 +202,14 @@ export default {
 
   methods: {
     validContent () {
-      this.postSave.updateByInput(this.input.input).then(postSave => {
-        this.input = this.postSave.getObject()
-        this.isFile =
-          this.input.types.indexOf('image') > -1 ||
-          this.input.types.indexOf('file') > -1
-        this.state++
-      })
+      this.postSave.updateByInput(this.input.input)
+        .then(postSave => {
+          this.input = this.postSave.getObject()
+          this.isFile =
+            this.input.types.indexOf('image') > -1 ||
+            this.input.types.indexOf('file') > -1
+          this.state++
+        })
     },
 
     deletePost () {

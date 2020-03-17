@@ -148,7 +148,7 @@ export default class PostSave extends Post {
             url.substring(url.lastIndexOf('/') + 1).split(/#|\?/)[0] ||
             (mimeData ? mimeData.type + '.' + mimeData.ext : 'file')
 
-          return this.updateByFile(new File([blob], fileName))
+          return this.updateByFile(new File([blob], fileName, { type: blob.type, lastModified: blob.lastModified }))
         })
       }
     })
@@ -179,8 +179,8 @@ export default class PostSave extends Post {
     this.removeFile()
 
     const mimeData = getMimeData(file.type)
+    console.log(file)
     const types = mimeData ? [mimeData.type, 'file'] : ['file']
-
     this.types = types
 
     // Image

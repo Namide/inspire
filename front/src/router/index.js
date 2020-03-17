@@ -4,10 +4,6 @@ import PageHome from '../views/Home'
 import PagePosts from '../views/Posts'
 import PageBoards from '../views/Boards'
 
-// Dynamic load
-const PageAdminPosts = () =>
-  import(/* webpackChunkName: "admin" */ '../views/AdminPosts')
-
 Vue.use(VueRouter)
 
 const routes = [
@@ -46,7 +42,7 @@ const routes = [
   {
     name: 'adminPosts',
     path: '/admin/post',
-    component: PageAdminPosts,
+    component: () => import(/* webpackChunkName: "admin" */ '../views/AdminPosts'),
     meta: {
       auth: true
     }
@@ -55,6 +51,14 @@ const routes = [
     name: 'adminBoards',
     path: '/admin/board',
     component: PageBoards,
+    meta: {
+      auth: true
+    }
+  },
+  {
+    name: 'adminImport',
+    path: '/admin/import',
+    component: () => import(/* webpackChunkName: "import" */ '../views/AdminImport'),
     meta: {
       auth: true
     }

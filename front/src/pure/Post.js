@@ -30,7 +30,7 @@ export default class Post {
   }
 
   fromPayload (json = {}) {
-    this.id = json.id || '' + Math.random()
+    this.id = json.id || ''
     this.status = json.status || 'draft'
     this.title = json.title || ''
     this.description = json.description || ''
