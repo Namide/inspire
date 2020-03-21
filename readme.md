@@ -45,7 +45,7 @@ npm --prefix ./front/ run serve
 Users has many roles, this is the list of those ones:
 
 | id | role          | public data         | protected data    | private data      | users            |
-|----|---------------|---------------------|---------------------------------------|------------------|
+|----|---------------|---------------------|-------------------|-------------------|------------------|
 | 0  | Public        | see                 | X                 | X                 | X                |
 | 1  | Subscriber    | see                 | see               | X                 | edit his own     |
 | 2  | Author        | add, edit his own   | add, edit his own | add, edit his own | edit his own     |
