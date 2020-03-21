@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : inspire-sql
--- Généré le :  sam. 07 mars 2020 à 12:34
+-- Généré le :  sam. 21 mars 2020 à 11:58
 -- Version du serveur :  5.7.27
 -- Version de PHP :  7.2.19
 
@@ -93,7 +93,8 @@ INSERT INTO `directus_collection_presets` (`id`, `title`, `user`, `role`, `colle
 (1, NULL, NULL, NULL, 'directus_activity', NULL, NULL, 'timeline', '{\"timeline\":{\"sort\":\"-action_on\"}}', '{\"timeline\":{\"date\":\"action_on\",\"title\":\"{{ action }} by {{ action_by.first_name }} {{ action_by.last_name }} (#{{ item }})\",\"content\":\"collection\",\"color\":\"action\"}}', NULL),
 (2, NULL, NULL, NULL, 'directus_files', NULL, NULL, 'cards', NULL, '{\"cards\":{\"title\":\"title\",\"subtitle\":\"type\",\"content\":\"description\",\"src\":\"data\"}}', NULL),
 (3, NULL, NULL, NULL, 'directus_users', NULL, NULL, 'cards', NULL, '{\"cards\":{\"title\":\"first_name\",\"subtitle\":\"last_name\",\"content\":\"title\",\"src\":\"avatar\",\"icon\":\"person\"}}', NULL),
-(4, NULL, NULL, NULL, 'directus_webhooks', NULL, NULL, 'tabular', '{\"tabular\":{\"fields\":\"status,http_action,url,collection,directus_action\"}}', '{\"tabular\":{\"widths\":{\"status\":32,\"http_action\":72,\"url\":200,\"collection\":200,\"directus_action\":200}}}', NULL);
+(4, NULL, NULL, NULL, 'directus_webhooks', NULL, NULL, 'tabular', '{\"tabular\":{\"fields\":\"status,http_action,url,collection,directus_action\"}}', '{\"tabular\":{\"widths\":{\"status\":32,\"http_action\":72,\"url\":200,\"collection\":200,\"directus_action\":200}}}', NULL),
+(5, NULL, 1, NULL, 'posts', NULL, NULL, 'tabular', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -684,7 +685,7 @@ CREATE TABLE `directus_users` (
 --
 
 INSERT INTO `directus_users` (`id`, `status`, `role`, `first_name`, `last_name`, `email`, `password`, `token`, `timezone`, `locale`, `locale_options`, `avatar`, `company`, `title`, `email_notifications`, `last_access_on`, `last_page`, `external_id`, `theme`, `2fa_secret`) VALUES
-(1, 'active', 1, 'Damien', 'Doussaud', 'inspire@inspire.com', '$2y$10$/xo1klwqxdLXERFRd4s7L.P3Npu7Vvgz61TZxxxzBNfF7TxOFVy9u', 'RafLEJvhnfecZkewgKg1yC9D', 'UTC', 'en-US', NULL, 2, NULL, NULL, 0, '2020-03-07 12:33:08', '/inspire/collections', NULL, 'auto', NULL);
+(1, 'active', 1, 'Damien', 'Doussaud', 'inspire@inspire.com', '$2y$10$/xo1klwqxdLXERFRd4s7L.P3Npu7Vvgz61TZxxxzBNfF7TxOFVy9u', 'RafLEJvhnfecZkewgKg1yC9D', 'UTC', 'en-US', NULL, 2, NULL, NULL, 0, '2020-03-21 11:55:22', '/inspire/files', NULL, 'auto', NULL);
 
 -- --------------------------------------------------------
 
@@ -859,13 +860,13 @@ ALTER TABLE `posts`
 -- AUTO_INCREMENT pour la table `directus_activity`
 --
 ALTER TABLE `directus_activity`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `directus_collection_presets`
 --
 ALTER TABLE `directus_collection_presets`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT pour la table `directus_fields`
@@ -877,7 +878,7 @@ ALTER TABLE `directus_fields`
 -- AUTO_INCREMENT pour la table `directus_files`
 --
 ALTER TABLE `directus_files`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT pour la table `directus_folders`
@@ -925,7 +926,7 @@ ALTER TABLE `directus_users`
 -- AUTO_INCREMENT pour la table `directus_user_sessions`
 --
 ALTER TABLE `directus_user_sessions`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT pour la table `directus_webhooks`
@@ -937,7 +938,7 @@ ALTER TABLE `directus_webhooks`
 -- AUTO_INCREMENT pour la table `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `id` int(15) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(15) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
