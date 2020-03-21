@@ -40,7 +40,7 @@ export default class Post {
     this.colorsRound = json.colors_round || []
     this.content = json.content || ''
     this.input = json.input || ''
-    this.date = new Date(json.created_on || Date.now())
+    this.date = new Date(json.date || Date.now())
     this.file = json.file || null
     this.score = json.score || 0
     this.image = json.image ? parseImagePayload(json.image) : null
@@ -62,9 +62,10 @@ export default class Post {
       file: this.file,
       image: this.image,
       score: this.score || 0,
-      created_on: this.date
+      date: this.date
         .toISOString()
-        .replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ''),
+        .replace(/\.[0-9]{3}[A-Z]$/, '')
+        .replace(/T/, ' '),
       created_by: this.author
     }
 
