@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : inspire-sql
--- Généré le :  sam. 21 mars 2020 à 11:58
+-- Généré le :  sam. 21 mars 2020 à 21:18
 -- Version du serveur :  5.7.27
 -- Version de PHP :  7.2.19
 
@@ -297,7 +297,6 @@ INSERT INTO `directus_fields` (`id`, `collection`, `field`, `type`, `interface`,
 (173, 'posts', 'id', 'integer', 'primary-key', NULL, 0, NULL, 0, 0, 1, 1, 1, 'full', NULL, NULL, NULL),
 (174, 'posts', 'status', 'status', 'status', '{\"status_mapping\":{\"public\":{\"name\":\"Public\",\"value\":\"public\",\"text_color\":\"white\",\"background_color\":\"accent\",\"browse_subdued\":false,\"browse_badge\":true,\"soft_delete\":false,\"published\":true,\"required_fields\":true},\"protected\":{\"name\":\"Protected\",\"value\":\"protected\",\"text_color\":\"green\",\"published\":true,\"browse_subdued\":true,\"required_fields\":true},\"private\":{\"name\":\"Private\",\"value\":\"private\",\"text_color\":\"green\",\"published\":true,\"required_fields\":true,\"browse_badge\":true},\"draft\":{\"name\":\"Draft\",\"value\":\"draft\",\"text_color\":\"white\",\"background_color\":\"blue-grey-100\",\"browse_subdued\":true,\"browse_badge\":true,\"soft_delete\":false,\"published\":false,\"required_fields\":false},\"deleted\":{\"name\":\"Deleted\",\"value\":\"deleted\",\"text_color\":\"white\",\"background_color\":\"red\",\"browse_subdued\":true,\"browse_badge\":true,\"soft_delete\":true,\"published\":false,\"required_fields\":false}}}', 0, NULL, 1, 0, 0, 0, 2, 'full', NULL, '', '[]'),
 (175, 'posts', 'created_by', 'user_created', 'user-created', '{\"template\":\"{{first_name}} {{last_name}}\",\"display\":\"both\"}', 0, NULL, 0, 1, 1, 1, 14, 'full', NULL, NULL, NULL),
-(176, 'posts', 'created_on', 'datetime_created', 'datetime-created', NULL, 0, NULL, 0, 1, 1, 1, 15, 'full', NULL, NULL, NULL),
 (177, 'posts', 'title', 'string', 'text-input', '{\"trim\":true,\"showCharacterCount\":true,\"formatValue\":false,\"monospace\":false}', 0, NULL, 0, 0, 0, 0, 3, 'half-left', NULL, 'Headline of the post', '[]'),
 (178, 'posts', 'description', 'string', 'textarea', '{\"rows\":8,\"serif\":false}', 0, NULL, 0, 0, 0, 0, 4, 'full', NULL, 'Abstract of your post', '[]'),
 (180, 'posts', 'colors', 'array', 'tags', '{\"iconRight\":\"local_offer\",\"validationMessage\":\"Please enter a valid tag\",\"alphabetize\":false,\"lowercase\":true,\"wrap\":true,\"format\":false,\"sanitize\":true}', 0, NULL, 0, 0, 0, 0, 7, 'half', NULL, 'Extracted colors of the thumb', '[]'),
@@ -308,7 +307,8 @@ INSERT INTO `directus_fields` (`id`, `collection`, `field`, `type`, `interface`,
 (190, 'posts', 'image', 'file', 'file', '{\"crop\":false,\"viewType\":\"cards\",\"viewOptions\":{\"title\":\"title\",\"subtitle\":\"type\",\"content\":\"description\",\"src\":\"data\"},\"viewQuery\":[],\"filters\":[],\"accept\":\"gif,jpg,png,svg\"}', 0, NULL, 0, 0, 0, 0, 9, 'half', NULL, NULL, '[]'),
 (191, 'posts', 'file', 'file', 'file', '{\"crop\":true,\"viewType\":\"cards\",\"viewOptions\":{\"title\":\"title\",\"subtitle\":\"type\",\"content\":\"description\",\"src\":\"data\"},\"viewQuery\":[],\"filters\":[]}', 0, NULL, 0, 0, 0, 0, 12, 'half', NULL, NULL, '[]'),
 (192, 'posts', 'input', 'string', 'textarea', '{\"rows\":8,\"serif\":false,\"toolbar\":[\"bold\",\"italic\",\"underline\",\"removeformat\",\"link\",\"bullist\",\"numlist\",\"blockquote\",\"h1\",\"h2\",\"h3\",\"image\",\"media\",\"hr\",\"code\"],\"custom_formats\":null,\"trim\":true,\"showCharacterCount\":true,\"formatValue\":false,\"monospace\":false}', 0, NULL, 0, 0, 0, 0, 10, 'full', NULL, NULL, '[]'),
-(193, 'posts', 'content', 'string', 'textarea', '{\"rows\":8,\"serif\":false,\"toolbar\":[\"bold\",\"italic\",\"underline\",\"removeformat\",\"link\",\"bullist\",\"numlist\",\"blockquote\",\"h1\",\"h2\",\"h3\",\"image\",\"media\",\"hr\",\"code\"],\"custom_formats\":null,\"trim\":true,\"showCharacterCount\":true,\"formatValue\":false,\"monospace\":false}', 0, NULL, 0, 0, 0, 0, 16, 'full', NULL, NULL, '[]');
+(193, 'posts', 'content', 'string', 'textarea', '{\"rows\":8,\"serif\":false,\"toolbar\":[\"bold\",\"italic\",\"underline\",\"removeformat\",\"link\",\"bullist\",\"numlist\",\"blockquote\",\"h1\",\"h2\",\"h3\",\"image\",\"media\",\"hr\",\"code\"],\"custom_formats\":null,\"trim\":true,\"showCharacterCount\":true,\"formatValue\":false,\"monospace\":false}', 0, NULL, 0, 0, 0, 0, 16, 'full', NULL, NULL, '[]'),
+(194, 'posts', 'date', 'datetime', 'datetime', '{\"format\":\"mdy\"}', 0, NULL, 0, 0, 0, 0, NULL, 'half-right', NULL, NULL, '[]');
 
 -- --------------------------------------------------------
 
@@ -339,13 +339,6 @@ CREATE TABLE `directus_files` (
   `checksum` varchar(32) DEFAULT NULL,
   `metadata` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Déchargement des données de la table `directus_files`
---
-
-INSERT INTO `directus_files` (`id`, `storage`, `private_hash`, `filename_disk`, `filename_download`, `title`, `type`, `uploaded_by`, `uploaded_on`, `charset`, `filesize`, `width`, `height`, `duration`, `embed`, `folder`, `description`, `location`, `tags`, `checksum`, `metadata`) VALUES
-(2, 'local', 'hu0dbk2num0wowgc', '9aae57db-aee1-49f9-af21-1a8703a95c1c.jpg', 'avatar-namide-square.jpg', 'Avatar Namide Square', 'image/jpeg', 1, '2020-03-01 17:48:16', 'binary', 30167, 338, 338, 0, NULL, NULL, '', '', '', 'e13db9c7c9776903f66b747bd2d362d5', NULL);
 
 -- --------------------------------------------------------
 
@@ -642,7 +635,7 @@ INSERT INTO `directus_settings` (`id`, `key`, `value`) VALUES
 (12, 'auto_sign_out', '10080'),
 (13, 'login_attempts_allowed', '10'),
 (14, 'trusted_proxies', ''),
-(15, 'file_max_size', '100MB'),
+(15, 'file_max_size', '10000MB'),
 (16, 'file_mimetype_whitelist', ''),
 (17, 'file_naming', 'uuid'),
 (18, 'youtube_api_key', ''),
@@ -685,7 +678,7 @@ CREATE TABLE `directus_users` (
 --
 
 INSERT INTO `directus_users` (`id`, `status`, `role`, `first_name`, `last_name`, `email`, `password`, `token`, `timezone`, `locale`, `locale_options`, `avatar`, `company`, `title`, `email_notifications`, `last_access_on`, `last_page`, `external_id`, `theme`, `2fa_secret`) VALUES
-(1, 'active', 1, 'Damien', 'Doussaud', 'inspire@inspire.com', '$2y$10$/xo1klwqxdLXERFRd4s7L.P3Npu7Vvgz61TZxxxzBNfF7TxOFVy9u', 'RafLEJvhnfecZkewgKg1yC9D', 'UTC', 'en-US', NULL, 2, NULL, NULL, 0, '2020-03-21 11:55:22', '/inspire/files', NULL, 'auto', NULL);
+(1, 'active', 1, 'Damien', 'Doussaud', 'inspire@inspire.com', '$2y$10$/xo1klwqxdLXERFRd4s7L.P3Npu7Vvgz61TZxxxzBNfF7TxOFVy9u', 'RafLEJvhnfecZkewgKg1yC9D', 'UTC', 'en-US', NULL, NULL, NULL, NULL, 0, '2020-03-21 21:15:20', '/inspire/settings/collections/posts', NULL, 'auto', NULL);
 
 -- --------------------------------------------------------
 
@@ -703,6 +696,14 @@ CREATE TABLE `directus_user_sessions` (
   `created_on` datetime DEFAULT NULL,
   `token_expired_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Déchargement des données de la table `directus_user_sessions`
+--
+
+INSERT INTO `directus_user_sessions` (`id`, `user`, `token_type`, `token`, `ip_address`, `user_agent`, `created_on`, `token_expired_at`) VALUES
+(1, 1, 'cookie', 'RafLEJvhnfecZkewgKg1yC9D-1', '192.168.99.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36', '2020-03-07 12:32:47', '2020-03-28 21:18:46'),
+(2, 1, 'cookie', 'RafLEJvhnfecZkewgKg1yC9D-2', '192.168.99.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36', '2020-03-07 21:46:01', '2020-03-28 21:13:58');
 
 -- --------------------------------------------------------
 
@@ -729,7 +730,6 @@ CREATE TABLE `posts` (
   `id` int(15) UNSIGNED NOT NULL,
   `status` varchar(20) DEFAULT 'draft',
   `created_by` int(10) UNSIGNED DEFAULT NULL,
-  `created_on` datetime DEFAULT NULL,
   `title` tinytext COMMENT 'Headline of the post',
   `description` text COMMENT 'Abstract of your post',
   `colors` varchar(2000) DEFAULT NULL COMMENT 'Extracted colors of the thumb',
@@ -740,7 +740,8 @@ CREATE TABLE `posts` (
   `image` int(10) UNSIGNED DEFAULT NULL,
   `file` int(10) UNSIGNED DEFAULT NULL,
   `input` longtext,
-  `content` longtext
+  `content` longtext,
+  `date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -872,13 +873,13 @@ ALTER TABLE `directus_collection_presets`
 -- AUTO_INCREMENT pour la table `directus_fields`
 --
 ALTER TABLE `directus_fields`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=194;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=195;
 
 --
 -- AUTO_INCREMENT pour la table `directus_files`
 --
 ALTER TABLE `directus_files`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `directus_folders`
@@ -938,7 +939,7 @@ ALTER TABLE `directus_webhooks`
 -- AUTO_INCREMENT pour la table `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `id` int(15) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(15) UNSIGNED NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
