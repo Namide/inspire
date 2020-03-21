@@ -7,7 +7,7 @@
       accept=".csv"
     />
     {{ this.ready }} / {{ this.total }} ({{ this.percent }}%)
-    <pre>
+    <pre class="console">
       <div v-for="log of lastLogs" v-html="log.text" :key="log.key"></div>
     </pre>
   </div>
@@ -66,33 +66,38 @@ export default {
     runProcess (list) {
       if (list.length > 0) {
         const postData = list.shift()
-        const postDataSave = JSON.parse(JSON.stringify(postData))
 
         const post = new PostSave()
-        // console.log(postData)
+        post.id = Math.round(Math.random() * 0xFFFFFFFF)
+        let promise = Promise.resolve()
+
         if (postData.input) {
           const input = 'http://inspire.namide.com/import-files/' + postData.input
-          delete postData.input
-          console.log(input)
-          post.updateByInput(input)
-            .then(data => {
-              this.ready++
-              this.logs.push('✅ ' + JSON.stringify(post.getObject()))
-            })
-            .catch(error => {
-              list.push(postDataSave)
-              this.logs.push('🔺 ' + error.message)
-            })
-            .finally(() => {
-              if (list.length > 0) {
-                requestAnimationFrame(() => this.runProcess(list))
-              }
-            })
-        } else {
-          this.ready++
-          this.logs.push('✅ ' + 'simple')
-          requestAnimationFrame(() => this.runProcess(list))
+          promise = post.updateByInput(input)
         }
+
+        promise
+          .then(() => {
+            if (postData.content) { post.content = postData.content }
+            if (postData.date) { post.date = new Date(postData.date) }
+            if (postData.status) { post.status = postData.status }
+            if (postData.title) { post.title = postData.title } else { post.title = '' }
+            if (postData.description) { post.description = postData.description }
+            if (postData.tags) { post.tags = postData.tags.split(',') }
+          })
+          .then(() => {
+            this.ready++
+            this.logs.push('✅  ' + this.resumePost(post.getObject()))
+          })
+          .catch(error => {
+            list.push(postData)
+            this.logs.push('🔺  ' + error.message)
+          })
+          .finally(() => {
+            if (list.length > 0) {
+              requestAnimationFrame(() => this.runProcess(list))
+            }
+          })
       }
 
       // input  content  date  type  status  tags  title  description  ref
@@ -108,12 +113,30 @@ export default {
       //   })
       //   .catch(error => {
       //     console.log('Post failed: ' + error.message)
-      //     console.log(postDataSave)
+      //     console.log(postData)
 
-      //     posts.push(postDataSave)
+      //     posts.push(postData)
       //     return savePost(posts, count)
       //   })
+    },
+
+    resumePost (post) {
+      let str = ''
+      if (post.title) { str += '  title:' + post.title + '\n' }
+      if (post.types) { str += '  types:' + post.types.join(', ') + '\n' }
+      if (post.tags) { str += ' tags:' + post.tags.join(', ') + '\n' }
+      if (post.description) { str += '  description:' + post.description + '\n' }
+      if (post.input) { str += '  input:' + post.input + '\n' }
+      return str
     }
   }
 }
 </script>
+
+<style lang="sass" scoped>
+.console
+  white-space: normal
+  background: #000
+  color: #DDD
+
+</style>
