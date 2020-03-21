@@ -25,3 +25,24 @@ Options +SymLinksIfOwnerMatch
   #php_value upload_max_filesize 50M
   #php_value post_max_size 100M
 #</IfModule>
+
+# Compress files
+<IfModule mod_deflate.c>
+    Addtype text/plain .glb
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilter DEFLATE .shtml
+</IfModule>
+
+# Increase file size max
+php_value upload_max_filesize 200M
+php_value post_max_size 200M
+php_value memory_limit 200M
