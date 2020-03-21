@@ -6,7 +6,24 @@
       @change="filesChange($event.target.files)"
       accept=".csv"
     />
-    {{ this.ready }} / {{ this.total }} ({{ this.percent }}%)
+    <br>
+    <template v-if="ended">
+      succes: <span class="green">{{ ready }}</span> / <strong>{{ total }}</strong><br>
+      errors: <span class="red">{{ errors.length }}</span><br>
+      time: {{ endTime }}
+
+    </template>
+    <template v-else>
+      <template v-if="this.total">
+        succes: <span class="green">{{ ready }}</span> / <strong>{{ total }}</strong><br>
+        errors: <span class="red">{{ errors.length }}</span><br>
+        percent: {{ this.percent }}%<br>
+        time: {{ endTime }}<br>
+      </template>
+      <template v-if="restTime">
+        rest:{{ restTime }}
+      </template>
+    </template>
     <pre class="console">
       <div v-for="log of lastLogs" v-html="log.text" :key="log.key"></div>
     </pre>
@@ -17,10 +34,16 @@
 import Papa from 'papaparse'
 // import apiSave from '@/pure/apiSave.js'
 import PostSave from '@/pure/PostSave'
+import apiSave from '@/pure/apiSave'
 
 export default {
   data () {
     return {
+      startedTime: 0,
+      restTime: '',
+      endTime: null,
+      ended: false,
+      errors: [],
       total: 0,
       ready: 0,
       logs: []
@@ -43,6 +66,7 @@ export default {
 
   methods: {
     filesChange (files) {
+      const parallels = 5
       if (files.length) {
         Papa.parse(files[0], {
           header: true,
@@ -50,34 +74,64 @@ export default {
             console.log(err, file, inputElem, reason)
           },
           complete: ({ data }) => {
+            this.startedTime = Date.now()
             this.total += data.length
             const list = data.map((postData, i) => Object.assign({ id: i }, postData))
-            this.runProcess(list)
+
+            for (let i = 0; i < parallels; i++) {
+              this.runProcess(list)
+            }
           }
         })
-        // csv()
-        //   .fromFile(files[0])
-        //   .then((jsonObj) => {
-        //     console.log(jsonObj)
-        //   })
       }
     },
 
+    msToTime (distance) {
+      const hours = Math.floor(distance / 3600000)
+      distance -= hours * 3600000
+      const minutes = Math.floor(distance / 60000)
+      distance -= minutes * 60000
+      const seconds = Math.floor(distance / 1000)
+      return `${hours}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`
+    },
+
+    updateEndTime () {
+      this.endTime = this.msToTime(Date.now() - this.startedTime)
+    },
+
+    updateRestTime () {
+      const passed = Date.now() - this.startedTime
+      const distance = this.total * passed / this.ready - passed
+
+      this.restTime = this.msToTime(distance)
+    },
+
     runProcess (list) {
+      this.updateRestTime()
+      this.updateEndTime()
       if (list.length > 0) {
         const postData = list.shift()
+        const isLast = list.length < 1
+
+        // 13:12 -> 15:57
 
         const post = new PostSave()
         post.id = Math.round(Math.random() * 0xFFFFFFFF)
         let promise = Promise.resolve()
 
         if (postData.input) {
-          const input = 'http://inspire.namide.com/import-files/' + postData.input
-          promise = post.updateByInput(input)
+          if (postData.input.indexOf('img/') === 0) {
+            const input = 'http://inspire.namide.com/import-files/' + postData.input
+            promise = post.updateByInput(input)
+          } else {
+            const input = postData.input
+            promise = post.updateByInput(input)
+          }
         }
 
         promise
           .then(() => {
+            if (postData.id) { post.id = postData.id }
             if (postData.content) { post.content = postData.content }
             if (postData.date) { post.date = new Date(postData.date) }
             if (postData.status) { post.status = postData.status }
@@ -86,40 +140,38 @@ export default {
             if (postData.tags) { post.tags = postData.tags.split(',') }
           })
           .then(() => {
-            this.ready++
             // this.logs.push('✅  id:' + postData.id)
             // this.logs.push(this.resumePost(post.getObject()))
+
+            const payload = post.getPayload()
+            console.log('payload:', payload)
+            return apiSave.addPost(payload)
+          })
+          .then(data => {
+            console.log('data:', data)
+            this.ready++
           })
           .catch(error => {
-            list.push(postData)
+            this.errors.push(postData)
             this.logs.push('🔺  id:' + postData.id + ' ' + error.message)
             this.logs.push(this.resumePost(post.getObject()))
           })
           .finally(() => {
             if (list.length > 0) {
               requestAnimationFrame(() => this.runProcess(list))
+            } else {
+              this.updateEndTime()
+              if (isLast) {
+                this.ended = true
+              }
             }
+            /* else if (this.errors.length > 0) {
+              const newList = this.errors
+              this.errors = []
+              requestAnimationFrame(() => this.runProcess(newList))
+            } */
           })
       }
-
-      // input  content  date  type  status  tags  title  description  ref
-
-      // return apiSave.addPost(post.getPayload())
-      //   .then(() => {
-      //     console.log('Post success:', posts.length + '/' + count)
-
-      //     if (posts.length > 0) {
-      //       return savePost(posts, count)
-      //     }
-      //     return true
-      //   })
-      //   .catch(error => {
-      //     console.log('Post failed: ' + error.message)
-      //     console.log(postData)
-
-      //     posts.push(postData)
-      //     return savePost(posts, count)
-      //   })
     },
 
     resumePost (post) {
@@ -143,4 +195,9 @@ export default {
   background: #000
   color: #DDD
 
+.green
+  color: green
+
+.red
+  color: red
 </style>
