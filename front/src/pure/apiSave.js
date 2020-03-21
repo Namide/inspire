@@ -60,6 +60,7 @@ class ApiSave extends Api {
   }
 
   addPost (payload, onProgress = ({ loaded, total }) => loaded / total) {
+    delete payload.id
     if (payload.file && payload.image) {
       return this.addFiles(payload.file, payload.image, onProgress)
         .then(([file, image]) => {
