@@ -34,7 +34,7 @@ export default {
     lastLogs () {
       return this.logs
         .map((text, key) => ({ text, key }))
-        .filter((_, i) => i > this.logs.length - 10)
+        // .filter((_, i) => i > this.logs.length - 10)
     }
   },
 
@@ -44,7 +44,6 @@ export default {
   methods: {
     filesChange (files) {
       if (files.length) {
-        console.log(files[0])
         Papa.parse(files[0], {
           header: true,
           error: (err, file, inputElem, reason) => {
@@ -52,7 +51,8 @@ export default {
           },
           complete: ({ data }) => {
             this.total += data.length
-            this.runProcess(data)
+            const list = data.map((postData, i) => Object.assign({ id: i }, postData))
+            this.runProcess(list)
           }
         })
         // csv()
@@ -87,11 +87,13 @@ export default {
           })
           .then(() => {
             this.ready++
-            this.logs.push('✅  ' + this.resumePost(post.getObject()))
+            // this.logs.push('✅  id:' + postData.id)
+            // this.logs.push(this.resumePost(post.getObject()))
           })
           .catch(error => {
             list.push(postData)
-            this.logs.push('🔺  ' + error.message)
+            this.logs.push('🔺  id:' + postData.id + ' ' + error.message)
+            this.logs.push(this.resumePost(post.getObject()))
           })
           .finally(() => {
             if (list.length > 0) {
@@ -122,11 +124,13 @@ export default {
 
     resumePost (post) {
       let str = ''
-      if (post.title) { str += '  title:' + post.title + '\n' }
-      if (post.types) { str += '  types:' + post.types.join(', ') + '\n' }
-      if (post.tags) { str += ' tags:' + post.tags.join(', ') + '\n' }
-      if (post.description) { str += '  description:' + post.description + '\n' }
-      if (post.input) { str += '  input:' + post.input + '\n' }
+      const tab = '&nbsp;&nbsp;&nbsp;'
+      if (post.title) { str += tab + 'title:' + post.title + '<br>' }
+      if (post.types) { str += tab + 'types:' + post.types.join(', ') + '<br>' }
+      if (post.tags) { str += tab + 'tags:' + post.tags.join(', ') + '<br>' }
+      if (post.description) { str += tab + 'description:' + post.description + '<br>' }
+      if (post.input) { str += tab + 'input:' + post.input + '<br>' }
+      str += '---------------------'
       return str
     }
   }
