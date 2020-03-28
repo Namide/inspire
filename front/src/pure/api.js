@@ -27,7 +27,7 @@ class Api {
   constructor () {
     this.apiURL = API_DIR
     this.directus = directus
-    this.boards = null
+    this.groups = null
     this.items = null
 
     // console.log('->')

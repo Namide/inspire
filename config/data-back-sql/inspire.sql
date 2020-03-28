@@ -600,9 +600,9 @@ CREATE TABLE `directus_roles` (
 INSERT INTO `directus_roles` (`id`, `name`, `description`, `ip_whitelist`, `external_id`, `module_listing`, `collection_listing`, `enforce_2fa`) VALUES
 (1, 'Administrator', 'Admins have access to all managed data within the system by default', NULL, NULL, NULL, NULL, 0),
 (2, 'Public', 'Controls what API data is publicly available without authenticating', NULL, NULL, NULL, NULL, 0),
-(3, 'Subscriber', 'Can see protected posts and boards', NULL, '9c82e66a-5f08-4144-9887-4528f66e6ef0', NULL, NULL, 0),
+(3, 'Subscriber', 'Can see protected posts and groups', NULL, '9c82e66a-5f08-4144-9887-4528f66e6ef0', NULL, NULL, 0),
 (4, 'Author', 'Can only edit own protected posts and boardss', NULL, '6448f040-0866-4b49-84d8-7614fba20624', NULL, NULL, 0),
-(5, 'Editor', 'Can edit all protected posts and boards', NULL, '0a2b2447-7f07-417f-a326-7fd5b566a805', NULL, NULL, 0);
+(5, 'Editor', 'Can edit all protected posts and groups', NULL, '0a2b2447-7f07-417f-a326-7fd5b566a805', NULL, NULL, 0);
 
 -- --------------------------------------------------------
 

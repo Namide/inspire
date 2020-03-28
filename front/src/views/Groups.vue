@@ -1,25 +1,25 @@
 <template>
   <div>
-    <h2>Boards</h2>
+    <h2>Groups</h2>
     <ul>
-      <li v-for="board of boards" :key="board._id">
-        <Board :data="board"></Board>
+      <li v-for="group of groups" :key="group._id">
+        <Group :data="group"></Group>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import Board from '@/components/Board.vue'
+import Group from '@/components/Group.vue'
 
 export default {
   components: {
-    Board
+    Group
   },
 
   data () {
     return {
-      boards: []
+      groups: []
     }
   },
 
@@ -29,7 +29,7 @@ export default {
 
   methods: {
     onBoards ({ data, meta }) {
-      this.boards.splice(0, this.boards.length, ...data)
+      this.groups.splice(0, this.groups.length, ...data)
     }
   }
 }
