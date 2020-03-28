@@ -1,19 +1,13 @@
 <template>
   <div @click="focusNewTag()" :class="{ 'read-only': readOnly }" class="tags">
     <span
-      v-for="(tag, index) in innerTags"
+      v-for="(tag, index) in tagsData"
       :key="index"
       class="input-tag"
-      :class="{ 'is-type': tag[0] === '@' || tag[0] + tag[1] === '@!' }"
+      :class="{ 'is-': tag.type }"
     >
-      <span :class="{ 'is-not': tag[0] === '!' || tag[0] + tag[1] === '@!' }">
-        {{
-          tag[0] + tag[1] === "!@" || tag[0] + tag[1] === "@!"
-            ? tag.substr(2)
-            : tag[0] === "!" || tag[0] === "@"
-            ? tag.substr(1)
-            : tag
-        }}
+      <span :class="{ 'is-not': tag.no }">
+        {{ tag.word }}
       </span>
       <a
         v-if="!readOnly"
@@ -36,6 +30,8 @@
 </template>
 
 <script>
+import { parseItem } from '../pure/tagHelpers.js'
+
 // Original code from vue-input-tag (https://www.npmjs.com/package/vue-input-tag)
 const VALIDATORS = {
   // email: /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
@@ -57,7 +53,7 @@ const LIMIT = -1
 export default {
   props: {
     tags: { type: Array, default: () => [] },
-    placeholder: { type: String, default: 'Filters (tag, @type, !not)' },
+    placeholder: { type: String, default: 'Filters (#tag, $type, @author, !not)' },
     readOnly: { type: Boolean, default: false }
   },
 
@@ -77,10 +73,18 @@ export default {
   computed: {
     isLimit () {
       return LIMIT > 0 && Number(LIMIT) === this.innerTags.length
+    },
+
+    tagsData () {
+      return this.innerTags.map(parseItem)
     }
   },
 
   methods: {
+    tagHelpers (item) {
+      return parseItem(item)
+    },
+
     focusNewTag () {
       if (this.readOnly || !this.$el.querySelector('.new-tag')) {
         return

@@ -1,46 +1,40 @@
 <template>
-  <article>
+  <router-link :to="{ name: 'group', params: { id: group.id } }">
     <h1>
-      {{ data.title }}
+      {{ group.title }}
     </h1>
     <p>
-      {{ data.description }}
+      {{ group.description }}
     </p>
-    <ul>
-      <li v-for="type of data.types" :key="type">
+    <!-- <ul>
+      <li v-for="type of group.types" :key="type">
         {{ type }}
       </li>
     </ul>
     <ul>
-      <li v-for="tag of data.tags" :key="tag">
+      <li v-for="tag of group.tags" :key="tag">
         {{ tag }}
       </li>
     </ul>
     <ul>
-      <li v-for="tag of data.excluded" :key="tag">
+      <li v-for="tag of group.excluded" :key="tag">
         {{ tag }}
       </li>
-    </ul>
-    <Asset :data="data.thumb"></Asset>
-  </article>
+    </ul> -->
+    <!-- <Asset :group="group.thumb"></Asset> -->
+  </router-link>
 </template>
 
 <script>
-import Asset from '@/components/Asset.vue'
+// import Asset from '@/components/Asset.vue'
 
 export default {
   components: {
-    Asset
+    // Asset
   },
 
   props: {
-    data: { type: Object }
-  },
-
-  data () {
-    return {
-      items: []
-    }
+    group: { type: Object }
   },
 
   created () {},

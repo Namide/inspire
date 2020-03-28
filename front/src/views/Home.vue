@@ -1,16 +1,25 @@
 <template>
   <div>
     <h2>Home page</h2>
-    <Items />
+    <Tags @change="items => filter = items" />
+    <Items :filter="filter" />
   </div>
 </template>
 
 <script>
-import Items from '@/views/Items.vue'
+import Items from '@/components/Items.vue'
+import Tags from '@/components/Tags.vue'
 
 export default {
   components: {
-    Items
+    Items,
+    Tags
+  },
+
+  data () {
+    return {
+      filter: []
+    }
   }
 }
 </script>

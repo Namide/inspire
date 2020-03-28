@@ -2,7 +2,8 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import PageHome from '../views/Home'
 import PageItems from '../views/Items'
-import PageBoards from '../views/Groups'
+import PageGroups from '../views/Groups'
+import PageGroup from '../views/Group'
 
 Vue.use(VueRouter)
 
@@ -26,10 +27,17 @@ const routes = [
   {
     name: 'groups',
     path: '/group',
-    component: PageBoards,
+    component: PageGroups,
     meta: {
       auth: false
-    }
+    },
+    children: [
+      {
+        name: 'group',
+        path: ':id',
+        component: PageGroup
+      }
+    ]
   },
   {
     name: 'adminHome',
@@ -50,7 +58,7 @@ const routes = [
   {
     name: 'adminBoards',
     path: '/admin/group',
-    component: PageBoards,
+    component: PageGroups,
     meta: {
       auth: true
     }

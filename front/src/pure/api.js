@@ -23,6 +23,10 @@ const parseItem = payload => {
   return item
 }
 
+const parseGroup = payload => {
+  return payload
+}
+
 class Api {
   constructor () {
     this.apiURL = API_DIR
@@ -99,6 +103,54 @@ class Api {
       .getItems('items', options)
       .then(({ data }) => data.map(parseItem))
       .catch(console.error)
+
+    // client.getItems('items')
+    //   .then(res => console.log(res))
+    //   .catch(err => console.log(err))
+    // const args = (tags.length > 0 ? '/tags/' + encodeURIComponent(tags.join(',')) : '') +
+    //         (noTags.length > 0 ? '/notags/' + encodeURIComponent(noTags.join(',')) : '') +
+    //         (types.length > 0 ? '/types/' + encodeURIComponent(types.join(',')) : '') +
+    //         (noTypes.length > 0 ? '/notypes/' + encodeURIComponent(noTypes.join(',')) : '') +
+    //         '/limit/' + limit +
+    //         '/offset/' + offset
+
+    // const url = config.api.abs + '/items' + args
+    // const request = new Request(url)
+    // const params = {
+    //   method: 'GET',
+    //   headers: this.getHeaders(),
+    //   mode: 'cors',
+    //   cache: 'default'
+    // }
+
+    // fetch(request, params)
+    //   .then(data => data.json())
+    //   .then(Api.testSuccess)
+    //   .then(json => onLoad(json))
+    //   .catch(error => onError(error.message))
+  }
+
+  getGroups (items, {
+    limit = 100,
+    offset = 0
+  } = {}) {
+    const options = {
+      // depth: 1,
+      limit,
+      offset,
+      fields: ['*', 'image.*']
+      /* filter: {
+        runtime: {
+          eq: 200
+          gt: 200
+        }
+      } */
+    }
+
+    return this.directus
+      .getItems('groups', options)
+      .then(({ data }) => data.map(parseGroup))
+      // .catch(console.error)
 
     // client.getItems('items')
     //   .then(res => console.log(res))

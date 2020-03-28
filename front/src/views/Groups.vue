@@ -1,15 +1,17 @@
 <template>
   <div>
-    <h2>Groups</h2>
-    <ul>
-      <li v-for="group of groups" :key="group._id">
-        <Group :data="group"></Group>
+    <!-- <h2>Groups</h2> -->
+    <router-view v-if="currentGroup" :group="currentGroup" />
+    <ul v-else>
+      <li v-for="group of groups" :key="group.id">
+        <Group :group="group"></Group>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
+import api from '../pure/api'
 import Group from '@/components/Group.vue'
 
 export default {
@@ -23,8 +25,17 @@ export default {
     }
   },
 
+  computed: {
+    currentGroup () {
+      return this.$route.params.id ? this.groups.find(group => group.id === this.$route.params.id) : null
+    }
+  },
+
   created () {
-    // apiGet.getGroups(this.onBoards)
+    api.getGroups(this.onBoards)
+      .then(groups => {
+        this.groups = groups
+      })
   },
 
   methods: {

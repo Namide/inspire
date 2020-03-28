@@ -1,8 +1,11 @@
 <template>
   <main id="app">
-    <h1 class="main-title">Inspire</h1>
+    <header class="header">
+      <h1 class="title">Inspire</h1>
+      <User :adminPage="authRequired" />
+    </header>
 
-    <nav class="main-nav">
+    <nav class="nav">
       <router-link :to="{ name: 'items' }" class="link">Items</router-link>
       <router-link :to="{ name: 'adminItems' }" class="link">Admin</router-link>
       <router-link :to="{ name: 'groups' }" class="link">Groups</router-link>
@@ -11,7 +14,6 @@
 
     <router-view />
 
-    <User :adminPage="authRequired" />
   </main>
 </template>
 
@@ -32,14 +34,19 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-.main-title
-  text-align: center
+@import "./style/settings.sass"
+
+.header
+  display: flex
+  align-items: center
+  padding: $margin-sm
+
+.title
   font-weight: bold
   text-transform: uppercase
-  margin-top: 8vh
-  margin-bottom: 1vh
+  margin-right: auto
 
-.main-nav
+.nav
   text-align: center
 
 .link
