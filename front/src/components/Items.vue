@@ -5,7 +5,7 @@
       <Item
         v-for="item of items"
         :key="item.id"
-        :data="item"
+        :item="item"
         :display-mode="displayMode"
       ></Item>
     </div>

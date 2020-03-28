@@ -7,38 +7,35 @@
     :style="itemStyle"
   >
     <h1 class="title">
-      {{ data.title }}
+      {{ item.title }}
     </h1>
 
     <time class="date">
-      {{ data.date }}
+      {{ item.date }}
     </time>
 
     <p class="description">
-      {{ data.description }}
+      {{ item.description }}
     </p>
 
     <ul class="tags">
-      <li v-for="tag of data.tags" class="tag" :key="tag">
+      <li v-for="tag of item.tags" class="tag" :key="tag">
         {{ tag }}
       </li>
     </ul>
 
-    <span class="score"> {{ data.score }}/5 </span>
+    <span class="score"> {{ item.score }}/5 </span>
 
-    <!-- <transition v-if="data.image" name="thumbfade"> -->
-    <!-- <div v-if="isThumbLoaded && thumbStyle" :style="thumbStyle" class="thumb"></div> -->
     <img
-      :src="data.image.src"
-      :srcset="data.image.srcset"
-      :width="data.image.width"
-      :height="data.image.height"
-      :alt="data.image.alt"
+      :src="item.image.src"
+      :srcset="item.image.srcset"
+      :width="item.image.width"
+      :height="item.image.height"
+      :alt="item.image.alt"
       @load="() => (isThumbLoaded = true)"
       class="thumb"
       :class="{ 'is-show': showThumb && isThumbLoaded }"
     />
-    <!-- </transition> -->
   </a>
 </template>
 
@@ -57,7 +54,7 @@ const getPgcd = (a, b) => {
 
 export default {
   props: {
-    data: { type: Object },
+    item: { type: Object },
     displayMode: { type: String, default: 'text' }
   },
 
@@ -65,9 +62,7 @@ export default {
     return {
       displayImage: false,
       classData: [],
-      // isHidden: true,
       itemStyle: {},
-      // thumbStyle: false,
       showThumb: false,
       isThumbLoaded: false,
       href: false,
@@ -78,8 +73,8 @@ export default {
 
   computed: {
     size () {
-      if (this.data.image) {
-        return [this.data.image.width, this.data.image.height]
+      if (this.item.image) {
+        return [this.item.image.width, this.item.image.height]
       }
 
       return [3, 1]
@@ -106,26 +101,26 @@ export default {
 
     this.setSize(w, h)
 
-    if (this.data.image && this.displayMode === 'thumb') {
+    if (this.item.image && this.displayMode === 'thumb') {
       this.$set(
         this.itemStyle,
         'background-color',
-        this.data.colors && this.data.colors[0]
-          ? this.data.colors[0]
+        this.item.colors && this.item.colors[0]
+          ? this.item.colors[0]
           : 'rgba(0,0,0,0)'
       )
     }
 
     if (
       this.displayMode === 'text' &&
-      this.data.content_format.indexOf('URL') > -1
+      this.item.content_format.indexOf('URL') > -1
     ) {
-      this.href = this.data.content.URL
+      this.href = this.item.content.URL
     }
   },
 
   mounted () {
-    if (this.data.image) {
+    if (this.item.image) {
       this.optimizeLoad()
     }
   },
@@ -144,39 +139,18 @@ export default {
 
     onInOut (data) {
       if (data[0].intersectionRatio > 0) {
-        // if (!this.isThumbLoaded) {
-        //   this._thumb = new Image()
-        //   this._thumb.onload = () => {
-        //     this.isThumbLoaded = true
-        //   }
-        //   this._thumb.src = this.getSrc()
-        //   if (this._thumb.complete) {
-        //     this.isThumbLoaded = true
-        //   }
-        // }
-
-        // this.thumbStyle = {
-        //   'background-image': 'url(' + this.getSrc() + ')'
-        // }
         this.showThumb = true
       } else {
         this.showThumb = false
-        // if (this._thumb && !this.isThumbLoaded) {
-        //   this._thumb.src = null
-        //   this._thumb = null
-        // }
-        // this.thumbStyle = false
       }
     },
 
     setSize (w = 1, h = 1) {
       const areaMax = 12
       const areaMin = 4
-      // const area = w * h
-      const areaDo = this.data.score * (areaMax - areaMin) + areaMin
+      const areaDo = this.item.score * (areaMax - areaMin) + areaMin
 
       const sideMax = 6
-      // const sideMin = 1
 
       let mult = 5
       while (
@@ -193,46 +167,15 @@ export default {
       h *= mult
 
       this.classData.push('w' + w, 'h' + h)
-      // this.$set(this.itemStyle, 'grid-column-end', 'span ' + w * mult)
-      // this.$set(this.itemStyle, 'grid-row-end', 'span ' + h * mult)
     }
-
-    // getSize () {
-    //   const thumb = this.getImg()
-    //   if (thumb) {
-    //     return [thumb.width, thumb.height]
-    //   }
-
-    //   return [3, 1]
-    // },
-
-    // getColor () {
-    //   return this.data.thumb && this.data.thumb.colors && this.data.thumb.colors.length > 0 ? this.data.thumb.colors[0] : 'rgba(0,0,0,0)'
-    // },
-
-    // getImg () {
-    //   return this.data.thumb ? this.data.thumb
-    //     : this.data.content_format &&
-    //                this.data.content_format.indexOf('file') > -1 &&
-    //                this.data.content_format.indexOf('image') &&
-    //                this.content ? this.data.content : null
-    // },
-
-    // getSrc () {
-    //   if (this.data.thumb) {
-    //     return api.getThumbURL(this.data.uid)
-    //   } else if (this.data.content_format.indexOf('file') > -1 && this.data.content_format.indexOf('image') && this.content) {
-    //     return api.getFileURL(this.data.uid)
-    //   }
-
-    //   return ''
-    // }
   }
 }
 </script>
 
 <style lang="sass" scoped>
-$marg: 4px
+@import "../style/settings.sass"
+
+$marg: $margin-sm
 
 .is-thumb
   .date, .title, .description, .tags, .score
@@ -245,44 +188,20 @@ $marg: 4px
     overflow: hidden
 
   .item
-    &.w1
-      grid-column-end: span 1
-    &.w2
-      grid-column-end: span 2
-    &.w3
-      grid-column-end: span 3
-    &.w4
-      grid-column-end: span 4
-    &.w5
-      grid-column-end: span 5
-    &.w6
-      grid-column-end: span 6
-    &.h1
-      grid-row-end: span 1
-    &.h2
-      grid-row-end: span 2
-    &.h3
-      grid-row-end: span 3
-    &.h4
-      grid-row-end: span 4
-    &.h5
-      grid-row-end: span 5
-    &.h6
-      grid-row-end: span 6
+    @for $i from 1 through 6
+      &.w#{$i}
+        grid-column-end: span #{$i}
+
+      &.h#{$i}
+        grid-row-end: span #{$i}
 
     @media screen and (max-width: 1280px)
-      &.w1, &.w2
-        grid-column-end: span 2
-      &.w3, &.w4
-        grid-column-end: span 4
-      &.w5, &.w6
-        grid-column-end: span 6
-      &.h1, &.h2
-        grid-row-end: span 2
-      &.h3, &.h4
-        grid-row-end: span 4
-      &.h5, &.h6
-        grid-row-end: span 6
+      @for $i from 0 through 2
+        &.w#{$i * 2 + 1}, &.w#{($i + 1) * 2}
+          grid-column-end: span #{($i + 1) * 2}
+
+        &.h#{$i * 2 + 1}, &.h#{($i + 1) * 2}
+          grid-row-end: span #{($i + 1) * 2}
 
     @media screen and (max-width: 960px)
       &.w1, &.w2, &.w3
@@ -316,9 +235,6 @@ $marg: 4px
 
   .thumb
     position: absolute
-    // background-size: cover
-    // background-position: center center
-    // background-color: whitesmoke
     top: 0
     left: 0
     width: 100%
@@ -334,13 +250,6 @@ $marg: 4px
     .thumb
       transform: scale(1.05) translateZ(0)
       cursor: pointer
-
-// .thumbfade-enter-active, .thumbfade-leave-active
-//     transition: opacity 1s
-
-// .thumbfade-enter, .thumbfade-leave-to
-//   opacity: 0
-//   transform: translateZ(0)
 
 .is-text
   .item
