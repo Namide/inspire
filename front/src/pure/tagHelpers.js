@@ -42,21 +42,3 @@ export const itemsToFilter = list => {
 
   return data
 }
-
-// export const extractTags = list => {
-//   return list.filter(item => item[0] !== '@' && item[0] !== '!')
-// }
-
-// export const extractNoTags = list => {
-//   return list.filter(item => item[0] === '!' && item[1] !== '@')
-// }
-
-// export const extractTypes = list => {
-//   return list.filter(item => item[0] === '@' && item[1] !== '!')
-// }
-
-// export const extractNoTypes = list => {
-//   return list.filter(
-//     item => item.substring(0, 2) === '!@' || item.substring(0, 2) === '@!'
-//   )
-// }
