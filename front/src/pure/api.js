@@ -2,7 +2,7 @@
 
 import DirectusSDK from '@directus/sdk-js'
 import Signal from './Signal'
-import Post from './Post'
+import Item from './Item'
 import { itemsToFilter } from '@/pure/tagHelpers'
 
 const API_DIR = '/api'
@@ -17,10 +17,10 @@ const options = {
 
 const directus = new DirectusSDK(options)
 
-const parsePost = payload => {
-  const post = new Post()
-  post.fromPayload(payload)
-  return post
+const parseItem = payload => {
+  const item = new Item()
+  item.fromPayload(payload)
+  return item
 }
 
 class Api {
@@ -28,7 +28,7 @@ class Api {
     this.apiURL = API_DIR
     this.directus = directus
     this.boards = null
-    this.posts = null
+    this.items = null
 
     // console.log('->')
     // console.log(this.directus)
@@ -60,7 +60,7 @@ class Api {
     return '' // config.api.abs + '/files/' + uid
   }
 
-  getPosts (items, {
+  getItems (items, {
     limit = 100,
     offset = 0
   } = {}) {
@@ -96,11 +96,11 @@ class Api {
     }
 
     return this.directus
-      .getItems('posts', options)
-      .then(({ data }) => data.map(parsePost))
+      .getItems('items', options)
+      .then(({ data }) => data.map(parseItem))
       .catch(console.error)
 
-    // client.getItems('posts')
+    // client.getItems('items')
     //   .then(res => console.log(res))
     //   .catch(err => console.log(err))
     // const args = (tags.length > 0 ? '/tags/' + encodeURIComponent(tags.join(',')) : '') +
@@ -110,7 +110,7 @@ class Api {
     //         '/limit/' + limit +
     //         '/offset/' + offset
 
-    // const url = config.api.abs + '/posts' + args
+    // const url = config.api.abs + '/items' + args
     // const request = new Request(url)
     // const params = {
     //   method: 'GET',

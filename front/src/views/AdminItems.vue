@@ -3,41 +3,41 @@
     <Tags @change="filter" />
 
     <div>
-      <button @click="isModalOpen = true">+ Add new post</button>
+      <button @click="isModalOpen = true">+ Add new item</button>
     </div>
 
     <Loader v-if="loading" />
 
-    <PartAdminPost
+    <PartAdminItem
       v-else
-      v-for="post of posts"
-      :key="post.id"
-      :post="post"
-    ></PartAdminPost>
+      v-for="item of items"
+      :key="item.id"
+      :item="item"
+    ></PartAdminItem>
 
     <!-- Modal -->
 
     <Modal :is-open="isModalOpen" @close="isModalOpen = false">
-      <AdminPostForm
+      <AdminItemForm
         :create="true"
         @cancel="isModalOpen = false"
-      ></AdminPostForm>
+      ></AdminItemForm>
     </Modal>
   </div>
 </template>
 
 <script>
 import Tags from '@/components/Tags.vue'
-import PartAdminPost from '@/components/AdminPost.vue'
-import AdminPostForm from '@/components/AdminPostForm.vue'
+import PartAdminItem from '@/components/AdminItem.vue'
+import AdminItemForm from '@/components/AdminItemForm.vue'
 import Modal from '@/components/Modal.vue'
 import apiSave from '@/pure/apiSave'
 import Loader from '@/components/Loader.vue'
 
 export default {
   components: {
-    PartAdminPost,
-    AdminPostForm,
+    PartAdminItem,
+    AdminItemForm,
     Modal,
     Tags,
     Loader
@@ -62,7 +62,7 @@ export default {
     return {
       isModalOpen: false,
       displayMode: 'thumb',
-      posts: [],
+      items: [],
       loading: false
     }
   },
@@ -75,19 +75,19 @@ export default {
     filter (items = []) {
       this.loading = true
       apiSave
-        .getPosts(items)
-        .then(posts => posts.map(post => post.getObject()))
-        .then(posts => {
-          this.posts = posts
+        .getItems(items)
+        .then(items => items.map(item => item.getObject()))
+        .then(items => {
+          this.items = items
         })
         .catch(console.error)
         .finally(() => {
           this.loading = false
         })
     },
-    onPosts ({ data, meta }) {
+    onItems ({ data, meta }) {
       this.displayMode = 'text' // 'thumb' // text
-      this.$store.commit('updatePosts', data)
+      this.$store.commit('updateItems', data)
     }
   }
 }

@@ -1,4 +1,4 @@
-import Post from '@/pure/Post'
+import Item from '@/pure/Item'
 import apiSave from '@/pure/apiSave'
 import extractColors from 'extract-colors'
 import externalURL from '@/pure/externalURL.js'
@@ -31,7 +31,7 @@ const responseToFile = (response, url = response.url) => {
   })
 }
 
-export default class PostSave extends Post {
+export default class ItemSave extends Item {
   /**
    * @param {String} input
    */

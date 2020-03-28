@@ -17,7 +17,7 @@ const parseImagePayload = payload => {
   }
 }
 
-export default class Post {
+export default class Item {
   constructor () {
     this.fromPayload()
     this._disposeList = []

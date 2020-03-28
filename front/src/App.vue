@@ -3,8 +3,8 @@
     <h1 class="main-title">Inspire</h1>
 
     <nav class="main-nav">
-      <router-link :to="{ name: 'posts' }" class="link">Posts</router-link>
-      <router-link :to="{ name: 'adminPosts' }" class="link">Admin</router-link>
+      <router-link :to="{ name: 'items' }" class="link">Items</router-link>
+      <router-link :to="{ name: 'adminItems' }" class="link">Admin</router-link>
       <router-link :to="{ name: 'boards' }" class="link">Boards</router-link>
       <router-link :to="{ name: 'adminImport' }" class="link">Import</router-link>
     </nav>

@@ -90,7 +90,7 @@
       </select>
 
       <button @click="save" v-html="create ? 'Create' : 'Update'"></button>
-      <button v-if="!create" @click="deletePost">Delete</button>
+      <button v-if="!create" @click="deleteItem">Delete</button>
       <button @click="cancel">Cancel changes</button>
     </div>
   </div>
@@ -103,7 +103,7 @@ import AdminFileLoader from '@/components/AdminFileLoader.vue'
 import Tags from '@/components/Tags'
 import Content from '@/components/Content.vue'
 import InputTextarea from '@/components/InputTextarea.vue'
-import PostSave from '@/pure/PostSave'
+import ItemSave from '@/pure/ItemSave'
 import Tabs from '@/components/Tabs'
 
 // const copy = obj => JSON.parse(JSON.stringify(obj))
@@ -118,7 +118,7 @@ export default {
   },
 
   props: {
-    post: {
+    item: {
       type: Object,
       default () {
         return {}
@@ -140,28 +140,28 @@ export default {
 
   watch: {
     'input.date' (val) {
-      this.postSave.date = new Date(val)
+      this.itemSave.date = new Date(val)
     },
     'input.title' (val) {
-      this.postSave.title = val
+      this.itemSave.title = val
     },
     'input.description' (val) {
-      this.postSave.description = val
+      this.itemSave.description = val
     },
     'input.types' (val) {
-      this.postSave.types = val
+      this.itemSave.types = val
     },
     'input.content' (val) {
-      this.postSave.content = val
+      this.itemSave.content = val
     },
     'input.tags' (val) {
-      this.postSave.tags = val
+      this.itemSave.tags = val
     },
     'input.status' (val) {
-      this.postSave.status = val
+      this.itemSave.status = val
     },
     'input.input' (val) {
-      this.postSave.input = val
+      this.itemSave.input = val
     }
   },
 
@@ -180,16 +180,16 @@ export default {
   },
 
   created () {
-    // this.postContent = new PostContent()
+    // this.itemContent = new ItemContent()
 
-    this.postSave = new PostSave()
+    this.itemSave = new ItemSave()
 
     if (!this.create) {
-      this.postSave.fromObject(this.post)
+      this.itemSave.fromObject(this.item)
       this.state = 1
     }
 
-    this.input = this.postSave.getObject()
+    this.input = this.itemSave.getObject()
     this.inputFile = null
 
     window.addEventListener('keyup', this.keyUp)
@@ -197,14 +197,14 @@ export default {
 
   destroyed () {
     window.removeEventListener('keyup', this.keyUp)
-    this.postSave.dispose()
+    this.itemSave.dispose()
   },
 
   methods: {
     validContent () {
-      this.postSave.updateByInput(this.input.input)
-        .then(postSave => {
-          this.input = this.postSave.getObject()
+      this.itemSave.updateByInput(this.input.input)
+        .then(itemSave => {
+          this.input = this.itemSave.getObject()
           this.isFile =
             this.input.types.indexOf('image') > -1 ||
             this.input.types.indexOf('file') > -1
@@ -212,37 +212,37 @@ export default {
         })
     },
 
-    deletePost () {
-      const post = new PostSave()
-      post.fromObject(this.post)
-      apiSave.deletePost(post.getPayload())
+    deleteItem () {
+      const item = new ItemSave()
+      item.fromObject(this.item)
+      apiSave.deleteItem(item.getPayload())
         .then(() => this.$emit('cancel'))
         .catch(error => console.error(error))
 
-      // this.$store.dispatch('deletePost', { id: this.post.id })
-      /* api.deletePost(data =>
+      // this.$store.dispatch('deleteItem', { id: this.item.id })
+      /* api.deleteItem(data =>
       {
           if (data.success)
-              this.$store.commit('deletePost', data.data.uid)
+              this.$store.commit('deleteItem', data.data.uid)
 
           this.cancel()
-      }, this.post.uid) */
+      }, this.item.uid) */
     },
 
     save () {
-      const payload = this.postSave.getPayload()
-      console.log(this.postSave)
+      const payload = this.itemSave.getPayload()
+      console.log(this.itemSave)
       console.log(payload)
       if (this.create) {
-        apiSave.addPost(payload).catch(error => {
+        apiSave.addItem(payload).catch(error => {
           console.log(error)
         })
         this.cancel()
       } else {
-        const oldPost = new PostSave()
-        oldPost.fromObject(this.post)
+        const oldItem = new ItemSave()
+        oldItem.fromObject(this.item)
 
-        apiSave.updatePost(payload, oldPost.getPayload())
+        apiSave.updateItem(payload, oldItem.getPayload())
         // .catch(error => {
         //   console.log(error)
         // })
@@ -250,10 +250,10 @@ export default {
       }
 
       /* if (this.create) {
-        this.$store.dispatch('addPost', { post: data })
+        this.$store.dispatch('addItem', { item: data })
         this.cancel()
       } else {
-        this.$store.dispatch('updatePost', { uid: this.post.uid, data: data })
+        this.$store.dispatch('updateItem', { uid: this.item.uid, data: data })
         this.cancel()
       } */
     },
@@ -272,14 +272,14 @@ export default {
 
     fileChange (file) {
       if (file) {
-        this.postSave.updateByFile(file).then(postSave => {
-          this.input = postSave.getObject()
-          // console.log(postSave)
+        this.itemSave.updateByFile(file).then(itemSave => {
+          this.input = itemSave.getObject()
+          // console.log(itemSave)
         })
       } else {
-        this.postSave.removeFile().then(postSave => {
-          this.input = postSave.getObject()
-          // console.log(postSave)
+        this.itemSave.removeFile().then(itemSave => {
+          this.input = itemSave.getObject()
+          // console.log(itemSave)
         })
       }
 

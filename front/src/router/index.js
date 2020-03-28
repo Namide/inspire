@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import PageHome from '../views/Home'
-import PagePosts from '../views/Posts'
+import PageItems from '../views/Items'
 import PageBoards from '../views/Boards'
 
 Vue.use(VueRouter)
@@ -16,9 +16,9 @@ const routes = [
     }
   },
   {
-    name: 'posts',
-    path: '/post',
-    component: PagePosts,
+    name: 'items',
+    path: '/item',
+    component: PageItems,
     meta: {
       auth: false
     }
@@ -40,9 +40,9 @@ const routes = [
     }
   },
   {
-    name: 'adminPosts',
-    path: '/admin/post',
-    component: () => import(/* webpackChunkName: "admin" */ '../views/AdminPosts'),
+    name: 'adminItems',
+    path: '/admin/item',
+    component: () => import(/* webpackChunkName: "admin" */ '../views/AdminItems'),
     meta: {
       auth: true
     }

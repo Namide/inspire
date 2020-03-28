@@ -2,27 +2,27 @@
   <div>
     <Tags @change="filter" />
     <Loader v-if="loading" />
-    <div v-else class="posts" :class="['is-' + displayMode]">
-      <Post
-        v-for="post of posts"
-        :key="post.id"
-        :data="post"
+    <div v-else class="items" :class="['is-' + displayMode]">
+      <Item
+        v-for="item of items"
+        :key="item.id"
+        :data="item"
         :display-mode="displayMode"
-      ></Post>
+      ></Item>
     </div>
   </div>
 </template>
 
 <script>
 // import apiGet from '../utils/apiGet'
-import Post from '@/components/Post.vue'
+import Item from '@/components/Item.vue'
 import Tags from '@/components/Tags.vue'
 import api from '@/pure/api'
 import Loader from '@/components/Loader.vue'
 
 export default {
   components: {
-    Post,
+    Item,
     Tags,
     Loader
   },
@@ -32,7 +32,7 @@ export default {
   data () {
     return {
       displayMode: 'thumb',
-      posts: [],
+      items: [],
       loading: false
     }
   },
@@ -45,19 +45,19 @@ export default {
     filter (items = []) {
       this.loading = true
       api
-        .getPosts(items)
-        .then(posts => posts.map(post => post.getObject()))
-        .then(posts => {
-          this.posts = posts
+        .getItems(items)
+        .then(items => items.map(item => item.getObject()))
+        .then(items => {
+          this.items = items
         })
         .catch(console.error)
         .finally(() => {
           this.loading = false
         })
     },
-    onPosts ({ data, meta }) {
+    onItems ({ data, meta }) {
       this.displayMode = 'thumb'
-      this.$store.commit('updatePosts', data)
+      this.$store.commit('updateItems', data)
     }
   }
 }
@@ -66,7 +66,7 @@ export default {
 <style lang="sass" scoped>
 // http://www.competa.com/blog/css-grid-layout-metro-design-blocks/
 
-.posts
+.items
   &.is-thumb
     --gutter: 8px
     --columns: 12

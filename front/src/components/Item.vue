@@ -2,9 +2,9 @@
   <a
     :href="href"
     target="blank"
-    class="post"
+    class="item"
     :class="classData"
-    :style="postStyle"
+    :style="itemStyle"
   >
     <h1 class="title">
       {{ data.title }}
@@ -66,7 +66,7 @@ export default {
       displayImage: false,
       classData: [],
       // isHidden: true,
-      postStyle: {},
+      itemStyle: {},
       // thumbStyle: false,
       showThumb: false,
       isThumbLoaded: false,
@@ -108,7 +108,7 @@ export default {
 
     if (this.data.image && this.displayMode === 'thumb') {
       this.$set(
-        this.postStyle,
+        this.itemStyle,
         'background-color',
         this.data.colors && this.data.colors[0]
           ? this.data.colors[0]
@@ -193,8 +193,8 @@ export default {
       h *= mult
 
       this.classData.push('w' + w, 'h' + h)
-      // this.$set(this.postStyle, 'grid-column-end', 'span ' + w * mult)
-      // this.$set(this.postStyle, 'grid-row-end', 'span ' + h * mult)
+      // this.$set(this.itemStyle, 'grid-column-end', 'span ' + w * mult)
+      // this.$set(this.itemStyle, 'grid-row-end', 'span ' + h * mult)
     }
 
     // getSize () {
@@ -238,13 +238,13 @@ $marg: 4px
   .date, .title, .description, .tags, .score
     display: none
 
-  .post
+  .item
     grid-row-end: span 2
     grid-column-end: span 2
     position: relative
     overflow: hidden
 
-  .post
+  .item
     &.w1
       grid-column-end: span 1
     &.w2
@@ -330,7 +330,7 @@ $marg: 4px
     &.is-show
       opacity: 1
 
-  .post:hover
+  .item:hover
     .thumb
       transform: scale(1.05) translateZ(0)
       cursor: pointer
@@ -343,7 +343,7 @@ $marg: 4px
 //   transform: translateZ(0)
 
 .is-text
-  .post
+  .item
     display: flex
     justify-content: space-between
     margin-bottom: 4px
@@ -351,7 +351,7 @@ $marg: 4px
     text-decoration: none
     color: #363
 
-  .post:hover
+  .item:hover
     cursor: pointer
     .title
       text-decoration: underline

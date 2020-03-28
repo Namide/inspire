@@ -59,13 +59,13 @@ class ApiSave extends Api {
     ])
   }
 
-  addPost (payload, onProgress = ({ loaded, total }) => loaded / total) {
+  addItem (payload, onProgress = ({ loaded, total }) => loaded / total) {
     delete payload.id
     if (payload.file && payload.image) {
       return this.addFiles(payload.file, payload.image, onProgress)
         .then(([file, image]) => {
           return this.directus.createItem(
-            'posts',
+            'items',
             Object.assign({}, payload, {
               file: file.data.data.id,
               image: image.data.data.id
@@ -76,7 +76,7 @@ class ApiSave extends Api {
       return this.addFile(payload.file, onProgress)
         .then(file => {
           return this.directus.createItem(
-            'posts',
+            'items',
             Object.assign({}, payload, { file: file.data.data.id })
           )
         })
@@ -84,12 +84,12 @@ class ApiSave extends Api {
       return this.addFile(payload.image, onProgress)
         .then(image => {
           return this.directus.createItem(
-            'posts',
+            'items',
             Object.assign({}, payload, { image: image.data.data.id })
           )
         })
     } else {
-      return this.directus.createItem('posts', payload)
+      return this.directus.createItem('items', payload)
     }
   }
 
@@ -97,8 +97,8 @@ class ApiSave extends Api {
     return this.directus.api.delete('files/' + id)
   }
 
-  deletePost (payload) {
-    const list = [this.directus.deleteItem('posts', payload.id)]
+  deleteItem (payload) {
+    const list = [this.directus.deleteItem('items', payload.id)]
     if (payload.file) {
       list.push(this.deleteFile(payload.file.id))
     }
@@ -110,7 +110,7 @@ class ApiSave extends Api {
     return Promise.all(list)
   }
 
-  updatePost (payload, oldPayload, onProgress) {
+  updateItem (payload, oldPayload, onProgress) {
     const addImage = payload.image instanceof File
     const addFile = payload.file instanceof File
     const removeImage = oldPayload.image && (!payload.image || addImage)
@@ -152,7 +152,7 @@ class ApiSave extends Api {
         }
 
         return this.directus.updateItem(
-          'posts',
+          'items',
           oldPayload.id,
           Object.assign({}, payload, { file, image })
         )

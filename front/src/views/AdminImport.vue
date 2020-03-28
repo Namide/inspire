@@ -33,7 +33,7 @@
 <script>
 import Papa from 'papaparse'
 // import apiSave from '@/pure/apiSave.js'
-import PostSave from '@/pure/PostSave'
+import ItemSave from '@/pure/ItemSave'
 import apiSave from '@/pure/apiSave'
 
 export default {
@@ -76,7 +76,7 @@ export default {
           complete: ({ data }) => {
             this.startedTime = Date.now()
             this.total += data.length
-            const list = data.map((postData, i) => Object.assign({ id: i }, postData))
+            const list = data.map((itemData, i) => Object.assign({ id: i }, itemData))
 
             for (let i = 0; i < parallels; i++) {
               this.runProcess(list)
@@ -110,51 +110,51 @@ export default {
       this.updateRestTime()
       this.updateEndTime()
       if (list.length > 0) {
-        const postData = list.shift()
+        const itemData = list.shift()
         const isLast = list.length < 1
 
         // 13:12 -> 15:57
 
-        const post = new PostSave()
-        post.id = Math.round(Math.random() * 0xFFFFFFFF)
+        const item = new ItemSave()
+        item.id = Math.round(Math.random() * 0xFFFFFFFF)
         let promise = Promise.resolve()
 
-        if (postData.input) {
-          if (postData.input.indexOf('img/') === 0) {
-            const input = 'http://inspire.namide.com/import-files/' + postData.input
-            promise = post.updateByInput(input)
+        if (itemData.input) {
+          if (itemData.input.indexOf('img/') === 0) {
+            const input = 'http://inspire.namide.com/import-files/' + itemData.input
+            promise = item.updateByInput(input)
           } else {
-            const input = postData.input
-            promise = post.updateByInput(input)
+            const input = itemData.input
+            promise = item.updateByInput(input)
           }
         }
 
         promise
           .then(() => {
-            if (postData.id) { post.id = postData.id }
-            if (postData.content) { post.content = postData.content }
-            if (postData.date) { post.date = new Date(postData.date) }
-            if (postData.status) { post.status = postData.status }
-            if (postData.title) { post.title = postData.title } else { post.title = '' }
-            if (postData.description) { post.description = postData.description }
-            if (postData.tags) { post.tags = postData.tags.split(',') }
+            if (itemData.id) { item.id = itemData.id }
+            if (itemData.content) { item.content = itemData.content }
+            if (itemData.date) { item.date = new Date(itemData.date) }
+            if (itemData.status) { item.status = itemData.status }
+            if (itemData.title) { item.title = itemData.title } else { item.title = '' }
+            if (itemData.description) { item.description = itemData.description }
+            if (itemData.tags) { item.tags = itemData.tags.split(',') }
           })
           .then(() => {
-            // this.logs.push('✅  id:' + postData.id)
-            // this.logs.push(this.resumePost(post.getObject()))
+            // this.logs.push('✅  id:' + itemData.id)
+            // this.logs.push(this.resumeItem(item.getObject()))
 
-            const payload = post.getPayload()
+            const payload = item.getPayload()
             console.log('payload:', payload)
-            return apiSave.addPost(payload)
+            return apiSave.addItem(payload)
           })
           .then(data => {
             console.log('data:', data)
             this.ready++
           })
           .catch(error => {
-            this.errors.push(postData)
-            this.logs.push('🔺  id:' + postData.id + ' ' + error.message)
-            this.logs.push(this.resumePost(post.getObject()))
+            this.errors.push(itemData)
+            this.logs.push('🔺  id:' + itemData.id + ' ' + error.message)
+            this.logs.push(this.resumeItem(item.getObject()))
           })
           .finally(() => {
             if (list.length > 0) {
@@ -174,14 +174,14 @@ export default {
       }
     },
 
-    resumePost (post) {
+    resumeItem (item) {
       let str = ''
       const tab = '&nbsp;&nbsp;&nbsp;'
-      if (post.title) { str += tab + 'title:' + post.title + '<br>' }
-      if (post.types) { str += tab + 'types:' + post.types.join(', ') + '<br>' }
-      if (post.tags) { str += tab + 'tags:' + post.tags.join(', ') + '<br>' }
-      if (post.description) { str += tab + 'description:' + post.description + '<br>' }
-      if (post.input) { str += tab + 'input:' + post.input + '<br>' }
+      if (item.title) { str += tab + 'title:' + item.title + '<br>' }
+      if (item.types) { str += tab + 'types:' + item.types.join(', ') + '<br>' }
+      if (item.tags) { str += tab + 'tags:' + item.tags.join(', ') + '<br>' }
+      if (item.description) { str += tab + 'description:' + item.description + '<br>' }
+      if (item.input) { str += tab + 'input:' + item.input + '<br>' }
       str += '---------------------'
       return str
     }

@@ -52,7 +52,7 @@ Users has many roles, this is the list of those ones:
 | 3  | Editor        | add, edit all       | add, edit all     | add, edit his own | edit his own     |
 | 4  | Administrator | add, edit all       | add, edit all     | add, edit all     | add, edit all    |
 
-> A data can be a post, a group, etc.  
+> A data can be a item, a group, etc.  
 - _*Add = create_  
 - _*Edit = modify and delete_  
 - _*Users roles: Only admin can modify users roles_
@@ -69,7 +69,7 @@ Users has many roles, this is the list of those ones:
 - Deteled
 
 
-- posts
+- items
   - id
   - author
   - title < 255 chars

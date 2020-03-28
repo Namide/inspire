@@ -2,29 +2,29 @@
   <div>
     <!-- Line -->
     <div v-if="insert">
-      <button @click="isModalOpen = true">+ Add new post</button>
+      <button @click="isModalOpen = true">+ Add new item</button>
     </div>
 
     <div v-else @click="isModalOpen = true" class="line">
       <div>
-        <strong v-if="post.title" v-html="post.title"></strong>
-        <template v-if="post.types && post.types.length">
-          <small v-html="type" v-for="type of post.types" :key="type"></small>
+        <strong v-if="item.title" v-html="item.title"></strong>
+        <template v-if="item.types && item.types.length">
+          <small v-html="type" v-for="type of item.types" :key="type"></small>
         </template>
       </div>
       <div>
-        <template v-if="post.tags && post.tags.length">
+        <template v-if="item.tags && item.tags.length">
           <small
             v-html="tag"
-            v-for="tag of post.tags"
+            v-for="tag of item.tags"
             class="tag"
             :key="tag"
           ></small>
         </template>
         <span
-          v-if="post.date"
+          v-if="item.date"
           v-html="
-            new Date(post.date).toLocaleDateString('en-US', {
+            new Date(item.date).toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',
               day: 'numeric'
@@ -37,27 +37,27 @@
 
     <!-- Modal -->
     <Modal :is-open="isModalOpen" @close="isModalOpen = false">
-      <AdminPostForm
-        :post="post"
+      <AdminItemForm
+        :item="item"
         :create="insert"
         @cancel="isModalOpen = false"
-      ></AdminPostForm>
+      ></AdminItemForm>
     </Modal>
   </div>
 </template>
 
 <script>
-import AdminPostForm from '@/components/AdminPostForm.vue'
+import AdminItemForm from '@/components/AdminItemForm.vue'
 import Modal from '@/components/Modal.vue'
 
 export default {
   components: {
-    AdminPostForm,
+    AdminItemForm,
     Modal
   },
 
   props: {
-    post: { type: Object },
+    item: { type: Object },
     insert: { type: Boolean, default: false }
   },
 

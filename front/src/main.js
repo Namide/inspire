@@ -7,7 +7,7 @@ import '@/style/basic.sass'
 
 Vue.config.productionTip = false
 
-// fetch('/api/inspire/items/posts')
+// fetch('/api/inspire/items/items')
 //   .then(console.log)
 
 new Vue({

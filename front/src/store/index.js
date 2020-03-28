@@ -6,8 +6,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    // postFilter: post => true,
-    posts: []
+    // itemFilter: item => true,
+    items: []
   },
 
   actions: {
@@ -16,43 +16,43 @@ export default new Vuex.Store({
      * @param {Object} context
      * @param {Object} { tags, noTags, types, noTypes }
      */
-    getPosts (
+    getItems (
       { commit },
       { tags = [], noTags = [], types = [], noTypes = [] } = {}
     ) {
-      api.getPosts(
+      api.getItems(
         data => {
           // console.log('OK', data.success)
           if (data.success) {
-            commit('updatePosts', data.data)
+            commit('updateItems', data.data)
           }
         },
         { tags, noTags, types, noTypes }
       )
     },
 
-    deletePost ({ commit }, { uid }) {
-      api.deletePost(data => {
+    deleteItem ({ commit }, { uid }) {
+      api.deleteItem(data => {
         if (data.success) {
-          commit('deletePost', data.data.uid)
+          commit('deleteItem', data.data.uid)
         }
       }, uid)
     },
 
-    addPost ({ commit }, { post }) {
-      // console.log('post', post)
-      api.addPost(data => {
+    addItem ({ commit }, { item }) {
+      // console.log('item', item)
+      api.addItem(data => {
         if (data.success) {
-          commit('addPost', data.data)
+          commit('addItem', data.data)
         }
-      }, post)
+      }, item)
     },
 
-    updatePost ({ commit }, { uid, data }) {
-      api.updatePost(
+    updateItem ({ commit }, { uid, data }) {
+      api.updateItem(
         data => {
           if (data.success) {
-            commit('updatePost', data.data)
+            commit('updateItem', data.data)
           }
         },
         uid,
@@ -66,31 +66,31 @@ export default new Vuex.Store({
   },
 
   mutations: {
-    clearPosts (state) {
-      state.posts = []
+    clearItems (state) {
+      state.items = []
     },
 
-    updatePosts (state, posts) {
-      state.posts.splice(0, state.posts.length, ...posts)
+    updateItems (state, items) {
+      state.items.splice(0, state.items.length, ...items)
     },
 
-    updatePost (state, post) {
-      const i = state.posts.findIndex(({ uid }) => post.uid)
+    updateItem (state, item) {
+      const i = state.items.findIndex(({ uid }) => item.uid)
       if (i > -1) {
-        state.posts.splice(i, 1)
-        Vue.nextTick(() => state.posts.splice(i, 0, post))
+        state.items.splice(i, 1)
+        Vue.nextTick(() => state.items.splice(i, 0, item))
       }
     },
 
-    deletePost (state, uid) {
-      const i = state.posts.findIndex(post => post.uid === uid)
+    deleteItem (state, uid) {
+      const i = state.items.findIndex(item => item.uid === uid)
       if (i > -1) {
-        state.posts.splice(i, 1)
+        state.items.splice(i, 1)
       }
     },
 
-    addPost (state, post) {
-      state.posts.splice(0, 0, post)
+    addItem (state, item) {
+      state.items.splice(0, 0, item)
     }
   }
 })

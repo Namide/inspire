@@ -1,16 +1,16 @@
 <template>
   <div>
     <h2>Home page</h2>
-    <Posts />
+    <Items />
   </div>
 </template>
 
 <script>
-import Posts from '@/views/Posts.vue'
+import Items from '@/views/Items.vue'
 
 export default {
   components: {
-    Posts
+    Items
   }
 }
 </script>
