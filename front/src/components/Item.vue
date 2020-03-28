@@ -6,6 +6,18 @@
     :class="classData"
     :style="itemStyle"
   >
+    <img
+      v-if="item.image"
+      :src="item.image.src"
+      :srcset="item.image.srcset"
+      :width="item.image.width"
+      :height="item.image.height"
+      :alt="item.image.alt"
+      @load="() => (isThumbLoaded = true)"
+      class="thumb"
+      :class="{ 'is-show': showThumb && isThumbLoaded }"
+    />
+
     <h1 class="title">
       {{ item.title }}
     </h1>
@@ -19,23 +31,12 @@
     </p>
 
     <ul class="tags">
-      <li v-for="tag of item.tags" class="tag" :key="tag">
+      <li v-for="tag of item.tags" class="tag" :key="tag" :style="{ backgroundColor: item.colors[1], color: item.colors[0] }">
         {{ tag }}
       </li>
     </ul>
 
     <span class="score"> {{ item.score }}/5 </span>
-
-    <img
-      :src="item.image.src"
-      :srcset="item.image.srcset"
-      :width="item.image.width"
-      :height="item.image.height"
-      :alt="item.image.alt"
-      @load="() => (isThumbLoaded = true)"
-      class="thumb"
-      :class="{ 'is-show': showThumb && isThumbLoaded }"
-    />
   </a>
 </template>
 
@@ -177,8 +178,15 @@ export default {
 
 $marg: $margin-sm
 
+.tags
+  .tag
+    display: inline-block
+    margin-left: $margin-sm / 2
+    padding: 0.1em 0.3em
+    margin-top: 0.2em
+
 .is-thumb
-  .date, .title, .description, .tags, .score
+  .date, .title, .description, .score
     display: none
 
   .item
@@ -251,6 +259,12 @@ $marg: $margin-sm
       transform: scale(1.05) translateZ(0)
       cursor: pointer
 
+  .tags
+    position: absolute
+    bottom: $margin-sm
+    right: $margin-sm
+    text-align: right
+
 .is-text
   .item
     display: flex
@@ -282,10 +296,7 @@ $marg: $margin-sm
     margin-right: auto
 
   .tags
-    list-style: none
     display: flex
-    padding: 0
-    margin: 0
 
     .tag
       margin-left: 8px

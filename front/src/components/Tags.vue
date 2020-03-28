@@ -52,7 +52,7 @@ const LIMIT = -1
 
 export default {
   props: {
-    tags: { type: Array, default: () => [] },
+    filter: { type: Array, default: () => [] },
     placeholder: { type: String, default: 'Filters (#tag, $type, @author, !not)' },
     readOnly: { type: Boolean, default: false }
   },
@@ -60,23 +60,23 @@ export default {
   data () {
     return {
       newTag: '',
-      innerTags: [...this.tags]
+      tags: [...this.filter]
     }
   },
 
   watch: {
-    tags () {
-      this.innerTags = [...this.tags]
+    filter () {
+      this.tags = [...this.filter]
     }
   },
 
   computed: {
     isLimit () {
-      return LIMIT > 0 && Number(LIMIT) === this.innerTags.length
+      return LIMIT > 0 && Number(LIMIT) === this.tags.length
     },
 
     tagsData () {
-      return this.innerTags.map(parseItem)
+      return this.tags.map(parseItem)
     }
   },
 
@@ -112,10 +112,10 @@ export default {
 
       if (
         this.newTag &&
-        this.innerTags.indexOf(this.newTag) === -1 &&
+        this.tags.indexOf(this.newTag) === -1 &&
         this.validateIfNeeded(this.newTag)
       ) {
-        this.innerTags.push(this.newTag)
+        this.tags.push(this.newTag)
         this.newTag = ''
         this.tagChange()
       }
@@ -137,7 +137,7 @@ export default {
     },
 
     remove (index) {
-      this.innerTags.splice(index, 1)
+      this.tags.splice(index, 1)
       this.tagChange()
     },
 
@@ -146,12 +146,12 @@ export default {
         return
       }
 
-      this.innerTags.pop()
+      this.tags.pop()
       this.tagChange()
     },
 
     tagChange () {
-      this.$emit('change', this.innerTags)
+      this.$emit('change', this.tags)
     }
   }
 }

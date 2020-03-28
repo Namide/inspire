@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Home page</h2>
-    <Tags @change="items => filter = items" />
+    <Tags :filter="filter" @change="items => filter = items" />
     <Items :filter="filter" />
   </div>
 </template>

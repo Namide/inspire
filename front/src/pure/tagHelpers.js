@@ -36,7 +36,7 @@ export const itemsToFilter = list => {
 
   list.forEach(item => {
     const { word, no, type } = parseItem(item)
-    const label = no ? ('No' + type[0].toUpperCase() + type.slice(1) + 's') : (type + 's')
+    const label = no ? ('no' + type[0].toUpperCase() + type.slice(1) + 's') : (type + 's')
     data[label].push(word)
   })
 

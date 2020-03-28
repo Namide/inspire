@@ -96,7 +96,7 @@ class Api {
       options.filter.types.contains = types.join(',')
     }
     if (noTypes.length > 0) {
-      options.filter.types.ncontains = noTypes.join(',')
+      options.filter.types.ncontains = noTypes // noTypes.join(',')
     }
 
     return this.directus

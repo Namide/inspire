@@ -2,16 +2,19 @@
   <div>
     <h2>{{ group.title }}</h2>
     <p>{{ group.description }}</p>
+    <Tags :filter="filter" @change="items => filter = items" />
     <Items :filter="filter" />
   </div>
 </template>
 
 <script>
-import Items from '@/views/Items.vue'
+import Items from '@/components/Items.vue'
+import Tags from '@/components/Tags.vue'
 
 export default {
   components: {
-    Items
+    Items,
+    Tags
   },
 
   props: {
@@ -20,16 +23,20 @@ export default {
     }
   },
 
-  computed: {
-    filter () {
-      return this.group.filter.split(',')
+  data () {
+    return {
+      filter: [],
+      displayMode: 'thumb',
+      loading: false
     }
   },
 
-  data () {
-    return {
-      displayMode: 'thumb',
-      loading: false
+  watch: {
+    'group.filter': {
+      immediate: true,
+      handler (filter) {
+        this.filter = filter.split(',')
+      }
     }
   }
 }

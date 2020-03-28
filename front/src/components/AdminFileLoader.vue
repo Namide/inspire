@@ -50,6 +50,7 @@ export default {
 
   watch: {
     image: {
+      immediate: true,
       handler (image, oldImage) {
         if (oldImage instanceof File && this.src) {
           URL.revokeObjectURL(this.src)
@@ -62,8 +63,7 @@ export default {
         } else if (!image) {
           this.src = ''
         }
-      },
-      immediate: true
+      }
     }
   },
 
