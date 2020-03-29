@@ -1,7 +1,9 @@
 <template>
   <main id="app">
     <header class="header">
-      <h1 class="title">Inspire</h1>
+      <router-link class="title" :to="{ name: 'home' }">
+        <h1>Inspire</h1>
+      </router-link>
       <User :adminPage="authRequired" />
     </header>
 
@@ -14,20 +16,60 @@
 
     <router-view />
 
+    <Modal :is-open="hash !== ''" @close="setHash('')">
+      <ItemDetails v-if="hash" :id="hash" />
+    </Modal>
+
   </main>
 </template>
 
 <script>
+import Modal from '@/components/Modal.vue'
+import ItemDetails from '@/components/ItemDetails.vue'
+
 const User = () => import(/* webpackChunkName: "admin" */ '@/components/User')
 
 export default {
   components: {
-    User
+    User,
+    Modal,
+    ItemDetails
+  },
+
+  data () {
+    return {
+      hash: ''
+    }
   },
 
   computed: {
     authRequired () {
       return this.$route.meta.auth
+    }
+  },
+
+  created () {
+    window.addEventListener('hashchange', this.onHash)
+    this.onHash()
+  },
+
+  destroyed () {
+    window.removeEventListener('hashchange', this.onHash)
+  },
+
+  methods: {
+    setHash (hash) {
+      this.$router.push({
+        name: this.$route.name,
+        params: this.$route.params,
+        hash: hash ? '#' + hash : ''
+      })
+      this.onHash()
+    },
+
+    onHash () {
+      const hash = window.location.hash
+      this.hash = hash.replace(/^#/, '')
     }
   }
 }

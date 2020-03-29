@@ -64,6 +64,23 @@ class Api {
     return '' // config.api.abs + '/files/' + uid
   }
 
+  getItem (id) {
+    const options = {
+      filter: {
+        id: {
+          eq: id
+        }
+      },
+      fields: ['*', 'image.*', 'file.*']
+    }
+
+    return this.directus
+      .getItems('items', options)
+      .then(({ data }) => data.map(parseItem))
+      .then(data => data[0])
+      .catch(console.error)
+  }
+
   getItems (items, {
     limit = 100,
     offset = 0

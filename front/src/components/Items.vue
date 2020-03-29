@@ -43,7 +43,6 @@ export default {
     filter: {
       immediate: true,
       handler (items) {
-        console.log(items)
         this.loading = true
         api
           .getItems(items)
@@ -51,7 +50,6 @@ export default {
           .then(items => {
             this.displayMode = 'thumb'
             this.items = items
-            console.log(items)
           })
           .catch(console.error)
           .finally(() => {

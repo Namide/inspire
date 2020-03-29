@@ -1,7 +1,6 @@
 <template>
   <a
     :href="href"
-    target="blank"
     class="item"
     :class="classData"
     :style="itemStyle"
@@ -18,8 +17,11 @@
       :class="{ 'is-show': showThumb && isThumbLoaded }"
     />
 
-    <h1 class="title">
-      {{ item.title }}
+    <Play v-if="isVideo" class="play" :color="colors[2].hex" :bg="`rgba(${colors[3].r},${colors[3].g},${ colors[3].b }, 0.75)`" />
+
+    <h1 class="title bold" :style="{ color: colors[1].hex }">
+      <div class="bg" :style="{ background: colors[0].hex }"></div>
+      <span>{{ item.title || 'Test de titre avec quelques mots' }}</span>
     </h1>
 
     <time class="date">
@@ -31,7 +33,7 @@
     </p>
 
     <ul class="tags">
-      <li v-for="tag of item.tags" class="tag" :key="tag" :style="{ backgroundColor: item.colors[1], color: item.colors[0] }">
+      <li v-for="tag of item.tags" class="tag" :key="tag" :style="{ backgroundColor: colors[3].hex, color: colors[2].hex }">
         {{ tag }}
       </li>
     </ul>
@@ -41,6 +43,7 @@
 </template>
 
 <script>
+import Play from '@/components/Play.vue'
 // import api from '@/pure/api'
 
 const getPgcd = (a, b) => {
@@ -54,6 +57,10 @@ const getPgcd = (a, b) => {
 }
 
 export default {
+  components: {
+    Play
+  },
+
   props: {
     item: { type: Object },
     displayMode: { type: String, default: 'text' }
@@ -66,7 +73,7 @@ export default {
       itemStyle: {},
       showThumb: false,
       isThumbLoaded: false,
-      href: false,
+      // href: false,
       w: 1,
       h: 1
     }
@@ -79,6 +86,43 @@ export default {
       }
 
       return [3, 1]
+    },
+
+    isVideo () {
+      return this.item.types.indexOf('video') > -1
+    },
+
+    href () {
+      return this.item.id ? '#' + this.item.id : ''
+    },
+
+    colors () {
+      const dist = (a, b) => Math.abs(a.r - b.r) + Math.abs(a.g - b.g) + Math.abs(a.b - b.b)
+      const detail = color => {
+        const hex = Number('0x' + color.substring(1))
+        return {
+          hex: color,
+          r: (hex >> 16) & 0xFF,
+          g: (hex >> 8) & 0xFF,
+          b: (hex >> 0) & 0xFF
+        }
+      }
+      const colors = this.item.colors.map(detail)
+      const colorsFallback = ['#FFFFFF', '#000000', '#555555', '#AAAAAA']
+      while (colors.length < 4) {
+        colors.push(detail(colorsFallback.shift()))
+      }
+
+      const a = colors.shift()
+      const b = colors.shift()
+
+      colors.sort((c1, c2) => dist(a, c1) - dist(a, c2))
+      const c = colors.pop()
+
+      colors.sort((c1, c2) => dist(b, c1) - dist(b, c2))
+      const d = colors.pop()
+
+      return [a, c, b, d]
     }
   },
 
@@ -112,12 +156,12 @@ export default {
       )
     }
 
-    if (
-      this.displayMode === 'text' &&
-      this.item.content_format.indexOf('URL') > -1
-    ) {
-      this.href = this.item.content.URL
-    }
+    // if (
+    //   this.displayMode === 'text' &&
+    //   this.item.content_format.indexOf('URL') > -1
+    // ) {
+    //   this.href = this.item.content.URL
+    // }
   },
 
   mounted () {
@@ -186,7 +230,10 @@ $marg: $margin-sm
     margin-top: 0.2em
 
 .is-thumb
-  .date, .title, .description, .score
+  .item
+    cursor: pointer
+
+  .date, .description, .score
     display: none
 
   .item
@@ -241,6 +288,9 @@ $marg: $margin-sm
       &.w5.h1
         grid-row-end: span 2
 
+  .thumb, .title, .tags
+    transition: opacity 0.5s, transform 0.6s cubic-bezier(.18,0,.12,.99)
+
   .thumb
     position: absolute
     top: 0
@@ -248,16 +298,10 @@ $marg: $margin-sm
     width: 100%
     height: 100%
     object-fit: cover
-    transition: opacity 1s, transform 1s cubic-bezier(.18,0,.12,.99)
     opacity: 0
 
     &.is-show
       opacity: 1
-
-  .item:hover
-    .thumb
-      transform: scale(1.05) translateZ(0)
-      cursor: pointer
 
   .tags
     position: absolute
@@ -265,17 +309,60 @@ $marg: $margin-sm
     right: $margin-sm
     text-align: right
 
+  .title
+    position: absolute
+    top: 0
+    left: 0
+    right: 0
+    display: block
+
+    span
+      margin: $margin-sm
+      display: block
+      text-align: left
+      position: relative
+
+    .bg
+      position: absolute
+      top: 0
+      left: 0
+      width: 100%
+      height: 100%
+      opacity: 0.75
+
+  .play
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translateX(-50%) translateY(-50%)
+    transition: opacity 0.5s, transform 0.6s cubic-bezier(.18,0,.12,.99)
+
+  .item:hover
+    .thumb
+      transform: scale(1.025)
+
+    .title
+      transform: translateY(-10px)
+      opacity: 0
+
+    .tags
+      transform: translateY(10px) translateX(2px)
+      opacity: 0
+
+    .play
+      transform: translateX(-50%) translateY(-50%) scale(1.15)
+
 .is-text
   .item
     display: flex
     justify-content: space-between
     margin-bottom: 4px
-    font-weight: normal
     text-decoration: none
     color: #363
 
   .item:hover
     cursor: pointer
+
     .title
       text-decoration: underline
 
