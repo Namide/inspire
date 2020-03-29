@@ -1,50 +1,53 @@
 <template>
-  <div
+  <article
     class="item"
   >
-    <h1 class="title bold">
-      <div class="bg"></div>
-      <span>{{ item.title || 'Test de titre avec quelques mots' }}</span>
-    </h1>
+    <Loader v-if="!item" />
+    <template v-else>
+      <header>
+        <h1 class="title bold">
+          <div class="bg"></div>
+          <span>{{ item.title }}</span>
+        </h1>
 
-    <!-- <img
-      v-if="item.image"
-      :src="item.image.src"
-      :srcset="item.image.srcset"
-      :width="item.image.width"
-      :height="item.image.height"
-      :alt="item.image.alt"
-      @load="() => (isThumbLoaded = true)"
-      class="thumb"
-      :class="{ 'is-show': showThumb && isThumbLoaded }"
-    /> -->
-    <Content v-if="item.content" :type="mainType" :content="item.content" />
+        <p v-if="item.description" class="description">
+          {{ item.description }}
+        </p>
+      </header>
 
-    <time class="date">
-      {{ item.date }}
-    </time>
+      <Content :item="item" />
 
-    <p class="description">
-      {{ item.description }}
-    </p>
+      <a
+        v-if="item.types.indexOf('image') > -1 && item.content"
+        :href="item.content"
+        target="_blank"
+        rel="noreferrer noopener nofollow"
+      >{{ item.content.replace(/http:\/\/|https:\/\//, '') }}</a>
 
-    <ul class="tags">
-      <li v-for="tag of item.tags" class="tag" :key="tag">
-        {{ tag }}
-      </li>
-    </ul>
+      <footer>
+        <TagsDisplay :tags="item.tags"/>
 
-    <span class="score"> {{ item.score }}/5 </span>
-  </div>
+        <time class="date">
+          {{ date }}
+        </time>
+      </footer>
+
+      <span class="score"> {{ item.score }}/5 </span>
+    </template>
+  </article>
 </template>
 
 <script>
 import Content from '@/components/Content.vue'
+import Loader from '@/components/Loader.vue'
+import TagsDisplay from '@/components/TagsDisplay.vue'
 import api from '@/pure/api'
 
 export default {
   components: {
-    Content
+    Content,
+    Loader,
+    TagsDisplay
   },
 
   props: {
@@ -75,21 +78,26 @@ export default {
 
   data () {
     return {
-      item: { }
+      item: null
     }
   },
 
   computed: {
-    mainType () {
-      if (this.item.types) {
-        if (this.item.types.indexOf('embed') > -1) {
-          return 'embed'
-        } else if (this.item.types.indexOf('url') > -1) {
-          return 'url'
+    date () {
+      const date = new Date(this.item.date)
+      const now = new Date()
+      if (date.toLocaleDateString() === now.toLocaleDateString()) {
+        return date.toLocaleDateString('en-US', { hour12: false }).substring(0, 5)
+      } else {
+        const options = {
+          day: 'numeric',
+          month: 'short'
         }
+        if (date.getYear() !== new Date().getYear()) {
+          options.year = 'numeric'
+        }
+        return date.toLocaleDateString('en-US', options)
       }
-
-      return 'text'
     }
   },
 
@@ -108,5 +116,20 @@ export default {
 
 <style lang="sass" scoped>
 @import "../style/settings.sass"
+
+footer
+  display: flex
+  justify-content: space-between
+  align-items: center
+
+  &>*:first-child
+    margin-left: $margin-sm
+
+  &>*:last-child
+    margin-right: $margin-sm
+
+.date
+
+.score
 
 </style>

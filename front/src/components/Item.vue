@@ -18,10 +18,11 @@
     />
 
     <Play v-if="isVideo" class="play" :color="colors[2].hex" :bg="`rgba(${colors[3].r},${colors[3].g},${ colors[3].b }, 0.75)`" />
+    <Cube v-if="is3D" class="play" :color1="colors[0].hex" :color2="colors[1].hex" :color3="colors[2].hex" :bg="`rgba(${colors[3].r},${colors[3].g},${ colors[3].b }, 0.75)`" />
 
-    <h1 class="title bold" :style="{ color: colors[1].hex }">
+    <h1 v-if="item.title" class="title bold" :style="{ color: colors[1].hex }">
       <div class="bg" :style="{ background: colors[0].hex }"></div>
-      <span>{{ item.title || 'Test de titre avec quelques mots' }}</span>
+      <span>{{ item.title }}</span>
     </h1>
 
     <time class="date">
@@ -32,11 +33,7 @@
       {{ item.description }}
     </p>
 
-    <ul class="tags">
-      <li v-for="tag of item.tags" class="tag" :key="tag" :style="{ backgroundColor: colors[3].hex, color: colors[2].hex }">
-        {{ tag }}
-      </li>
-    </ul>
+    <TagsDisplay :tags="item.tags" :bg="colors[3].hex" :color="colors[2].hex" />
 
     <span class="score"> {{ item.score }}/5 </span>
   </a>
@@ -44,6 +41,8 @@
 
 <script>
 import Play from '@/components/Play.vue'
+import Cube from '@/components/Cube.vue'
+import TagsDisplay from '@/components/TagsDisplay.vue'
 // import api from '@/pure/api'
 
 const getPgcd = (a, b) => {
@@ -58,7 +57,9 @@ const getPgcd = (a, b) => {
 
 export default {
   components: {
-    Play
+    Play,
+    Cube,
+    TagsDisplay
   },
 
   props: {
@@ -90,6 +91,10 @@ export default {
 
     isVideo () {
       return this.item.types.indexOf('video') > -1
+    },
+
+    is3D () {
+      return this.item.types.indexOf('3d') > -1
     },
 
     href () {
@@ -221,13 +226,6 @@ export default {
 @import "../style/settings.sass"
 
 $marg: $margin-sm
-
-.tags
-  .tag
-    display: inline-block
-    margin-left: $margin-sm / 2
-    padding: 0.1em 0.3em
-    margin-top: 0.2em
 
 .is-thumb
   .item
@@ -381,15 +379,6 @@ $marg: $margin-sm
     overflow: hidden
     white-space: nowrap
     margin-right: auto
-
-  .tags
-    display: flex
-
-    .tag
-      margin-left: 8px
-      background-color: #FFF
-      padding: $marg
-      white-space: nowrap
 
   .score
     margin: $marg 16px

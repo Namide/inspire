@@ -1,10 +1,20 @@
 <template>
   <div
     class="content"
-    :class="['is-' + type, invRatio !== '' ? 'has-ratio' : '']"
+    :class="['is-' + mainType, invRatio !== '' ? 'has-ratio' : '']"
   >
     <div v-if="invRatio" class="dummy" :style="{ paddingTop: invRatio }"></div>
-    <div v-html="html" class="data">
+
+    <img
+      v-if="mainType === 'image'"
+      :src="item.image.src"
+      :srcset="item.image.srcset"
+      :width="item.image.width"
+      :height="item.image.height"
+      :alt="item.image.alt"
+      class="image"
+    />
+    <div v-else v-html="html" class="data">
       (Content here)
     </div>
   </div>
@@ -13,45 +23,54 @@
 <script>
 export default {
   props: {
-    type: {
-      type: String,
-      default: 'text'
-    },
-    content: {
-      type: String,
-      required: true
+    item: {
+      type: Object
     }
   },
 
   computed: {
+    mainType () {
+      if (this.item.types) {
+        if (this.item.types.indexOf('embed') > -1) {
+          return 'embed'
+        } else if (this.item.types.indexOf('url') > -1) {
+          return 'url'
+        } else if (this.item.types.indexOf('image') > -1) {
+          return 'image'
+        }
+      }
+
+      return 'text'
+    },
+
     html () {
-      if (this.type === 'embed') {
-        return this.content
-      } else if (this.type === 'url') {
+      if (this.mainType === 'embed') {
+        return this.item.content
+      } else if (this.mainType === 'url') {
         return (
           '<a href="' +
-          this.content +
-          '" target="_blank" rel="noreferrer noopener">' +
-          this.content.replace(/http:\/\/|https:\/\//, '') +
+          this.item.content +
+          '" target="_blank" rel="noreferrer noopener nofollow">' +
+          this.item.content.replace(/http:\/\/|https:\/\//, '') +
           '</a>'
         )
-      } else if (this.type === 'text') {
-        return this.content
+      } else if (this.mainType === 'text') {
+        return this.item.content
       }
 
       return 'type not know'
     },
 
     invRatio () {
-      if (this.type === 'embed') {
-        if (this.content.trim().match(/<iframe(.+)<\/iframe>/g) !== null) {
+      if (this.mainType === 'embed') {
+        if (this.item.content.trim().match(/<iframe(.+)<\/iframe>/g) !== null) {
           // const regExS = /<iframe[^>]+src=["']?(.+?)["'\s>]/gi
           const regExW = /<iframe[^>]+width=["']?(\d+%?)/gi
           const regExH = /<iframe[^>]+height=["']?(\d+%?)/gi
 
           // const exS = regExS.exec(raw)
-          const exW = regExW.exec(this.content)
-          const exH = regExH.exec(this.content)
+          const exW = regExW.exec(this.item.content)
+          const exH = regExH.exec(this.item.content)
 
           // const src = exS && exS.length > 1 ? exS[1] : null
           const width = exW && exW.length > 1 ? exW[1] || 640 : 640
@@ -74,6 +93,12 @@ export default {
 <style lang="sass" scoped>
 .content
   position: relative
+
+.image
+  display: block
+  margin: 0 auto
+  max-width: 100%
+  height: auto
 
 .has-ratio
   .data

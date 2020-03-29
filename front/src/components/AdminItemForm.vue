@@ -53,7 +53,7 @@
       <Tabs :labels="[ 'content', 'thumb', 'initial' ]">
 
         <template slot="content">
-          <Content v-if="input.content" :type="mainType" :content="input.content" />
+          <Content v-if="input" :item="input" />
         </template>
 
         <template slot="thumb">
@@ -166,17 +166,6 @@ export default {
   },
 
   computed: {
-    mainType () {
-      if (this.input.types) {
-        if (this.input.types.indexOf('embed') > -1) {
-          return 'embed'
-        } else if (this.input.types.indexOf('url') > -1) {
-          return 'url'
-        }
-      }
-
-      return 'text'
-    }
   },
 
   created () {
