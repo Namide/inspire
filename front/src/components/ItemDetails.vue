@@ -2,85 +2,60 @@
   <article
     class="item"
   >
-    <Loader v-if="!item" />
-    <template v-else>
-      <header>
-        <h1 class="title bold">
-          <div class="bg"></div>
-          <span>{{ item.title }}</span>
-        </h1>
+    <header>
+      <h1 class="title bold">
+        <div class="bg"></div>
+        <span>{{ item.title }}</span>
+      </h1>
 
-        <p v-if="item.description" class="description">
-          {{ item.description }}
-        </p>
-      </header>
+      <p v-if="item.description" class="description">
+        {{ item.description }}
+      </p>
+    </header>
 
-      <Content :item="item" />
+    <Content :item="item" />
 
-      <a
-        v-if="item.types.indexOf('image') > -1 && item.content"
-        :href="item.content"
-        target="_blank"
-        rel="noreferrer noopener nofollow"
-      >{{ item.content.replace(/http:\/\/|https:\/\//, '') }}</a>
+    <a
+      v-if="item.types.indexOf('image') > -1 && item.content"
+      :href="item.content"
+      target="_blank"
+      rel="noreferrer noopener nofollow"
+    >{{ item.content.replace(/http:\/\/|https:\/\//, '') }}</a>
 
-      <footer>
-        <TagsDisplay :tags="item.tags"/>
+    <footer>
+      <TagsDisplay :tags="item.tags"/>
 
-        <time class="date">
-          {{ date }}
-        </time>
-      </footer>
+      <time class="date">
+        {{ date }}
+      </time>
+    </footer>
 
-      <span class="score"> {{ item.score }}/5 </span>
-    </template>
+    <span class="score"> {{ item.score }}/5 </span>
   </article>
 </template>
 
 <script>
 import Content from '@/components/Content.vue'
-import Loader from '@/components/Loader.vue'
 import TagsDisplay from '@/components/TagsDisplay.vue'
-import api from '@/pure/api'
 
 export default {
   components: {
     Content,
-    Loader,
     TagsDisplay
   },
 
   props: {
-    id: {
-      type: String,
+    item: {
+      type: Object,
       required: true
     }
   },
 
-  watch: {
-    id: {
-      immediate: true,
-      handler (id) {
-        this.loading = true
-        api
-          .getItem(id)
-          .then(item => item.getObject())
-          .then(item => {
-            this.item = item
-          })
-          .catch(console.error)
-          .finally(() => {
-            this.loading = false
-          })
-      }
-    }
-  },
-
-  data () {
-    return {
-      item: null
-    }
-  },
+  // data () {
+  //   return {
+  //     item: null
+  //   }
+  // },
 
   computed: {
     date () {

@@ -27,7 +27,8 @@ export default {
 
   computed: {
     currentGroup () {
-      return this.$route.params.id ? this.groups.find(group => group.id === this.$route.params.id) : null
+      const id = this.$route.params.id ? +('' + this.$route.params.id).split('#')[0] : null
+      return id ? this.groups.find(group => group.id === id) : null
     }
   },
 

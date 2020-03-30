@@ -16,29 +16,25 @@
 
     <router-view />
 
-    <Modal :is-open="hash !== ''" @close="setHash('')">
-      <ItemDetails v-if="hash" :id="hash" />
-    </Modal>
+    <ModalItem />
 
   </main>
 </template>
 
 <script>
-import Modal from '@/components/Modal.vue'
-import ItemDetails from '@/components/ItemDetails.vue'
+import api from '@/pure/api'
+import ModalItem from '@/components/ModalItem.vue'
 
 const User = () => import(/* webpackChunkName: "admin" */ '@/components/User')
 
 export default {
   components: {
     User,
-    Modal,
-    ItemDetails
+    ModalItem
   },
 
   data () {
     return {
-      hash: ''
     }
   },
 
@@ -49,27 +45,24 @@ export default {
   },
 
   created () {
-    window.addEventListener('hashchange', this.onHash)
-    this.onHash()
+    api.onLogin.add(this.setLogged)
+    api.isLoggedIn()
   },
 
   destroyed () {
-    window.removeEventListener('hashchange', this.onHash)
+    api.onLogin.remove(this.setLogged)
   },
 
   methods: {
-    setHash (hash) {
-      this.$router.push({
-        name: this.$route.name,
-        params: this.$route.params,
-        hash: hash ? '#' + hash : ''
+    setLogged (data) {
+      console.log(data)
+      const getUser = data => ({
+        nick: data.firstName + ' ' + data.lastName,
+        image: data.avatar
       })
-      this.onHash()
-    },
 
-    onHash () {
-      const hash = window.location.hash
-      this.hash = hash.replace(/^#/, '')
+      const user = data ? getUser(data) : null
+      this.$store.commit('user', user)
     }
   }
 }

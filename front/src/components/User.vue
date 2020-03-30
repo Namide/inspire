@@ -1,22 +1,21 @@
 <template>
-  <div v-if="adminPage || isLogged" class="connect">
+  <div v-if="adminPage || $store.getters.isLogged" class="connect">
 
     <!-- Modal connect -->
     <Modal :is-open="isModalConnectOpen" @close="isModalConnectOpen = false">
-      <Connect @logged="update"></Connect>
+      <Connect />
     </Modal>
 
-    <span v-if="firstName">{{ firstName }} </span>
-    <span v-if="lastName">{{ lastName }}</span>
+    <span v-if="$store.getters.userNick">{{ $store.getters.userNick }} </span>
 
-    <button v-if="!isLogged" @click="isModalConnectOpen = true">Signin</button>
+    <button v-if="!$store.getters.isLogged" @click="isModalConnectOpen = true">Signin</button>
     <button v-else @click="logout">Signout</button>
 
     <img
-      v-if="avatar"
-      :src="avatar.src"
-      :width="avatar.width"
-      :height="avatar.height"
+      v-if="$store.getters.userImage"
+      :src="$store.getters.userImage.src"
+      :width="$store.getters.userImage.width"
+      :height="$store.getters.userImage.height"
       alt="avatar"
       class="avatar"
     />
@@ -43,50 +42,13 @@ export default {
 
   data () {
     return {
-      isLogged: false,
-      isModalConnectOpen: false,
-      avatar: null,
-      firstName: '',
-      lastName: ''
+      isModalConnectOpen: false
     }
   },
 
-  created () {
-    this.update()
-
-    this.isLogged = api.isLogged
-    api.onLogin.add(this.updateLogged)
-  },
-
-  destroyed () {
-    api.onLogin.remove(this.updateLogged)
-  },
-
   methods: {
-    updateLogged (isLogged) {
-      this.isLogged = isLogged
-    },
-
-    login () {},
-
     logout () {
-      api.logout().then(data => {
-        this.update()
-      })
-    },
-
-    update () {
-      api.isLoggedIn().then(isLogged => {
-        this.isLogged = isLogged
-        if (isLogged) {
-          api.getMe().then(data => {
-            this.isLogged = true
-            this.avatar = data.avatar
-            this.firstName = data.firstName
-            this.lastName = data.lastName
-          })
-        }
-      })
+      api.logout()
     }
   }
 }
