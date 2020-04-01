@@ -1,7 +1,7 @@
 <template>
   <main id="app">
     <header class="header">
-      <router-link class="title" :to="{ name: 'home' }">
+      <router-link class="title black" :to="{ name: 'home' }">
         <h1>Inspire</h1>
       </router-link>
       <User :adminPage="authRequired" />
@@ -77,9 +77,9 @@ export default {
   padding: $margin-sm
 
 .title
-  font-weight: bold
   text-transform: uppercase
   margin-right: auto
+  text-decoration: none
 
 .nav
   text-align: center
