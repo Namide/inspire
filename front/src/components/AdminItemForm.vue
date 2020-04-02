@@ -207,6 +207,7 @@ export default {
       apiSave.deleteItem(item.getPayload())
         .then(() => this.$emit('cancel'))
         .catch(error => console.error(error))
+        .finally(() => item.dispose())
 
       // this.$store.dispatch('deleteItem', { id: this.item.id })
       /* api.deleteItem(data =>
@@ -232,6 +233,7 @@ export default {
         oldItem.fromObject(this.item)
 
         apiSave.updateItem(payload, oldItem.getPayload())
+
         // .catch(error => {
         //   console.log(error)
         // })

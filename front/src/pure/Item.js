@@ -17,6 +17,17 @@ const parseImagePayload = payload => {
   }
 }
 
+const parseFilePayload = payload => {
+  return {
+    id: payload.id,
+    name: payload.filename_download,
+    width: payload.width,
+    height: payload.height,
+    src: '/api' + payload.data.url,
+    type: payload.type
+  }
+}
+
 export default class Item {
   constructor () {
     this.fromPayload()
@@ -41,10 +52,12 @@ export default class Item {
     this.content = json.content || ''
     this.input = json.input || ''
     this.date = new Date(json.date || Date.now())
-    this.file = json.file || null
+    this.file = json.file ? parseFilePayload(json.file) : null
     this.score = json.score || 0
     this.image = json.image ? parseImagePayload(json.image) : null
     this.author = null // this.api.getUser()
+
+    return this
   }
 
   getPayload () {
@@ -97,9 +110,30 @@ export default class Item {
     this.score = object.score
     this.date = object.date ? new Date(object.date) : null
     this.author = object.author
+
+    return this
   }
 
   getObject () {
+    let image = this.image
+    let file = this.file
+
+    if (image instanceof File) {
+      const src = URL.createObjectURL(image)
+      this._disposeList.push(() => URL.revokeObjectURL(src))
+      image = {
+        src
+      }
+    }
+
+    if (file instanceof File) {
+      const src = URL.createObjectURL(file)
+      this._disposeList.push(() => URL.revokeObjectURL(src))
+      file = {
+        src
+      }
+    }
+
     return {
       id: this.id,
       status: this.status,
@@ -111,8 +145,8 @@ export default class Item {
       colorsRound: [...this.colorsRound],
       input: this.input,
       content: this.content,
-      file: this.file,
-      image: this.image,
+      file,
+      image,
       score: this.score,
       date: this.date.toISOString().replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ''),
       author: this.author

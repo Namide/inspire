@@ -76,7 +76,6 @@ export default {
       this.loading = true
       apiSave
         .getItems(items)
-        .then(items => items.map(item => item.getObject()))
         .then(items => {
           this.items = items
         })

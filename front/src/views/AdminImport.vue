@@ -157,6 +157,7 @@ export default {
             this.logs.push(this.resumeItem(item.getObject()))
           })
           .finally(() => {
+            item.dispose()
             if (list.length > 0) {
               requestAnimationFrame(() => this.runProcess(list))
             } else {

@@ -46,7 +46,6 @@ export default {
         this.loading = true
         api
           .getItems(items)
-          .then(items => items.map(item => item.getObject()))
           .then(items => {
             this.displayMode = 'thumb'
             this.items = items

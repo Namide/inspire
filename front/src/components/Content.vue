@@ -14,6 +14,13 @@
       :alt="item.image.alt"
       class="image"
     />
+    <video
+      v-else-if="mainType === 'video'"
+      controls
+      class="video"
+    >
+      <source :src="item.file.src" :type="item.file.type">
+    </video>
     <div v-else v-html="html" class="data">
       (Content here)
     </div>
@@ -35,6 +42,8 @@ export default {
           return 'embed'
         } else if (this.item.types.indexOf('url') > -1) {
           return 'url'
+        } else if (this.item.types.indexOf('video') > -1) {
+          return 'video'
         } else if (this.item.types.indexOf('image') > -1) {
           return 'image'
         }
@@ -94,7 +103,7 @@ export default {
 .content
   position: relative
 
-.image
+.image, .video
   display: block
   margin: 0 auto
   max-width: 100%

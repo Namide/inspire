@@ -19,8 +19,9 @@ const directus = new DirectusSDK(options)
 
 const parseItem = payload => {
   const item = new Item()
-  item.fromPayload(payload)
-  return item
+  const object = item.fromPayload(payload).getObject()
+  item.dispose()
+  return object
 }
 
 const parseGroup = payload => {

@@ -27,7 +27,7 @@ const responseToFile = (response, url = response.url) => {
       url.substring(url.lastIndexOf('/') + 1).split(/#|\?/)[0] ||
       (mimeData ? mimeData.type + '.' + mimeData.ext : mimeData.type)
 
-    return new File([blob], fileName)
+    return new File([blob], fileName, { type: blob.type, lastModified: blob.lastModified })
   })
 }
 
@@ -115,6 +115,24 @@ export default class ItemSave extends Item {
     return this._extractColors(src).then(() => URL.revokeObjectURL(src))
   }
 
+  _setVideo (file) {
+    if (!this.title) {
+      const title = file.name
+        .split('-')
+        .join(' ')
+        .split('_')
+        .join(' ')
+        .split('  ')
+        .join(' ')
+        .substring(0, file.name.lastIndexOf('.'))
+
+      this.title = title
+    }
+    this.file = file
+
+    return Promise.resolve(file)
+  }
+
   // _updateFileByFileInfos (fileInfos) {
   //   this.types = [...fileInfos.types]
   //   this.image = null
@@ -187,17 +205,18 @@ export default class ItemSave extends Item {
     if (types.indexOf('image') > -1) {
       return this._setImage(file).then(() => this)
 
-      // File
+    // Video
+    } else if (types.indexOf('video') > -1) {
+      return this._setVideo(file).then(() => this)
+
+    // File
     } else {
       return this._setFile(file).then(() => this)
     }
   }
 
   _setFile (file) {
-    this.file = {
-      name: file.name,
-      blob: file
-    }
+    this.file = file
 
     return Promise.resolve(this)
   }

@@ -47,7 +47,6 @@ export default {
         if (hash) {
           api
             .getItem(hash)
-            .then(item => item.getObject())
             .then(item => {
               this.item = item
             })
