@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>Home page</h2>
     <input
       type="file"
       @change="filesChange($event.target.files)"

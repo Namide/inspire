@@ -26,7 +26,6 @@ export default {
 <style lang="sass" scoped>
 @import "../style/settings.sass"
 .tags
-  display: flex
   margin-right: $margin-sm / 2
   margin-bottom: $margin-sm / 2
 
@@ -37,7 +36,8 @@ export default {
   white-space: nowrap
   margin-left: $margin-sm / 2
   margin-top: $margin-sm / 2
-  padding: 0.1em 0.3em
+  padding: 0.1em 0.3em 0.125em
+  display: inline-block
 
   &:first-child
     margin-left: 0

@@ -25,5 +25,8 @@ npm run lint
 docker-compose -f ../config/back-serve-dev/docker-compose.yml up
 ```
 
+// Extract image from video
+// https://stackoverflow.com/questions/32699721/javascript-extract-video-frames-reliably
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).

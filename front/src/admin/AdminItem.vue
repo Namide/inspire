@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import AdminItemForm from '@/components/AdminItemForm.vue'
+import AdminItemForm from '@/admin/AdminItemForm.vue'
 import Modal from '@/components/Modal.vue'
 
 export default {

@@ -28,8 +28,8 @@
 
 <script>
 import Tags from '@/components/Tags.vue'
-import PartAdminItem from '@/components/AdminItem.vue'
-import AdminItemForm from '@/components/AdminItemForm.vue'
+import PartAdminItem from '@/admin/AdminItem.vue'
+import AdminItemForm from '@/admin/AdminItemForm.vue'
 import Modal from '@/components/Modal.vue'
 import apiSave from '@/pure/apiSave'
 import Loader from '@/components/Loader.vue'

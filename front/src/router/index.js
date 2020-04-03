@@ -18,7 +18,7 @@ const routes = [
   },
   {
     name: 'items',
-    path: '/item',
+    path: '/item/:itemID?',
     component: PageItems,
     meta: {
       auth: false
@@ -34,7 +34,7 @@ const routes = [
     children: [
       {
         name: 'group',
-        path: ':id',
+        path: ':id/:itemID?',
         component: PageGroup
       }
     ]
@@ -50,7 +50,7 @@ const routes = [
   {
     name: 'adminItems',
     path: '/admin/item',
-    component: () => import(/* webpackChunkName: "admin" */ '../views/AdminItems'),
+    component: () => import(/* webpackChunkName: "admin" */ '@/views/AdminItems'),
     meta: {
       auth: true
     }
@@ -66,7 +66,7 @@ const routes = [
   {
     name: 'adminImport',
     path: '/admin/import',
-    component: () => import(/* webpackChunkName: "import" */ '../views/AdminImport'),
+    component: () => import(/* webpackChunkName: "import" */ '@/views/AdminImport'),
     meta: {
       auth: true
     }

@@ -1,6 +1,6 @@
 <template>
-  <a
-    :href="href"
+  <router-link
+    :to="to"
     class="item"
     :class="classData"
     :style="itemStyle"
@@ -36,7 +36,7 @@
     <TagsDisplay :tags="item.tags" :bg="colors[3].hex" :color="colors[2].hex" />
 
     <span class="score"> {{ item.score }}/5 </span>
-  </a>
+  </router-link>
 </template>
 
 <script>
@@ -97,8 +97,8 @@ export default {
       return this.item.types.indexOf('3d') > -1
     },
 
-    href () {
-      return this.item.id ? '#' + this.item.id : ''
+    to () {
+      return { name: this.$route.name, params: { itemID: this.item.id } }
     },
 
     colors () {
@@ -304,6 +304,7 @@ $marg: $margin-sm
   .tags
     position: absolute
     bottom: $margin-sm
+    left: $margin-sm
     right: $margin-sm
     text-align: right
 

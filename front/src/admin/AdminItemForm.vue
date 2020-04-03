@@ -50,13 +50,13 @@
         ></li>
       </ul>
 
-      <Tabs :labels="[ 'content', 'thumb', 'initial' ]">
+      <Tabs :labels="[ 'Content', 'Thumb', 'Initial' ]">
 
-        <template slot="content">
+        <template slot="Content">
           <Content v-if="input" :item="input" />
         </template>
 
-        <template slot="thumb">
+        <template slot="Thumb">
           <AdminFileLoader
             @change="fileChange"
             :image="input.image"
@@ -65,7 +65,7 @@
           />
         </template>
 
-        <template slot="initial">
+        <template slot="Initial">
           <InputTextarea
             @submit="validContent"
             :value="input.input"
@@ -99,7 +99,7 @@
 <script>
 import apiSave from '@/pure/apiSave'
 // import api from '../pure/api'
-import AdminFileLoader from '@/components/AdminFileLoader.vue'
+import AdminFileLoader from '@/admin/AdminFileLoader.vue'
 import Tags from '@/components/Tags'
 import Content from '@/components/Content.vue'
 import InputTextarea from '@/components/InputTextarea.vue'

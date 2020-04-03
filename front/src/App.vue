@@ -74,7 +74,8 @@ export default {
 .header
   display: flex
   align-items: center
-  padding: $margin-sm
+  padding: 0 $margin-sm
+  background: #000
 
 .title
   text-transform: uppercase
@@ -83,8 +84,14 @@ export default {
 
 .nav
   text-align: center
+  margin: $margin-sm * 3 0
 
 .link
   display: inline-block
-  margin: 0 0.4em
+  margin: 0
+  padding: $margin-sm / 4 $margin-sm
+
+  &.router-link-active
+    background: #F07
+    color: #FFF
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>{{ group.title }}</h2>
-    <p>{{ group.description }}</p>
+    <p v-if="group.description">{{ group.description }}</p>
     <Tags :filter="filter" @change="items => filter = items" />
     <Items :filter="filter" />
   </div>

@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- <h2>Groups</h2> -->
     <router-view v-if="currentGroup" :group="currentGroup" />
     <ul v-else>
       <li v-for="group of groups" :key="group.id">
