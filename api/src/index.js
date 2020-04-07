@@ -2,6 +2,7 @@ const Koa = require("koa");
 const Router = require("koa-router");
 const BodyParser = require("koa-bodyparser");
 const logger = require('koa-logger');
+const request = require('./request');
 const ObjectID = require("mongodb").ObjectID;
 
 const app = new Koa();
@@ -42,6 +43,14 @@ router.put("/people/:id", user.can('access private page'), async (ctx) => {
   const documentQuery = { "_id": ObjectID(ctx.params.id) }; // Used to find the document
   const valuesToUpdate = ctx.request.body;
   ctx.body = await ctx.app.people.updateOne(documentQuery, valuesToUpdate);
+});
+
+router.get("/distant/:url", user.can('access private page'), async (ctx) => {
+  try {
+    ctx.body = await request(decodeURIComponent(ctx.params.url));
+  } catch (error) {
+    ctx.body = { success: false, message: error.message }
+  }
 });
 
 app.use(router.routes()).use(router.allowedMethods());
