@@ -1,0 +1,13 @@
+{
+  "db": {
+    "userName": "damien",
+    "userPassword": "password",
+    "auth": "DEFAULT",
+    "name": "inspire",
+    "host": "192.168.99.100",
+    "port": "27017"
+  },
+  "jwt": {
+    "secret": "1nSpIre-yep"
+  }
+}

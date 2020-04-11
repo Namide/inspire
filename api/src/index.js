@@ -1,10 +1,21 @@
-const Koa = require("koa");
-const Router = require("koa-router");
-const BodyParser = require("koa-bodyparser");
+const Koa = require('koa');
+const Router = require('koa-router');
+const BodyParser = require('koa-bodyparser');
 const logger = require('koa-logger');
 const request = require('./request');
-const ObjectID = require("mongodb").ObjectID;
+const ObjectID = require('mongodb').ObjectID;
+const errorHandler = require('./middleware/errorHandler');
+const { add: addUser, get: getUser, set: setUser, list: getUsers } = require('./routes/users.js');
+const busboy = require('koa-busboy')
 
+const uploader = busboy({
+  dest: './upload', // default is system temp folder (`os.tmpdir()`)
+  fnDestFilename: (fieldname, filename) => uuid() + filename
+})
+
+// const jwt = require('./middleware/jwt.js');
+
+// const roles = require('koa-jwt-roles');
 const app = new Koa();
 const router = new Router();
 
@@ -13,39 +24,49 @@ const router = new Router();
 
 // http://polyglot.ninja/rest-api-koajs-mongodb-part-3/
 
-// const jwt = require("./jwt");
+// const jwt = require('./jwt');
 // app.use(jwt.errorHandler()).use(jwt.jwt());
+app.use(errorHandler);
 app.use(BodyParser());
 app.use(logger());
 
-require("./mongo.js")(app)
-const user = require("./roles.js")(app)
+require('./middleware/mongo.js')(app)
+require('./middleware/ratelimit.js')(app)
 
-router.post("/", user.can('access public page'), async function (ctx) {
-  let name = ctx.request.body.name || "World";
+// router.post('/auth/signin', signin);
+// router.get('/auth/signout', signout);
+
+router.get('/users/:id([0-9a-f]{24})', getUser);
+router.post('/users/:id([0-9a-f]{24})', setUser);
+router.post('/users', addUser); // , uploader
+router.get('/users', getUsers);
+router.post('/users', getUsers);
+
+router.post('/', async function (ctx) {
+  let name = ctx.request.body.name || 'World';
   ctx.body = { message: `Hello ${name}!` }
 });
 
-router.get("/people", user.can('access public page'), async (ctx) => {
-  // app.people.insert({ "name": "masnun", "email": "masnun@gmail.com" })
-  ctx.body = await ctx.app.people.find().toArray();
+router.get('/peoples', async (ctx) => {
+  // app.peoples.insert({ 'name': 'masnun', 'email': 'masnun@gmail.com' })
+  ctx.body = await ctx.app.peoples.find().toArray();
 });
 
-router.get("/people/:id", user.can('access private page'), async (ctx) => {
-  ctx.body = await ctx.app.people.findOne({"_id": ObjectID(ctx.params.id)});
+router.get('/peoples/:id([0-9a-f]{24})', async (ctx) => {
+  ctx.body = await ctx.app.peoples.findOne({'_id': ObjectID(ctx.params.id)});
 });
 
-router.post("/people", user.can('access private page'), async (ctx) => {
-  ctx.body = await ctx.app.people.insert(ctx.request.body);
+router.post('/peoples', async (ctx) => {
+  ctx.body = await ctx.app.peoples.insert(ctx.request.body);
 });
 
-router.put("/people/:id", user.can('access private page'), async (ctx) => {
-  const documentQuery = { "_id": ObjectID(ctx.params.id) }; // Used to find the document
+router.post('/peoples/:id([0-9a-f]{24})', async (ctx) => {
+  const documentQuery = { '_id': ObjectID(ctx.params.id) }; // Used to find the document
   const valuesToUpdate = ctx.request.body;
-  ctx.body = await ctx.app.people.updateOne(documentQuery, valuesToUpdate);
+  ctx.body = await ctx.app.peoples.updateOne(documentQuery, valuesToUpdate);
 });
 
-router.get("/distant/:url", user.can('access private page'), async (ctx) => {
+router.get('/distant/:url', async (ctx) => {
   try {
     ctx.body = await request(decodeURIComponent(ctx.params.url));
   } catch (error) {
@@ -53,6 +74,7 @@ router.get("/distant/:url", user.can('access private page'), async (ctx) => {
   }
 });
 
-app.use(router.routes()).use(router.allowedMethods());
-
-app.listen(3000);
+app
+  .use(router.routes())
+  .use(router.allowedMethods())
+  .listen(3000);
