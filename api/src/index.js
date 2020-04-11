@@ -5,7 +5,7 @@ const logger = require('koa-logger');
 const request = require('./request');
 const ObjectID = require('mongodb').ObjectID;
 const errorHandler = require('./middleware/errorHandler');
-const { add: addUser, get: getUser, set: setUser, list: getUsers } = require('./routes/users.js');
+const { add: addUser, get: getUser, set: setUser, delete: deleteUser, list: getUsers, signin, signout } = require('./routes/users.js');
 const busboy = require('koa-busboy')
 
 const uploader = busboy({
@@ -38,9 +38,11 @@ require('./middleware/ratelimit.js')(app)
 
 router.get('/users/:id([0-9a-f]{24})', getUser);
 router.post('/users/:id([0-9a-f]{24})', setUser);
-router.post('/users', addUser); // , uploader
+router.delete('/users/:id([0-9a-f]{24})', deleteUser);
 router.get('/users', getUsers);
-router.post('/users', getUsers);
+router.post('/users', addUser); // , uploader
+router.post('/signin', signin);
+router.post('/signout', signout);
 
 router.post('/', async function (ctx) {
   let name = ctx.request.body.name || 'World';

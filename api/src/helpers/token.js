@@ -5,9 +5,9 @@ const JWT_OPTIONS = {
   expiresIn: 1000 * 60 * 60 * 24
 }
 
-module.exports.setToken = (name, role) => {
+module.exports.setToken = (email, role) => {
   const payload = {
-    user: { name, role }
+    user: { email, role }
   }
   return jwt.sign(payload, CONFIG.jwt.secret, JWT_OPTIONS);
 }

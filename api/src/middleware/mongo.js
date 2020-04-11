@@ -31,6 +31,7 @@ module.exports = function (app) {
    
     const db = client.db(DB_NAME);
     app.users = db.collection('users');
+    app.users.createIndex( { 'email': 1 }, { unique: true } );
    
     // client.close();
   });
