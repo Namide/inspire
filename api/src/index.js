@@ -13,19 +13,13 @@ const uploader = busboy({
   fnDestFilename: (fieldname, filename) => uuid() + filename
 })
 
-// const jwt = require('./middleware/jwt.js');
-
-// const roles = require('koa-jwt-roles');
 const app = new Koa();
 const router = new Router();
 
 // Security
 // https://nodesource.com/blog/Express-Koa-Hapi
-
 // http://polyglot.ninja/rest-api-koajs-mongodb-part-3/
 
-// const jwt = require('./jwt');
-// app.use(jwt.errorHandler()).use(jwt.jwt());
 app.use(errorHandler);
 app.use(BodyParser());
 app.use(logger());
@@ -33,16 +27,13 @@ app.use(logger());
 require('./middleware/mongo.js')(app)
 require('./middleware/ratelimit.js')(app)
 
-// router.post('/auth/signin', signin);
-// router.get('/auth/signout', signout);
-
 router.get('/users/:id([0-9a-f]{24})', getUser);
 router.post('/users/:id([0-9a-f]{24})', setUser);
 router.delete('/users/:id([0-9a-f]{24})', deleteUser);
 router.get('/users', getUsers);
 router.post('/users', addUser); // , uploader
 router.post('/signin', signin);
-router.post('/signout', signout);
+// router.post('/signout', signout);
 
 router.post('/', async function (ctx) {
   let name = ctx.request.body.name || 'World';
