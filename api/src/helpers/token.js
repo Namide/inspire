@@ -22,6 +22,7 @@ module.exports.setToken = (ctx, user) => {
 module.exports.getToken = (ctx, isNeeded = false) => {
   if (ctx.headers.authorization) {
     const token = ctx.headers.authorization.split(' ')[1];
+
     try {
       const decoded = jwt.verify(token, CONFIG.jwt.secret);
       const ua = ctx.request.headers['user-agent'];

@@ -8,14 +8,11 @@ const ROLES = {
 const VISIBILITY = {
   PUBLIC: 'public',
   PROTECTED: 'protected',
-  PRIVATE: 'private'
+  PRIVATE: 'private',
+  SUBSCRIBER: 'subscribe'
 };
 
-module.exports.ROLES = ROLES;
-
-module.exports.VISIBILITY = VISIBILITY;
-
-module.exports.roleToVisibility = role => {
+const roleToVisibility = role => {
   switch (role) {
     case ROLES.ADMIN:
       return [VISIBILITY.PUBLIC, VISIBILITY.PROTECTED, VISIBILITY.PRIVATE];
@@ -23,9 +20,15 @@ module.exports.roleToVisibility = role => {
       return [VISIBILITY.PUBLIC, VISIBILITY.PROTECTED];
     case ROLES.AUTHOR:
       return [VISIBILITY.PUBLIC, VISIBILITY.PROTECTED];
-    case ROLES.GUEST:
+    case ROLES.SUBSCRIBER:
       return [VISIBILITY.PUBLIC, VISIBILITY.PROTECTED];
+    case ROLES.GUEST:
+      return [VISIBILITY.PUBLIC];
     default:
       throw new Error(role + ' unknow')
   }
-}
+};
+
+module.exports.ROLES = ROLES;
+module.exports.VISIBILITY = VISIBILITY;
+module.exports.roleToVisibility = roleToVisibility;

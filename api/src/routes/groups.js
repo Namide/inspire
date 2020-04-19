@@ -1,11 +1,12 @@
 const { getToken, setToken } = require('../helpers/token.js');
 const required = require('../helpers/required.js');
 const ObjectID = require('mongodb').ObjectID;
-const { ROLES, roleToVisibility } = require('../constants/permissions');
+const { ROLES, VISIBILITY, roleToVisibility } = require('../constants/permissions');
 
 const isText = () => {
   return true;
 }
+
 const isJSON = (string) => {
   try {
     JSON.parse(string);
@@ -17,7 +18,7 @@ const isJSON = (string) => {
 }
 
 const RULES = {
-  visibility: new RegExp(`^(${ Object.values(ROLES.VISIBILITY).join('|') })$`),
+  visibility: new RegExp(`^(${ Object.values(VISIBILITY).join('|') })$`),
   sort: /^[0-9]+$/,
   author: /^[0-9a-f]+$/,
   title: isText,
@@ -26,14 +27,20 @@ const RULES = {
   filter: isText
 }
 
+module.exports.init = (db) => {
+  const groups = db.collection('groups');
+  groups.createIndex( { 'filter': 1 }, { unique: true } );
+  return groups;
+}
+
 module.exports.list = async (ctx) => {
 
   const token = getToken(ctx);
-  const role = token ? token.role : ROLES.GUEST;
+  const role = token ? token.user.role : ROLES.GUEST;
   const visibility = roleToVisibility(role);
   const author = token ? token.user._id : '0';
 
-  const list = await ctx.app.groups
+  const groups = await ctx.app.groups
     .find({
       $or: [
         { author },
@@ -46,7 +53,7 @@ module.exports.list = async (ctx) => {
     })
     .toArray();
   
-  return list;
+  return ctx.body = { groups };
 };
 
 // module.exports.get = async (ctx) => {
@@ -100,15 +107,6 @@ module.exports.list = async (ctx) => {
 
 module.exports.add = async (ctx) => {
   
-  // required(ctx, {
-  //   name: RULES['name'],
-  //   email: RULES['email'],
-  //   password: RULES['password'],
-  //   role: RULES['role']
-  // })
-
-//   const documentQuery = { '_id': ObjectID(ctx.params.id) };
-
   const token = getToken(ctx, true);
   if (!token) {
     return ctx;
@@ -127,8 +125,8 @@ module.exports.add = async (ctx) => {
     const payload = Object.assign(values, { author: ObjectID(token.user._id) })
     const insert = await ctx.app.groups
       .insertOne(payload);
-    const group = insert.ops[0];
-    ctx.body = { group };
+    const groups = [insert.ops[0]];
+    ctx.body = { groups };
   } catch (error) {
     ctx.body = {
       success: false,

@@ -8,7 +8,7 @@ const { ROLES } = require('../constants/permissions');
 const RULES = {
   name: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/,
   password: /^(.){6,}$/,
-  role: new RegExp(`^(${ Object.values(ROLES).join('|') })$`),
+  role: new RegExp(`^(${Object.values(ROLES).join('|')})$`),
   email: /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 }
 
@@ -17,8 +17,61 @@ const displayUser = user => {
   return user;
 }
 
+module.exports.init = (db) => {
+  db.createCollection('users', {
+    validator: {
+      $jsonSchema: {
+        bsonType: 'object',
+        required: ['name', 'password', 'role', 'email'],
+        properties: {
+          name: {
+            bsonType: 'string',
+            description: 'Can only contain alpha numeric caracters and "_" or "."'
+          },
+          password: {
+            bsonType: 'string',
+            description: 'Must contain 6 characters minimum'
+          },
+          role: {
+            enum: Object.values(ROLES),
+            description: 'Can only be ' + Object.values(ROLES).join(', ') + ' and is required'
+          },
+          email: {
+            bsonType: 'string',
+            description: 'Must be a valid email'
+          },
+          // address: {
+          //   bsonType: 'object',
+          //   required: ['city'],
+          //   properties: {
+          //     street: {
+          //       bsonType: 'string',
+          //       description: 'must be a string if the field exists'
+          //     },
+          //     city: {
+          //       bsonType: 'string',
+          //       'description': 'must be a string and is required'
+          //     }
+          //   }
+          // }
+        }
+      },
+      $or: [
+        { name: { $regex: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/ } },
+        { password: { $regex: /^(.){6,128}$/ } },
+        { email: { $regex: /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ } }
+      ]
+    }
+  })
+  
+  const users = db.collection('users');
+  users.createIndex({ email: 1 }, { unique: true });
+  users.createIndex({ name: 1 }, { unique: true });
+  return users;
+}
+
 module.exports.signin = async (ctx) => {
-  required(ctx, { email: RULES['email'], password: RULES['password'] })
+  // required(ctx, { email: RULES['email'], password: RULES['password'] })
 
   const { email, password } = ctx.request.body;
   const user = await ctx.app.users.findOne({ email });
@@ -49,7 +102,7 @@ module.exports.get = async (ctx) => {
       return ctx.throw(401, 'Unauthorized');
     }
 
-    const user = await ctx.app.users.findOne({'_id': ObjectID(ctx.params.id)});
+    const user = await ctx.app.users.findOne({ '_id': ObjectID(ctx.params.id) });
 
     if (user) {
       ctx.body = {
@@ -114,22 +167,23 @@ module.exports.list = async (ctx) => {
       return ctx.throw(401, 'Unauthorized');
     }
 
-    const users = await ctx.app.users
+    const list = await ctx.app.users
       .find({})
       .toArray();
-  
-    return ctx.body = { users: users.map(displayUser) };
+
+    return ctx.body = { users: list.map(displayUser) };
   }
 };
 
 module.exports.add = async (ctx) => {
-  
-  required(ctx, {
-    name: RULES['name'],
-    email: RULES['email'],
-    password: RULES['password'],
-    role: RULES['role']
-  })
+
+  // required(ctx, {
+  //   name: RULES['name'],
+  //   email: RULES['email'],
+  //   password: RULES['password'],
+  //   role: RULES['role']
+  // })
+  required(ctx, ['name', 'password', 'role', 'email'])
 
   const { name, password, role, email } = ctx.request.body;
   const salt = bcrypt.genSaltSync();
@@ -145,6 +199,7 @@ module.exports.add = async (ctx) => {
   } catch (error) {
     ctx.body = {
       success: false,
+      code: error.code,
       message: error.message
     }
   }

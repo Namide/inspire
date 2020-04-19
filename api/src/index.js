@@ -5,7 +5,23 @@ const logger = require('koa-logger');
 const request = require('./request');
 const ObjectID = require('mongodb').ObjectID;
 const errorHandler = require('./middleware/errorHandler');
-const { add: addUser, get: getUser, set: setUser, delete: deleteUser, list: getUsers, signin, signout } = require('./routes/users.js');
+
+const {
+  add: addUser,
+  get: getUser,
+  set: setUser,
+  delete: deleteUser,
+  list: getUsers,
+  init: initUsers,
+  signin,
+  signout
+} = require('./routes/users.js');
+
+const {
+  list: getGroups,
+  init: initGroups,
+} = require('./routes/groups.js');
+
 const busboy = require('koa-busboy')
 
 const uploader = busboy({
@@ -25,7 +41,17 @@ app.use(BodyParser());
 app.use(logger());
 
 require('./middleware/mongo.js')(app)
-require('./middleware/ratelimit.js')(app)
+  .then(db => {
+    
+    // db.command( { listCollections: 1 } )
+    //   .then(data => console.log(data.cursor.firstBatch));
+
+    console.log('DB connected');
+    app.users = initUsers(db);
+    app.groups = initGroups(db);
+  })
+  .catch(error => console.log('DB connection error:', error.message));
+require('./middleware/ratelimit.js')(app);
 
 router.get('/users/:id([0-9a-f]{24})', getUser);
 router.post('/users/:id([0-9a-f]{24})', setUser);
@@ -34,6 +60,12 @@ router.get('/users', getUsers);
 router.post('/users', addUser); // , uploader
 router.post('/signin', signin);
 // router.post('/signout', signout);
+
+router.get('/groups', getGroups);
+router.post('/groups', uploader, addUser);
+
+
+
 
 router.post('/', async function (ctx) {
   let name = ctx.request.body.name || 'World';

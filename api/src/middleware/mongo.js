@@ -11,26 +11,31 @@ const DB_PORT = CONFIG.db.port;
 
 const MONGO_URL = `mongodb://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/?authMechanism=${DB_AUTH}`;
 
-module.exports = function (app) {
+module.exports = (app) => {
+    
+  return new Promise((resolve, reject) => {
+    
+    MongoClient.connect(MONGO_URL, { useUnifiedTopology: true, useNewUrlParser: true }, (error, client) => {
   
-  MongoClient.connect(MONGO_URL, { useUnifiedTopology: true, useNewUrlParser: true }, function(error, client) {
+      if (error) {
+        return reject(error);
+      }
+  
+      // assert.equal(null, err);
+     
+      const db = client.db(DB_NAME);
 
-    if (error) {
-      console.log('DB error:', error.message)
-    }
+      // const users = db.collection('users');
+      const items = db.collection('items');
+      
+      // app.users = users;
+      app.items = items;
+      
+      process.on('exit', () => {
+        client.close();
+      });
 
-    // assert.equal(null, err);
-    console.log("Mongo DB connect");
-   
-    const db = client.db(DB_NAME);
-    app.users = db.collection('users');
-    app.users.createIndex( { 'email': 1 }, { unique: true } );
-
-    app.items = db.collection('items');
-
-    app.groups = db.collection('groups');
-    app.groups.createIndex( { 'filter': 1 }, { unique: true } );
-   
-    // client.close();
+      resolve(db);
+    });
   });
 };
