@@ -20,6 +20,7 @@ const {
 const {
   list: getGroups,
   init: initGroups,
+  add: addGroups,
 } = require('./routes/groups.js');
 
 const busboy = require('koa-busboy')
@@ -62,7 +63,7 @@ router.post('/signin', signin);
 // router.post('/signout', signout);
 
 router.get('/groups', getGroups);
-router.post('/groups', uploader, addUser);
+router.post('/groups', uploader, addGroups);
 
 
 

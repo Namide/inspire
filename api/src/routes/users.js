@@ -1,16 +1,16 @@
 const { getToken, setToken } = require('../helpers/token.js');
-const required = require('../helpers/required.js');
+// const required = require('../helpers/required.js');
 const bcrypt = require('bcryptjs');
 const ObjectID = require('mongodb').ObjectID;
 const { ROLES } = require('../constants/permissions');
 
 
-const RULES = {
-  name: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/,
-  password: /^(.){6,}$/,
-  role: new RegExp(`^(${Object.values(ROLES).join('|')})$`),
-  email: /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
-}
+// const RULES = {
+//   name: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/,
+//   password: /^(.){6,}$/,
+//   role: new RegExp(`^(${Object.values(ROLES).join('|')})$`),
+//   email: /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+// }
 
 const displayUser = user => {
   delete user.password;
@@ -29,8 +29,7 @@ module.exports.init = (db) => {
             description: 'Can only contain alpha numeric caracters and "_" or "."'
           },
           password: {
-            bsonType: 'string',
-            description: 'Must contain 6 characters minimum'
+            bsonType: 'string'
           },
           role: {
             enum: Object.values(ROLES),
@@ -58,7 +57,6 @@ module.exports.init = (db) => {
       },
       $or: [
         { name: { $regex: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/ } },
-        { password: { $regex: /^(.){6,128}$/ } },
         { email: { $regex: /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ } }
       ]
     }
@@ -124,12 +122,12 @@ module.exports.set = async (ctx) => {
   const documentQuery = { '_id': ObjectID(ctx.params.id) };
   const values = ctx.request.body;
 
-  for (const label of values) {
-    if (!RULES[label]) {
-      return ctx.throw(401, label + ' undesired');
-    }
-    required(ctx, { [label]: RULES[label] })
-  }
+  // for (const label of values) {
+  //   if (!RULES[label]) {
+  //     return ctx.throw(401, label + ' undesired');
+  //   }
+  //   // required(ctx, { [label]: RULES[label] })
+  // }
 
   if (values.password) {
     const salt = bcrypt.genSaltSync();
@@ -183,11 +181,19 @@ module.exports.add = async (ctx) => {
   //   password: RULES['password'],
   //   role: RULES['role']
   // })
-  required(ctx, ['name', 'password', 'role', 'email'])
+  // required(ctx, ['name', 'password', 'role', 'email'])
+
 
   const { name, password, role, email } = ctx.request.body;
   const salt = bcrypt.genSaltSync();
-  const hash = bcrypt.hashSync(password, salt);
+  const hash = bcrypt.hashSync(password || '', salt);
+
+  // for (const label of values) {
+  //   if (!RULES[label]) {
+  //     return ctx.throw(401, label + ' undesired');
+  //   }
+  //   // required(ctx, { [label]: RULES[label] })
+  // }
 
   try {
     const insert = await ctx.app.users

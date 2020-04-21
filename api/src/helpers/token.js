@@ -19,7 +19,7 @@ module.exports.setToken = (ctx, user) => {
   return jwt.sign(payload, CONFIG.jwt.secret, JWT_OPTIONS);
 }
 
-module.exports.getToken = (ctx, isNeeded = false) => {
+module.exports.getToken = (ctx, { isNeeded = false, roles: ROLES }) => {
   if (ctx.headers.authorization) {
     const token = ctx.headers.authorization.split(' ')[1];
 
@@ -33,17 +33,22 @@ module.exports.getToken = (ctx, isNeeded = false) => {
       }
       
       ctx.throw(401, 'Falsified token');
-      return null
+      return null;
 
     } catch (err) {
       ctx.throw(401, err.message);
-      return null
+      return null;
     }
   }
 
   if (isNeeded) {
-    ctx.throw(401, err.message);
-    return null
+    ctx.throw(401, 'Token needed');
+    return null;
+  }
+  
+  if (!roles.find(token.user.role)) {
+    ctx.throw(401, 'Role not authorized');
+    return null;
   }
 
   return {

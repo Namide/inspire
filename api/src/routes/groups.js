@@ -1,33 +1,84 @@
 const { getToken, setToken } = require('../helpers/token.js');
-const required = require('../helpers/required.js');
+// const required = require('../helpers/required.js');
 const ObjectID = require('mongodb').ObjectID;
 const { ROLES, VISIBILITY, roleToVisibility } = require('../constants/permissions');
 
-const isText = () => {
-  return true;
-}
+// const isText = () => {
+//   return true;
+// }
 
-const isJSON = (string) => {
-  try {
-    JSON.parse(string);
-  } catch (error) {
-    return false;
-  }
+// const isJSON = (string) => {
+//   try {
+//     JSON.parse(string);
+//   } catch (error) {
+//     return false;
+//   }
 
-  return true;
-}
+//   return true;
+// }
 
-const RULES = {
-  visibility: new RegExp(`^(${ Object.values(VISIBILITY).join('|') })$`),
-  sort: /^[0-9]+$/,
-  author: /^[0-9a-f]+$/,
-  title: isText,
-  image: isJSON,
-  description: isText,
-  filter: isText
-}
+// const RULES = {
+//   visibility: new RegExp(`^(${ Object.values(VISIBILITY).join('|') })$`),
+//   sort: /^[0-9]+$/,
+//   author: /^[0-9a-f]+$/,
+//   title: isText,
+//   image: isJSON,
+//   description: isText,
+//   filter: isText
+// }
 
 module.exports.init = (db) => {
+  db.createCollection('groups', {
+    validator: {
+      $jsonSchema: {
+        bsonType: 'object',
+        required: ['visibility', 'sort', 'title', 'author', 'filter'],
+        properties: {
+          visibility: {
+            enum: Object.values(VISIBILITY),
+            description: 'Can only be ' + Object.values(VISIBILITY).join(', ') + ' and is required'
+          },
+          sort: {
+            bsonType: 'int'
+          },
+          author: {
+            bsonType: 'int'
+          },
+          title: {
+            bsonType: 'string'
+          },
+          description: {
+            bsonType: 'string'
+          },
+          image: {
+            bsonType: 'object',
+            required: ['width', 'height', 'src'],
+            properties: {
+              width: {
+                bsonType: 'int',
+                description: 'must be a string if the field exists'
+              },
+              height: {
+                bsonType: 'int',
+                description: 'must be a string if the field exists'
+              },
+              src: {
+                bsonType: 'string'
+              }
+            }
+          },
+          filter: {
+            bsonType: 'string'
+          }
+        }
+      },
+      // $or: [
+      //   { name: { $regex: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/ } },
+      //   { email: { $regex: /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ } }
+      // ]
+    }
+  })
+
   const groups = db.collection('groups');
   groups.createIndex( { 'filter': 1 }, { unique: true } );
   return groups;
@@ -107,19 +158,19 @@ module.exports.list = async (ctx) => {
 
 module.exports.add = async (ctx) => {
   
-  const token = getToken(ctx, true);
+  const token = getToken(ctx, { isNeeded: true, roles: [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR] });
   if (!token) {
     return ctx;
   }
 
   const values = ctx.request.body;
 
-  for (const label of values) {
-    if (!RULES[label]) {
-      return ctx.throw(401, label + ' undesired');
-    }
-    required(ctx, { [label]: RULES[label] })
-  }
+  // for (const label of values) {
+  //   if (!RULES[label]) {
+  //     return ctx.throw(401, label + ' undesired');
+  //   }
+  //   required(ctx, { [label]: RULES[label] })
+  // }
 
   try {
     const payload = Object.assign(values, { author: ObjectID(token.user._id) })
