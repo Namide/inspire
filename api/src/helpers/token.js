@@ -19,7 +19,7 @@ module.exports.setToken = (ctx, user) => {
   return jwt.sign(payload, CONFIG.jwt.secret, JWT_OPTIONS);
 }
 
-module.exports.getToken = (ctx, { isNeeded = false, roles: ROLES }) => {
+module.exports.getToken = (ctx, { isNeeded = false, roles: ROLES } = {}) => {
   if (ctx.headers.authorization) {
     const token = ctx.headers.authorization.split(' ')[1];
 
