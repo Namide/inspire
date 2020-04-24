@@ -26,7 +26,8 @@ module.exports.init = (db) => {
         properties: {
           name: {
             bsonType: 'string',
-            description: 'Can only contain alpha numeric caracters and "_" or "."'
+            description: 'Can only contain alpha numeric caracters and "_" or "."',
+            pattern: "^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$"
           },
           password: {
             bsonType: 'string'
@@ -37,7 +38,8 @@ module.exports.init = (db) => {
           },
           email: {
             bsonType: 'string',
-            description: 'Must be a valid email'
+            description: 'Must be a valid email',
+            pattern: "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$"
           },
           // address: {
           //   bsonType: 'object',
@@ -55,10 +57,10 @@ module.exports.init = (db) => {
           // }
         }
       },
-      $or: [
-        { name: { $regex: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/ } },
-        { email: { $regex: /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ } }
-      ]
+      // $or: [
+      //   { name: { $regex: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/ } },
+      //   { email: { $regex: /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ } }
+      // ]
     }
   })
   
