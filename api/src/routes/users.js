@@ -17,8 +17,8 @@ const displayUser = user => {
   return user;
 }
 
-module.exports.init = (db) => {
-  db.createCollection('users', {
+module.exports.init = async (db) => {
+  const users = await db.createCollection('users', {
     validator: {
       $jsonSchema: {
         bsonType: 'object',
@@ -64,7 +64,8 @@ module.exports.init = (db) => {
     }
   })
   
-  const users = db.collection('users');
+  // const users = db.collection('users');
+  
   users.createIndex({ email: 1 }, { unique: true });
   users.createIndex({ name: 1 }, { unique: true });
   return users;
@@ -157,6 +158,14 @@ module.exports.delete = async (ctx) => {
 
   return ctx;
 }
+
+// module.exports.publicList = async (list) => {
+//   const list = await ctx.app.users
+//     .find({})
+//     .toArray();
+
+//   return ctx.body = { users: list.map(displayUser) };
+// }
 
 module.exports.list = async (ctx) => {
 

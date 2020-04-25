@@ -19,7 +19,7 @@ const { ROLES, VISIBILITY, roleToVisibility } = require('../constants/permission
 
 // const RULES = {
 //   visibility: new RegExp(`^(${ Object.values(VISIBILITY).join('|') })$`),
-//   sort: /^[0-9]+$/,
+//   order: /^[0-9]+$/,
 //   author: /^[0-9a-f]+$/,
 //   title: isText,
 //   image: isJSON,
@@ -27,22 +27,23 @@ const { ROLES, VISIBILITY, roleToVisibility } = require('../constants/permission
 //   filter: isText
 // }
 
-module.exports.init = (db) => {
-  db.createCollection('groups', {
+module.exports.init = async (db) => {
+  const groups = await db.createCollection('groups', {
     validator: {
       $jsonSchema: {
         bsonType: 'object',
-        required: ['visibility', 'sort', 'title', 'author', 'filter'],
+        required: ['visibility', 'order', 'title', 'author', 'filter'],
         properties: {
           visibility: {
             enum: Object.values(VISIBILITY),
             description: 'Can only be ' + Object.values(VISIBILITY).join(', ') + ' and is required'
           },
-          sort: {
+          order: {
             bsonType: 'int'
           },
           author: {
-            bsonType: 'int'
+            bsonType: 'objectId',
+            // pattern: '^[0-9a-fA-F]{24}$'
           },
           title: {
             bsonType: 'string'
@@ -79,7 +80,7 @@ module.exports.init = (db) => {
     }
   })
 
-  const groups = db.collection('groups');
+  // const groups = db.collection('groups');
   groups.createIndex( { 'filter': 1 }, { unique: true } );
   return groups;
 }
@@ -171,9 +172,12 @@ module.exports.add = async (ctx) => {
   //   }
   //   required(ctx, { [label]: RULES[label] })
   // }
+  
 
   try {
     const payload = Object.assign(values, { author: ObjectID(token.user._id) })
+    payload.order = Number(payload.order)
+
     const insert = await ctx.app.groups
       .insertOne(payload);
     const groups = [insert.ops[0]];

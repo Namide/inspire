@@ -42,14 +42,16 @@ app.use(BodyParser());
 app.use(logger());
 
 require('./middleware/mongo.js')(app)
-  .then(db => {
+  .then(async db => {
     
     // db.command( { listCollections: 1 } )
     //   .then(data => console.log(data.cursor.firstBatch));
 
     console.log('DB connected');
-    app.users = initUsers(db);
-    app.groups = initGroups(db);
+    app.users = await initUsers(db);
+    app.groups = await initGroups(db);
+
+    return true
   })
   .catch(error => console.log('DB connection error:', error.message));
 require('./middleware/ratelimit.js')(app);
