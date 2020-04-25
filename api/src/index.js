@@ -25,9 +25,19 @@ const {
 
 const busboy = require('koa-busboy')
 
-const uploader = busboy({
-  dest: './upload', // default is system temp folder (`os.tmpdir()`)
-  fnDestFilename: (fieldname, filename) => uuid() + filename
+const getName = fileName => new Date().toISOString().replace(/[:]/g, '-').replace(/T(.)+Z/, '') + '_' + Math.round((Math.random() * 1e32)).toString(36) + '_' + fileName
+
+const uploaderGroup = busboy({
+  dest: './upload/group',
+  fnDestFilename: (_, filename) => getName(filename)
+})
+const uploaderThumb = busboy({
+  dest: './upload/thumb',
+  fnDestFilename: (_, filename) => getName(filename)
+})
+const uploaderFile = busboy({
+  dest: './upload/file',
+  fnDestFilename: (_, filename) => getName(filename)
 })
 
 const app = new Koa();
@@ -60,12 +70,12 @@ router.get('/users/:id([0-9a-f]{24})', getUser);
 router.post('/users/:id([0-9a-f]{24})', setUser);
 router.delete('/users/:id([0-9a-f]{24})', deleteUser);
 router.get('/users', getUsers);
-router.post('/users', addUser); // , uploader
+router.post('/users', addUser); // , uploaderGroup
 router.post('/signin', signin);
 // router.post('/signout', signout);
 
 router.get('/groups', getGroups);
-router.post('/groups', uploader, addGroups);
+router.post('/groups', uploaderGroup, addGroups);
 
 
 

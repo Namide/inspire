@@ -2,6 +2,8 @@ const { getToken, setToken } = require('../helpers/token.js');
 // const required = require('../helpers/required.js');
 const ObjectID = require('mongodb').ObjectID;
 const { ROLES, VISIBILITY, roleToVisibility } = require('../constants/permissions');
+const fs = require('fs')
+const path = require('path')
 
 // const isText = () => {
 //   return true;
@@ -178,11 +180,41 @@ module.exports.add = async (ctx) => {
     const payload = Object.assign(values, { author: ObjectID(token.user._id) })
     payload.order = Number(payload.order)
 
+    if (ctx.request.files[0]) {
+      payload.image = JSON.parse(payload.image)
+      payload.image.src = '/' + ctx.request.files[0].path.split(path.sep).join('/')
+      payload.image.mimetype = ctx.request.files[0].mimetype
+    } else {
+      delete payload.image
+    }
+
     const insert = await ctx.app.groups
       .insertOne(payload);
     const groups = [insert.ops[0]];
     ctx.body = { groups };
   } catch (error) {
+
+    
+    console.log(ctx.request.files[0].path.split(path.sep).join('/'))
+    ctx.request.files.forEach(file => {
+
+      // file.on('data', function(data) {
+      //   console.log('File got ' + data.length + ' bytes');
+      // });
+      // console.log(file)
+      if (file.ended) {
+        return fs.unlink(path.resolve(file.path), error => {
+          if (error) console.log(error)
+        })
+      }
+      file.on('end', () => {
+        fs.unlink(path.resolve(file.path), error => {
+          if (error) console.log(error)
+        })
+      })
+
+    })
+
     ctx.body = {
       success: false,
       message: error.message
