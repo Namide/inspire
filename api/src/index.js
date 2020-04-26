@@ -5,6 +5,8 @@ const logger = require('koa-logger');
 const request = require('./request');
 const ObjectID = require('mongodb').ObjectID;
 const errorHandler = require('./middleware/errorHandler');
+const static = require('koa-static');
+const { uploaderGroup } = require('./helpers/files');
 
 const {
   add: addUser,
@@ -21,24 +23,9 @@ const {
   list: getGroups,
   init: initGroups,
   add: addGroups,
+  delete: deleteGroup,
 } = require('./routes/groups.js');
 
-const busboy = require('koa-busboy')
-
-const getName = fileName => new Date().toISOString().replace(/[:]/g, '-').replace(/T(.)+Z/, '') + '_' + Math.round((Math.random() * 1e32)).toString(36) + '_' + fileName
-
-const uploaderGroup = busboy({
-  dest: './upload/group',
-  fnDestFilename: (_, filename) => getName(filename)
-})
-const uploaderThumb = busboy({
-  dest: './upload/thumb',
-  fnDestFilename: (_, filename) => getName(filename)
-})
-const uploaderFile = busboy({
-  dest: './upload/file',
-  fnDestFilename: (_, filename) => getName(filename)
-})
 
 const app = new Koa();
 const router = new Router();
@@ -50,6 +37,11 @@ const router = new Router();
 app.use(errorHandler);
 app.use(BodyParser());
 app.use(logger());
+app.use(static('./public'));
+
+// app.use(koaStatic('upload'))
+// app.use(mount('/upload', a));
+// app.use(mount('/world', b));
 
 require('./middleware/mongo.js')(app)
   .then(async db => {
@@ -76,9 +68,7 @@ router.post('/signin', signin);
 
 router.get('/groups', getGroups);
 router.post('/groups', uploaderGroup, addGroups);
-
-
-
+router.delete('/groups/:id([0-9a-f]{24})', deleteGroup);
 
 router.post('/', async function (ctx) {
   let name = ctx.request.body.name || 'World';

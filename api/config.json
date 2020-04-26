@@ -9,5 +9,12 @@
   },
   "jwt": {
     "secret": "1nSpIre-yep"
+  },
+  "upload": {
+    "dir": {
+      "group": "media/group/",
+      "file": "media/file/",
+      "thumb": "media/thumb/"
+    }
   }
 }

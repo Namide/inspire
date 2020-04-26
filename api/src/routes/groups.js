@@ -2,8 +2,7 @@ const { getToken, setToken } = require('../helpers/token.js');
 // const required = require('../helpers/required.js');
 const ObjectID = require('mongodb').ObjectID;
 const { ROLES, VISIBILITY, roleToVisibility } = require('../constants/permissions');
-const fs = require('fs')
-const path = require('path')
+const { removeReadableStreams, removeFile, pathToSrc } = require('../helpers/files.js')
 
 // const isText = () => {
 //   return true;
@@ -146,18 +145,34 @@ module.exports.list = async (ctx) => {
 //   return ctx;
 // }
 
-// module.exports.delete = async (ctx) => {
+module.exports.delete = async (ctx) => {
+
+  const documentQuery = { '_id': ObjectID(ctx.params.id) };
+  const group = await ctx.app.groups.findOne(documentQuery);
   
-//   const documentQuery = { '_id': ObjectID(ctx.params.id) };
-//   await ctx.app.users.remove(documentQuery, true);
+  if (group) {
 
-//   ctx.body = {
-//     success: true,
-//     message: 'User ' + ctx.params.id + ' deleted'
-//   };
+    if (group.image) {
+      removeFile(group.image.src);
+    }
 
-//   return ctx;
-// }
+    await ctx.app.groups.remove(documentQuery, true);
+
+    ctx.body = {
+      success: true,
+      message: 'Group ' + ctx.params.id + ' deleted'
+    };
+  
+  } else {
+    ctx.status = 404;
+    ctx.body = {
+      success: false,
+      message: 'Group not found'
+    };
+  }
+
+  return ctx;
+}
 
 module.exports.add = async (ctx) => {
   
@@ -182,7 +197,7 @@ module.exports.add = async (ctx) => {
 
     if (ctx.request.files[0]) {
       payload.image = JSON.parse(payload.image)
-      payload.image.src = '/' + ctx.request.files[0].path.split(path.sep).join('/')
+      payload.image.src = pathToSrc(ctx.request.files[0].path)
       payload.image.mimetype = ctx.request.files[0].mimetype
     } else {
       delete payload.image
@@ -193,28 +208,7 @@ module.exports.add = async (ctx) => {
     const groups = [insert.ops[0]];
     ctx.body = { groups };
   } catch (error) {
-
-    
-    console.log(ctx.request.files[0].path.split(path.sep).join('/'))
-    ctx.request.files.forEach(file => {
-
-      // file.on('data', function(data) {
-      //   console.log('File got ' + data.length + ' bytes');
-      // });
-      // console.log(file)
-      if (file.ended) {
-        return fs.unlink(path.resolve(file.path), error => {
-          if (error) console.log(error)
-        })
-      }
-      file.on('end', () => {
-        fs.unlink(path.resolve(file.path), error => {
-          if (error) console.log(error)
-        })
-      })
-
-    })
-
+    removeReadableStreams(...ctx.request.files)
     ctx.body = {
       success: false,
       message: error.message
