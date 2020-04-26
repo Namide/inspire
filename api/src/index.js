@@ -24,6 +24,7 @@ const {
   init: initGroups,
   add: addGroups,
   delete: deleteGroup,
+  set: setGroup,
 } = require('./routes/groups.js');
 
 
@@ -67,8 +68,9 @@ router.post('/signin', signin);
 // router.post('/signout', signout);
 
 router.get('/groups', getGroups);
-router.post('/groups', uploaderGroup, addGroups);
+router.post('/groups/:id([0-9a-f]{24})', uploaderGroup, setGroup);
 router.delete('/groups/:id([0-9a-f]{24})', deleteGroup);
+router.post('/groups', uploaderGroup, addGroups);
 
 router.post('/', async function (ctx) {
   let name = ctx.request.body.name || 'World';

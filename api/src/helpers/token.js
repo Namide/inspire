@@ -19,7 +19,7 @@ module.exports.setToken = (ctx, user) => {
   return jwt.sign(payload, CONFIG.jwt.secret, JWT_OPTIONS);
 }
 
-module.exports.getToken = (ctx, { isNeeded = false, roles: ROLES } = {}) => {
+module.exports.getToken = (ctx, { isNeeded = false, roles = ROLES, author = null } = {}) => {
   if (ctx.headers.authorization) {
     const token = ctx.headers.authorization.split(' ')[1];
 
@@ -28,10 +28,20 @@ module.exports.getToken = (ctx, { isNeeded = false, roles: ROLES } = {}) => {
       const ua = ctx.request.headers['user-agent'];
       const ip = ctx.request.ip;
 
+      // Authorize if is author
+      if (author && author === decoded.user._id) {
+        decoded.user.role.push(...ROLES)
+      }
+
+      if (roles.indexOf(decoded.user.role) < 0) {
+        ctx.throw(401, 'Role not authorized');
+        return null;
+      }
+
       if (decoded.ua === ua && decoded.ip === ip) {
         return decoded;
       }
-      
+
       ctx.throw(401, 'Falsified token');
       return null;
 
@@ -46,7 +56,7 @@ module.exports.getToken = (ctx, { isNeeded = false, roles: ROLES } = {}) => {
     return null;
   }
   
-  if (!roles.find(token.user.role)) {
+  if (!roles.find(ROLES.GUEST)) {
     ctx.throw(401, 'Role not authorized');
     return null;
   }

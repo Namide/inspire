@@ -43,8 +43,7 @@ module.exports.init = async (db) => {
             bsonType: 'int'
           },
           author: {
-            bsonType: 'objectId',
-            // pattern: '^[0-9a-fA-F]{24}$'
+            bsonType: 'objectId'
           },
           title: {
             bsonType: 'string'
@@ -70,7 +69,11 @@ module.exports.init = async (db) => {
             }
           },
           filter: {
-            bsonType: 'string'
+            bsonType: 'array',
+            minItems: 1,
+            items: {
+              bsonType: 'string'
+            }
           }
         }
       },
@@ -82,7 +85,7 @@ module.exports.init = async (db) => {
   })
 
   // const groups = db.collection('groups');
-  groups.createIndex( { 'filter': 1 }, { unique: true } );
+  // groups.createIndex({ 'filter': 1 }, { unique: true });
   return groups;
 }
 
@@ -99,13 +102,13 @@ module.exports.list = async (ctx) => {
         { author },
         {
           visibility: {
-            $regex: new RegExp(`^(${ visibility.join('|') })$`)
+            $regex: new RegExp(`^(${visibility.join('|')})$`)
           }
         }
       ]
     })
     .toArray();
-  
+
   return ctx.body = { groups };
 };
 
@@ -125,58 +128,10 @@ module.exports.list = async (ctx) => {
 //   return ctx;
 // }
 
-// module.exports.set = async (ctx) => {
-//   const documentQuery = { '_id': ObjectID(ctx.params.id) };
-//   const values = ctx.request.body;
-
-//   for (const label of values) {
-//     required(ctx, { [label]: RULES[label] })
-//   }
-
-//   if (values.password) {
-//     const salt = bcrypt.genSaltSync();
-//     const hash = bcrypt.hashSync(values.password, salt);
-//     values.password = hash;
-//   }
-
-//   const user = await ctx.app.users.updateOne(documentQuery, values);
-//   ctx.body = displayUser(user);
-
-//   return ctx;
-// }
-
-module.exports.delete = async (ctx) => {
-
-  const documentQuery = { '_id': ObjectID(ctx.params.id) };
-  const group = await ctx.app.groups.findOne(documentQuery);
-  
-  if (group) {
-
-    if (group.image) {
-      removeFile(group.image.src);
-    }
-
-    await ctx.app.groups.remove(documentQuery, true);
-
-    ctx.body = {
-      success: true,
-      message: 'Group ' + ctx.params.id + ' deleted'
-    };
-  
-  } else {
-    ctx.status = 404;
-    ctx.body = {
-      success: false,
-      message: 'Group not found'
-    };
-  }
-
-  return ctx;
-}
-
 module.exports.add = async (ctx) => {
-  
+
   const token = getToken(ctx, { isNeeded: true, roles: [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR] });
+
   if (!token) {
     return ctx;
   }
@@ -189,13 +144,14 @@ module.exports.add = async (ctx) => {
   //   }
   //   required(ctx, { [label]: RULES[label] })
   // }
-  
+
 
   try {
     const payload = Object.assign(values, { author: ObjectID(token.user._id) })
     payload.order = Number(payload.order)
+    payload.filter = payload.filter.split(',')
 
-    if (ctx.request.files[0]) {
+    if (ctx.request.files && ctx.request.files[0]) {
       payload.image = JSON.parse(payload.image)
       payload.image.src = pathToSrc(ctx.request.files[0].path)
       payload.image.mimetype = ctx.request.files[0].mimetype
@@ -214,6 +170,97 @@ module.exports.add = async (ctx) => {
       message: error.message
     }
   }
+
+  return ctx;
+}
+
+module.exports.set = async (ctx) => {
+  const documentQuery = { '_id': ObjectID(ctx.params.id) };
+  const group = await ctx.app.groups.findOne(documentQuery);
+  const payload = ctx.request.body;
+
+  if (!group) {
+    ctx.status = 404;
+    ctx.body = {
+      success: false,
+      message: 'Group not found'
+    };
+
+    return ctx;
+  }
+
+  const token = getToken(ctx, { isNeeded: true, roles: [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR], author: group.author.toString() });
+  if (!token) {
+    return ctx;
+  }
+
+  try {
+    delete payload.author
+    if (payload.order) {
+      payload.order = Number(payload.order)
+    }
+
+    if (payload.filter) {
+      payload.filter = payload.filter.split(',')
+    }
+
+    if (ctx.request.files && ctx.request.files[0]) {
+      payload.image = JSON.parse(payload.image)
+      payload.image.src = pathToSrc(ctx.request.files[0].path)
+      payload.image.mimetype = ctx.request.files[0].mimetype
+
+      if (group.image) {
+        removeFile(group.image.src)
+      }
+    } else {
+      delete payload.image
+    }
+
+    await ctx.app.groups.updateOne(documentQuery, { $set: payload });
+    const group = await ctx.app.groups.findOne(documentQuery);
+    ctx.body = { groups: [group] };
+
+  } catch (error) {
+    if (ctx.request.files) {
+      removeReadableStreams(...ctx.request.files)
+    }
+
+    ctx.body = {
+      success: false,
+      message: error.message
+    }
+  }
+
+
+  return ctx;
+}
+
+module.exports.delete = async (ctx) => {
+
+  const documentQuery = { '_id': ObjectID(ctx.params.id) };
+  const group = await ctx.app.groups.findOne(documentQuery);
+
+  if (!group) {
+    ctx.status = 404;
+    ctx.body = {
+      success: false,
+      message: 'Group not found'
+    };
+
+    return ctx;
+  }
+
+  if (group.image) {
+    removeFile(group.image.src);
+  }
+
+  await ctx.app.groups.remove(documentQuery, true);
+
+  ctx.body = {
+    success: true,
+    message: 'Group ' + ctx.params.id + ' deleted'
+  };
+
 
   return ctx;
 }

@@ -138,7 +138,9 @@ module.exports.set = async (ctx) => {
     values.password = hash;
   }
 
-  const user = await ctx.app.users.updateOne(documentQuery, values);
+  await ctx.app.users.updateOne(documentQuery, { $set: values });
+
+  const user = await ctx.app.users.findOne(documentQuery);
   ctx.body = {
     user: displayUser(user)
   };
