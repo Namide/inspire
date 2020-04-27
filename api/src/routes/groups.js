@@ -254,7 +254,7 @@ module.exports.delete = async (ctx) => {
     removeFile(group.image.src);
   }
 
-  await ctx.app.groups.remove(documentQuery, true);
+  await ctx.app.groups.deleteOne(documentQuery);
 
   ctx.body = {
     success: true,

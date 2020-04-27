@@ -151,7 +151,7 @@ module.exports.set = async (ctx) => {
 module.exports.delete = async (ctx) => {
 
   const documentQuery = { '_id': ObjectID(ctx.params.id) };
-  await ctx.app.users.remove(documentQuery, true);
+  await ctx.app.users.deleteOne(documentQuery);
 
   ctx.body = {
     success: true,
