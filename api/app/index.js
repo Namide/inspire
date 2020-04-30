@@ -28,6 +28,8 @@ const {
   set: setGroup,
 } = require('./routes/groups.js');
 
+const CONFIG = require('../config.json');
+
 
 const app = new Koa();
 const router = new Router();
@@ -89,4 +91,4 @@ router.get('/distant/:url', async (ctx) => {
 app
   .use(router.routes())
   .use(router.allowedMethods())
-  .listen(3000);
+  .listen(CONFIG.port);
