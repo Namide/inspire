@@ -29,8 +29,6 @@ module.exports.getToken = (ctx, { isNeeded = false, roles = Object.values(ROLES)
       const ua = ctx.request.headers['user-agent'];
       const ip = ctx.request.ip;
 
-      console.log(decoded)
-
       // Authorize if is author
       if (author && author === decoded.user._id) {
         decoded.user.role.push(...ROLES)

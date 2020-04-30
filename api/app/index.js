@@ -1,12 +1,13 @@
 const Koa = require('koa');
 const Router = require('koa-router');
+const static = require('koa-static');
+
 const BodyParser = require('koa-bodyparser');
 const logger = require('koa-logger');
-const request = require('./request');
 const ObjectID = require('mongodb').ObjectID;
+const request = require('./request');
 const errorHandler = require('./middleware/errorHandler');
-const static = require('koa-static');
-const { uploaderGroup } = require('./helpers/files');
+const { uploaderGroup } = require('./middleware/upload');
 
 const {
   add: addUser,
