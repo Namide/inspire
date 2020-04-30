@@ -1,4 +1,4 @@
-const { getToken, setToken } = require('../helpers/token.js')
+const { getToken } = require('../helpers/token.js')
 // const required = require('../helpers/required.js');
 const ObjectID = require('mongodb').ObjectID
 const { ROLES, VISIBILITY, roleToVisibility } = require('../constants/permissions')

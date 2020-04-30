@@ -7,7 +7,7 @@ module.exports = async (ctx, next) => {
     ctx.body = {
       success: false,
       message: err.message || 'Server error'
-    },
+    }
     ctx.app.emit('error', err, ctx)
   }
 }

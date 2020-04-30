@@ -15,8 +15,7 @@ const {
   delete: deleteUser,
   list: getUsers,
   init: initUsers,
-  signin,
-  signout
+  signin
 } = require('./routes/users.js')
 
 const {

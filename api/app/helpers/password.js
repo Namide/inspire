@@ -11,15 +11,18 @@ const genSalt = rounds => new Promise((resolve, reject) => {
   })
 })
 
-const hash = data => new Promise(async (resolve, reject) => {
-  const salt = await genSalt(saltRounds)
-  bcrypt.hash(data, salt, null, (err, result) => {
-    if (err) {
-      reject(err)
-    } else {
-      resolve(result)
-    }
-  })
+const hash = data => new Promise((resolve, reject) => {
+  return genSalt(saltRounds)
+    .then(salt => {
+      bcrypt.hash(data, salt, null, (err, result) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(result)
+        }
+      })
+    })
+    .catch(reject)
 })
 
 const compare = (data, encrypted) => new Promise((resolve, reject) => {
