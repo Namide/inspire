@@ -73,28 +73,9 @@ router.post('/groups/:id([0-9a-f]{24})', uploaderGroup, setGroup);
 router.delete('/groups/:id([0-9a-f]{24})', deleteGroup);
 router.post('/groups', uploaderGroup, addGroups);
 
-router.post('/', async function (ctx) {
-  let name = ctx.request.body.name || 'World';
-  ctx.body = { message: `Hello ${name}!` }
-});
-
-router.get('/peoples', async (ctx) => {
-  // app.peoples.insert({ 'name': 'masnun', 'email': 'masnun@gmail.com' })
-  ctx.body = await ctx.app.peoples.find().toArray();
-});
-
-router.get('/peoples/:id([0-9a-f]{24})', async (ctx) => {
-  ctx.body = await ctx.app.peoples.findOne({'_id': ObjectID(ctx.params.id)});
-});
-
-router.post('/peoples', async (ctx) => {
-  ctx.body = await ctx.app.peoples.insert(ctx.request.body);
-});
-
-router.post('/peoples/:id([0-9a-f]{24})', async (ctx) => {
-  const documentQuery = { '_id': ObjectID(ctx.params.id) }; // Used to find the document
-  const valuesToUpdate = ctx.request.body;
-  ctx.body = await ctx.app.peoples.updateOne(documentQuery, valuesToUpdate);
+// Test route
+router.get('/', async (ctx) => {
+  ctx.body = { message: `Hello world!` }
 });
 
 router.get('/distant/:url', async (ctx) => {
