@@ -1,9 +1,8 @@
 
 module.exports = (ctx, required, obj = ctx.request.body) => {
-
   if (Array.isArray(required)) {
     for (const name of required) {
-      if(!obj[name]) {
+      if (!obj[name]) {
         ctx.throw(422, name + ' required')
       }
     }

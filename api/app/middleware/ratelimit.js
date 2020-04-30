@@ -1,7 +1,7 @@
-const ratelimit = require('koa-ratelimit');
+const ratelimit = require('koa-ratelimit')
 
 module.exports = (app) => {
-  const db = new Map();
+  const db = new Map()
 
   app.use(ratelimit({
     driver: 'memory',
@@ -22,5 +22,5 @@ module.exports = (app) => {
     blacklist: (ctx) => {
       // some logic that returns a boolean
     }
-  }));
+  }))
 }

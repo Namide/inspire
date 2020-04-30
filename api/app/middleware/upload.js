@@ -1,5 +1,5 @@
 const busboy = require('koa-busboy')
-const CONFIG = require('../../config.json');
+const CONFIG = require('../../config.json')
 
 const getName = fileName => new Date().toISOString().replace(/[:]/g, '-').replace(/T(.)+Z/, '') + '_' + Math.round((Math.random() * 1e16)).toString(36) + '_' + fileName
 

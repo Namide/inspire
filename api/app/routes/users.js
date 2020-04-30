@@ -1,9 +1,8 @@
-const { getToken, setToken } = require('../helpers/token.js');
+const { getToken, setToken } = require('../helpers/token.js')
 // const required = require('../helpers/required.js');
-const bcrypt = require('bcryptjs');
-const ObjectID = require('mongodb').ObjectID;
-const { ROLES } = require('../constants/permissions');
-
+const bcrypt = require('bcryptjs')
+const ObjectID = require('mongodb').ObjectID
+const { ROLES } = require('../constants/permissions')
 
 // const RULES = {
 //   name: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/,
@@ -13,8 +12,8 @@ const { ROLES } = require('../constants/permissions');
 // }
 
 const displayUser = user => {
-  delete user.password;
-  return user;
+  delete user.password
+  return user
 }
 
 module.exports.init = async (db) => {
@@ -27,7 +26,7 @@ module.exports.init = async (db) => {
           name: {
             bsonType: 'string',
             description: 'Can only contain alpha numeric caracters and "_" or "."',
-            pattern: "^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$"
+            pattern: '^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$'
           },
           password: {
             bsonType: 'string'
@@ -39,8 +38,8 @@ module.exports.init = async (db) => {
           email: {
             bsonType: 'string',
             description: 'Must be a valid email',
-            pattern: "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$"
-          },
+            pattern: '^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$'
+          }
           // address: {
           //   bsonType: 'object',
           //   required: ['city'],
@@ -56,74 +55,73 @@ module.exports.init = async (db) => {
           //   }
           // }
         }
-      },
+      }
       // $or: [
       //   { name: { $regex: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/ } },
       //   { email: { $regex: /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ } }
       // ]
     }
   })
-  
+
   // const users = db.collection('users');
-  
-  users.createIndex({ email: 1 }, { unique: true });
-  users.createIndex({ name: 1 }, { unique: true });
-  return users;
+
+  users.createIndex({ email: 1 }, { unique: true })
+  users.createIndex({ name: 1 }, { unique: true })
+  return users
 }
 
 module.exports.signin = async (ctx) => {
   // required(ctx, { email: RULES['email'], password: RULES['password'] })
 
-  const { email, password } = ctx.request.body;
-  const user = await ctx.app.users.findOne({ email });
+  const { email, password } = ctx.request.body
+  const user = await ctx.app.users.findOne({ email })
 
   if (user && bcrypt.compareSync(password, user.password)) {
     ctx.body = {
       user: displayUser(user),
       token: setToken(ctx, user)
-    };
+    }
   } else {
-    ctx.status = ctx.status = 401;
+    ctx.status = ctx.status = 401
     ctx.body = {
       success: false,
       message: 'Authentication failed'
-    };
+    }
   }
 
-  return ctx;
+  return ctx
 }
 
 module.exports.get = async (ctx) => {
-
-  const token = getToken(ctx);
+  const token = getToken(ctx)
 
   if (token) {
     if (token.user.role !== ROLES.ADMIN &&
       token.user._id !== ctx.params.id) {
-      return ctx.throw(401, 'Unauthorized');
+      return ctx.throw(401, 'Unauthorized')
     }
 
-    const user = await ctx.app.users.findOne({ '_id': ObjectID(ctx.params.id) });
+    const user = await ctx.app.users.findOne({ _id: ObjectID(ctx.params.id) })
 
     if (user) {
       ctx.body = {
         user: displayUser(user)
-      };
+      }
     } else {
-      ctx.status = 404;
+      ctx.status = 404
       ctx.body = {
         success: false,
         message: 'User not found'
-      };
+      }
     }
   }
 
-  return ctx;
+  return ctx
 }
 
 module.exports.set = async (ctx) => {
-  const documentQuery = { '_id': ObjectID(ctx.params.id) };
-  const values = ctx.request.body;
+  const documentQuery = { _id: ObjectID(ctx.params.id) }
+  const values = ctx.request.body
 
   // for (const label of values) {
   //   if (!RULES[label]) {
@@ -133,32 +131,31 @@ module.exports.set = async (ctx) => {
   // }
 
   if (values.password) {
-    const salt = bcrypt.genSaltSync();
-    const hash = bcrypt.hashSync(values.password, salt);
-    values.password = hash;
+    const salt = bcrypt.genSaltSync()
+    const hash = bcrypt.hashSync(values.password, salt)
+    values.password = hash
   }
 
-  await ctx.app.users.updateOne(documentQuery, { $set: values });
+  await ctx.app.users.updateOne(documentQuery, { $set: values })
 
-  const user = await ctx.app.users.findOne(documentQuery);
+  const user = await ctx.app.users.findOne(documentQuery)
   ctx.body = {
     user: displayUser(user)
-  };
+  }
 
-  return ctx;
+  return ctx
 }
 
 module.exports.delete = async (ctx) => {
-
-  const documentQuery = { '_id': ObjectID(ctx.params.id) };
-  await ctx.app.users.deleteOne(documentQuery);
+  const documentQuery = { _id: ObjectID(ctx.params.id) }
+  await ctx.app.users.deleteOne(documentQuery)
 
   ctx.body = {
     success: true,
     message: 'User ' + ctx.params.id + ' deleted'
-  };
+  }
 
-  return ctx;
+  return ctx
 }
 
 // module.exports.publicList = async (list) => {
@@ -170,24 +167,23 @@ module.exports.delete = async (ctx) => {
 // }
 
 module.exports.list = async (ctx) => {
-
-  const token = getToken(ctx);
+  const token = getToken(ctx)
 
   if (token) {
     if (token.user.role !== ROLES.ADMIN) {
-      return ctx.throw(401, 'Unauthorized');
+      return ctx.throw(401, 'Unauthorized')
     }
 
     const list = await ctx.app.users
       .find({})
-      .toArray();
+      .toArray()
 
-    return ctx.body = { users: list.map(displayUser) };
+    ctx.body = { users: list.map(displayUser) }
+    return ctx
   }
-};
+}
 
 module.exports.add = async (ctx) => {
-
   // required(ctx, {
   //   name: RULES['name'],
   //   email: RULES['email'],
@@ -196,10 +192,9 @@ module.exports.add = async (ctx) => {
   // })
   // required(ctx, ['name', 'password', 'role', 'email'])
 
-
-  const { name, password, role, email } = ctx.request.body;
-  const salt = bcrypt.genSaltSync();
-  const hash = bcrypt.hashSync(password || '', salt);
+  const { name, password, role, email } = ctx.request.body
+  const salt = bcrypt.genSaltSync()
+  const hash = bcrypt.hashSync(password || '', salt)
 
   // for (const label of values) {
   //   if (!RULES[label]) {
@@ -210,11 +205,11 @@ module.exports.add = async (ctx) => {
 
   try {
     const insert = await ctx.app.users
-      .insertOne({ name, password: hash, role, email });
-    const user = insert.ops[0];
+      .insertOne({ name, password: hash, role, email })
+    const user = insert.ops[0]
     ctx.body = {
       user: displayUser(user)
-    };
+    }
   } catch (error) {
     ctx.body = {
       success: false,
@@ -223,5 +218,5 @@ module.exports.add = async (ctx) => {
     }
   }
 
-  return ctx;
+  return ctx
 }

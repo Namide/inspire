@@ -1,7 +1,7 @@
-const { getToken, setToken } = require('../helpers/token.js');
+const { getToken, setToken } = require('../helpers/token.js')
 // const required = require('../helpers/required.js');
-const ObjectID = require('mongodb').ObjectID;
-const { ROLES, VISIBILITY, roleToVisibility } = require('../constants/permissions');
+const ObjectID = require('mongodb').ObjectID
+const { ROLES, VISIBILITY, roleToVisibility } = require('../constants/permissions')
 const { removeReadableStreams, removeFile, pathToSrc } = require('../helpers/files.js')
 
 // const isText = () => {
@@ -76,7 +76,7 @@ module.exports.init = async (db) => {
             }
           }
         }
-      },
+      }
       // $or: [
       //   { name: { $regex: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/ } },
       //   { email: { $regex: /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ } }
@@ -86,15 +86,14 @@ module.exports.init = async (db) => {
 
   // const groups = db.collection('groups');
   // groups.createIndex({ 'filter': 1 }, { unique: true });
-  return groups;
+  return groups
 }
 
 module.exports.list = async (ctx) => {
-
-  const token = getToken(ctx);
-  const role = token ? token.user.role : ROLES.GUEST;
-  const visibility = roleToVisibility(role);
-  const author = token ? token.user._id : '0';
+  const token = getToken(ctx)
+  const role = token ? token.user.role : ROLES.GUEST
+  const visibility = roleToVisibility(role)
+  const author = token ? token.user._id : '0'
 
   const groups = await ctx.app.groups
     .find({
@@ -107,10 +106,11 @@ module.exports.list = async (ctx) => {
         }
       ]
     })
-    .toArray();
+    .toArray()
 
-  return ctx.body = { groups };
-};
+  ctx.body = { groups }
+  return ctx
+}
 
 // module.exports.get = async (ctx) => {
 //   const user = await ctx.app.users.findOne({'_id': ObjectID(ctx.params.id)});
@@ -129,14 +129,13 @@ module.exports.list = async (ctx) => {
 // }
 
 module.exports.add = async (ctx) => {
-
-  const token = getToken(ctx, { isNeeded: true, roles: [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR] });
+  const token = getToken(ctx, { isNeeded: true, roles: [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR] })
 
   if (!token) {
-    return ctx;
+    return ctx
   }
 
-  const values = ctx.request.body;
+  const values = ctx.request.body
 
   // for (const label of values) {
   //   if (!RULES[label]) {
@@ -144,7 +143,6 @@ module.exports.add = async (ctx) => {
   //   }
   //   required(ctx, { [label]: RULES[label] })
   // }
-
 
   try {
     const payload = Object.assign(values, { author: ObjectID(token.user._id) })
@@ -160,9 +158,9 @@ module.exports.add = async (ctx) => {
     }
 
     const insert = await ctx.app.groups
-      .insertOne(payload);
-    const groups = [insert.ops[0]];
-    ctx.body = { groups };
+      .insertOne(payload)
+    const groups = [insert.ops[0]]
+    ctx.body = { groups }
   } catch (error) {
     removeReadableStreams(...ctx.request.files)
     ctx.body = {
@@ -171,27 +169,27 @@ module.exports.add = async (ctx) => {
     }
   }
 
-  return ctx;
+  return ctx
 }
 
 module.exports.set = async (ctx) => {
-  const documentQuery = { '_id': ObjectID(ctx.params.id) };
-  const group = await ctx.app.groups.findOne(documentQuery);
-  const payload = ctx.request.body;
+  const documentQuery = { _id: ObjectID(ctx.params.id) }
+  const group = await ctx.app.groups.findOne(documentQuery)
+  const payload = ctx.request.body
 
   if (!group) {
-    ctx.status = 404;
+    ctx.status = 404
     ctx.body = {
       success: false,
       message: 'Group not found'
-    };
+    }
 
-    return ctx;
+    return ctx
   }
 
-  const token = getToken(ctx, { isNeeded: true, roles: [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR], author: group.author.toString() });
+  const token = getToken(ctx, { isNeeded: true, roles: [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR], author: group.author.toString() })
   if (!token) {
-    return ctx;
+    return ctx
   }
 
   try {
@@ -216,10 +214,9 @@ module.exports.set = async (ctx) => {
       delete payload.image
     }
 
-    await ctx.app.groups.updateOne(documentQuery, { $set: payload });
-    const group = await ctx.app.groups.findOne(documentQuery);
-    ctx.body = { groups: [group] };
-
+    await ctx.app.groups.updateOne(documentQuery, { $set: payload })
+    const groupReturned = await ctx.app.groups.findOne(documentQuery)
+    ctx.body = { groups: [groupReturned] }
   } catch (error) {
     if (ctx.request.files) {
       removeReadableStreams(...ctx.request.files)
@@ -231,36 +228,33 @@ module.exports.set = async (ctx) => {
     }
   }
 
-
-  return ctx;
+  return ctx
 }
 
 module.exports.delete = async (ctx) => {
-
-  const documentQuery = { '_id': ObjectID(ctx.params.id) };
-  const group = await ctx.app.groups.findOne(documentQuery);
+  const documentQuery = { _id: ObjectID(ctx.params.id) }
+  const group = await ctx.app.groups.findOne(documentQuery)
 
   if (!group) {
-    ctx.status = 404;
+    ctx.status = 404
     ctx.body = {
       success: false,
       message: 'Group not found'
-    };
+    }
 
-    return ctx;
+    return ctx
   }
 
   if (group.image) {
-    removeFile(group.image.src);
+    removeFile(group.image.src)
   }
 
-  await ctx.app.groups.deleteOne(documentQuery);
+  await ctx.app.groups.deleteOne(documentQuery)
 
   ctx.body = {
     success: true,
     message: 'Group ' + ctx.params.id + ' deleted'
-  };
+  }
 
-
-  return ctx;
+  return ctx
 }
