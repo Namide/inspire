@@ -1,5 +1,4 @@
 const { getToken, setToken } = require('../helpers/token.js')
-// const required = require('../helpers/required.js');
 const bcrypt = require('bcryptjs')
 const ObjectID = require('mongodb').ObjectID
 const { ROLES } = require('../constants/permissions')
@@ -16,7 +15,7 @@ const displayUser = user => {
   return user
 }
 
-module.exports.init = async (db) => {
+module.exports.userInit = async (db) => {
   const users = await db.createCollection('users', {
     validator: {
       $jsonSchema: {
@@ -38,7 +37,7 @@ module.exports.init = async (db) => {
           email: {
             bsonType: 'string',
             description: 'Must be a valid email',
-            pattern: '^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$'
+            pattern: '^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*$'
           }
           // address: {
           //   bsonType: 'object',
@@ -71,8 +70,6 @@ module.exports.init = async (db) => {
 }
 
 module.exports.signin = async (ctx) => {
-  // required(ctx, { email: RULES['email'], password: RULES['password'] })
-
   const { email, password } = ctx.request.body
   const user = await ctx.app.users.findOne({ email })
 
@@ -92,7 +89,7 @@ module.exports.signin = async (ctx) => {
   return ctx
 }
 
-module.exports.get = async (ctx) => {
+module.exports.userGet = async (ctx) => {
   const token = getToken(ctx)
 
   if (token) {
@@ -119,16 +116,9 @@ module.exports.get = async (ctx) => {
   return ctx
 }
 
-module.exports.set = async (ctx) => {
+module.exports.userEdit = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
   const values = ctx.request.body
-
-  // for (const label of values) {
-  //   if (!RULES[label]) {
-  //     return ctx.throw(401, label + ' undesired');
-  //   }
-  //   // required(ctx, { [label]: RULES[label] })
-  // }
 
   if (values.password) {
     const salt = bcrypt.genSaltSync()
@@ -146,7 +136,7 @@ module.exports.set = async (ctx) => {
   return ctx
 }
 
-module.exports.delete = async (ctx) => {
+module.exports.userDelete = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
   await ctx.app.users.deleteOne(documentQuery)
 
@@ -158,15 +148,7 @@ module.exports.delete = async (ctx) => {
   return ctx
 }
 
-// module.exports.publicList = async (list) => {
-//   const list = await ctx.app.users
-//     .find({})
-//     .toArray();
-
-//   return ctx.body = { users: list.map(displayUser) };
-// }
-
-module.exports.list = async (ctx) => {
+module.exports.userList = async (ctx) => {
   const token = getToken(ctx)
 
   if (token) {
@@ -183,25 +165,10 @@ module.exports.list = async (ctx) => {
   }
 }
 
-module.exports.add = async (ctx) => {
-  // required(ctx, {
-  //   name: RULES['name'],
-  //   email: RULES['email'],
-  //   password: RULES['password'],
-  //   role: RULES['role']
-  // })
-  // required(ctx, ['name', 'password', 'role', 'email'])
-
+module.exports.userAdd = async (ctx) => {
   const { name, password, role, email } = ctx.request.body
   const salt = bcrypt.genSaltSync()
   const hash = bcrypt.hashSync(password || '', salt)
-
-  // for (const label of values) {
-  //   if (!RULES[label]) {
-  //     return ctx.throw(401, label + ' undesired');
-  //   }
-  //   // required(ctx, { [label]: RULES[label] })
-  // }
 
   try {
     const insert = await ctx.app.users

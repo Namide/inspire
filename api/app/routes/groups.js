@@ -1,23 +1,7 @@
-const { getToken } = require('../helpers/token.js')
-// const required = require('../helpers/required.js');
 const ObjectID = require('mongodb').ObjectID
-const { ROLES, VISIBILITY, roleToVisibility } = require('../constants/permissions')
+const { ROLES, VISIBILITY } = require('../constants/permissions')
 const { removeReadableStreams, removeFile, pathToSrc } = require('../helpers/files.js')
 const { testAuthorized } = require('../middleware/auth.js')
-
-// const isText = () => {
-//   return true;
-// }
-
-// const isJSON = (string) => {
-//   try {
-//     JSON.parse(string);
-//   } catch (error) {
-//     return false;
-//   }
-
-//   return true;
-// }
 
 // const RULES = {
 //   visibility: new RegExp(`^(${ Object.values(VISIBILITY).join('|') })$`),
@@ -29,7 +13,7 @@ const { testAuthorized } = require('../middleware/auth.js')
 //   filter: isText
 // }
 
-module.exports.init = async (db) => {
+module.exports.groupInit = async (db) => {
   const groups = await db.createCollection('groups', {
     validator: {
       $jsonSchema: {
@@ -90,9 +74,7 @@ module.exports.init = async (db) => {
   return groups
 }
 
-module.exports.list = async (ctx) => {
-  // const token = getToken(ctx)
-  // const role = token ? token.user.role : ROLES.GUEST
+module.exports.groupList = async (ctx) => {
   const visibilities = ctx.state.user.visibilities
   const author = ObjectID(ctx.state.user._id)
 
@@ -113,23 +95,7 @@ module.exports.list = async (ctx) => {
   return ctx
 }
 
-// module.exports.get = async (ctx) => {
-//   const user = await ctx.app.users.findOne({'_id': ObjectID(ctx.params.id)});
-
-//   if (user) {
-//     ctx.body = displayUser(user);
-//   } else {
-//     ctx.status = 404;
-//     ctx.body = {
-//       success: false,
-//       message: 'User not found'
-//     };
-//   }
-
-//   return ctx;
-// }
-
-module.exports.add = async (ctx) => {
+module.exports.groupAdd = async (ctx) => {
   const values = ctx.request.body
 
   try {
@@ -160,7 +126,7 @@ module.exports.add = async (ctx) => {
   return ctx
 }
 
-module.exports.set = async (ctx) => {
+module.exports.groupEdit = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
   const group = await ctx.app.groups.findOne(documentQuery)
   const payload = ctx.request.body
@@ -213,7 +179,7 @@ module.exports.set = async (ctx) => {
   return ctx
 }
 
-module.exports.delete = async (ctx) => {
+module.exports.groupDelete = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
   const group = await ctx.app.groups.findOne(documentQuery)
 
