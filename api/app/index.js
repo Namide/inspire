@@ -1,12 +1,18 @@
 const Koa = require('koa')
 const Router = require('koa-router')
 const Static = require('koa-static')
-
 const BodyParser = require('koa-bodyparser')
 const logger = require('koa-logger')
-const request = require('./request')
+
+const ObjectID = require('mongodb').ObjectID
+
 const errorHandler = require('./middleware/errorHandler')
+const auth = require('./middleware/auth')
 const { uploaderGroup } = require('./middleware/upload')
+
+const { ROLES } = require('./constants/permissions')
+
+const { distant: distantRequest } = require('./routes/distant.js')
 
 const {
   add: addUser,
@@ -44,12 +50,14 @@ app.use(Static('./public'))
 // app.use(mount('/upload', a));
 // app.use(mount('/world', b));
 
+// Init database
 require('./middleware/mongo.js')(app)
   .then(async db => {
     // db.command( { listCollections: 1 } )
     //   .then(data => console.log(data.cursor.firstBatch));
-
     console.log('DB connected')
+
+    // Init tables
     app.users = await initUsers(db)
     app.groups = await initGroups(db)
 
@@ -58,31 +66,65 @@ require('./middleware/mongo.js')(app)
   .catch(error => console.log('DB connection error:', error.message))
 require('./middleware/ratelimit.js')(app)
 
-router.get('/users/:id([0-9a-f]{24})', getUser)
-router.post('/users/:id([0-9a-f]{24})', setUser)
-router.delete('/users/:id([0-9a-f]{24})', deleteUser)
-router.get('/users', getUsers)
-router.post('/users', addUser) // , uploaderGroup
+// --------------------------
+//          USERS
+// --------------------------
+const testSameUser = async (ctx, id) => {
+  const user = await ctx.app.users.findOne({ _id: ObjectID(ctx.params.id) })
+  return user._id === id
+}
+router.get(
+  '/users/:id([0-9a-f]{24})',
+  auth([ROLES.ADMIN], testSameUser),
+  getUser
+)
+router.post(
+  '/users/:id([0-9a-f]{24})',
+  auth([ROLES.ADMIN], testSameUser),
+  setUser
+)
+router.delete(
+  '/users/:id([0-9a-f]{24})',
+  auth([ROLES.ADMIN], testSameUser),
+  deleteUser
+)
+router.get(
+  '/users',
+  auth([ROLES.ADMIN]),
+  getUsers
+)
+router.post('/users', auth([ROLES.ADMIN]), addUser) // , uploaderGroup
 router.post('/signin', signin)
 // router.post('/signout', signout);
 
-router.get('/groups', getGroups)
-router.post('/groups/:id([0-9a-f]{24})', uploaderGroup, setGroup)
-router.delete('/groups/:id([0-9a-f]{24})', deleteGroup)
-router.post('/groups', uploaderGroup, addGroups)
+// --------------------------
+//          GROUPS
+// --------------------------
+const testSameGroup = async (ctx, id) => {
+  const group = await ctx.app.groups.findOne({ _id: ObjectID(ctx.params.id) })
+  return group.author === id
+}
+router.get('/groups', auth(), getGroups)
+router.post('/groups', auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR]), uploaderGroup, addGroups)
+router.post(
+  '/groups/:id([0-9a-f]{24})',
+  auth([ROLES.ADMIN, ROLES.EDITOR], testSameGroup),
+  uploaderGroup,
+  setGroup
+)
+router.delete(
+  '/groups/:id([0-9a-f]{24})',
+  auth([ROLES.ADMIN, ROLES.EDITOR], testSameGroup),
+  deleteGroup
+)
 
 // Test route
 router.get('/', async (ctx) => {
   ctx.body = { message: 'Hello world!' }
 })
 
-router.get('/distant/:url', async (ctx) => {
-  try {
-    ctx.body = await request(decodeURIComponent(ctx.params.url))
-  } catch (error) {
-    ctx.body = { success: false, message: error.message }
-  }
-})
+// Distant URL
+router.get('/distant/:url', distantRequest)
 
 app
   .use(router.routes())

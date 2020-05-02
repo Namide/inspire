@@ -3,6 +3,7 @@ const { getToken } = require('../helpers/token.js')
 const ObjectID = require('mongodb').ObjectID
 const { ROLES, VISIBILITY, roleToVisibility } = require('../constants/permissions')
 const { removeReadableStreams, removeFile, pathToSrc } = require('../helpers/files.js')
+const { testAuthorized } = require('../middleware/auth.js')
 
 // const isText = () => {
 //   return true;
@@ -90,10 +91,10 @@ module.exports.init = async (db) => {
 }
 
 module.exports.list = async (ctx) => {
-  const token = getToken(ctx)
-  const role = token ? token.user.role : ROLES.GUEST
-  const visibility = roleToVisibility(role)
-  const author = token ? token.user._id : '0'
+  // const token = getToken(ctx)
+  // const role = token ? token.user.role : ROLES.GUEST
+  const visibilities = ctx.state.user.visibilities
+  const author = ObjectID(ctx.state.user._id)
 
   const groups = await ctx.app.groups
     .find({
@@ -101,7 +102,7 @@ module.exports.list = async (ctx) => {
         { author },
         {
           visibility: {
-            $regex: new RegExp(`^(${visibility.join('|')})$`)
+            $regex: new RegExp(`^(${visibilities.join('|')})$`)
           }
         }
       ]
@@ -129,23 +130,10 @@ module.exports.list = async (ctx) => {
 // }
 
 module.exports.add = async (ctx) => {
-  const token = getToken(ctx, { isNeeded: true, roles: [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR] })
-
-  if (!token) {
-    return ctx
-  }
-
   const values = ctx.request.body
 
-  // for (const label of values) {
-  //   if (!RULES[label]) {
-  //     return ctx.throw(401, label + ' undesired');
-  //   }
-  //   required(ctx, { [label]: RULES[label] })
-  // }
-
   try {
-    const payload = Object.assign(values, { author: ObjectID(token.user._id) })
+    const payload = Object.assign(values, { author: ObjectID(ctx.state.user._id) })
     payload.order = Number(payload.order)
     payload.filter = payload.filter.split(',')
 
@@ -178,17 +166,11 @@ module.exports.set = async (ctx) => {
   const payload = ctx.request.body
 
   if (!group) {
-    ctx.status = 404
-    ctx.body = {
-      success: false,
-      message: 'Group not found'
-    }
-
+    ctx.throw(404, 'Group not found')
     return ctx
   }
 
-  const token = getToken(ctx, { isNeeded: true, roles: [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR], author: group.author.toString() })
-  if (!token) {
+  if (!testAuthorized(group.author, [ROLES.ADMIN, ROLES.EDITOR])) {
     return ctx
   }
 
@@ -236,12 +218,11 @@ module.exports.delete = async (ctx) => {
   const group = await ctx.app.groups.findOne(documentQuery)
 
   if (!group) {
-    ctx.status = 404
-    ctx.body = {
-      success: false,
-      message: 'Group not found'
-    }
+    ctx.throw(404, 'Group not found')
+    return ctx
+  }
 
+  if (!testAuthorized(group.author, [ROLES.ADMIN, ROLES.EDITOR])) {
     return ctx
   }
 

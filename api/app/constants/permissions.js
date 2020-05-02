@@ -2,14 +2,14 @@ const ROLES = {
   ADMIN: 'admin',
   EDITOR: 'editor',
   AUTHOR: 'author',
+  SUBSCRIBER: 'subscriber',
   GUEST: 'guest'
 }
 
 const VISIBILITY = {
   PUBLIC: 'public',
   PROTECTED: 'protected',
-  PRIVATE: 'private',
-  SUBSCRIBER: 'subscribe'
+  PRIVATE: 'private'
 }
 
 const roleToVisibility = role => {
