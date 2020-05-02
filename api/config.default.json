@@ -10,11 +10,5 @@
   },
   "jwt": {
     "secret": "1nSpIre-yep"
-  },
-  "upload": {
-    "dir": {
-      "group": "group/",
-      "item": "item/"
-    }
   }
 }

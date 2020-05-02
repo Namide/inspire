@@ -22,6 +22,7 @@ const { uploaderGroup } = require('./middleware/upload')
 const { distant: distantRequest } = require('./routes/distant.js')
 const { userInit, userList, userAdd, userGet, userEdit, userDelete, signin } = require('./routes/users.js')
 const { groupInit, groupList, groupAdd, groupDelete, groupEdit } = require('./routes/groups.js')
+const { fileDisplay } = require('./routes/files.js')
 
 // --------------------------
 //         CONSTANTS
@@ -54,13 +55,13 @@ app.use(compress({
   br: false // disable brotli
 }))
 app.use(Static('./public'))
-app.use(async (ctx, next) => {
-  if (ctx.request.url === '/test') {
-    ctx.serve()
-  } else {
-    await next()
-  }
-})
+// app.use(async (ctx, next) => {
+//   if (ctx.request.url === '/test') {
+//     ctx.serve()
+//   } else {
+//     await next()
+//   }
+// })
 
 // Security
 // https://nodesource.com/blog/Express-Koa-Hapi
@@ -127,7 +128,7 @@ router.delete('/api/groups/:id([0-9a-f]{24})', auth([ROLES.ADMIN, ROLES.EDITOR],
 // --------------------------
 //          FILES
 // --------------------------
-router.get('/api/files/:type/:file', auth()) // TODO
+router.get('/api/files/:type(groups|users|items)/:id', auth(), fileDisplay)
 
 // --------------------------
 //           RUN

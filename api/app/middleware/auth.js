@@ -9,7 +9,7 @@ const { ROLES, roleToVisibility } = require('../constants/permissions')
  * @param {string} role
  * @returns {{_id: string, role: string, visibilities: string[]}}
  */
-const getUser = (_id, name, role, ctx) => {
+const getUser = (_id, name, role) => {
   return {
     _id,
     name,
@@ -19,8 +19,8 @@ const getUser = (_id, name, role, ctx) => {
 }
 
 module.exports = (authorizedRoles = [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR, ROLES.SUBSCRIBER, ROLES.GUEST], secondTest = async (ctx, userID) => true) => async (ctx, next) => {
-  const { user } = getToken(ctx) || { user: { name: 'Guest', role: ROLES.GUEST, _id: '0' } }
-  ctx.state.user = getUser(user._id, user.name, user.role, ctx)
+  const { user } = getToken(ctx) || { user: { name: 'Guest', role: ROLES.GUEST, _id: null } }
+  ctx.state.user = getUser(user._id, user.name, user.role)
 
   if (authorizedRoles.indexOf(user.role) < 0) {
     ctx.throw(401, 'Role not authorized')
