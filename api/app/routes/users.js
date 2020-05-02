@@ -150,7 +150,6 @@ module.exports.userDelete = async (ctx) => {
 
 module.exports.userList = async (ctx) => {
   const token = getToken(ctx)
-
   if (token) {
     if (token.user.role !== ROLES.ADMIN) {
       return ctx.throw(401, 'Unauthorized')

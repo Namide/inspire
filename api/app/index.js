@@ -7,6 +7,7 @@ const Router = require('koa-router')
 const Static = require('koa-static')
 const BodyParser = require('koa-bodyparser')
 const logger = require('koa-logger')
+const compress = require('koa-compress')
 
 // --------------------------
 //        MIDDLEWARES
@@ -32,6 +33,7 @@ const CONFIG = require('../config.json')
 //         HELPERS
 // --------------------------
 const ObjectID = require('mongodb').ObjectID
+const zlib = require('zlib')
 
 // --------------------------
 //         INIT APP
@@ -42,7 +44,23 @@ const router = new Router()
 app.use(errorHandler)
 app.use(BodyParser())
 app.use(logger())
+app.use(compress({
+  // filter (content_type) {
+  //   return /text/i.test(content_type)
+  // },
+  threshold: 2048,
+  gzip: { flush: zlib.Z_SYNC_FLUSH },
+  deflate: { flush: zlib.Z_SYNC_FLUSH },
+  br: false // disable brotli
+}))
 app.use(Static('./public'))
+app.use(async (ctx, next) => {
+  if (ctx.request.url === '/test') {
+    ctx.serve()
+  } else {
+    await next()
+  }
+})
 
 // Security
 // https://nodesource.com/blog/Express-Koa-Hapi
@@ -69,65 +87,47 @@ require('./middleware/ratelimit.js')(app)
 // --------------------------
 //           BASE
 // --------------------------
-router.get('/', async (ctx) => {
+router.get('/api/', async (ctx) => {
   ctx.body = { message: 'Hello world!' }
 })
 
 // --------------------------
 //         DISTANT
 // --------------------------
-router.get('/distant/:url', auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR]), distantRequest)
+router.get('/api/distant/:url', auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR]), distantRequest)
 
 // --------------------------
 //           USERS
 // --------------------------
 const testSameUser = async (ctx, id) => {
   const user = await ctx.app.users.findOne({ _id: ObjectID(ctx.params.id) })
-  return user._id === id
+  ctx.state.field = user
+  return user._id.toString() === id
 }
-router.get(
-  '/users/:id([0-9a-f]{24})',
-  auth([ROLES.ADMIN], testSameUser),
-  userGet
-)
-router.post(
-  '/users/:id([0-9a-f]{24})',
-  auth([ROLES.ADMIN], testSameUser),
-  userEdit
-)
-router.delete(
-  '/users/:id([0-9a-f]{24})',
-  auth([ROLES.ADMIN], testSameUser),
-  userDelete
-)
-router.get(
-  '/users',
-  auth([ROLES.ADMIN]),
-  userList
-)
-router.post('/users', auth([ROLES.ADMIN]), userAdd) // , uploaderGroup
-router.post('/signin', signin)
+router.get('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userGet)
+router.post('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userEdit)
+router.delete('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userDelete)
+router.get('/api/users', auth([ROLES.ADMIN]), userList)
+router.post('/api/users', auth([ROLES.ADMIN]), userAdd) // , uploaderGroup
+router.post('/api/signin', signin)
 
 // --------------------------
 //          GROUPS
 // --------------------------
 const testSameGroup = async (ctx, id) => {
   const group = await ctx.app.groups.findOne({ _id: ObjectID(ctx.params.id) })
-  return group.author === id
+  ctx.state.field = group
+  return group.author.toString() === id
 }
-router.get('/groups', auth(), groupList)
-router.post('/groups', auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR]), uploaderGroup, groupAdd)
-router.post(
-  '/groups/:id([0-9a-f]{24})',
-  auth([ROLES.ADMIN, ROLES.EDITOR], testSameGroup),
-  uploaderGroup,
-  groupEdit
-)
-router.delete(
-  '/groups/:id([0-9a-f]{24})',
-  auth([ROLES.ADMIN, ROLES.EDITOR], testSameGroup),
-  groupDelete
-)
+router.get('/api/groups', auth(), groupList)
+router.post('/api/groups', auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR]), uploaderGroup, groupAdd)
+router.post('/api/groups/:id([0-9a-f]{24})', auth([ROLES.ADMIN, ROLES.EDITOR], testSameGroup), uploaderGroup, groupEdit)
+router.delete('/api/groups/:id([0-9a-f]{24})', auth([ROLES.ADMIN, ROLES.EDITOR], testSameGroup), groupDelete)
+
+// --------------------------
+//          FILES
+// --------------------------
+router.get('/api/files/:type/:file', auth()) // TODO
 
 // --------------------------
 //           RUN

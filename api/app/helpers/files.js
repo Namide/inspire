@@ -1,14 +1,16 @@
 const fs = require('fs')
 const path = require('path')
 
+const BASE_URL = '/api/files'
+
 module.exports.removeFile = (src) => {
-  fs.unlink(path.resolve('./public' + src), error => {
+  fs.unlink(path.resolve(src.replace(BASE_URL, './upload')), error => {
     if (error) console.log(error)
   })
 }
 
 module.exports.pathToSrc = (filePath) => {
-  return filePath.split(path.sep).join('/').replace('public', '')
+  return filePath.split(path.sep).join('/').replace('upload', BASE_URL)
 }
 
 module.exports.removeReadableStreams = (...files) => {

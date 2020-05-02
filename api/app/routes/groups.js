@@ -1,7 +1,6 @@
 const ObjectID = require('mongodb').ObjectID
 const { ROLES, VISIBILITY } = require('../constants/permissions')
 const { removeReadableStreams, removeFile, pathToSrc } = require('../helpers/files.js')
-const { testAuthorized } = require('../middleware/auth.js')
 
 // const RULES = {
 //   visibility: new RegExp(`^(${ Object.values(VISIBILITY).join('|') })$`),
@@ -133,15 +132,11 @@ module.exports.groupAdd = async (ctx) => {
 
 module.exports.groupEdit = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
-  const group = await ctx.app.groups.findOne(documentQuery)
+  const group = ctx.state.field
   const payload = ctx.request.body
 
   if (!group) {
     ctx.throw(404, 'Group not found')
-    return ctx
-  }
-
-  if (!testAuthorized(group.author, [ROLES.ADMIN, ROLES.EDITOR])) {
     return ctx
   }
 
@@ -190,14 +185,10 @@ module.exports.groupEdit = async (ctx) => {
 
 module.exports.groupDelete = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
-  const group = await ctx.app.groups.findOne(documentQuery)
+  const group = ctx.state.field
 
   if (!group) {
     ctx.throw(404, 'Group not found')
-    return ctx
-  }
-
-  if (!testAuthorized(group.author, [ROLES.ADMIN, ROLES.EDITOR])) {
     return ctx
   }
 

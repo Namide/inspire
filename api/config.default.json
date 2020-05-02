@@ -13,8 +13,8 @@
   },
   "upload": {
     "dir": {
-      "group": "media/group/",
-      "item": "media/item/"
+      "group": "group/",
+      "item": "item/"
     }
   }
 }
