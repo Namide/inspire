@@ -5,7 +5,7 @@
     "userPassword": "password",
     "auth": "DEFAULT",
     "name": "inspire",
-    "host": "mongo-dan",
+    "host": "localhost",
     "port": "27017"
   },
   "jwt": {
@@ -14,8 +14,7 @@
   "upload": {
     "dir": {
       "group": "media/group/",
-      "file": "media/file/",
-      "thumb": "media/thumb/"
+      "item": "media/item/"
     }
   }
 }

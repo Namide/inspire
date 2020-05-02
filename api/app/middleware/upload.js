@@ -8,12 +8,7 @@ module.exports.uploaderGroup = busboy({
   fnDestFilename: (_, filename) => getName(filename)
 })
 
-module.exports.uploaderThumb = busboy({
-  dest: './public/' + CONFIG.upload.dir.thumb,
-  fnDestFilename: (_, filename) => getName(filename)
-})
-
-module.exports.uploaderFile = busboy({
-  dest: './public/' + CONFIG.upload.dir.file,
+module.exports.uploaderItem = busboy({
+  dest: './public/' + CONFIG.upload.dir.item,
   fnDestFilename: (_, filename) => getName(filename)
 })

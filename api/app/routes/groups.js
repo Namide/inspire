@@ -103,19 +103,24 @@ module.exports.groupAdd = async (ctx) => {
     payload.order = Number(payload.order)
     payload.filter = payload.filter.split(',')
 
-    if (ctx.request.files && ctx.request.files[0]) {
+    const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'imageFile')
+    if (file) {
       payload.image = JSON.parse(payload.image)
-      payload.image.src = pathToSrc(ctx.request.files[0].path)
-      payload.image.mimetype = ctx.request.files[0].mimetype
+      payload.image.src = pathToSrc(file.path)
+      payload.image.mimetype = file.mimetype
     } else {
       delete payload.image
     }
+
+    // Remove other images
+    removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'imageFile'))
 
     const insert = await ctx.app.groups
       .insertOne(payload)
     const groups = [insert.ops[0]]
     ctx.body = { groups }
   } catch (error) {
+    // Remove images
     removeReadableStreams(...ctx.request.files)
     ctx.body = {
       success: false,
@@ -150,10 +155,11 @@ module.exports.groupEdit = async (ctx) => {
       payload.filter = payload.filter.split(',')
     }
 
-    if (ctx.request.files && ctx.request.files[0]) {
+    const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'imageFile')
+    if (file) {
       payload.image = JSON.parse(payload.image)
-      payload.image.src = pathToSrc(ctx.request.files[0].path)
-      payload.image.mimetype = ctx.request.files[0].mimetype
+      payload.image.src = pathToSrc(file.path)
+      payload.image.mimetype = file.mimetype
 
       if (group.image) {
         removeFile(group.image.src)
@@ -161,6 +167,9 @@ module.exports.groupEdit = async (ctx) => {
     } else {
       delete payload.image
     }
+
+    // Remove other images
+    removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'imageFile'))
 
     await ctx.app.groups.updateOne(documentQuery, { $set: payload })
     const groupReturned = await ctx.app.groups.findOne(documentQuery)
