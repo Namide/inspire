@@ -14,7 +14,7 @@ const compress = require('koa-compress')
 // --------------------------
 const errorHandler = require('./middleware/errorHandler')
 const auth = require('./middleware/auth')
-const { uploaderGroup } = require('./middleware/upload')
+const { uploaderGroup, uploaderFileless } = require('./middleware/upload')
 
 // --------------------------
 //          ROUTES
@@ -118,7 +118,7 @@ const testSameUser = async (ctx, id) => {
   ctx.state.field = user
   return user._id.toString() === id
 }
-// Authorize create user no user in table
+// Authorize admin creation if 0 user in collection
 const testInstall = async (ctx, id) => {
   const count = await ctx.app.users.countDocuments()
   if (count < 1) {
@@ -126,12 +126,12 @@ const testInstall = async (ctx, id) => {
   }
   return count < 1
 }
-router.get('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userGet)
-router.post('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userEdit)
-router.delete('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userDelete)
 router.get('/api/users', auth([ROLES.ADMIN]), userList)
-router.post('/api/users', auth([ROLES.ADMIN], testInstall), userAdd) // , uploaderGroup
-router.post('/api/signin', signin)
+router.get('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userGet)
+router.post('/api/users', auth([ROLES.ADMIN], testInstall), uploaderFileless, userAdd) // , uploaderGroup
+router.post('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), uploaderFileless, userEdit)
+router.post('/api/signin', uploaderFileless, signin)
+router.delete('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userDelete)
 
 // --------------------------
 //          GROUPS

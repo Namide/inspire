@@ -1,5 +1,5 @@
 const ObjectID = require('mongodb').ObjectID
-const { ROLES, VISIBILITY } = require('../constants/permissions')
+const { VISIBILITY } = require('../constants/permissions')
 const { removeReadableStreams, removeFile, pathToSrc } = require('../helpers/files.js')
 
 // const RULES = {
@@ -112,7 +112,9 @@ module.exports.groupAdd = async (ctx) => {
     }
 
     // Remove other images
-    removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'imageFile'))
+    if (ctx.request.files) {
+      removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'imageFile'))
+    }
 
     const insert = await ctx.app.groups
       .insertOne(payload)
@@ -120,7 +122,10 @@ module.exports.groupAdd = async (ctx) => {
     ctx.body = { groups }
   } catch (error) {
     // Remove images
-    removeReadableStreams(...ctx.request.files)
+    if (ctx.request.files) {
+      removeReadableStreams(...ctx.request.files)
+    }
+
     ctx.body = {
       success: false,
       message: error.message
@@ -164,7 +169,9 @@ module.exports.groupEdit = async (ctx) => {
     }
 
     // Remove other images
-    removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'imageFile'))
+    if (ctx.request.files) {
+      removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'imageFile'))
+    }
 
     await ctx.app.groups.updateOne(documentQuery, { $set: payload })
     const groupReturned = await ctx.app.groups.findOne(documentQuery)
