@@ -19,7 +19,7 @@ const getUser = (_id, name, role) => {
 }
 
 module.exports = (authorizedRoles = [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR, ROLES.SUBSCRIBER, ROLES.GUEST], secondTest = async (ctx, userID) => true) => async (ctx, next) => {
-  const { user } = getToken(ctx) || { user: { name: 'Guest', role: ROLES.GUEST, _id: null } }
+  const { user } = getToken(ctx) || { user: { name: null, role: ROLES.GUEST, _id: null } }
   ctx.state.user = getUser(user._id, user.name, user.role)
 
   if (authorizedRoles.indexOf(user.role) < 0) {

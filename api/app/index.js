@@ -105,11 +105,19 @@ const testSameUser = async (ctx, id) => {
   ctx.state.field = user
   return user._id.toString() === id
 }
+// Authorize create user no user in table
+const testInstall = async (ctx, id) => {
+  const count = await ctx.app.users.countDocuments()
+  if (count < 1) {
+    ctx.request.body.role = ROLES.ADMIN
+  }
+  return count < 1
+}
 router.get('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userGet)
 router.post('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userEdit)
 router.delete('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userDelete)
 router.get('/api/users', auth([ROLES.ADMIN]), userList)
-router.post('/api/users', auth([ROLES.ADMIN]), userAdd) // , uploaderGroup
+router.post('/api/users', auth([ROLES.ADMIN], testInstall), userAdd) // , uploaderGroup
 router.post('/api/signin', signin)
 
 // --------------------------
