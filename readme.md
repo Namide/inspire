@@ -44,13 +44,13 @@ npm --prefix ./front/ run serve
 
 Users has many roles, this is the list of those ones:
 
-| id | role          | public data         | protected data    | private data      | users            |
-|----|---------------|---------------------|-------------------|-------------------|------------------|
-| 0  | Public        | see                 | X                 | X                 | X                |
-| 1  | Subscriber    | see                 | see               | X                 | edit his own     |
-| 2  | Author        | add, edit his own   | add, edit his own | add, edit his own | edit his own     |
-| 3  | Editor        | add, edit all       | add, edit all     | add, edit his own | edit his own     |
-| 4  | Administrator | add, edit all       | add, edit all     | add, edit all     | add, edit all    |
+|  | public | protected | private | user |
+|------------|-------------------|-------------------|-------------------|---------------|
+| guest | see | x | x | x |
+| subscriber | see | see | x | edit his own |
+| author | add, edit his own | add, edit his own | add, edit his own | edit his own |
+| editor | add, edit all | add, edit all | add, edit his own | edit his own |
+| admin | add, edit all | add, edit all | add, edit all | add, edit all |
 
 > A data can be a item, a group, etc.  
 - _*Add = create_  

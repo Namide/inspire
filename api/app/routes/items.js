@@ -11,21 +11,11 @@ module.exports.groupInit = async (db) => {
         bsonType: 'object',
         required: ['visibility', 'order', 'title', 'author', 'filter'],
         properties: {
-          visibility: {
-            enum: Object.values(VISIBILITY)
-          },
-          author: {
-            bsonType: 'objectId'
-          },
-          title: {
-            bsonType: 'string'
-          },
-          description: {
-            bsonType: 'string'
-          },
-          types: {
-            enum: Object.values(TYPES)
-          },
+          visibility: { enum: Object.values(VISIBILITY) },
+          author: { bsonType: 'objectId' },
+          title: { bsonType: 'string' },
+          description: { bsonType: 'string' },
+          types: { enum: Object.values(TYPES) },
           tags: {
             bsonType: 'array',
             items: {
@@ -45,20 +35,14 @@ module.exports.groupInit = async (db) => {
               }
             }
           },
-          input: {
-            bsonType: 'string'
-          },
+          input: { bsonType: 'string' },
           score: {
             bsonType: 'float',
             minimum: 0,
             maximum: 5
           },
-          content: {
-            bsonType: 'string'
-          },
-          createdAt: {
-            bsonType: 'date'
-          }
+          content: { bsonType: 'string' },
+          createdAt: { bsonType: 'date' }
         }
       }
     }
