@@ -1,0 +1,201 @@
+const ObjectID = require('mongodb').ObjectID
+const { VISIBILITY } = require('../constants/permissions')
+const { TYPES } = require('../constants/items')
+const IMAGE = require('../constants/image')
+const { removeReadableStreams, removeFile, pathToSrc } = require('../helpers/files.js')
+
+module.exports.groupInit = async (db) => {
+  const groups = await db.createCollection('groups', {
+    validator: {
+      $jsonSchema: {
+        bsonType: 'object',
+        required: ['visibility', 'order', 'title', 'author', 'filter'],
+        properties: {
+          visibility: {
+            enum: Object.values(VISIBILITY)
+          },
+          author: {
+            bsonType: 'objectId'
+          },
+          title: {
+            bsonType: 'string'
+          },
+          description: {
+            bsonType: 'string'
+          },
+          types: {
+            enum: Object.values(TYPES)
+          },
+          tags: {
+            bsonType: 'array',
+            items: {
+              bsonType: 'string'
+            }
+          },
+          image: IMAGE.VALIDATOR,
+          file: {
+            bsonType: 'object',
+            required: ['src'],
+            properties: {
+              src: {
+                bsonType: 'string'
+              },
+              type: {
+                bsonType: 'string'
+              }
+            }
+          },
+          input: {
+            bsonType: 'string'
+          },
+          score: {
+            bsonType: 'float',
+            minimum: 0,
+            maximum: 5
+          },
+          content: {
+            bsonType: 'string'
+          },
+          createdAt: {
+            bsonType: 'date'
+          }
+        }
+      }
+    }
+  })
+
+  return groups
+}
+
+// module.exports.groupList = async (ctx) => {
+//   const visibilities = ctx.state.user.visibilities
+//   const author = ObjectID(ctx.state.user._id)
+
+//   const groups = await ctx.app.groups
+//     .find({
+//       $or: [
+//         { author },
+//         {
+//           visibility: {
+//             $regex: new RegExp(`^(${visibilities.join('|')})$`)
+//           }
+//         }
+//       ]
+//     })
+//     .toArray()
+
+//   ctx.body = { groups }
+//   return ctx
+// }
+
+// module.exports.groupAdd = async (ctx) => {
+//   const values = ctx.request.body
+
+//   try {
+//     const payload = Object.assign(values, { author: ObjectID(ctx.state.user._id) })
+//     payload.order = Number(payload.order)
+//     payload.filter = payload.filter.split(',')
+
+//     const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'imageFile')
+//     if (file) {
+//       payload.image = JSON.parse(payload.image)
+//       payload.image.src = pathToSrc(file.path)
+//       payload.image.mimetype = file.mimetype
+//     } else {
+//       delete payload.image
+//     }
+
+//     // Remove other images
+//     removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'imageFile'))
+
+//     const insert = await ctx.app.groups
+//       .insertOne(payload)
+//     const groups = [insert.ops[0]]
+//     ctx.body = { groups }
+//   } catch (error) {
+//     // Remove images
+//     removeReadableStreams(...ctx.request.files)
+//     ctx.body = {
+//       success: false,
+//       message: error.message
+//     }
+//   }
+
+//   return ctx
+// }
+
+// module.exports.groupEdit = async (ctx) => {
+//   const documentQuery = { _id: ObjectID(ctx.params.id) }
+//   const group = ctx.state.field
+//   const payload = ctx.request.body
+
+//   if (!group) {
+//     ctx.throw(404, 'Group not found')
+//     return ctx
+//   }
+
+//   try {
+//     delete payload.author
+//     if (payload.order) {
+//       payload.order = Number(payload.order)
+//     }
+
+//     if (payload.filter) {
+//       payload.filter = payload.filter.split(',')
+//     }
+
+//     const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'imageFile')
+//     if (file) {
+//       payload.image = JSON.parse(payload.image)
+//       payload.image.src = pathToSrc(file.path)
+//       payload.image.mimetype = file.mimetype
+
+//       if (group.image) {
+//         removeFile(group.image.src)
+//       }
+//     } else {
+//       delete payload.image
+//     }
+
+//     // Remove other images
+//     removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'imageFile'))
+
+//     await ctx.app.groups.updateOne(documentQuery, { $set: payload })
+//     const groupReturned = await ctx.app.groups.findOne(documentQuery)
+//     ctx.body = { groups: [groupReturned] }
+//   } catch (error) {
+//     if (ctx.request.files) {
+//       removeReadableStreams(...ctx.request.files)
+//     }
+
+//     ctx.body = {
+//       success: false,
+//       message: error.message
+//     }
+//   }
+
+//   return ctx
+// }
+
+// module.exports.groupDelete = async (ctx) => {
+//   const documentQuery = { _id: ObjectID(ctx.params.id) }
+//   const group = ctx.state.field
+
+//   if (!group) {
+//     ctx.throw(404, 'Group not found')
+//     return ctx
+//   }
+
+//   if (group.image) {
+//     removeFile(group.image.src)
+//   }
+
+//   await ctx.app.groups.deleteOne(documentQuery)
+
+//   ctx.body = {
+//     success: true,
+//     message: 'Group ' + ctx.params.id + ' deleted'
+//   }
+
+//   return ctx
+// }
