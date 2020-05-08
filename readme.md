@@ -49,6 +49,14 @@ Users has many roles, this is the list of those ones:
 - _*Users roles: Only admin can modify users roles_
 
 
+## Directories
+
+- `app/` Backend files (nodejs/koa/mongoDB)
+- `public/` Frontend static files (build)
+- `src/` Frontend sources (you can rebuild from it)
+- `upload/` User upload files
+
+
 ## Collections
 
 **Status:**
