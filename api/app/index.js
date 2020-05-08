@@ -14,7 +14,7 @@ const compress = require('koa-compress')
 // --------------------------
 const errorHandler = require('./middleware/errorHandler')
 const auth = require('./middleware/auth')
-const { uploaderGroup, uploaderFileless } = require('./middleware/upload')
+const { uploaderGroup, uploaderItem, uploaderFileless } = require('./middleware/upload')
 
 // --------------------------
 //          ROUTES
@@ -22,6 +22,7 @@ const { uploaderGroup, uploaderFileless } = require('./middleware/upload')
 const { distant: distantRequest } = require('./routes/distant.js')
 const { userInit, userList, userAdd, userGet, userEdit, userDelete, signin } = require('./routes/users.js')
 const { groupInit, groupList, groupAdd, groupDelete, groupEdit } = require('./routes/groups.js')
+const { itemInit, itemList, itemAdd, itemDelete, itemEdit } = require('./routes/items.js')
 const { fileDisplay } = require('./routes/files.js')
 
 // --------------------------
@@ -79,6 +80,7 @@ require('./middleware/mongo.js')(app)
     // Init tables
     app.users = await userInit(db)
     app.groups = await groupInit(db)
+    app.items = await itemInit(db)
 
     return true
   })
@@ -128,13 +130,13 @@ const testInstall = async (ctx, id) => {
 }
 router.get('/api/users', auth([ROLES.ADMIN]), userList)
 router.get('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userGet)
-router.post('/api/users', auth([ROLES.ADMIN], testInstall), uploaderFileless, userAdd) // , uploaderGroup
+router.post('/api/users', auth([ROLES.ADMIN], testInstall), uploaderFileless, userAdd)
 router.post('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), uploaderFileless, userEdit)
 router.post('/api/signin', uploaderFileless, signin)
 router.delete('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userDelete)
 
 // --------------------------
-//          GROUPS
+//           GROUPS
 // --------------------------
 const testSameGroup = async (ctx, id) => {
   const group = await ctx.app.groups.findOne({ _id: ObjectID(ctx.params.id) })
@@ -145,6 +147,19 @@ router.get('/api/groups', auth(), groupList)
 router.post('/api/groups', auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR]), uploaderGroup, groupAdd)
 router.post('/api/groups/:id([0-9a-f]{24})', auth([ROLES.ADMIN, ROLES.EDITOR], testSameGroup), uploaderGroup, groupEdit)
 router.delete('/api/groups/:id([0-9a-f]{24})', auth([ROLES.ADMIN, ROLES.EDITOR], testSameGroup), groupDelete)
+
+// --------------------------
+//            ITEMS
+// --------------------------
+const testSameItem = async (ctx, id) => {
+  const item = await ctx.app.items.findOne({ _id: ObjectID(ctx.params.id) })
+  ctx.state.field = item
+  return item.author.toString() === id
+}
+router.get('/api/items', auth(), itemList)
+router.post('/api/items', auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR]), uploaderItem, itemAdd)
+router.post('/api/items/:id([0-9a-f]{24})', auth([ROLES.ADMIN, ROLES.EDITOR], testSameItem), uploaderItem, itemEdit)
+router.delete('/api/items/:id([0-9a-f]{24})', auth([ROLES.ADMIN, ROLES.EDITOR], testSameItem), itemDelete)
 
 // --------------------------
 //          FILES

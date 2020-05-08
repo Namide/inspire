@@ -1,16 +1,7 @@
 const ObjectID = require('mongodb').ObjectID
 const { VISIBILITY } = require('../constants/permissions')
+const IMAGE = require('../constants/image')
 const { removeReadableStreams, removeFile, pathToSrc } = require('../helpers/files.js')
-
-// const RULES = {
-//   visibility: new RegExp(`^(${ Object.values(VISIBILITY).join('|') })$`),
-//   order: /^[0-9]+$/,
-//   author: /^[0-9a-f]+$/,
-//   title: isText,
-//   image: isJSON,
-//   description: isText,
-//   filter: isText
-// }
 
 module.exports.groupInit = async (db) => {
   const groups = await db.createCollection('groups', {
@@ -35,23 +26,7 @@ module.exports.groupInit = async (db) => {
           description: {
             bsonType: 'string'
           },
-          image: {
-            bsonType: 'object',
-            required: ['width', 'height', 'src'],
-            properties: {
-              width: {
-                bsonType: 'int',
-                description: 'must be a string if the field exists'
-              },
-              height: {
-                bsonType: 'int',
-                description: 'must be a string if the field exists'
-              },
-              src: {
-                bsonType: 'string'
-              }
-            }
-          },
+          image: IMAGE.VALIDATOR,
           filter: {
             bsonType: 'array',
             minItems: 1,
@@ -157,13 +132,13 @@ module.exports.groupEdit = async (ctx) => {
 
     const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'imageFile')
     if (file) {
-      payload.image = JSON.parse(payload.image)
-      payload.image.src = pathToSrc(file.path)
-      payload.image.mimetype = file.mimetype
-
       if (group.image) {
         removeFile(group.image.src)
       }
+
+      payload.image = JSON.parse(payload.image)
+      payload.image.src = pathToSrc(file.path)
+      payload.image.mimetype = file.mimetype
     } else {
       delete payload.image
     }
