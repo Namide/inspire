@@ -1,4 +1,4 @@
-const { getToken, setToken } = require('../helpers/token.js')
+const { getToken, setToken, blacklistToken } = require('../helpers/token.js')
 const bcrypt = require('bcryptjs')
 const ObjectID = require('mongodb').ObjectID
 const { ROLES } = require('../constants/permissions')
@@ -67,6 +67,16 @@ module.exports.userInit = async (db) => {
   users.createIndex({ email: 1 }, { unique: true })
   users.createIndex({ name: 1 }, { unique: true })
   return users
+}
+
+module.exports.signout = async (ctx) => {
+  blacklistToken(ctx)
+  ctx.body = {
+    success: true,
+    message: 'Signout'
+  }
+
+  return ctx
 }
 
 module.exports.signin = async (ctx) => {

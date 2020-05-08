@@ -6,11 +6,14 @@ const JWT_OPTIONS = {
   // expiresIn: 1000 * 60 * 60 * 24
 }
 
+const DURATION = (24 * 60 * 60) // 24 hour
+const BLACKLIST = []
+
 module.exports.setToken = (ctx, user) => {
   const payload = {
     ua: ctx.request.headers['user-agent'],
     ip: ctx.request.ip,
-    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hour
+    exp: Math.floor(Date.now() / 1000) + DURATION,
     user: {
       name: user.name,
       role: user.role,
@@ -21,12 +24,26 @@ module.exports.setToken = (ctx, user) => {
   return jwt.sign(payload, CONFIG.jwt.secret, JWT_OPTIONS)
 }
 
+module.exports.blacklistToken = (ctx, authorization = ctx.headers.authorization) => {
+  if (authorization) {
+    BLACKLIST.push(authorization)
+    setTimeout(() => {
+      BLACKLIST.shift()
+    }, DURATION * 1000)
+  }
+}
+
 /**
  * @returns {{ua:string, ip:string, expo:number, user: { role:string, _id:string }}|null}
  */
-module.exports.getToken = (ctx) => {
-  if (ctx.headers.authorization) {
-    const token = ctx.headers.authorization.split(' ')[1]
+module.exports.getToken = (ctx, authorization = ctx.headers.authorization) => {
+  if (authorization) {
+    if (BLACKLIST.indexOf(authorization) > -1) {
+      ctx.throw(401, 'Falsified token')
+      return null
+    }
+
+    const token = authorization.split(' ')[1]
 
     try {
       const decoded = jwt.verify(token, CONFIG.jwt.secret)
@@ -47,53 +64,3 @@ module.exports.getToken = (ctx) => {
 
   return null
 }
-
-// module.exports.getToken = (ctx, { isNeeded = false, roles = Object.values(ROLES), author = null } = {}) => {
-//   if (ctx.headers.authorization) {
-//     const token = ctx.headers.authorization.split(' ')[1]
-
-//     try {
-//       const decoded = jwt.verify(token, CONFIG.jwt.secret)
-//       const ua = ctx.request.headers['user-agent']
-//       const ip = ctx.request.ip
-
-//       // Authorize if is author
-//       if (author && author === decoded.user._id) {
-//         decoded.user.role.push(...ROLES)
-//       }
-
-//       if (roles.indexOf(decoded.user.role) < 0) {
-//         ctx.throw(401, 'Role not authorized')
-//         return null
-//       }
-
-//       if (decoded.ua === ua && decoded.ip === ip) {
-//         return decoded
-//       }
-
-//       ctx.throw(401, 'Falsified token')
-//       return null
-//     } catch (err) {
-//       ctx.throw(401, err.message)
-//       return null
-//     }
-//   }
-
-//   if (isNeeded) {
-//     ctx.throw(401, 'Token needed')
-//     return null
-//   }
-
-//   if (!roles.find(ROLES.GUEST)) {
-//     ctx.throw(401, 'Role not authorized')
-//     return null
-//   }
-
-//   return {
-//     user: {
-//       name: null,
-//       role: ROLES.GUEST,
-//       _id: '0'
-//     }
-//   }
-// }

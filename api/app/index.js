@@ -20,7 +20,7 @@ const { uploaderGroup, uploaderItem, uploaderFileless } = require('./middleware/
 //          ROUTES
 // --------------------------
 const { distant: distantRequest } = require('./routes/distant.js')
-const { userInit, userList, userAdd, userGet, userEdit, userDelete, signin } = require('./routes/users.js')
+const { userInit, userList, userAdd, userGet, userEdit, userDelete, signin, signout } = require('./routes/users.js')
 const { groupInit, groupList, groupAdd, groupDelete, groupEdit } = require('./routes/groups.js')
 const { itemInit, itemList, itemAdd, itemDelete, itemEdit } = require('./routes/items.js')
 const { fileDisplay } = require('./routes/files.js')
@@ -133,6 +133,7 @@ router.get('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), us
 router.post('/api/users', auth([ROLES.ADMIN], testInstall), uploaderFileless, userAdd)
 router.post('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), uploaderFileless, userEdit)
 router.post('/api/signin', uploaderFileless, signin)
+router.post('/api/signout', uploaderFileless, signout)
 router.delete('/api/users/:id([0-9a-f]{24})', auth([ROLES.ADMIN], testSameUser), userDelete)
 
 // --------------------------
