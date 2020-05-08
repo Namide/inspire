@@ -83,11 +83,19 @@ module.exports.itemAdd = async (ctx) => {
 
   try {
     const payload = Object.assign(values, { author: ObjectID(ctx.state.user._id) })
+
     if (payload.types) {
       payload.types = payload.types.split(',')
     }
+
     if (payload.tags) {
       payload.tags = payload.tags.split(',')
+    }
+
+    if (payload.createdAt) {
+      payload.createdAt = new Date(payload.createdAt)
+    } else {
+      payload.createdAt = new Date()
     }
 
     const image = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'imageFile')
