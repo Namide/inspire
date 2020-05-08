@@ -57,47 +57,8 @@ Users has many roles, this is the list of those ones:
 - `upload/` User upload files
 
 
-## Collections
-
-**Status:**
+## Status
 
 - Public (can be see by all user)
 - Protected (can be see by all exept unregister users)
 - Private (can be see only by owner)
-
-
-- items
-  - id
-  - author
-  - title < 255 chars
-  - description (abstract, resume, comment, header, caption) < 1000 chars
-  - date
-  - thumb (file)
-  - colors
-  - colors_round
-
-  - content_text (text, embed, URL...) # Disabled if file
-  - content_file                       # Disabled if no file
-
-  - types (ou format)
-    - text (video (embed), file (video, img), link, pdf, md...)
-
-  - score (0-5)
-  - tags
-  - visibility (public, protected, private)
-
-- groups
-  - id
-  - author
-  - order
-  - date
-
-  - thumb
-  - colors
-
-  - title
-  - description (comment) < 1000 chars
-  - visibility (public, protected, private)
-  - tags (search -> paint,!digital)
-  - formats (ou types -> video-file,video-embed)
-  - scores (>4...)
