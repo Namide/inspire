@@ -2,6 +2,15 @@
 
 Tool to collect and storage or embed datas (URL, images, scripts, files, videos)
 
+## Requirements
+
+Module browser:
+- Microsoft Edge (last version)
+- Chrome (last version)
+- Firefox (last version)
+- Safari (last version)
+- ~~Internet Explorer~~
+
 
 ## Install
 
@@ -55,10 +64,3 @@ Users has many roles, this is the list of those ones:
 - `public/` Frontend static files (build)
 - `src/` Frontend sources (you can rebuild from it)
 - `upload/` User upload files
-
-
-## Status
-
-- Public (can be see by all user)
-- Protected (can be see by all exept unregister users)
-- Private (can be see only by owner)
