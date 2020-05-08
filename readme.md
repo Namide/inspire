@@ -45,14 +45,14 @@ npm --prefix ./front/ run serve
 Users has many roles, this is the list of those ones:
 
 |  | public | protected | private | user |
-|------------|-------------------|-------------------|-------------------|---------------|
+|---|---|---|---|---|
 | guest | see | x | x | x |
 | subscriber | see | see | x | edit his own |
 | author | add, edit his own | add, edit his own | add, edit his own | edit his own |
 | editor | add, edit all | add, edit all | add, edit his own | edit his own |
 | admin | add, edit all | add, edit all | add, edit all | add, edit all |
 
-> A data can be a item, a group, etc.  
+> A public, protected and private can be a item or group  
 - _*Add = create_  
 - _*Edit = modify and delete_  
 - _*Users roles: Only admin can modify users roles_
