@@ -3,20 +3,17 @@
 Tool to collect and storage or embed datas (URL, images, scripts, files, videos)
 
 
-## Start dev
-
-### Requirements
-
-- PHP 7.2+
-- PDO / Sqlite
-- mail (SMTP configured)
-
-
-### Commands
+## Install
 
 ```bash
-# back-end
-docker-compose -f config/back-serve-dev/docker-compose.yml up
+# back-end install
+npm install
+
+# back-end run database
+docker-compose up
+# back-end run dev server
+npm run dev
+
 
 # front-end install
 cd front
@@ -26,18 +23,12 @@ npm install
 npm --prefix ./front/ run serve
 ```
 
-### Dev URL
+
+## Dev URL
 
 - [Front-end](http://localhost:8080/)
-- [Admin](http://192.168.99.100:8100/admin)
-  - user: `inspire@inspire.com`
-  - pass: `inspire`
-- [API](http://192.168.99.100:8100/)
-- [phpMyAdmin](http://192.168.99.100:8101/)
-
-### Back super admin password
-
-`i4rKc3fSc15KvXwSFH39JN708A`
+- [API](http://localhost:3000/api)
+- [DB admin](http://192.168.99.100:8081/db/inspire)
 
 
 ## Users roles
@@ -63,10 +54,8 @@ Users has many roles, this is the list of those ones:
 **Status:**
 
 - Public (can be see by all user)
-- Protected (can be see by all exept public user)
+- Protected (can be see by all exept unregister users)
 - Private (can be see only by owner)
-- Draft (can be see only by owner and editors)
-- Deteled
 
 
 - items
@@ -104,11 +93,3 @@ Users has many roles, this is the list of those ones:
   - tags (search -> paint,!digital)
   - formats (ou types -> video-file,video-embed)
   - scores (>4...)
-
-
-## Add dependencies to back
-
-```bash
-docker run --rm --interactive --tty --volume /d/DAMIEN/scripts/lib/inspire/back:/app composer require league/color-extractor:0.3.* --ignore-platform-reqs --no-scripts
-docker run --rm --interactive --tty --volume /d/DAMIEN/scripts/lib/inspire/back:/app composer remove league/color-extractor:0.3.* --ignore-platform-reqs --no-scripts
-```
