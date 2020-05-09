@@ -18,18 +18,22 @@ Module browser:
 # back-end install
 npm install
 
+# front-end install
+npm --prefix ./front/ install
+```
+
+
+## Run dev server
+
+```bash
 # back-end run database
 docker-compose up
+
 # back-end run dev server
 npm run dev
 
-
-# front-end install
-cd front
-npm install
-
 # front-end run dev server
-npm --prefix ./front/ run serve
+npm --prefix ./src/ run serve
 ```
 
 
