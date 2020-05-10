@@ -14,12 +14,16 @@ Module browser:
 
 ## Install
 
+(Nodejs)[https://nodejs.org/] required
+
 ```bash
 # back-end install
+cd server
 npm install
 
 # front-end install
-npm --prefix ./front/ install
+cd front-src
+npm install
 ```
 
 
@@ -27,13 +31,13 @@ npm --prefix ./front/ install
 
 ```bash
 # back-end run database
-docker-compose up
+docker-compose -f ./server/docker-compose.yml up
 
 # back-end run dev server
-npm run dev
+npm --prefix ./server/ run dev
 
 # front-end run dev server
-npm --prefix ./src/ run serve
+npm --prefix ./front-src/ run serve
 ```
 
 

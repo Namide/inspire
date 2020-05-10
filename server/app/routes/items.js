@@ -43,7 +43,7 @@ module.exports.itemInit = async (db) => {
           },
           input: { bsonType: 'string' },
           score: {
-            bsonType: 'float',
+            bsonType: 'double',
             minimum: 0,
             maximum: 5
           },
