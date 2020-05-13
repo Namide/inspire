@@ -99,6 +99,34 @@ module.exports.signin = async (ctx) => {
   return ctx
 }
 
+module.exports.userMe = async (ctx) => {
+  const token = getToken(ctx)
+
+  if (token) {
+    const user = await ctx.app.users.findOne({ _id: ObjectID(token.user._id) })
+
+    if (user) {
+      ctx.body = {
+        user: displayUser(user)
+      }
+    } else {
+      ctx.status = 404
+      ctx.body = {
+        success: false,
+        message: 'User not found'
+      }
+    }
+  } else {
+    ctx.status = 404
+    ctx.body = {
+      success: false,
+      message: 'User not found'
+    }
+  }
+
+  return ctx
+}
+
 module.exports.userGet = async (ctx) => {
   const token = getToken(ctx)
 
