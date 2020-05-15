@@ -16,23 +16,23 @@ export default {
     value: { type: String }
   },
 
-  data () {
+  data() {
     return {
       modelValue: null
-    }
+    };
   },
 
   watch: {
-    value (value) {
+    value(value) {
       if (value !== this.modelValue) {
-        this.modelValue = value
+        this.modelValue = value;
       }
     },
 
-    modelValue (modelValue) {
+    modelValue(modelValue) {
       if (modelValue !== this.value) {
-        this.$emit('change', modelValue)
-        this.resizeContentRaw()
+        this.$emit("change", modelValue);
+        this.resizeContentRaw();
       }
     }
 
@@ -47,33 +47,33 @@ export default {
     // }
   },
 
-  created () {
-    this.modelValue = this.value
+  created() {
+    this.modelValue = this.value;
   },
 
-  mounted () {
-    this.resizeContentRaw()
-    window.addEventListener('resize', this.resizeContentRaw)
+  mounted() {
+    this.resizeContentRaw();
+    window.addEventListener("resize", this.resizeContentRaw);
   },
 
-  destroyed () {
-    window.removeEventListener('resize', this.resizeContentRaw)
+  destroyed() {
+    window.removeEventListener("resize", this.resizeContentRaw);
   },
 
   methods: {
-    resizeContentRaw () {
-      const el = this.$refs.contentRaw
+    resizeContentRaw() {
+      const el = this.$refs.contentRaw;
       this.$nextTick(() => {
-        el.style.cssText = 'height:auto; padding:0'
-        el.style.cssText = 'height:' + el.scrollHeight + 'px'
-      })
+        el.style.cssText = "height:auto; padding:0";
+        el.style.cssText = "height:" + el.scrollHeight + "px";
+      });
     },
 
-    submit () {
-      this.$emit('submit', this.modelValue)
+    submit() {
+      this.$emit("submit", this.modelValue);
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped>

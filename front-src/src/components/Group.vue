@@ -37,10 +37,10 @@ export default {
     group: { type: Object }
   },
 
-  created () {},
+  created() {},
 
   methods: {}
-}
+};
 </script>
 
 <style lang="sass" scoped></style>

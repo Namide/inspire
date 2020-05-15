@@ -8,14 +8,14 @@ const parseImagePayload = payload => {
     name: payload.filename_download,
     width: payload.width,
     height: payload.height,
-    src: '/api' + payload.data.url,
+    src: "/api" + payload.data.url,
     srcSet: payload.data.thumbnails
       .filter(thumb => thumb.width > 300 || thumb.height > 300)
-      .map(thumb => '/api' + thumb.relative_url + ' ' + thumb.width + 'w')
-      .join(', '),
+      .map(thumb => "/api" + thumb.relative_url + " " + thumb.width + "w")
+      .join(", "),
     alt: payload.description || payload.title
-  }
-}
+  };
+};
 
 const parseFilePayload = payload => {
   return {
@@ -23,44 +23,44 @@ const parseFilePayload = payload => {
     name: payload.filename_download,
     width: payload.width,
     height: payload.height,
-    src: '/api' + payload.data.url,
+    src: "/api" + payload.data.url,
     type: payload.type
-  }
-}
+  };
+};
 
 export default class Item {
-  constructor () {
-    this.fromPayload()
-    this._disposeList = []
+  constructor() {
+    this.fromPayload();
+    this._disposeList = [];
   }
 
-  dispose () {
-    this._disposeList.forEach(callback => callback())
-    this._disposeList = []
-    this.fromPayload()
+  dispose() {
+    this._disposeList.forEach(callback => callback());
+    this._disposeList = [];
+    this.fromPayload();
   }
 
-  fromPayload (json = {}) {
-    this.id = json.id || ''
-    this.status = json.status || 'draft'
-    this.title = json.title || ''
-    this.description = json.description || ''
-    this.types = json.types || []
-    this.tags = json.tags || []
-    this.colors = json.colors || []
-    this.colorsRound = json.colors_round || []
-    this.content = json.content || ''
-    this.input = json.input || ''
-    this.date = new Date(json.date || Date.now())
-    this.file = json.file ? parseFilePayload(json.file) : null
-    this.score = json.score || 0
-    this.image = json.image ? parseImagePayload(json.image) : null
-    this.author = null // this.api.getUser()
+  fromPayload(json = {}) {
+    this.id = json.id || "";
+    this.status = json.status || "draft";
+    this.title = json.title || "";
+    this.description = json.description || "";
+    this.types = json.types || [];
+    this.tags = json.tags || [];
+    this.colors = json.colors || [];
+    this.colorsRound = json.colors_round || [];
+    this.content = json.content || "";
+    this.input = json.input || "";
+    this.date = new Date(json.date || Date.now());
+    this.file = json.file ? parseFilePayload(json.file) : null;
+    this.score = json.score || 0;
+    this.image = json.image ? parseImagePayload(json.image) : null;
+    this.author = null; // this.api.getUser()
 
-    return this
+    return this;
   }
 
-  getPayload () {
+  getPayload() {
     const payload = {
       id: this.id,
       status: this.status,
@@ -77,61 +77,61 @@ export default class Item {
       score: this.score || 0,
       date: this.date
         .toISOString()
-        .replace(/\.[0-9]{3}[A-Z]$/, '')
-        .replace(/T/, ' '),
+        .replace(/\.[0-9]{3}[A-Z]$/, "")
+        .replace(/T/, " "),
       created_by: this.author
-    }
+    };
 
     Object.keys(payload).forEach(key => {
       if (
         payload[key] === null ||
         (Array.isArray(payload[key]) && payload[key].length < 1)
       ) {
-        delete payload[key]
+        delete payload[key];
       }
-    })
+    });
 
-    return payload
+    return payload;
   }
 
-  fromObject (object = {}) {
-    this.id = object.id
-    this.status = object.status
-    this.title = object.title
-    this.description = object.description
-    this.types = [...object.types]
-    this.tags = [...object.tags]
-    this.colors = [...object.colors]
-    this.colorsRound = [...object.colorsRound]
-    this.input = object.input
-    this.content = object.content
-    this.file = object.file
-    this.image = object.image
-    this.score = object.score
-    this.date = object.date ? new Date(object.date) : null
-    this.author = object.author
+  fromObject(object = {}) {
+    this.id = object.id;
+    this.status = object.status;
+    this.title = object.title;
+    this.description = object.description;
+    this.types = [...object.types];
+    this.tags = [...object.tags];
+    this.colors = [...object.colors];
+    this.colorsRound = [...object.colorsRound];
+    this.input = object.input;
+    this.content = object.content;
+    this.file = object.file;
+    this.image = object.image;
+    this.score = object.score;
+    this.date = object.date ? new Date(object.date) : null;
+    this.author = object.author;
 
-    return this
+    return this;
   }
 
-  getObject () {
-    let image = this.image
-    let file = this.file
+  getObject() {
+    let image = this.image;
+    let file = this.file;
 
     if (image instanceof File) {
-      const src = URL.createObjectURL(image)
-      this._disposeList.push(() => URL.revokeObjectURL(src))
+      const src = URL.createObjectURL(image);
+      this._disposeList.push(() => URL.revokeObjectURL(src));
       image = {
         src
-      }
+      };
     }
 
     if (file instanceof File) {
-      const src = URL.createObjectURL(file)
-      this._disposeList.push(() => URL.revokeObjectURL(src))
+      const src = URL.createObjectURL(file);
+      this._disposeList.push(() => URL.revokeObjectURL(src));
       file = {
         src
-      }
+      };
     }
 
     return {
@@ -148,8 +148,8 @@ export default class Item {
       file,
       image,
       score: this.score,
-      date: this.date.toISOString().replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ''),
+      date: this.date.toISOString().replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ""),
       author: this.author
-    }
+    };
   }
 }

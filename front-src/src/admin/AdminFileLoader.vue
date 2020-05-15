@@ -41,51 +41,51 @@ export default {
     onlyImg: { type: Boolean, default: false }
   },
 
-  data () {
+  data() {
     return {
       isImg: true,
-      src: ''
-    }
+      src: ""
+    };
   },
 
   watch: {
     image: {
       immediate: true,
-      handler (image, oldImage) {
+      handler(image, oldImage) {
         if (oldImage instanceof File && this.src) {
-          URL.revokeObjectURL(this.src)
-          this.src = ''
+          URL.revokeObjectURL(this.src);
+          this.src = "";
         }
         if (image instanceof File) {
-          this.src = URL.createObjectURL(image)
+          this.src = URL.createObjectURL(image);
         } else if (image && image.src) {
-          this.src = image.src
+          this.src = image.src;
         } else if (!image) {
-          this.src = ''
+          this.src = "";
         }
       }
     }
   },
 
-  destroyed () {
+  destroyed() {
     if (this.image instanceof File && this.src) {
-      URL.revokeObjectURL(this.src)
-      this.src = ''
+      URL.revokeObjectURL(this.src);
+      this.src = "";
     }
   },
 
   methods: {
-    filesChange ([file]) {
+    filesChange([file]) {
       // const isImage = file.type.split('/').shift().toLowerCase() === 'image'
       // if (isImage) {
       //   this.imgViewer(file)
       // }
 
-      this.$emit('change', file)
+      this.$emit("change", file);
     },
 
-    deleteFile () {
-      this.$emit('change', null)
+    deleteFile() {
+      this.$emit("change", null);
     }
 
     // imgViewer (file) {
@@ -101,7 +101,7 @@ export default {
     //   reader.readAsDataURL(file)
     // }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped>

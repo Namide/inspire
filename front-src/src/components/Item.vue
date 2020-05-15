@@ -1,10 +1,5 @@
 <template>
-  <router-link
-    :to="to"
-    class="item"
-    :class="classData"
-    :style="itemStyle"
-  >
+  <router-link :to="to" class="item" :class="classData" :style="itemStyle">
     <img
       v-if="item.image"
       :src="item.image.src"
@@ -17,8 +12,20 @@
       :class="{ 'is-show': showThumb && isThumbLoaded }"
     />
 
-    <Play v-if="isVideo" class="play" :color="colors[2].hex" :bg="`rgba(${colors[3].r},${colors[3].g},${ colors[3].b }, 0.75)`" />
-    <Cube v-if="is3D" class="play" :color1="colors[0].hex" :color2="colors[1].hex" :color3="colors[2].hex" :bg="`rgba(${colors[3].r},${colors[3].g},${ colors[3].b }, 0.75)`" />
+    <Play
+      v-if="isVideo"
+      class="play"
+      :color="colors[2].hex"
+      :bg="`rgba(${colors[3].r},${colors[3].g},${colors[3].b}, 0.75)`"
+    />
+    <Cube
+      v-if="is3D"
+      class="play"
+      :color1="colors[0].hex"
+      :color2="colors[1].hex"
+      :color3="colors[2].hex"
+      :bg="`rgba(${colors[3].r},${colors[3].g},${colors[3].b}, 0.75)`"
+    />
 
     <h1 v-if="item.title" class="title bold" :style="{ color: colors[1].hex }">
       <div class="bg" :style="{ background: colors[0].hex }"></div>
@@ -40,20 +47,20 @@
 </template>
 
 <script>
-import Play from '@/components/Play.vue'
-import Cube from '@/components/Cube.vue'
-import TagsDisplay from '@/components/TagsDisplay.vue'
+import Play from "@/components/Play.vue";
+import Cube from "@/components/Cube.vue";
+import TagsDisplay from "@/components/TagsDisplay.vue";
 // import api from '@/pure/api'
 
 const getPgcd = (a, b) => {
   while (b > 0) {
-    var r = a % b
-    a = b
-    b = r
+    var r = a % b;
+    a = b;
+    b = r;
   }
 
-  return a
-}
+  return a;
+};
 
 export default {
   components: {
@@ -64,10 +71,10 @@ export default {
 
   props: {
     item: { type: Object },
-    displayMode: { type: String, default: 'text' }
+    displayMode: { type: String, default: "text" }
   },
 
-  data () {
+  data() {
     return {
       displayImage: false,
       classData: [],
@@ -77,88 +84,89 @@ export default {
       // href: false,
       w: 1,
       h: 1
-    }
+    };
   },
 
   computed: {
-    size () {
+    size() {
       if (this.item.image) {
-        return [this.item.image.width, this.item.image.height]
+        return [this.item.image.width, this.item.image.height];
       }
 
-      return [3, 1]
+      return [3, 1];
     },
 
-    isVideo () {
-      return this.item.types.indexOf('video') > -1
+    isVideo() {
+      return this.item.types.indexOf("video") > -1;
     },
 
-    is3D () {
-      return this.item.types.indexOf('3d') > -1
+    is3D() {
+      return this.item.types.indexOf("3d") > -1;
     },
 
-    to () {
-      return { name: this.$route.name, params: { itemID: this.item.id } }
+    to() {
+      return { name: this.$route.name, params: { itemID: this.item.id } };
     },
 
-    colors () {
-      const dist = (a, b) => Math.abs(a.r - b.r) + Math.abs(a.g - b.g) + Math.abs(a.b - b.b)
+    colors() {
+      const dist = (a, b) =>
+        Math.abs(a.r - b.r) + Math.abs(a.g - b.g) + Math.abs(a.b - b.b);
       const detail = color => {
-        const hex = Number('0x' + color.substring(1))
+        const hex = Number("0x" + color.substring(1));
         return {
           hex: color,
-          r: (hex >> 16) & 0xFF,
-          g: (hex >> 8) & 0xFF,
-          b: (hex >> 0) & 0xFF
-        }
-      }
-      const colors = this.item.colors.map(detail)
-      const colorsFallback = ['#FFFFFF', '#000000', '#555555', '#AAAAAA']
+          r: (hex >> 16) & 0xff,
+          g: (hex >> 8) & 0xff,
+          b: (hex >> 0) & 0xff
+        };
+      };
+      const colors = this.item.colors.map(detail);
+      const colorsFallback = ["#FFFFFF", "#000000", "#555555", "#AAAAAA"];
       while (colors.length < 4) {
-        colors.push(detail(colorsFallback.shift()))
+        colors.push(detail(colorsFallback.shift()));
       }
 
-      const a = colors.shift()
-      const b = colors.shift()
+      const a = colors.shift();
+      const b = colors.shift();
 
-      colors.sort((c1, c2) => dist(a, c1) - dist(a, c2))
-      const c = colors.pop()
+      colors.sort((c1, c2) => dist(a, c1) - dist(a, c2));
+      const c = colors.pop();
 
-      colors.sort((c1, c2) => dist(b, c1) - dist(b, c2))
-      const d = colors.pop()
+      colors.sort((c1, c2) => dist(b, c1) - dist(b, c2));
+      const d = colors.pop();
 
-      return [a, c, b, d]
+      return [a, c, b, d];
     }
   },
 
-  created () {
-    const size = this.size
+  created() {
+    const size = this.size;
 
-    const max = 6
-    let w = 1
-    let h = 1
+    const max = 6;
+    let w = 1;
+    let h = 1;
     if (size[0] > size[1]) {
-      w = max
-      h = Math.round((w * size[1]) / size[0]) || 1
+      w = max;
+      h = Math.round((w * size[1]) / size[0]) || 1;
     } else {
-      h = max
-      w = Math.round((h * size[0]) / size[1]) || 1
+      h = max;
+      w = Math.round((h * size[0]) / size[1]) || 1;
     }
 
-    const p = getPgcd(w, h)
-    w /= p
-    h /= p
+    const p = getPgcd(w, h);
+    w /= p;
+    h /= p;
 
-    this.setSize(w, h)
+    this.setSize(w, h);
 
-    if (this.item.image && this.displayMode === 'thumb') {
+    if (this.item.image && this.displayMode === "thumb") {
       this.$set(
         this.itemStyle,
-        'background-color',
+        "background-color",
         this.item.colors && this.item.colors[0]
           ? this.item.colors[0]
-          : 'rgba(0,0,0,0)'
-      )
+          : "rgba(0,0,0,0)"
+      );
     }
 
     // if (
@@ -169,57 +177,57 @@ export default {
     // }
   },
 
-  mounted () {
+  mounted() {
     if (this.item.image) {
-      this.optimizeLoad()
+      this.optimizeLoad();
     }
   },
 
   methods: {
-    optimizeLoad () {
+    optimizeLoad() {
       const options = {
         root: null,
-        rootMargin: '0px',
+        rootMargin: "0px",
         threshold: [0, 1]
-      }
+      };
 
-      this._observer = new IntersectionObserver(this.onInOut, options)
-      this._observer.observe(this.$el)
+      this._observer = new IntersectionObserver(this.onInOut, options);
+      this._observer.observe(this.$el);
     },
 
-    onInOut (data) {
+    onInOut(data) {
       if (data[0].intersectionRatio > 0) {
-        this.showThumb = true
+        this.showThumb = true;
       } else {
-        this.showThumb = false
+        this.showThumb = false;
       }
     },
 
-    setSize (w = 1, h = 1) {
-      const areaMax = 12
-      const areaMin = 4
-      const areaDo = this.item.score * (areaMax - areaMin) + areaMin
+    setSize(w = 1, h = 1) {
+      const areaMax = 12;
+      const areaMin = 4;
+      const areaDo = this.item.score * (areaMax - areaMin) + areaMin;
 
-      const sideMax = 6
+      const sideMax = 6;
 
-      let mult = 5
+      let mult = 5;
       while (
         w * (mult + 1) * h * (mult + 1) <= areaDo &&
         Math.max(w * mult + 1, h * mult + 1) < sideMax
       ) {
-        mult++
+        mult++;
       }
       while (Math.max(w * mult, h * mult) > sideMax) {
-        mult--
+        mult--;
       }
 
-      w *= mult
-      h *= mult
+      w *= mult;
+      h *= mult;
 
-      this.classData.push('w' + w, 'h' + h)
+      this.classData.push("w" + w, "h" + h);
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped>

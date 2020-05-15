@@ -14,12 +14,8 @@
       :alt="item.image.alt"
       class="image"
     />
-    <video
-      v-else-if="mainType === 'video'"
-      controls
-      class="video"
-    >
-      <source :src="item.file.src" :type="item.file.type">
+    <video v-else-if="mainType === 'video'" controls class="video">
+      <source :src="item.file.src" :type="item.file.type" />
     </video>
     <div v-else v-html="html" class="data">
       (Content here)
@@ -36,67 +32,67 @@ export default {
   },
 
   computed: {
-    mainType () {
+    mainType() {
       if (this.item.types) {
-        if (this.item.types.indexOf('embed') > -1) {
-          return 'embed'
-        } else if (this.item.types.indexOf('url') > -1) {
-          return 'url'
-        } else if (this.item.types.indexOf('video') > -1) {
-          return 'video'
-        } else if (this.item.types.indexOf('image') > -1) {
-          return 'image'
+        if (this.item.types.indexOf("embed") > -1) {
+          return "embed";
+        } else if (this.item.types.indexOf("url") > -1) {
+          return "url";
+        } else if (this.item.types.indexOf("video") > -1) {
+          return "video";
+        } else if (this.item.types.indexOf("image") > -1) {
+          return "image";
         }
       }
 
-      return 'text'
+      return "text";
     },
 
-    html () {
-      if (this.mainType === 'embed') {
-        return this.item.content
-      } else if (this.mainType === 'url') {
+    html() {
+      if (this.mainType === "embed") {
+        return this.item.content;
+      } else if (this.mainType === "url") {
         return (
           '<a href="' +
           this.item.content +
           '" target="_blank" rel="noreferrer noopener nofollow">' +
-          this.item.content.replace(/http:\/\/|https:\/\//, '') +
-          '</a>'
-        )
-      } else if (this.mainType === 'text') {
-        return this.item.content
+          this.item.content.replace(/http:\/\/|https:\/\//, "") +
+          "</a>"
+        );
+      } else if (this.mainType === "text") {
+        return this.item.content;
       }
 
-      return 'type not know'
+      return "type not know";
     },
 
-    invRatio () {
-      if (this.mainType === 'embed') {
+    invRatio() {
+      if (this.mainType === "embed") {
         if (this.item.content.trim().match(/<iframe(.+)<\/iframe>/g) !== null) {
           // const regExS = /<iframe[^>]+src=["']?(.+?)["'\s>]/gi
-          const regExW = /<iframe[^>]+width=["']?(\d+%?)/gi
-          const regExH = /<iframe[^>]+height=["']?(\d+%?)/gi
+          const regExW = /<iframe[^>]+width=["']?(\d+%?)/gi;
+          const regExH = /<iframe[^>]+height=["']?(\d+%?)/gi;
 
           // const exS = regExS.exec(raw)
-          const exW = regExW.exec(this.item.content)
-          const exH = regExH.exec(this.item.content)
+          const exW = regExW.exec(this.item.content);
+          const exH = regExH.exec(this.item.content);
 
           // const src = exS && exS.length > 1 ? exS[1] : null
-          const width = exW && exW.length > 1 ? exW[1] || 640 : 640
-          const height = exH && exH.length > 1 ? exH[1] || 360 : 360
+          const width = exW && exW.length > 1 ? exW[1] || 640 : 640;
+          const height = exH && exH.length > 1 ? exH[1] || 360 : 360;
 
           if (width && height) {
-            return (100 * height) / width + '%'
+            return (100 * height) / width + "%";
           }
         }
 
-        return '56.25%'
+        return "56.25%";
       }
 
-      return ''
+      return "";
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped>

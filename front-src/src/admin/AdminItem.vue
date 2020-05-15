@@ -47,8 +47,8 @@
 </template>
 
 <script>
-import AdminItemForm from '@/admin/AdminItemForm.vue'
-import Modal from '@/components/Modal.vue'
+import AdminItemForm from "@/admin/AdminItemForm.vue";
+import Modal from "@/components/Modal.vue";
 
 export default {
   components: {
@@ -61,14 +61,14 @@ export default {
     insert: { type: Boolean, default: false }
   },
 
-  data () {
+  data() {
     return {
       isModalOpen: false
-    }
+    };
   },
 
   methods: {}
-}
+};
 </script>
 
 <style lang="sass" scoped>

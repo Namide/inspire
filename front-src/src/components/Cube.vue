@@ -11,7 +11,8 @@
       :style="{ fill: bg }"
       d="M496.158,248.085c0-137.021-111.07-248.082-248.076-248.082C111.07,0.002,0,111.062,0,248.085       c0,137.002,111.07,248.071,248.083,248.071C385.088,496.155,496.158,385.086,496.158,248.085z"
       id="path2"
-      style="fill:#999999" />
+      style="fill:#999999"
+    />
     <path
       :style="{ fill: color1 }"
       style="fill-opacity:1;stroke-width:11.22167206;stroke-miterlimit:4;stroke-dasharray:none"
@@ -33,15 +34,14 @@
 <script>
 export default {
   props: {
-    bg: { type: String, default: '#FFF' },
-    color1: { type: String, default: '#F07' },
-    color2: { type: String, default: '#07F' },
-    color3: { type: String, default: '#7F0' },
+    bg: { type: String, default: "#FFF" },
+    color1: { type: String, default: "#F07" },
+    color2: { type: String, default: "#07F" },
+    color3: { type: String, default: "#7F0" },
     width: { type: Number, default: 64 },
     height: { type: Number, default: 64 }
   }
-}
+};
 </script>
 
-<style lang="sass" scoped>
-</style>
+<style lang="sass" scoped></style>

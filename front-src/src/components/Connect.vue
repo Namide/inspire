@@ -7,26 +7,26 @@
 </template>
 
 <script>
-import api from '@/pure/api'
+import api from "@/pure/api";
 
 export default {
   components: {},
 
-  data () {
+  data() {
     return {
-      mail: '',
-      pass: ''
-    }
+      mail: "",
+      pass: ""
+    };
   },
 
   methods: {
-    login () {
-      api.login(this.mail, this.pass).then(data => {
-        this.$emit('logged')
-      })
+    login() {
+      api.login(this.mail, this.pass).then(() => {
+        this.$emit("logged");
+      });
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped>

@@ -10,40 +10,41 @@
 </template>
 
 <script>
-import api from '../pure/api'
-import Group from '@/components/Group.vue'
+import api from "../pure/api";
+import Group from "@/components/Group.vue";
 
 export default {
   components: {
     Group
   },
 
-  data () {
+  data() {
     return {
       groups: []
-    }
+    };
   },
 
   computed: {
-    currentGroup () {
-      const id = this.$route.params.id ? +('' + this.$route.params.id).split('#')[0] : null
-      return id ? this.groups.find(group => group.id === id) : null
+    currentGroup() {
+      const id = this.$route.params.id
+        ? +("" + this.$route.params.id).split("#")[0]
+        : null;
+      return id ? this.groups.find(group => group.id === id) : null;
     }
   },
 
-  created () {
-    api.getGroups(this.onBoards)
-      .then(groups => {
-        this.groups = groups
-      })
+  created() {
+    api.getGroups(this.onBoards).then(groups => {
+      this.groups = groups;
+    });
   },
 
   methods: {
-    onBoards ({ data, meta }) {
-      this.groups.splice(0, this.groups.length, ...data)
+    onBoards({ data }) {
+      this.groups.splice(0, this.groups.length, ...data);
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped></style>

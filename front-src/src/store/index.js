@@ -1,7 +1,7 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from "vue";
+import Vuex from "vuex";
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
@@ -10,23 +10,21 @@ export default new Vuex.Store({
 
   getters: {
     isLogged: state => {
-      return state.user !== null
+      return state.user !== null;
     },
     userNick: state => {
-      return state.user ? state.user.nick : null
+      return state.user ? state.user.nick : null;
     },
     userImage: state => {
-      return state.user && state.user.image ? state.user.image : null
+      return state.user && state.user.image ? state.user.image : null;
     }
   },
 
-  actions: {
-
-  },
+  actions: {},
 
   mutations: {
-    user (state, user) {
-      state.user = user
+    user(state, user) {
+      state.user = user;
     }
   }
-})
+});

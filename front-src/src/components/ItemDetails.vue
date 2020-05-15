@@ -1,7 +1,5 @@
 <template>
-  <article
-    class="item"
-  >
+  <article class="item">
     <header>
       <h1 class="title bold">
         <div class="bg"></div>
@@ -20,10 +18,11 @@
       :href="item.content"
       target="_blank"
       rel="noreferrer noopener nofollow"
-    >{{ item.content.replace(/http:\/\/|https:\/\//, '') }}</a>
+      >{{ item.content.replace(/http:\/\/|https:\/\//, "") }}</a
+    >
 
     <footer>
-      <TagsDisplay :tags="item.tags"/>
+      <TagsDisplay :tags="item.tags" />
 
       <time class="date">
         {{ date }}
@@ -35,8 +34,8 @@
 </template>
 
 <script>
-import Content from '@/components/Content.vue'
-import TagsDisplay from '@/components/TagsDisplay.vue'
+import Content from "@/components/Content.vue";
+import TagsDisplay from "@/components/TagsDisplay.vue";
 
 export default {
   components: {
@@ -58,35 +57,32 @@ export default {
   // },
 
   computed: {
-    date () {
-      const date = new Date(this.item.date)
-      const now = new Date()
+    date() {
+      const date = new Date(this.item.date);
+      const now = new Date();
       if (date.toLocaleDateString() === now.toLocaleDateString()) {
-        return date.toLocaleDateString('en-US', { hour12: false }).substring(0, 5)
+        return date
+          .toLocaleDateString("en-US", { hour12: false })
+          .substring(0, 5);
       } else {
         const options = {
-          day: 'numeric',
-          month: 'short'
-        }
+          day: "numeric",
+          month: "short"
+        };
         if (date.getYear() !== new Date().getYear()) {
-          options.year = 'numeric'
+          options.year = "numeric";
         }
-        return date.toLocaleDateString('en-US', options)
+        return date.toLocaleDateString("en-US", options);
       }
     }
   },
 
-  created () {
-  },
+  created() {},
 
-  mounted () {
+  mounted() {},
 
-  },
-
-  methods: {
-
-  }
-}
+  methods: {}
+};
 </script>
 
 <style lang="sass" scoped>
@@ -106,5 +102,4 @@ footer
 .date
 
 .score
-
 </style>

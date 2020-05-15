@@ -1,13 +1,13 @@
 <template>
   <div>
-    <Tags :filter="filter" @change="items => filter = items" />
+    <Tags :filter="filter" @change="items => (filter = items)" />
     <Items :filter="filter" />
   </div>
 </template>
 
 <script>
-import Items from '@/components/Items.vue'
-import Tags from '@/components/Tags.vue'
+import Items from "@/components/Items.vue";
+import Tags from "@/components/Tags.vue";
 
 export default {
   components: {
@@ -15,10 +15,10 @@ export default {
     Tags
   },
 
-  data () {
+  data() {
     return {
       filter: []
-    }
+    };
   }
-}
+};
 </script>

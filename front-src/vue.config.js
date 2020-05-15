@@ -3,8 +3,8 @@ module.exports = {
 
   devServer: {
     proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
+      "/api": {
+        target: "http://localhost:3000",
         // pathRewrite: { '^/api': '' },
         changeOrigin: true
       }
@@ -12,7 +12,9 @@ module.exports = {
   },
 
   pwa: {
-    themeColor: '#FF0077',
-    msTileColor: '#FFFFFF'
-  }
-}
+    themeColor: "#FF0077",
+    msTileColor: "#FFFFFF"
+  },
+
+  productionSourceMap: false
+};

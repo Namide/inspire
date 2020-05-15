@@ -20,26 +20,26 @@ export default {
     }
   },
 
-  created () {
-    window.addEventListener('keyup', this.keyUp)
+  created() {
+    window.addEventListener("keyup", this.keyUp);
   },
 
-  destroyed () {
-    window.removeEventListener('keyup', this.keyUp)
+  destroyed() {
+    window.removeEventListener("keyup", this.keyUp);
   },
 
   methods: {
-    close () {
-      this.$emit('close')
+    close() {
+      this.$emit("close");
     },
 
-    keyUp (keyEvent) {
+    keyUp(keyEvent) {
       if (keyEvent.keyCode === 27) {
-        this.close()
+        this.close();
       }
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped>

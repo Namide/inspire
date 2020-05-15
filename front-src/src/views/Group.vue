@@ -2,14 +2,14 @@
   <div>
     <h2>{{ group.title }}</h2>
     <p v-if="group.description">{{ group.description }}</p>
-    <Tags :filter="filter" @change="items => filter = items" />
+    <Tags :filter="filter" @change="items => (filter = items)" />
     <Items :filter="filter" />
   </div>
 </template>
 
 <script>
-import Items from '@/components/Items.vue'
-import Tags from '@/components/Tags.vue'
+import Items from "@/components/Items.vue";
+import Tags from "@/components/Tags.vue";
 
 export default {
   components: {
@@ -23,24 +23,23 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       filter: [],
-      displayMode: 'thumb',
+      displayMode: "thumb",
       loading: false
-    }
+    };
   },
 
   watch: {
-    'group.filter': {
+    "group.filter": {
       immediate: true,
-      handler (filter) {
-        this.filter = filter.split(',')
+      handler(filter) {
+        this.filter = filter.split(",");
       }
     }
   }
-}
+};
 </script>
 
-<style lang="sass" scoped>
-</style>
+<style lang="sass" scoped></style>

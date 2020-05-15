@@ -1,6 +1,11 @@
 <template>
   <ul class="tags">
-    <li v-for="tag of tags" class="tag" :key="tag" :style="{ backgroundColor:bg, color: color }">
+    <li
+      v-for="tag of tags"
+      class="tag"
+      :key="tag"
+      :style="{ backgroundColor: bg, color: color }"
+    >
       {{ tag }}
     </li>
   </ul>
@@ -17,10 +22,12 @@ export default {
     },
     tags: {
       type: Array,
-      default () { return [] }
+      default() {
+        return [];
+      }
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped>

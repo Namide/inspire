@@ -1,6 +1,5 @@
 <template>
   <div v-if="adminPage || $store.getters.isLogged" class="connect">
-
     <!-- Modal connect -->
     <Modal :is-open="isModalConnectOpen" @close="isModalConnectOpen = false">
       <Connect />
@@ -8,7 +7,9 @@
 
     <span v-if="$store.getters.userNick">{{ $store.getters.userNick }} </span>
 
-    <button v-if="!$store.getters.isLogged" @click="isModalConnectOpen = true">Signin</button>
+    <button v-if="!$store.getters.isLogged" @click="isModalConnectOpen = true">
+      Signin
+    </button>
     <button v-else @click="logout">Signout</button>
 
     <img
@@ -23,9 +24,9 @@
 </template>
 
 <script>
-import api from '@/pure/api'
-import Modal from '@/components/Modal.vue'
-import Connect from '@/components/Connect.vue'
+import api from "@/pure/api";
+import Modal from "@/components/Modal.vue";
+import Connect from "@/components/Connect.vue";
 
 export default {
   components: {
@@ -40,18 +41,18 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       isModalConnectOpen: false
-    }
+    };
   },
 
   methods: {
-    logout () {
-      api.logout()
+    logout() {
+      api.logout();
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped>

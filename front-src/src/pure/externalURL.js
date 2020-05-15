@@ -1,8 +1,8 @@
-import apiSave from '@/pure/apiSave'
-const EXTERNALS = require.context('@/data/urls', false, /.*\.js$/)
+import apiSave from "@/pure/apiSave";
+const EXTERNALS = require.context("@/data/urls", false, /.*\.js$/);
 const LIST = EXTERNALS.keys()
   .map(key => EXTERNALS(key).default)
-  .flat()
+  .flat();
 
 /**
  * @param {URL}       url
@@ -11,15 +11,15 @@ const LIST = EXTERNALS.keys()
 const process = (url, doc) => {
   const data = LIST.find(({ regexList }) =>
     regexList.find(regex => regex.test(url.href))
-  )
+  );
 
   return new Promise((resolve, reject) => {
     if (data) {
-      resolve(data.process(url, { doc, apiSave }))
+      resolve(data.process(url, { doc, apiSave }));
     } else {
-      reject(new Error('Not in the hosts list'))
+      reject(new Error("Not in the hosts list"));
     }
-  })
-}
+  });
+};
 
-export default process
+export default process;

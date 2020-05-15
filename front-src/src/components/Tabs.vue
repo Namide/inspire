@@ -1,7 +1,12 @@
 <template>
   <div class="tabs">
     <ul class="list-item">
-      <li v-for="(label, i) in labels" :key="label" class="item" :class="{ 'is-selected': i === current }">
+      <li
+        v-for="(label, i) in labels"
+        :key="label"
+        class="item"
+        :class="{ 'is-selected': i === current }"
+      >
         <button v-html="label" @click="current = i"></button>
       </li>
     </ul>
@@ -16,22 +21,22 @@ export default {
   props: {
     labels: {
       type: Array,
-      default () { return [] }
+      default() {
+        return [];
+      }
     }
   },
 
-  data () {
+  data() {
     return {
       current: 0
-    }
+    };
   },
 
-  created () {},
+  created() {},
 
-  methods: {
-
-  }
-}
+  methods: {}
+};
 </script>
 
 <style lang="sass" scoped>

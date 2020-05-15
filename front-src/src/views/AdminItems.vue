@@ -27,12 +27,12 @@
 </template>
 
 <script>
-import Tags from '@/components/Tags.vue'
-import PartAdminItem from '@/admin/AdminItem.vue'
-import AdminItemForm from '@/admin/AdminItemForm.vue'
-import Modal from '@/components/Modal.vue'
-import apiSave from '@/pure/apiSave'
-import Loader from '@/components/Loader.vue'
+import Tags from "@/components/Tags.vue";
+import PartAdminItem from "@/admin/AdminItem.vue";
+import AdminItemForm from "@/admin/AdminItemForm.vue";
+import Modal from "@/components/Modal.vue";
+import apiSave from "@/pure/apiSave";
+import Loader from "@/components/Loader.vue";
 
 export default {
   components: {
@@ -46,50 +46,50 @@ export default {
   props: {
     filterTypes: {
       type: Array,
-      default () {
-        return []
+      default() {
+        return [];
       }
     },
     filterTags: {
       type: Array,
-      default () {
-        return []
+      default() {
+        return [];
       }
     }
   },
 
-  data () {
+  data() {
     return {
       isModalOpen: false,
-      displayMode: 'thumb',
+      displayMode: "thumb",
       items: [],
       loading: false
-    }
+    };
   },
 
-  created () {
-    this.filter()
+  created() {
+    this.filter();
   },
 
   methods: {
-    filter (items = []) {
-      this.loading = true
+    filter(items = []) {
+      this.loading = true;
       apiSave
         .getItems(items)
         .then(items => {
-          this.items = items
+          this.items = items;
         })
         .catch(console.error)
         .finally(() => {
-          this.loading = false
-        })
+          this.loading = false;
+        });
     },
-    onItems ({ data, meta }) {
-      this.displayMode = 'text' // 'thumb' // text
-      this.$store.commit('updateItems', data)
+    onItems({ data }) {
+      this.displayMode = "text"; // 'thumb' // text
+      this.$store.commit("updateItems", data);
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped></style>

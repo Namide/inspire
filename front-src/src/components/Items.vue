@@ -14,9 +14,9 @@
 
 <script>
 // import apiGet from '../utils/apiGet'
-import Item from '@/components/Item.vue'
-import api from '@/pure/api'
-import Loader from '@/components/Loader.vue'
+import Item from "@/components/Item.vue";
+import api from "@/pure/api";
+import Loader from "@/components/Loader.vue";
 
 export default {
   components: {
@@ -27,44 +27,46 @@ export default {
   props: {
     filter: {
       type: Array,
-      default () { return [] }
+      default() {
+        return [];
+      }
     }
   },
 
-  data () {
+  data() {
     return {
-      displayMode: 'thumb',
+      displayMode: "thumb",
       items: [],
       loading: false
-    }
+    };
   },
 
   watch: {
     filter: {
       immediate: true,
-      handler (items) {
-        this.loading = true
+      handler(items) {
+        this.loading = true;
         api
           .getItems(items)
           .then(items => {
-            this.displayMode = 'thumb'
-            this.items = items
+            this.displayMode = "thumb";
+            this.items = items;
           })
           .catch(console.error)
           .finally(() => {
-            this.loading = false
-          })
+            this.loading = false;
+          });
       }
     }
   },
 
   methods: {
-    onItems ({ data, meta }) {
-
+    onItems({ data, meta }) {
+      console.log(data, meta);
       // this.$store.commit('updateItems', data)
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped>

@@ -11,21 +11,22 @@
       <router-link :to="{ name: 'items' }" class="link">Items</router-link>
       <router-link :to="{ name: 'adminItems' }" class="link">Admin</router-link>
       <router-link :to="{ name: 'groups' }" class="link">Groups</router-link>
-      <router-link :to="{ name: 'adminImport' }" class="link">Import</router-link>
+      <router-link :to="{ name: 'adminImport' }" class="link"
+        >Import</router-link
+      >
     </nav>
 
     <router-view />
 
     <ModalItem />
-
   </main>
 </template>
 
 <script>
-import api from '@/pure/api'
-import ModalItem from '@/components/ModalItem.vue'
+import api from "@/pure/api";
+import ModalItem from "@/components/ModalItem.vue";
 
-const User = () => import(/* webpackChunkName: "admin" */ '@/components/User')
+const User = () => import(/* webpackChunkName: "admin" */ "@/components/User");
 
 export default {
   components: {
@@ -33,39 +34,38 @@ export default {
     ModalItem
   },
 
-  data () {
-    return {
-    }
+  data() {
+    return {};
   },
 
   computed: {
-    authRequired () {
-      return this.$route.meta.auth
+    authRequired() {
+      return this.$route.meta.auth;
     }
   },
 
-  created () {
-    api.onLogin.add(this.setLogged)
-    api.isLoggedIn()
+  created() {
+    api.onLogin.add(this.setLogged);
+    api.isLoggedIn();
   },
 
-  destroyed () {
-    api.onLogin.remove(this.setLogged)
+  destroyed() {
+    api.onLogin.remove(this.setLogged);
   },
 
   methods: {
-    setLogged (data) {
-      console.log(data)
+    setLogged(data) {
+      console.log(data);
       const getUser = data => ({
-        nick: data.firstName + ' ' + data.lastName,
+        nick: data.firstName + " " + data.lastName,
         image: data.avatar
-      })
+      });
 
-      const user = data ? getUser(data) : null
-      this.$store.commit('user', user)
+      const user = data ? getUser(data) : null;
+      this.$store.commit("user", user);
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped>

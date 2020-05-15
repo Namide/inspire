@@ -18,14 +18,14 @@ export default {
     data: { type: Object }
   },
 
-  created () {},
+  created() {},
 
   methods: {
-    isImg () {
-      return this.data.type === 'image/jpeg'
+    isImg() {
+      return this.data.type === "image/jpeg";
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped></style>

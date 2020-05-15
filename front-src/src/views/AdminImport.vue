@@ -5,23 +5,26 @@
       @change="filesChange($event.target.files)"
       accept=".csv"
     />
-    <br>
+    <br />
     <template v-if="ended">
-      succes: <span class="green">{{ ready }}</span> / <strong>{{ total }}</strong><br>
-      errors: <span class="red">{{ errors.length }}</span><br>
+      succes: <span class="green">{{ ready }}</span> /
+      <strong>{{ total }}</strong
+      ><br />
+      errors: <span class="red">{{ errors.length }}</span
+      ><br />
       time: {{ endTime }}
-
     </template>
     <template v-else>
       <template v-if="this.total">
-        succes: <span class="green">{{ ready }}</span> / <strong>{{ total }}</strong><br>
-        errors: <span class="red">{{ errors.length }}</span><br>
-        percent: {{ this.percent }}%<br>
-        time: {{ endTime }}<br>
+        succes: <span class="green">{{ ready }}</span> /
+        <strong>{{ total }}</strong
+        ><br />
+        errors: <span class="red">{{ errors.length }}</span
+        ><br />
+        percent: {{ this.percent }}%<br />
+        time: {{ endTime }}<br />
       </template>
-      <template v-if="restTime">
-        rest:{{ restTime }}
-      </template>
+      <template v-if="restTime"> rest:{{ restTime }} </template>
     </template>
     <pre class="console">
       <div v-for="log of lastLogs" v-html="log.text" :key="log.key"></div>
@@ -30,139 +33,158 @@
 </template>
 
 <script>
-import Papa from 'papaparse'
+import Papa from "papaparse";
 // import apiSave from '@/pure/apiSave.js'
-import ItemSave from '@/pure/ItemSave'
-import apiSave from '@/pure/apiSave'
+import ItemSave from "@/pure/ItemSave";
+import apiSave from "@/pure/apiSave";
 
 export default {
-  data () {
+  data() {
     return {
       startedTime: 0,
-      restTime: '',
+      restTime: "",
       endTime: null,
       ended: false,
       errors: [],
       total: 0,
       ready: 0,
       logs: []
-    }
+    };
   },
 
   computed: {
-    percent () {
-      return (this.ready * 100 / this.total).toFixed(2)
+    percent() {
+      return ((this.ready * 100) / this.total).toFixed(2);
     },
-    lastLogs () {
-      return this.logs
-        .map((text, key) => ({ text, key }))
-        // .filter((_, i) => i > this.logs.length - 10)
+    lastLogs() {
+      return this.logs.map((text, key) => ({ text, key }));
+      // .filter((_, i) => i > this.logs.length - 10)
     }
   },
 
-  components: {
-  },
+  components: {},
 
   methods: {
-    filesChange (files) {
-      const parallels = 5
+    filesChange(files) {
+      const parallels = 5;
       if (files.length) {
         Papa.parse(files[0], {
           header: true,
           error: (err, file, inputElem, reason) => {
-            console.log(err, file, inputElem, reason)
+            console.log(err, file, inputElem, reason);
           },
           complete: ({ data }) => {
-            this.startedTime = Date.now()
-            this.total += data.length
-            const list = data.map((itemData, i) => Object.assign({ id: i }, itemData))
+            this.startedTime = Date.now();
+            this.total += data.length;
+            const list = data.map((itemData, i) =>
+              Object.assign({ id: i }, itemData)
+            );
 
             for (let i = 0; i < parallels; i++) {
-              this.runProcess(list)
+              this.runProcess(list);
             }
           }
-        })
+        });
       }
     },
 
-    msToTime (distance) {
-      const hours = Math.floor(distance / 3600000)
-      distance -= hours * 3600000
-      const minutes = Math.floor(distance / 60000)
-      distance -= minutes * 60000
-      const seconds = Math.floor(distance / 1000)
-      return `${hours}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`
+    msToTime(distance) {
+      const hours = Math.floor(distance / 3600000);
+      distance -= hours * 3600000;
+      const minutes = Math.floor(distance / 60000);
+      distance -= minutes * 60000;
+      const seconds = Math.floor(distance / 1000);
+      return `${hours}:${("0" + minutes).slice(-2)}:${("0" + seconds).slice(
+        -2
+      )}`;
     },
 
-    updateEndTime () {
-      this.endTime = this.msToTime(Date.now() - this.startedTime)
+    updateEndTime() {
+      this.endTime = this.msToTime(Date.now() - this.startedTime);
     },
 
-    updateRestTime () {
-      const passed = Date.now() - this.startedTime
-      const distance = this.total * passed / this.ready - passed
+    updateRestTime() {
+      const passed = Date.now() - this.startedTime;
+      const distance = (this.total * passed) / this.ready - passed;
 
-      this.restTime = this.msToTime(distance)
+      this.restTime = this.msToTime(distance);
     },
 
-    runProcess (list) {
-      this.updateRestTime()
-      this.updateEndTime()
+    runProcess(list) {
+      this.updateRestTime();
+      this.updateEndTime();
       if (list.length > 0) {
-        const itemData = list.shift()
-        const isLast = list.length < 1
+        const itemData = list.shift();
+        const isLast = list.length < 1;
 
         // 13:12 -> 15:57
 
-        const item = new ItemSave()
-        item.id = Math.round(Math.random() * 0xFFFFFFFF)
-        let promise = Promise.resolve()
+        const item = new ItemSave();
+        item.id = Math.round(Math.random() * 0xffffffff);
+        let promise = Promise.resolve();
 
         if (itemData.input) {
-          if (itemData.input.indexOf('img/') === 0) {
-            const input = 'http://inspire.namide.com/import-files/' + itemData.input
-            promise = item.updateByInput(input)
+          if (itemData.input.indexOf("img/") === 0) {
+            const input =
+              "http://inspire.namide.com/import-files/" + itemData.input;
+            promise = item.updateByInput(input);
           } else {
-            const input = itemData.input
-            promise = item.updateByInput(input)
+            const input = itemData.input;
+            promise = item.updateByInput(input);
           }
         }
 
         promise
           .then(() => {
-            if (itemData.id) { item.id = itemData.id }
-            if (itemData.content) { item.content = itemData.content }
-            if (itemData.date) { item.date = new Date(itemData.date) }
-            if (itemData.status) { item.status = itemData.status }
-            if (itemData.title) { item.title = itemData.title } else { item.title = '' }
-            if (itemData.description) { item.description = itemData.description }
-            if (itemData.tags) { item.tags = itemData.tags.split(',') }
+            if (itemData.id) {
+              item.id = itemData.id;
+            }
+            if (itemData.content) {
+              item.content = itemData.content;
+            }
+            if (itemData.date) {
+              item.date = new Date(itemData.date);
+            }
+            if (itemData.status) {
+              item.status = itemData.status;
+            }
+            if (itemData.title) {
+              item.title = itemData.title;
+            } else {
+              item.title = "";
+            }
+            if (itemData.description) {
+              item.description = itemData.description;
+            }
+            if (itemData.tags) {
+              item.tags = itemData.tags.split(",");
+            }
           })
           .then(() => {
             // this.logs.push('✅  id:' + itemData.id)
             // this.logs.push(this.resumeItem(item.getObject()))
 
-            const payload = item.getPayload()
-            console.log('payload:', payload)
-            return apiSave.addItem(payload)
+            const payload = item.getPayload();
+            console.log("payload:", payload);
+            return apiSave.addItem(payload);
           })
           .then(data => {
-            console.log('data:', data)
-            this.ready++
+            console.log("data:", data);
+            this.ready++;
           })
           .catch(error => {
-            this.errors.push(itemData)
-            this.logs.push('🔺  id:' + itemData.id + ' ' + error.message)
-            this.logs.push(this.resumeItem(item.getObject()))
+            this.errors.push(itemData);
+            this.logs.push("🔺  id:" + itemData.id + " " + error.message);
+            this.logs.push(this.resumeItem(item.getObject()));
           })
           .finally(() => {
-            item.dispose()
+            item.dispose();
             if (list.length > 0) {
-              requestAnimationFrame(() => this.runProcess(list))
+              requestAnimationFrame(() => this.runProcess(list));
             } else {
-              this.updateEndTime()
+              this.updateEndTime();
               if (isLast) {
-                this.ended = true
+                this.ended = true;
               }
             }
             /* else if (this.errors.length > 0) {
@@ -170,23 +192,33 @@ export default {
               this.errors = []
               requestAnimationFrame(() => this.runProcess(newList))
             } */
-          })
+          });
       }
     },
 
-    resumeItem (item) {
-      let str = ''
-      const tab = '&nbsp;&nbsp;&nbsp;'
-      if (item.title) { str += tab + 'title:' + item.title + '<br>' }
-      if (item.types) { str += tab + 'types:' + item.types.join(', ') + '<br>' }
-      if (item.tags) { str += tab + 'tags:' + item.tags.join(', ') + '<br>' }
-      if (item.description) { str += tab + 'description:' + item.description + '<br>' }
-      if (item.input) { str += tab + 'input:' + item.input + '<br>' }
-      str += '---------------------'
-      return str
+    resumeItem(item) {
+      let str = "";
+      const tab = "&nbsp;&nbsp;&nbsp;";
+      if (item.title) {
+        str += tab + "title:" + item.title + "<br>";
+      }
+      if (item.types) {
+        str += tab + "types:" + item.types.join(", ") + "<br>";
+      }
+      if (item.tags) {
+        str += tab + "tags:" + item.tags.join(", ") + "<br>";
+      }
+      if (item.description) {
+        str += tab + "description:" + item.description + "<br>";
+      }
+      if (item.input) {
+        str += tab + "input:" + item.input + "<br>";
+      }
+      str += "---------------------";
+      return str;
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped>

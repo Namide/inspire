@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { parseItem } from '../pure/tagHelpers.js'
+import { parseItem } from "../pure/tagHelpers.js";
 
 // Original code from vue-input-tag (https://www.npmjs.com/package/vue-input-tag)
 const VALIDATORS = {
@@ -39,75 +39,78 @@ const VALIDATORS = {
   // text: /^[a-zA-Z]+$/,
   // digits: /^[\d() \.\:\-\+#]+$/,
   // isodate: /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/
-}
+};
 
-const VALIDATE = ''
+const VALIDATE = "";
 const ADD_TAG_ON_KEYS = [
   13, // Return
   188, // Comma ','
   9 // Tab
-]
-const ADD_TAG_ON_BLUR = false
-const LIMIT = -1
+];
+const ADD_TAG_ON_BLUR = false;
+const LIMIT = -1;
 
 export default {
   props: {
     filter: { type: Array, default: () => [] },
-    placeholder: { type: String, default: 'Filters (#tag, $type, @author, !not)' },
+    placeholder: {
+      type: String,
+      default: "Filters (#tag, $type, @author, !not)"
+    },
     readOnly: { type: Boolean, default: false }
   },
 
-  data () {
+  data() {
     return {
-      newTag: '',
+      newTag: "",
       tags: [...this.filter]
-    }
+    };
   },
 
   watch: {
-    filter () {
-      this.tags = [...this.filter]
+    filter() {
+      this.tags = [...this.filter];
     }
   },
 
   computed: {
-    isLimit () {
-      return LIMIT > 0 && Number(LIMIT) === this.tags.length
+    isLimit() {
+      return LIMIT > 0 && Number(LIMIT) === this.tags.length;
     },
 
-    tagsData () {
-      return this.tags.map(parseItem)
+    tagsData() {
+      return this.tags.map(parseItem);
     }
   },
 
   methods: {
-    tagHelpers (item) {
-      return parseItem(item)
+    tagHelpers(item) {
+      return parseItem(item);
     },
 
-    focusNewTag () {
-      if (this.readOnly || !this.$el.querySelector('.new-tag')) {
-        return
+    focusNewTag() {
+      if (this.readOnly || !this.$el.querySelector(".new-tag")) {
+        return;
       }
 
-      this.$el.querySelector('.new-tag').focus()
+      this.$el.querySelector(".new-tag").focus();
     },
 
-    addNew (e) {
+    addNew(e) {
       // Do nothing if the current key code is
       // not within those defined within the ADD_TAG_ON_KEYS prop array.
       if (
         (e &&
           ADD_TAG_ON_KEYS.indexOf(e.keyCode) === -1 &&
-          (e.type !== 'blur' || !ADD_TAG_ON_BLUR)) ||
+          (e.type !== "blur" || !ADD_TAG_ON_BLUR)) ||
         this.isLimit
       ) {
-        return
+        return;
       }
 
       if (e) {
-        e.stopPropagation()
-        e.preventDefault()
+        e.stopPropagation();
+        e.preventDefault();
       }
 
       if (
@@ -115,46 +118,46 @@ export default {
         this.tags.indexOf(this.newTag) === -1 &&
         this.validateIfNeeded(this.newTag)
       ) {
-        this.tags.push(this.newTag)
-        this.newTag = ''
-        this.tagChange()
+        this.tags.push(this.newTag);
+        this.newTag = "";
+        this.tagChange();
       }
     },
 
-    validateIfNeeded (tagValue) {
-      if (VALIDATE === '' || VALIDATE === undefined) {
-        return true
+    validateIfNeeded(tagValue) {
+      if (VALIDATE === "" || VALIDATE === undefined) {
+        return true;
       } else if (
-        typeof VALIDATE === 'string' &&
+        typeof VALIDATE === "string" &&
         Object.keys(VALIDATORS).indexOf(VALIDATE) > -1
       ) {
-        return VALIDATORS[VALIDATE].test(tagValue)
-      } else if (typeof VALIDATE === 'object' && VALIDATE.test !== undefined) {
-        return VALIDATE.test(tagValue)
+        return VALIDATORS[VALIDATE].test(tagValue);
+      } else if (typeof VALIDATE === "object" && VALIDATE.test !== undefined) {
+        return VALIDATE.test(tagValue);
       }
 
-      return true
+      return true;
     },
 
-    remove (index) {
-      this.tags.splice(index, 1)
-      this.tagChange()
+    remove(index) {
+      this.tags.splice(index, 1);
+      this.tagChange();
     },
 
-    removeLastTag () {
+    removeLastTag() {
       if (this.newTag) {
-        return
+        return;
       }
 
-      this.tags.pop()
-      this.tagChange()
+      this.tags.pop();
+      this.tagChange();
     },
 
-    tagChange () {
-      this.$emit('change', this.tags)
+    tagChange() {
+      this.$emit("change", this.tags);
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped>

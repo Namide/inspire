@@ -50,8 +50,7 @@
         ></li>
       </ul>
 
-      <Tabs :labels="[ 'Content', 'Thumb', 'Initial' ]">
-
+      <Tabs :labels="['Content', 'Thumb', 'Initial']">
         <template slot="Content">
           <Content v-if="input" :item="input" />
         </template>
@@ -97,14 +96,14 @@
 </template>
 
 <script>
-import apiSave from '@/pure/apiSave'
+import apiSave from "@/pure/apiSave";
 // import api from '../pure/api'
-import AdminFileLoader from '@/admin/AdminFileLoader.vue'
-import Tags from '@/components/Tags'
-import Content from '@/components/Content.vue'
-import InputTextarea from '@/components/InputTextarea.vue'
-import ItemSave from '@/pure/ItemSave'
-import Tabs from '@/components/Tabs'
+import AdminFileLoader from "@/admin/AdminFileLoader.vue";
+import Tags from "@/components/Tags";
+import Content from "@/components/Content.vue";
+import InputTextarea from "@/components/InputTextarea.vue";
+import ItemSave from "@/pure/ItemSave";
+import Tabs from "@/components/Tabs";
 
 // const copy = obj => JSON.parse(JSON.stringify(obj))
 
@@ -120,8 +119,8 @@ export default {
   props: {
     item: {
       type: Object,
-      default () {
-        return {}
+      default() {
+        return {};
       }
     },
     create: {
@@ -130,84 +129,83 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       isFile: false,
       input: null,
       state: 0
-    }
+    };
   },
 
   watch: {
-    'input.date' (val) {
-      this.itemSave.date = new Date(val)
+    "input.date"(val) {
+      this.itemSave.date = new Date(val);
     },
-    'input.title' (val) {
-      this.itemSave.title = val
+    "input.title"(val) {
+      this.itemSave.title = val;
     },
-    'input.description' (val) {
-      this.itemSave.description = val
+    "input.description"(val) {
+      this.itemSave.description = val;
     },
-    'input.types' (val) {
-      this.itemSave.types = val
+    "input.types"(val) {
+      this.itemSave.types = val;
     },
-    'input.content' (val) {
-      this.itemSave.content = val
+    "input.content"(val) {
+      this.itemSave.content = val;
     },
-    'input.tags' (val) {
-      this.itemSave.tags = val
+    "input.tags"(val) {
+      this.itemSave.tags = val;
     },
-    'input.status' (val) {
-      this.itemSave.status = val
+    "input.status"(val) {
+      this.itemSave.status = val;
     },
-    'input.input' (val) {
-      this.itemSave.input = val
+    "input.input"(val) {
+      this.itemSave.input = val;
     }
   },
 
-  computed: {
-  },
+  computed: {},
 
-  created () {
+  created() {
     // this.itemContent = new ItemContent()
 
-    this.itemSave = new ItemSave()
+    this.itemSave = new ItemSave();
 
     if (!this.create) {
-      this.itemSave.fromObject(this.item)
-      this.state = 1
+      this.itemSave.fromObject(this.item);
+      this.state = 1;
     }
 
-    this.input = this.itemSave.getObject()
-    this.inputFile = null
+    this.input = this.itemSave.getObject();
+    this.inputFile = null;
 
-    window.addEventListener('keyup', this.keyUp)
+    window.addEventListener("keyup", this.keyUp);
   },
 
-  destroyed () {
-    window.removeEventListener('keyup', this.keyUp)
-    this.itemSave.dispose()
+  destroyed() {
+    window.removeEventListener("keyup", this.keyUp);
+    this.itemSave.dispose();
   },
 
   methods: {
-    validContent () {
-      this.itemSave.updateByInput(this.input.input)
-        .then(itemSave => {
-          this.input = this.itemSave.getObject()
-          this.isFile =
-            this.input.types.indexOf('image') > -1 ||
-            this.input.types.indexOf('file') > -1
-          this.state++
-        })
+    validContent() {
+      this.itemSave.updateByInput(this.input.input).then(() => {
+        this.input = this.itemSave.getObject();
+        this.isFile =
+          this.input.types.indexOf("image") > -1 ||
+          this.input.types.indexOf("file") > -1;
+        this.state++;
+      });
     },
 
-    deleteItem () {
-      const item = new ItemSave()
-      item.fromObject(this.item)
-      apiSave.deleteItem(item.getPayload())
-        .then(() => this.$emit('cancel'))
+    deleteItem() {
+      const item = new ItemSave();
+      item.fromObject(this.item);
+      apiSave
+        .deleteItem(item.getPayload())
+        .then(() => this.$emit("cancel"))
         .catch(error => console.error(error))
-        .finally(() => item.dispose())
+        .finally(() => item.dispose());
 
       // this.$store.dispatch('deleteItem', { id: this.item.id })
       /* api.deleteItem(data =>
@@ -219,25 +217,25 @@ export default {
       }, this.item.uid) */
     },
 
-    save () {
-      const payload = this.itemSave.getPayload()
-      console.log(this.itemSave)
-      console.log(payload)
+    save() {
+      const payload = this.itemSave.getPayload();
+      console.log(this.itemSave);
+      console.log(payload);
       if (this.create) {
         apiSave.addItem(payload).catch(error => {
-          console.log(error)
-        })
-        this.cancel()
+          console.log(error);
+        });
+        this.cancel();
       } else {
-        const oldItem = new ItemSave()
-        oldItem.fromObject(this.item)
+        const oldItem = new ItemSave();
+        oldItem.fromObject(this.item);
 
-        apiSave.updateItem(payload, oldItem.getPayload())
+        apiSave.updateItem(payload, oldItem.getPayload());
 
         // .catch(error => {
         //   console.log(error)
         // })
-        this.cancel()
+        this.cancel();
       }
 
       /* if (this.create) {
@@ -249,29 +247,29 @@ export default {
       } */
     },
 
-    cancel () {
+    cancel() {
       // this.init()
       // this.$nextTick(this.close)
-      this.$emit('cancel')
+      this.$emit("cancel");
     },
 
-    keyUp (keyEvent) {
+    keyUp(keyEvent) {
       if (keyEvent.keyCode === 27) {
-        this.close()
+        this.close();
       }
     },
 
-    fileChange (file) {
+    fileChange(file) {
       if (file) {
         this.itemSave.updateByFile(file).then(itemSave => {
-          this.input = itemSave.getObject()
+          this.input = itemSave.getObject();
           // console.log(itemSave)
-        })
+        });
       } else {
         this.itemSave.removeFile().then(itemSave => {
-          this.input = itemSave.getObject()
+          this.input = itemSave.getObject();
           // console.log(itemSave)
-        })
+        });
       }
 
       /* if (!file) {
@@ -313,7 +311,7 @@ export default {
       } */
     }
   }
-}
+};
 </script>
 
 <style lang="sass" scoped>
