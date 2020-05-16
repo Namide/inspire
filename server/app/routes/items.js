@@ -127,7 +127,7 @@ module.exports.itemAdd = async (ctx) => {
     // Remove images
     removeReadableStreams(...ctx.request.files)
     ctx.body = {
-      success: false,
+      error: true,
       message: error.message
     }
   }
@@ -192,7 +192,7 @@ module.exports.itemEdit = async (ctx) => {
     }
 
     ctx.body = {
-      success: false,
+      error: true,
       message: error.message
     }
   }

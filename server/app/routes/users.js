@@ -91,7 +91,7 @@ module.exports.signin = async (ctx) => {
   } else {
     ctx.status = ctx.status = 401
     ctx.body = {
-      success: false,
+      error: true,
       message: 'Authentication failed'
     }
   }
@@ -112,14 +112,14 @@ module.exports.userMe = async (ctx) => {
     } else {
       ctx.status = 404
       ctx.body = {
-        success: false,
+        error: true,
         message: 'User not found'
       }
     }
   } else {
     ctx.status = 404
     ctx.body = {
-      success: false,
+      error: true,
       message: 'User not found'
     }
   }
@@ -145,7 +145,7 @@ module.exports.userGet = async (ctx) => {
     } else {
       ctx.status = 404
       ctx.body = {
-        success: false,
+        error: true,
         message: 'User not found'
       }
     }
@@ -216,7 +216,7 @@ module.exports.userAdd = async (ctx) => {
     }
   } catch (error) {
     ctx.body = {
-      success: false,
+      error: true,
       code: error.code,
       message: error.message
     }

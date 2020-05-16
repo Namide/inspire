@@ -102,7 +102,7 @@ module.exports.groupAdd = async (ctx) => {
     }
 
     ctx.body = {
-      success: false,
+      error: true,
       message: error.message
     }
   }
@@ -157,7 +157,7 @@ module.exports.groupEdit = async (ctx) => {
     }
 
     ctx.body = {
-      success: false,
+      error: true,
       message: error.message
     }
   }
