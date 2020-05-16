@@ -2,6 +2,8 @@
 
 import Signal from "./Signal";
 import Item from "./Item";
+const { ROLES } = require("../../../server/app/constants/permissions.js");
+
 // import { itemsToFilter } from "@/pure/tagHelpers";
 
 const parseItem = payload => {
@@ -18,21 +20,72 @@ const parseGroup = payload => {
 class Api {
   constructor() {
     this.onLogin = new Signal();
+    this.onError = new Signal();
+
+    this.token = null;
     this.state = {
       isLogged: false,
       user: {
         name: null,
         email: null,
-        id: null
+        id: null,
+        role: ROLES.GUEST
       }
     };
 
-    this.updateMe();
+    try {
+      if (localStorage.has) this.token = localStorage.getItem("token");
+    } catch (error) {
+      console.error(error.message);
+    }
+
+    if (this.token) {
+      this.updateMe();
+    }
   }
 
+  createHeaders(isGet = true) {
+    const headers = new Headers({
+      // isGetMethod ? 'application/json' : 'multipart/form-data'
+    });
+
+    if (this.token) {
+      console.log(this.token === "null");
+      headers.append("Authorization", "Bearer " + this.token);
+      // headers.append("Content-Type", undefined); // "multipart/form-data");
+    }
+
+    return headers;
+  }
+
+  createBody(data) {
+    const body = new FormData();
+    for (const name in data) {
+      body.append(name, data[name]);
+    }
+    return body;
+  }
+
+  parsePayload(payload) {
+    if (payload.error === true) {
+      this.onError.dispatch(payload.message);
+      return Promise.reject(payload.message);
+    }
+
+    return Promise.resolve(payload);
+  }
+
+  setMe() {}
+
   updateMe() {
-    fetch("/api/users/me")
+    const options = {
+      method: "get",
+      headers: this.createHeaders()
+    };
+
+    fetch("/api/users/me", options)
       .then(response => response.json())
+      .then(payload => this.parsePayload(payload))
       .then(console.log)
       .catch(console.error);
   }
@@ -135,50 +188,6 @@ class Api {
     });
   }
 
-  getMe() {
-    return fetch("/api/users/me")
-      .then(response => response.json())
-      .then(({ user }) => console.log(user));
-
-    /* return this.directus
-      .getMe({
-        fields: [
-          "id",
-          "avatar",
-          "email",
-          "first_name",
-          "last_name",
-          "locale",
-          // 'role',
-          "avatar.*"
-        ]
-      })
-      .then(({ data }) => {
-        let avatar = null;
-        if (data.avatar) {
-          const img = data.avatar.data.thumbnails.find(
-            ({ dimension }) => dimension === "300x300"
-          );
-          if (img) {
-            const src = API_DIR + img.relative_url.substring(1);
-            avatar = {
-              src,
-              width: img.width,
-              height: img.height
-            };
-          }
-        }
-
-        return {
-          avatar,
-          firstName: data.first_name,
-          lastName: data.last_name,
-          email: data.email,
-          locale: data.locale
-        };
-      }); */
-  }
-
   logout() {
     return this.directus
       .logout()
@@ -194,25 +203,27 @@ class Api {
   }
 
   login(email, password) {
-    return this.directus
-      .login({
-        email,
-        password
-      })
-      .then(data => {
-        // sessionStorage.setItem('inspire_token', data.token)
-        // this.isLogged = data
-        if (data === true) {
-          this.getMe().then(this.onLogin.dispatch);
-        } else {
-          this.onLogin.dispatch(false);
+    const options = {
+      method: "post",
+      headers: this.createHeaders(false),
+      body: this.createBody({ email, password })
+    };
+
+    return fetch("/api/signin", options)
+      .then(response => response.json())
+      .then(payload => this.parsePayload(payload))
+      .then(({ user, token }) => {
+        try {
+          localStorage.setItem("token", token);
+        } catch (error) {
+          console.error(error.message);
         }
+        this.token = token;
+        user.id = user._id;
+        delete user._id;
+        this.state = Object.assign(this.state, { state: { user } });
       })
-      .catch(error => {
-        // this.isLogged = false
-        this.onLogin.dispatch(false);
-        throw error;
-      });
+      .catch(console.error);
   }
 }
 

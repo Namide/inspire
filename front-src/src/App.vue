@@ -45,25 +45,33 @@ export default {
   },
 
   created() {
-    api.onLogin.add(this.setLogged);
+    // api.onLogin.add(this.setLogged);
+    api.onError.add(this.displayError);
     // this.state.user.isLogged
+
+    api.login("damien@doussaud.fr", "Damien");
   },
 
   destroyed() {
-    api.onLogin.remove(this.setLogged);
+    // api.onLogin.remove(this.setLogged);
+    api.onError.remove(this.displayError);
   },
 
   methods: {
-    setLogged(data) {
-      console.log(data);
-      const getUser = data => ({
-        nick: data.firstName + " " + data.lastName,
-        image: data.avatar
-      });
-
-      const user = data ? getUser(data) : null;
-      this.$store.commit("user", user);
+    displayError(message) {
+      alert(message);
     }
+
+    // setLogged(data) {
+    //   console.log(data);
+    //   const getUser = data => ({
+    //     nick: data.firstName + " " + data.lastName,
+    //     image: data.avatar
+    //   });
+
+    //   const user = data ? getUser(data) : null;
+    //   this.$store.commit("user", user);
+    // }
   }
 };
 </script>
