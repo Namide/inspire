@@ -46,7 +46,7 @@ export default {
 
   created() {
     api.onLogin.add(this.setLogged);
-    api.isLoggedIn();
+    // this.state.user.isLogged
   },
 
   destroyed() {

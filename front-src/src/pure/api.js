@@ -2,9 +2,7 @@
 
 import Signal from "./Signal";
 import Item from "./Item";
-import { itemsToFilter } from "@/pure/tagHelpers";
-
-const API_DIR = "/api";
+// import { itemsToFilter } from "@/pure/tagHelpers";
 
 const parseItem = payload => {
   const item = new Item();
@@ -28,6 +26,15 @@ class Api {
         id: null
       }
     };
+
+    this.updateMe();
+  }
+
+  updateMe() {
+    fetch("/api/users/me")
+      .then(response => response.json())
+      .then(console.log)
+      .catch(console.error);
   }
 
   getThumbURL(uid) {
@@ -38,60 +45,65 @@ class Api {
     return uid; // config.api.abs + '/files/' + uid
   }
 
-  getItem(id) {
-    const options = {
-      filter: {
-        id: {
-          eq: id
-        }
-      },
-      fields: ["*", "image.*", "file.*"]
-    };
+  getItems() {
+    // const options = {
+    //   filter: {
+    //     id: {
+    //       eq: id
+    //     }
+    //   },
+    //   fields: ["*", "image.*", "file.*"]
+    // };
 
-    return this.directus
-      .getItems("items", options)
+    return fetch("/api/items")
+      .then(response => response.json())
       .then(({ data }) => data.map(parseItem))
-      .then(data => data[0])
+      .then(console.log)
       .catch(console.error);
+    // return this.directus
+    //   .getItems("items", options)
+    //   .then(({ data }) => data.map(parseItem))
+    //   .then(data => data[0])
+    //   .catch(console.error);
   }
 
-  getItems(items, { limit = 100, offset = 0 } = {}) {
-    const { tags, noTags, types, noTypes } = itemsToFilter(items);
-    const options = {
-      // depth: 1,
-      limit,
-      offset,
-      filter: {
-        tags: {},
-        types: {}
-      },
-      fields: ["*", "image.*", "file.*"]
-      /* filter: {
-        runtime: {
-          eq: 200
-          gt: 200
-        }
-      } */
-    };
+  // getItems(items, { limit = 100, offset = 0 } = {}) {
+  //   const { tags, noTags, types, noTypes } = itemsToFilter(items);
+  //   const options = {
+  //     // depth: 1,
+  //     limit,
+  //     offset,
+  //     filter: {
+  //       tags: {},
+  //       types: {}
+  //     },
+  //     fields: ["*", "image.*", "file.*"]
+  //     /* filter: {
+  //       runtime: {
+  //         eq: 200
+  //         gt: 200
+  //       }
+  //     } */
+  //   };
 
-    if (tags.length > 0) {
-      options.filter.tags.contains = tags.join(",");
-    }
-    if (noTags.length > 0) {
-      options.filter.tags.ncontains = noTags.join(",");
-    }
-    if (types.length > 0) {
-      options.filter.types.contains = types.join(",");
-    }
-    if (noTypes.length > 0) {
-      options.filter.types.ncontains = noTypes; // noTypes.join(',')
-    }
+  //   if (tags.length > 0) {
+  //     options.filter.tags.contains = tags.join(",");
+  //   }
+  //   if (noTags.length > 0) {
+  //     options.filter.tags.ncontains = noTags.join(",");
+  //   }
+  //   if (types.length > 0) {
+  //     options.filter.types.contains = types.join(",");
+  //   }
+  //   if (noTypes.length > 0) {
+  //     options.filter.types.ncontains = noTypes; // noTypes.join(',')
+  //   }
 
-    return this.directus
-      .getItems("items", options)
-      .then(({ data }) => data.map(parseItem))
-      .catch(console.error);
-  }
+  //   return this.directus
+  //     .getItems("items", options)
+  //     .then(({ data }) => data.map(parseItem))
+  //     .catch(console.error);
+  // }
 
   getGroups(items, { limit = 100, offset = 0 } = {}) {
     const options = {
@@ -124,7 +136,7 @@ class Api {
   }
 
   getMe() {
-    return fetch(API_DIR + "/users/me")
+    return fetch("/api/users/me")
       .then(response => response.json())
       .then(({ user }) => console.log(user));
 
