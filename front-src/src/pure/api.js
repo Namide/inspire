@@ -17,6 +17,13 @@ const parseGroup = payload => {
   return payload;
 };
 
+const createDefaultUser = () => ({
+  name: null,
+  email: null,
+  id: null,
+  role: ROLES.GUEST
+});
+
 class Api {
   constructor() {
     // this.onLogin = new Signal();
@@ -25,12 +32,7 @@ class Api {
 
     this.$state = {
       isLogged: false,
-      user: {
-        name: null,
-        email: null,
-        id: null,
-        role: ROLES.GUEST
-      }
+      user: createDefaultUser()
     };
 
     try {
@@ -41,37 +43,12 @@ class Api {
     }
 
     this.init();
-
-    // if (this.token) {
-    //   this.updateMe();
-    // }
-  }
-
-  createHeaders(isGet = true) {
-    const headers = new Headers({
-      // isGetMethod ? 'application/json' : 'multipart/form-data'
-    });
-
-    if (this.token) {
-      headers.append("Authorization", "Bearer " + this.token);
-      // headers.append("Content-Type", undefined); // "multipart/form-data");
-    }
-
-    return headers;
-  }
-
-  createBody(data) {
-    const body = new FormData();
-    for (const name in data) {
-      body.append(name, data[name]);
-    }
-    return body;
   }
 
   parsePayload(payload) {
     if (payload.error === true) {
       this.onError.dispatch(payload.message);
-      return Promise.reject(payload.message);
+      return Promise.reject(new Error(payload.message));
     }
 
     return Promise.resolve(payload);
@@ -82,7 +59,7 @@ class Api {
   init() {
     const options = {
       method: "get",
-      headers: this.createHeaders()
+      headers: this._createHeaders()
     };
 
     fetch("/api", options)
@@ -101,23 +78,23 @@ class Api {
       .catch(console.error);
   }
 
-  setUser({ email, name, role, _id }, isLogged = false) {
+  setUser({ email, name, role, _id }) {
     this.$state = Object.assign(this.$state, {
       user: { email, name, role, id: _id },
-      isLogged
+      isLogged: role !== ROLES.GUEST
     });
   }
 
   updateMe() {
     const options = {
       method: "get",
-      headers: this.createHeaders()
+      headers: this._createHeaders()
     };
 
     fetch("/api/users/me", options)
       .then(response => response.json())
       .then(payload => this.parsePayload(payload))
-      .then(({ user }) => this.setUser(user, true))
+      .then(({ user }) => this.setUser(user))
       .then(console.log)
       .catch(console.error);
   }
@@ -221,24 +198,32 @@ class Api {
   // }
 
   logout() {
-    return this.directus
-      .logout()
+    const options = {
+      method: "post",
+      headers: this._createHeaders(false)
+    };
+
+    return fetch("/api/signout", options)
+      .then(response => response.json())
+      .then(payload => this.parsePayload(payload))
       .then(data => {
-        // this.isLogged = false
-        // this.onLogin.dispatch(false);
-        // sessionStorage.removeItem('inspire_token')
-        return data;
+        try {
+          localStorage.removeItem("token");
+        } catch (error) {
+          console.error(error.message);
+        }
+        this.token = null;
+        this.setUser(createDefaultUser());
       })
-      .catch(error => {
-        console.log(error);
-      });
+      .catch(console.error)
+      .finally(() => {});
   }
 
   login(email, password) {
     const options = {
       method: "post",
-      headers: this.createHeaders(false),
-      body: this.createBody({ email, password })
+      headers: this._createHeaders(false),
+      body: this._createBody({ email, password })
     };
 
     return fetch("/api/signin", options)
@@ -251,9 +236,31 @@ class Api {
           console.error(error.message);
         }
         this.token = token;
-        this.setUser(user, true);
-      })
-      .catch(console.error);
+        this.setUser(user);
+        return user;
+      });
+    // .catch(console.error);
+  }
+
+  _createHeaders(isGet = true) {
+    const headers = new Headers({
+      // isGetMethod ? 'application/json' : 'multipart/form-data'
+    });
+
+    if (this.token) {
+      headers.append("Authorization", "Bearer " + this.token);
+      // headers.append("Content-Type", undefined); // "multipart/form-data");
+    }
+
+    return headers;
+  }
+
+  _createBody(data) {
+    const body = new FormData();
+    for (const name in data) {
+      body.append(name, data[name]);
+    }
+    return body;
   }
 }
 

@@ -1,8 +1,13 @@
 <template>
   <div class="connect">
-    <input type="text" v-model="mail" placeholder="login" />
-    <input type="password" v-model="pass" placeholder="password" />
-    <button @click="login">Signin</button>
+    <div>
+      <input type="text" v-model="mail" placeholder="login" />
+      <input type="password" v-model="pass" placeholder="password" />
+      <button @click="login">Signin</button>
+    </div>
+    <div>
+      <span v-if="error" v-html="error"></span>
+    </div>
   </div>
 </template>
 
@@ -15,15 +20,18 @@ export default {
   data() {
     return {
       mail: "",
-      pass: ""
+      pass: "",
+      error: ""
     };
   },
 
   methods: {
     login() {
-      api.login(this.mail, this.pass).then(() => {
-        this.$emit("logged");
-      });
+      this.error = "";
+      api
+        .login(this.mail, this.pass)
+        .then(user => this.$emit("close"))
+        .catch(error => (this.error = error.message));
     }
   }
 };
@@ -34,4 +42,5 @@ export default {
   position: absolute
   top: 50px
   right: 50px
+  flex-direction: column
 </style>

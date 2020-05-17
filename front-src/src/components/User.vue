@@ -2,7 +2,7 @@
   <div v-if="adminPage || $state.isLogged" class="connect">
     <!-- Modal connect -->
     <Modal :is-open="isModalConnectOpen" @close="isModalConnectOpen = false">
-      <Connect />
+      <Connect @close="isModalConnectOpen = false" />
     </Modal>
 
     <span v-if="$state.user.name">{{ $state.user.name }} </span>
