@@ -1,22 +1,22 @@
 <template>
-  <div v-if="adminPage || $store.getters.isLogged" class="connect">
+  <div v-if="adminPage || $state.isLogged" class="connect">
     <!-- Modal connect -->
     <Modal :is-open="isModalConnectOpen" @close="isModalConnectOpen = false">
       <Connect />
     </Modal>
 
-    <span v-if="$store.getters.userNick">{{ $store.getters.userNick }} </span>
+    <span v-if="$state.user.name">{{ $state.user.name }} </span>
 
-    <button v-if="!$store.getters.isLogged" @click="isModalConnectOpen = true">
+    <button v-if="!$state.isLogged" @click="isModalConnectOpen = true">
       Signin
     </button>
     <button v-else @click="logout">Signout</button>
 
     <img
-      v-if="$store.getters.userImage"
-      :src="$store.getters.userImage.src"
-      :width="$store.getters.userImage.width"
-      :height="$store.getters.userImage.height"
+      v-if="$state.user.userImage"
+      :src="$state.user.userImage.src"
+      :width="$state.user.userImage.width"
+      :height="$state.user.userImage.height"
       alt="avatar"
       class="avatar"
     />

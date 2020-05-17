@@ -90,17 +90,19 @@ require('./middleware/ratelimit.js')(app)
 // --------------------------
 //           BASE
 // --------------------------
-router.get('/api', async (ctx) => {
+router.get('/api', auth(), async (ctx) => {
   const { version } = require('../package.json')
   const userCount = await ctx.app.users.countDocuments()
 
   const payload = {
     version,
-    date: Date.now()
+    serverTime: new Date(),
+    isLogged: ctx.state.user.role !== ROLES.GUEST,
+    needInstall: false
   }
 
   if (userCount < 1) {
-    payload.needUser = true
+    payload.needInstall = true
     payload.message = 'Add a user to finalise install'
   }
 

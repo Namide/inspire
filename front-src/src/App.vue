@@ -45,11 +45,8 @@ export default {
   },
 
   created() {
-    // api.onLogin.add(this.setLogged);
     api.onError.add(this.displayError);
-    // this.state.user.isLogged
-
-    api.login("damien@doussaud.fr", "Damien");
+    // api.login("damien@doussaud.fr", "Damien");
   },
 
   destroyed() {

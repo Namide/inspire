@@ -19,11 +19,11 @@ const parseGroup = payload => {
 
 class Api {
   constructor() {
-    this.onLogin = new Signal();
+    // this.onLogin = new Signal();
     this.onError = new Signal();
+    this.onRedirect = new Signal();
 
-    this.token = null;
-    this.state = {
+    this.$state = {
       isLogged: false,
       user: {
         name: null,
@@ -34,14 +34,17 @@ class Api {
     };
 
     try {
-      if (localStorage.has) this.token = localStorage.getItem("token");
+      this.token = localStorage.getItem("token") || null;
     } catch (error) {
+      this.token = null;
       console.error(error.message);
     }
 
-    if (this.token) {
-      this.updateMe();
-    }
+    this.init();
+
+    // if (this.token) {
+    //   this.updateMe();
+    // }
   }
 
   createHeaders(isGet = true) {
@@ -50,7 +53,6 @@ class Api {
     });
 
     if (this.token) {
-      console.log(this.token === "null");
       headers.append("Authorization", "Bearer " + this.token);
       // headers.append("Content-Type", undefined); // "multipart/form-data");
     }
@@ -77,6 +79,35 @@ class Api {
 
   setMe() {}
 
+  init() {
+    const options = {
+      method: "get",
+      headers: this.createHeaders()
+    };
+
+    fetch("/api", options)
+      .then(response => response.json())
+      .then(payload => this.parsePayload(payload))
+      .then(({ isLogged, version, serverTime, needInstall }) => {
+        console.log({ isLogged, version, serverTime, needInstall });
+        this.$state = Object.assign(this.$state, { isLogged });
+        if (isLogged) {
+          this.updateMe();
+        }
+        if (needInstall) {
+          this.onRedirect.dispatch({ name: "install" });
+        }
+      })
+      .catch(console.error);
+  }
+
+  setUser({ email, name, role, _id }, isLogged = false) {
+    this.$state = Object.assign(this.$state, {
+      user: { email, name, role, id: _id },
+      isLogged
+    });
+  }
+
   updateMe() {
     const options = {
       method: "get",
@@ -86,6 +117,7 @@ class Api {
     fetch("/api/users/me", options)
       .then(response => response.json())
       .then(payload => this.parsePayload(payload))
+      .then(({ user }) => this.setUser(user, true))
       .then(console.log)
       .catch(console.error);
   }
@@ -110,7 +142,7 @@ class Api {
 
     return fetch("/api/items")
       .then(response => response.json())
-      .then(({ data }) => data.map(parseItem))
+      .then(({ items }) => items.map(parseItem))
       .then(console.log)
       .catch(console.error);
     // return this.directus
@@ -178,22 +210,22 @@ class Api {
     // .catch(console.error)
   }
 
-  isLoggedIn() {
-    return this.directus.isLoggedIn().then(data => {
-      if (data === true) {
-        this.getMe().then(data => this.onLogin.dispatch(data));
-      } else {
-        this.onLogin.dispatch(false);
-      }
-    });
-  }
+  // isLoggedIn() {
+  //   return this.directus.isLoggedIn().then(data => {
+  //     if (data === true) {
+  //       this.getMe().then(data => this.onLogin.dispatch(data));
+  //     } else {
+  //       this.onLogin.dispatch(false);
+  //     }
+  //   });
+  // }
 
   logout() {
     return this.directus
       .logout()
       .then(data => {
         // this.isLogged = false
-        this.onLogin.dispatch(false);
+        // this.onLogin.dispatch(false);
         // sessionStorage.removeItem('inspire_token')
         return data;
       })
@@ -219,9 +251,7 @@ class Api {
           console.error(error.message);
         }
         this.token = token;
-        user.id = user._id;
-        delete user._id;
-        this.state = Object.assign(this.state, { state: { user } });
+        this.setUser(user, true);
       })
       .catch(console.error);
   }

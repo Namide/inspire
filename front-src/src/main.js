@@ -10,12 +10,12 @@ Vue.config.productionTip = false;
 
 // fetch('/api/inspire/items/items')
 //   .then(console.log)
-Vue.prototype.$store = api.state;
+Vue.prototype.$state = api.$state;
 
 new Vue({
   data: {
     // Dynamise custom store
-    state: api.state
+    $state: api.$state
   },
   router,
   render: h => h(App)
