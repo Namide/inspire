@@ -1,3 +1,5 @@
+import { TYPES } from "../../../../server/app/constants/items";
+
 export default [
   {
     regexList: [/dailymotion\.com\/video\/[a-z0-1]+/i],
@@ -23,8 +25,8 @@ export default [
             resolve({
               title: json.title,
               description: json.description,
-              types: ["embed", "video"],
-              tags: ["video", json.author_name],
+              types: [TYPES.EMBED, TYPES.VIDEO],
+              tags: [TYPES.VIDEO, json.author_name],
               image: json.thumbnail_url,
               content: `<iframe frameborder="0" width="${json.width}" height="${json.height}" src="https://www.dailymotion.com/embed/video/${video}" allowfullscreen allow="autoplay"></iframe>`
             });
@@ -32,8 +34,8 @@ export default [
           .catch(error => {
             console.error("dailymotion error: " + error.message);
             resolve({
-              types: ["embed", "video"],
-              tags: ["video"],
+              types: [TYPES.EMBED, TYPES.VIDEO],
+              tags: [TYPES.VIDEO],
               content: `<iframe frameborder="0" width="640" height="360" src="https://www.dailymotion.com/embed/video/${video}" allowfullscreen allow="autoplay"></iframe>`
             });
           });

@@ -33,7 +33,7 @@
     </h1>
 
     <time class="date">
-      {{ item.date }}
+      {{ item.createdAt }}
     </time>
 
     <p class="description">
@@ -50,6 +50,7 @@
 import Play from "@/components/Play.vue";
 import Cube from "@/components/Cube.vue";
 import TagsDisplay from "@/components/TagsDisplay.vue";
+import { TYPES } from "../../../server/app/constants/items.js";
 // import api from '@/pure/api'
 
 const getPgcd = (a, b) => {
@@ -97,11 +98,11 @@ export default {
     },
 
     isVideo() {
-      return this.item.types.indexOf("video") > -1;
+      return this.item.types.indexOf(TYPES.VIDEO) > -1;
     },
 
     is3D() {
-      return this.item.types.indexOf("3d") > -1;
+      return this.item.types.indexOf(TYPES.THREE_D) > -1;
     },
 
     to() {

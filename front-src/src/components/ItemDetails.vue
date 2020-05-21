@@ -25,7 +25,7 @@
       <TagsDisplay :tags="item.tags" />
 
       <time class="date">
-        {{ date }}
+        {{ createdAt }}
       </time>
     </footer>
 
@@ -57,11 +57,11 @@ export default {
   // },
 
   computed: {
-    date() {
-      const date = new Date(this.item.date);
+    createdAt() {
+      const createdAt = new Date(this.item.createdAt);
       const now = new Date();
-      if (date.toLocaleDateString() === now.toLocaleDateString()) {
-        return date
+      if (createdAt.toLocaleDateString() === now.toLocaleDateString()) {
+        return createdAt
           .toLocaleDateString("en-US", { hour12: false })
           .substring(0, 5);
       } else {
@@ -69,10 +69,10 @@ export default {
           day: "numeric",
           month: "short"
         };
-        if (date.getYear() !== new Date().getYear()) {
+        if (createdAt.getYear() !== new Date().getYear()) {
           options.year = "numeric";
         }
-        return date.toLocaleDateString("en-US", options);
+        return createdAt.toLocaleDateString("en-US", options);
       }
     }
   },

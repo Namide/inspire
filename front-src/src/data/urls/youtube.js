@@ -1,3 +1,5 @@
+import { TYPES } from "../../../../server/app/constants/items";
+
 export default [
   {
     regexList: [/youtube\.com\/watch(.*)\?v=[a-z0-1]+/i],
@@ -18,8 +20,8 @@ export default [
           .then(json => {
             resolve({
               title: json.title,
-              types: ["embed", "video"],
-              tags: ["video", json.author_name],
+              types: [TYPES.EMBED, TYPES.VIDEO],
+              tags: [TYPES.VIDEO, json.author_name],
               image: json.thumbnail_url,
               content: `<iframe width="${json.width}" height="${json.height}" src="https://www.youtube-nocookie.com/embed/${video}?color=white&amp;controls=1&amp;iv_load_policy=3&amp;modestbranding=1&amp;rel=0&amp;showinfo=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`
             });
@@ -27,8 +29,8 @@ export default [
           .catch(error => {
             console.error("youtube error: " + error.message);
             resolve({
-              types: ["embed", "video"],
-              tags: ["video"],
+              types: [TYPES.EMBED, TYPES.VIDEO],
+              tags: [TYPES.VIDEO],
               content: `<iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/${video}?color=white&amp;controls=1&amp;iv_load_policy=3&amp;modestbranding=1&amp;rel=0&amp;showinfo=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`
             });
           });

@@ -6,24 +6,6 @@ const { ROLES } = require("../../../server/app/constants/permissions.js");
 
 // import { itemsToFilter } from "@/pure/tagHelpers";
 
-const parseItem = payload => {
-  const item = new Item();
-  const object = item.fromPayload(payload).getObject();
-  item.dispose();
-  return object;
-};
-
-const parseGroup = payload => {
-  return payload;
-};
-
-const createDefaultUser = () => ({
-  name: null,
-  email: null,
-  id: null,
-  role: ROLES.GUEST
-});
-
 class Api {
   constructor() {
     // this.onLogin = new Signal();
@@ -32,7 +14,7 @@ class Api {
 
     this.$state = {
       isLogged: false,
-      user: createDefaultUser()
+      user: Api.createDefaultUser()
     };
 
     try {
@@ -119,12 +101,12 @@ class Api {
 
     return fetch("/api/items")
       .then(response => response.json())
-      .then(({ items }) => items.map(parseItem))
+      .then(({ items }) => items.map(Api.parseItem))
       .then(console.log)
       .catch(console.error);
     // return this.directus
     //   .getItems("items", options)
-    //   .then(({ data }) => data.map(parseItem))
+    //   .then(({ data }) => data.map(Api.parseItem))
     //   .then(data => data[0])
     //   .catch(console.error);
   }
@@ -163,7 +145,7 @@ class Api {
 
   //   return this.directus
   //     .getItems("items", options)
-  //     .then(({ data }) => data.map(parseItem))
+  //     .then(({ data }) => data.map(Api.parseItem))
   //     .catch(console.error);
   // }
 
@@ -183,7 +165,7 @@ class Api {
 
     return this.directus
       .getItems("groups", options)
-      .then(({ data }) => data.map(parseGroup));
+      .then(({ data }) => data.map(Api.parseGroup));
     // .catch(console.error)
   }
 
@@ -213,7 +195,7 @@ class Api {
           console.error(error.message);
         }
         this.token = null;
-        this.setUser(createDefaultUser());
+        this.setUser(Api.createDefaultUser());
       })
       .catch(console.error)
       .finally(() => {});
@@ -263,6 +245,24 @@ class Api {
     return body;
   }
 }
+
+Api.parseItem = payload => {
+  const item = new Item();
+  const object = item.fromPayload(payload).getObject();
+  item.dispose();
+  return object;
+};
+
+Api.parseGroup = payload => {
+  return payload;
+};
+
+Api.createDefaultUser = () => ({
+  name: null,
+  email: null,
+  id: null,
+  role: ROLES.GUEST
+});
 
 const api = new Api();
 

@@ -6,5 +6,7 @@ module.exports.TYPES = {
   DOCUMENT: 'document',
   EMBED: 'embed',
   TEXT: 'text',
+  FILE: 'file',
+  THREE_D: '3D',
   URL: 'URL'
 }

@@ -22,7 +22,7 @@
       <button @click="validContent">Ok</button>
     </div>
     <div v-else-if="state === 1">
-      <input type="datetime-local" v-model="input.date" class="date" />
+      <input type="datetime-local" v-model="input.createdAt" class="date" />
       <input
         type="text"
         v-model="input.title"
@@ -80,12 +80,18 @@
       <!-- <InputTextarea :value="inputinput" @change="argValue => inputinput = argValue" placeholder="Content (URL, markdown, HTML, embed...)"></InputTextarea>
       <Content :data="content"></Content> -->
 
-      <select v-model="input.status">
-        <option value="public">Public</option>
+      <select v-model="input.visibility">
+        <option
+          :value="visibility.value"
+          :key="visibility.value"
+          v-for="visibility in visibilities"
+          v-html="visibility.label"
+        ></option>
+        <!-- <option value="public">Public</option>
         <option value="protected">Protected</option>
         <option value="private">Private</option>
         <option value="draft">Draft</option>
-        <option value="deleted">Deleted</option>
+        <option value="deleted">Deleted</option> -->
       </select>
 
       <button @click="save" v-html="create ? 'Create' : 'Update'"></button>
@@ -104,6 +110,7 @@ import Content from "@/components/Content.vue";
 import InputTextarea from "@/components/InputTextarea.vue";
 import ItemSave from "@/pure/ItemSave";
 import Tabs from "@/components/Tabs";
+import { VISIBILITY } from "../../../server/app/constants/permissions";
 
 // const copy = obj => JSON.parse(JSON.stringify(obj))
 
@@ -133,13 +140,17 @@ export default {
     return {
       isFile: false,
       input: null,
+      visibilities: Object.values(VISIBILITY).map(value => ({
+        value,
+        label: value[0].toUpperCase() + value.slice(1)
+      })),
       state: 0
     };
   },
 
   watch: {
-    "input.date"(val) {
-      this.itemSave.date = new Date(val);
+    "input.createdAt"(val) {
+      this.itemSave.createdAt = new Date(val);
     },
     "input.title"(val) {
       this.itemSave.title = val;
@@ -156,8 +167,8 @@ export default {
     "input.tags"(val) {
       this.itemSave.tags = val;
     },
-    "input.status"(val) {
-      this.itemSave.status = val;
+    "input.visibility"(val) {
+      this.itemSave.visibility = val;
     },
     "input.input"(val) {
       this.itemSave.input = val;

@@ -22,9 +22,9 @@
           ></small>
         </template>
         <span
-          v-if="item.date"
+          v-if="item.createdAt"
           v-html="
-            new Date(item.date).toLocaleDateString('en-US', {
+            new Date(item.createdAt).toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',
               day: 'numeric'

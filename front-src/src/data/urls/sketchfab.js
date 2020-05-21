@@ -1,3 +1,5 @@
+import { TYPES } from "../../../../server/app/constants/items";
+
 export default [
   {
     regexList: [/sketchfab\.com\/3d-models\/\w+/i],
@@ -23,8 +25,8 @@ export default [
             resolve({
               title: json.title,
               description: json.description,
-              types: ["embed", "3d"],
-              tags: ["3d", json.author_name],
+              types: [TYPES.EMBED, TYPES.THREE_D],
+              tags: [TYPES.THREE_D, json.author_name],
               image: json.thumbnail_url,
               content: `<iframe width="${json.width}" height="${json.height}" src="https://sketchfab.com/models/${id}/embed?camera=0" frameborder="0" allow="autoplay; fullscreen; vr" allowfullscreen></iframe>`
             });
@@ -32,8 +34,8 @@ export default [
           .catch(error => {
             console.error("sketchfab error: " + error.message);
             resolve({
-              types: ["embed", "3d"],
-              tags: ["3d"],
+              types: [TYPES.EMBED, TYPES.THREE_D],
+              tags: [TYPES.THREE_D],
               content: `<iframe src="https://sketchfab.com/models/${id}/embed?camera=0" width="640" height="480" frameborder="0" allow="autoplay; fullscreen; vr" allowfullscreen></iframe>`
             });
           });

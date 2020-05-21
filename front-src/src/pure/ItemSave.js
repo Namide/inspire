@@ -5,6 +5,7 @@ import externalURL from "@/pure/externalURL.js";
 import { extractType, getMimeData } from "@/pure/contentHelpers.js";
 import marked from "marked";
 // https://css-tricks.com/choosing-right-markdown-parser/#article-header-id-0
+import { TYPES } from "../../../server/app/constants/items";
 
 /**
  * @param {String} url
@@ -40,7 +41,7 @@ export default class ItemSave extends Item {
    */
   setInput(input) {
     const type = extractType(input);
-    if (type === "url" || type === "embed") {
+    if (type === TYPES.URL || type === TYPES.EMBED) {
       this.input = input.trim();
     } else {
       this.input = input;
@@ -57,13 +58,13 @@ export default class ItemSave extends Item {
     this.setInput(input);
 
     const type = extractType(this.input);
-    if (type === "url") {
+    this.types = [type];
+    if (type === TYPES.URL) {
+      this.content = "";
       return this._updateByLink(this.input);
-    } else if (type === "embed") {
-      this.types = [type];
+    } else if (type === TYPES.EMBED) {
       this.content = this.input;
     } else {
-      this.types = [type];
       this.content = marked(this.input);
     }
 
@@ -167,7 +168,7 @@ export default class ItemSave extends Item {
           const mimeData = getMimeData(blob.type);
           const fileName =
             url.substring(url.lastIndexOf("/") + 1).split(/#|\?/)[0] ||
-            (mimeData ? mimeData.type + "." + mimeData.ext : "file");
+            (mimeData ? mimeData.type + "." + mimeData.ext : TYPES.FILE);
 
           return this.updateByFile(
             new File([blob], fileName, {
@@ -206,15 +207,15 @@ export default class ItemSave extends Item {
 
     const mimeData = getMimeData(file.type);
     console.log(file);
-    const types = mimeData ? [mimeData.type, "file"] : ["file"];
+    const types = mimeData ? [mimeData.type, TYPES.FILE] : [TYPES.FILE];
     this.types = types;
 
     // Image
-    if (types.indexOf("image") > -1) {
+    if (types.indexOf(TYPES.IMAGE) > -1) {
       return this._setImage(file).then(() => this);
 
       // Video
-    } else if (types.indexOf("video") > -1) {
+    } else if (types.indexOf(TYPES.VIDEO) > -1) {
       return this._setVideo(file).then(() => this);
 
       // File

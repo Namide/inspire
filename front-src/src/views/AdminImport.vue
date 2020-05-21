@@ -142,11 +142,11 @@ export default {
             if (itemData.content) {
               item.content = itemData.content;
             }
-            if (itemData.date) {
-              item.date = new Date(itemData.date);
+            if (itemData.createdAt) {
+              item.createdAt = new Date(itemData.createdAt);
             }
-            if (itemData.status) {
-              item.status = itemData.status;
+            if (itemData.visibility) {
+              item.visibility = itemData.visibility;
             }
             if (itemData.title) {
               item.title = itemData.title;

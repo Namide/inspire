@@ -6,7 +6,7 @@
     <div v-if="invRatio" class="dummy" :style="{ paddingTop: invRatio }"></div>
 
     <img
-      v-if="mainType === 'image'"
+      v-if="mainType === TYPES.IMAGE"
       :src="item.image.src"
       :srcset="item.image.srcset"
       :width="item.image.width"
@@ -14,7 +14,7 @@
       :alt="item.image.alt"
       class="image"
     />
-    <video v-else-if="mainType === 'video'" controls class="video">
+    <video v-else-if="mainType === TYPES.VIDEO" controls class="video">
       <source :src="item.file.src" :type="item.file.type" />
     </video>
     <div v-else v-html="html" class="data">
@@ -24,6 +24,8 @@
 </template>
 
 <script>
+import { TYPES } from "../../../server/app/constants/items";
+
 export default {
   props: {
     item: {
@@ -31,27 +33,33 @@ export default {
     }
   },
 
+  data() {
+    return {
+      TYPES: JSON.parse(JSON.stringify(TYPES))
+    };
+  },
+
   computed: {
     mainType() {
       if (this.item.types) {
-        if (this.item.types.indexOf("embed") > -1) {
-          return "embed";
-        } else if (this.item.types.indexOf("url") > -1) {
-          return "url";
-        } else if (this.item.types.indexOf("video") > -1) {
-          return "video";
-        } else if (this.item.types.indexOf("image") > -1) {
-          return "image";
+        if (this.item.types.indexOf(TYPES.EMBED) > -1) {
+          return TYPES.EMBED;
+        } else if (this.item.types.indexOf(TYPES.URL) > -1) {
+          return TYPES.URL;
+        } else if (this.item.types.indexOf(TYPES.VIDEO) > -1) {
+          return TYPES.VIDEO;
+        } else if (this.item.types.indexOf(TYPES.IMAGE) > -1) {
+          return TYPES.IMAGE;
         }
       }
 
-      return "text";
+      return TYPES.TEXT;
     },
 
     html() {
-      if (this.mainType === "embed") {
+      if (this.mainType === TYPES.EMBED) {
         return this.item.content;
-      } else if (this.mainType === "url") {
+      } else if (this.mainType === TYPES.URL) {
         return (
           '<a href="' +
           this.item.content +
@@ -59,7 +67,7 @@ export default {
           this.item.content.replace(/http:\/\/|https:\/\//, "") +
           "</a>"
         );
-      } else if (this.mainType === "text") {
+      } else if (this.mainType === TYPES.TEXT) {
         return this.item.content;
       }
 
@@ -67,7 +75,7 @@ export default {
     },
 
     invRatio() {
-      if (this.mainType === "embed") {
+      if (this.mainType === TYPES.EMBED) {
         if (this.item.content.trim().match(/<iframe(.+)<\/iframe>/g) !== null) {
           // const regExS = /<iframe[^>]+src=["']?(.+?)["'\s>]/gi
           const regExW = /<iframe[^>]+width=["']?(\d+%?)/gi;

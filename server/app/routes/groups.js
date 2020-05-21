@@ -77,7 +77,7 @@ module.exports.groupAdd = async (ctx) => {
     payload.order = Number(payload.order)
     payload.filter = payload.filter.split(',')
 
-    const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'imageFile')
+    const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'image')
     if (file) {
       payload.image = JSON.parse(payload.image)
       payload.image.src = pathToSrc(file.path)
@@ -88,7 +88,7 @@ module.exports.groupAdd = async (ctx) => {
 
     // Remove other images
     if (ctx.request.files) {
-      removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'imageFile'))
+      removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'image'))
     }
 
     const insert = await ctx.app.groups
@@ -130,7 +130,7 @@ module.exports.groupEdit = async (ctx) => {
       payload.filter = payload.filter.split(',')
     }
 
-    const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'imageFile')
+    const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'image')
     if (file) {
       if (group.image) {
         removeFile(group.image.src)
@@ -145,7 +145,7 @@ module.exports.groupEdit = async (ctx) => {
 
     // Remove other images
     if (ctx.request.files) {
-      removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'imageFile'))
+      removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'image'))
     }
 
     await ctx.app.groups.updateOne(documentQuery, { $set: payload })

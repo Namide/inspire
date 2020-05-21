@@ -1,5 +1,7 @@
 // import api from '@/pure/api'
 
+import { VISIBILITY } from "../../../server/app/constants/permissions";
+
 // const getToday = () => new Date(Date.now()).toJSON().split('.')[0]
 
 const parseImagePayload = payload => {
@@ -41,17 +43,17 @@ export default class Item {
   }
 
   fromPayload(json = {}) {
-    this.id = json.id || "";
-    this.status = json.status || "draft";
+    this.id = json.id || null;
+    this.visibility = json.visibility || VISIBILITY.PRIVATE;
     this.title = json.title || "";
     this.description = json.description || "";
     this.types = json.types || [];
     this.tags = json.tags || [];
-    this.colors = json.colors || [];
-    this.colorsRound = json.colors_round || [];
+    // this.colors = json.colors || [];
+    // this.colorsRound = json.colors_round || [];
     this.content = json.content || "";
     this.input = json.input || "";
-    this.date = new Date(json.date || Date.now());
+    this.createdAt = new Date(json.createdAt || Date.now());
     this.file = json.file ? parseFilePayload(json.file) : null;
     this.score = json.score || 0;
     this.image = json.image ? parseImagePayload(json.image) : null;
@@ -62,31 +64,27 @@ export default class Item {
 
   getPayload() {
     const payload = {
-      id: this.id,
-      status: this.status,
+      _id: this.id,
+      visibility: this.visibility,
       title: this.title,
       description: this.description,
       types: [...this.types],
       tags: [...this.tags],
-      colors: [...this.colors],
-      colors_round: [...this.colorsRound],
+      // colors: [...this.colors],
+      // colors_round: [...this.colorsRound],
       input: this.input,
       content: this.content,
-      file: this.file,
-      image: this.image,
+      file: this.file ? JSON.parse(JSON.stringify(this.file)) : null,
+      image: this.image ? JSON.stringify(this.image) : null,
       score: this.score || 0,
-      date: this.date
+      createdAt: this.createdAt
         .toISOString()
         .replace(/\.[0-9]{3}[A-Z]$/, "")
-        .replace(/T/, " "),
-      created_by: this.author
+        .replace(/T/, " ")
     };
 
     Object.keys(payload).forEach(key => {
-      if (
-        payload[key] === null ||
-        (Array.isArray(payload[key]) && payload[key].length < 1)
-      ) {
+      if (payload[key] === null) {
         delete payload[key];
       }
     });
@@ -96,19 +94,19 @@ export default class Item {
 
   fromObject(object = {}) {
     this.id = object.id;
-    this.status = object.status;
+    this.visibility = object.visibility;
     this.title = object.title;
     this.description = object.description;
     this.types = [...object.types];
     this.tags = [...object.tags];
-    this.colors = [...object.colors];
-    this.colorsRound = [...object.colorsRound];
+    // this.colors = [...object.colors];
+    // this.colorsRound = [...object.colorsRound];
     this.input = object.input;
     this.content = object.content;
     this.file = object.file;
     this.image = object.image;
     this.score = object.score;
-    this.date = object.date ? new Date(object.date) : null;
+    this.createdAt = object.createdAt ? new Date(object.createdAt) : null;
     this.author = object.author;
 
     return this;
@@ -136,19 +134,21 @@ export default class Item {
 
     return {
       id: this.id,
-      status: this.status,
+      visibility: this.visibility,
       title: this.title,
       description: this.description,
       types: [...this.types],
       tags: [...this.tags],
-      colors: [...this.colors],
-      colorsRound: [...this.colorsRound],
+      // colors: [...this.colors],
+      // colorsRound: [...this.colorsRound],
       input: this.input,
       content: this.content,
       file,
       image,
       score: this.score,
-      date: this.date.toISOString().replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ""),
+      createdAt: this.createdAt
+        .toISOString()
+        .replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ""),
       author: this.author
     };
   }

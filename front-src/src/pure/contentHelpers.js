@@ -1,4 +1,5 @@
 import mimeTypes from "@/data/mime-types.json";
+import { TYPES } from "../../../server/app/constants/items";
 
 export const extractType = raw => {
   // https://mathiasbynens.be/demo/url-regex
@@ -6,23 +7,23 @@ export const extractType = raw => {
     raw &&
     raw.trim().match(/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/is) !== null
   ) {
-    return "url";
+    return TYPES.URL;
   } else if (raw && raw.trim().match(/<iframe(.+)<\/iframe>/g) !== null) {
-    return "embed";
+    return TYPES.EMBED;
   }
 
-  return "text";
+  return TYPES.TEXT;
 };
 
 export const extractData = raw => {
   const type = extractType(raw);
   // https://mathiasbynens.be/demo/url-regex
-  if (type === "url") {
+  if (type === TYPES.URL) {
     return {
       type,
       raw: raw.trim()
     };
-  } else if (type === "embed") {
+  } else if (type === TYPES.EMBED) {
     const regExS = /<iframe[^>]+src=["']?(.+?)["'\s>]/gi;
     const regExW = /<iframe[^>]+width=["']?(\d+%?)/gi;
     const regExH = /<iframe[^>]+height=["']?(\d+%?)/gi;

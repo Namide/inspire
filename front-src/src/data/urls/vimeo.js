@@ -1,3 +1,5 @@
+import { TYPES } from "../../../../server/app/constants/items";
+
 export default [
   {
     regexList: [/vimeo\.com\/(\d+)/gi],
@@ -20,8 +22,8 @@ export default [
             resolve({
               title: json.title,
               description: json.description.split("<br />").join(" "),
-              tags: ["video", json.user_name],
-              types: ["embed", "video"],
+              tags: [TYPES.VIDEO, json.user_name],
+              types: [TYPES.EMBED, TYPES.VIDEO],
               image: json.thumbnail_large,
               content: `<iframe src="https://player.vimeo.com/video/${video}" width="${json.width}" height="${json.height}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`
             });
@@ -29,8 +31,8 @@ export default [
           .catch(error => {
             console.error("vimeo error: " + error.message);
             resolve({
-              types: ["embed", "video"],
-              tags: ["video"],
+              types: [TYPES.EMBED, TYPES.VIDEO],
+              tags: [TYPES.VIDEO],
               content: `<iframe src="https://player.vimeo.com/video/${video}" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`
             });
           });

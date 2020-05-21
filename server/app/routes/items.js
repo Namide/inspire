@@ -9,7 +9,7 @@ module.exports.itemInit = async (db) => {
     validator: {
       $jsonSchema: {
         bsonType: 'object',
-        required: ['visibility', 'types', 'title', 'author', 'filter'],
+        required: ['visibility', 'types', 'title', 'author'],
         properties: {
           visibility: { enum: Object.values(VISIBILITY) },
           author: { bsonType: 'objectId' },
@@ -43,7 +43,7 @@ module.exports.itemInit = async (db) => {
           },
           input: { bsonType: 'string' },
           score: {
-            bsonType: 'double',
+            bsonType: 'number',
             minimum: 0,
             maximum: 5
           },
@@ -79,37 +79,27 @@ module.exports.itemList = async (ctx) => {
 }
 
 module.exports.itemAdd = async (ctx) => {
-  const values = ctx.request.body
+  // const values = ctx.request.body
 
   try {
-    const payload = Object.assign(values, { author: ObjectID(ctx.state.user._id) })
-
-    if (payload.types) {
-      payload.types = payload.types.split(',')
-    }
-
-    if (payload.tags) {
-      payload.tags = payload.tags.split(',')
-    }
-
+    const payload = Object.assign(JSON.parse(ctx.request.body.data), { author: ObjectID(ctx.state.user._id) })
+    
     if (payload.createdAt) {
       payload.createdAt = new Date(payload.createdAt)
     } else {
       payload.createdAt = new Date()
     }
 
-    const image = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'imageFile')
+    const image = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'image')
     if (image) {
-      payload.image = JSON.parse(payload.image)
       payload.image.src = pathToSrc(image.path)
       payload.image.mimetype = image.mimetype
     } else {
       delete payload.image
     }
 
-    const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'fileFile')
+    const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'file')
     if (file) {
-      payload.file = JSON.parse(payload.file)
       payload.file.src = pathToSrc(file.path)
       payload.file.mimetype = file.mimetype
     } else {
@@ -117,12 +107,12 @@ module.exports.itemAdd = async (ctx) => {
     }
 
     // Remove other images
-    removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'imageFile' && fieldname !== 'fileFile'))
-
+    removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'image' && fieldname !== 'file'))
+console.log(payload)
     const insert = await ctx.app.items
       .insertOne(payload)
-    const items = [insert.ops[0]]
-    ctx.body = { items }
+    const item = insert.ops[0]
+    ctx.body = { item }
   } catch (error) {
     // Remove images
     removeReadableStreams(...ctx.request.files)
@@ -154,7 +144,7 @@ module.exports.itemEdit = async (ctx) => {
       payload.tags = payload.tags.split(',')
     }
 
-    const image = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'imageFile')
+    const image = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'image')
     if (image) {
       if (item.image) {
         removeFile(item.image.src)
@@ -167,7 +157,7 @@ module.exports.itemEdit = async (ctx) => {
       delete payload.image
     }
 
-    const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'fileFile')
+    const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'file')
     if (file) {
       if (item.file) {
         removeFile(item.file.src)
@@ -181,7 +171,7 @@ module.exports.itemEdit = async (ctx) => {
     }
 
     // Remove other images
-    removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'imageFile' && fieldname !== 'fileFile'))
+    removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'image' && fieldname !== 'file'))
 
     await ctx.app.items.updateOne(documentQuery, { $set: payload })
     const itemReturned = await ctx.app.items.findOne(documentQuery)
