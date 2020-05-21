@@ -98,8 +98,12 @@ class Api {
     //   },
     //   fields: ["*", "image.*", "file.*"]
     // };
+    const options = {
+      method: "get",
+      headers: this._createHeaders()
+    };
 
-    return fetch("/api/items")
+    return fetch("/api/items", options)
       .then(response => response.json())
       .then(({ items }) => items.map(Api.parseItem))
       .then(console.log)
