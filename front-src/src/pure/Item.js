@@ -7,14 +7,14 @@ import { VISIBILITY } from "../../../server/app/constants/permissions";
 const parseImagePayload = payload => {
   return {
     id: payload.id,
-    name: payload.filename_download,
+    // name: payload.name,
     width: payload.width,
     height: payload.height,
-    src: "/api" + payload.data.url,
-    srcSet: payload.data.thumbnails
-      .filter(thumb => thumb.width > 300 || thumb.height > 300)
-      .map(thumb => "/api" + thumb.relative_url + " " + thumb.width + "w")
-      .join(", "),
+    src: payload.src,
+    // srcSet: payload.data.thumbnails
+    //   .filter(thumb => thumb.width > 300 || thumb.height > 300)
+    //   .map(thumb => "/api" + thumb.relative_url + " " + thumb.width + "w")
+    //   .join(", "),
     alt: payload.description || payload.title
   };
 };
@@ -62,7 +62,7 @@ export default class Item {
     return this;
   }
 
-  getPayload() {
+  getBody() {
     const payload = {
       _id: this.id,
       visibility: this.visibility,
@@ -75,7 +75,7 @@ export default class Item {
       input: this.input,
       content: this.content,
       file: this.file ? JSON.parse(JSON.stringify(this.file)) : null,
-      image: this.image ? JSON.stringify(this.image) : null,
+      image: this.image ? JSON.parse(JSON.stringify(this.image)) : null,
       score: this.score || 0,
       createdAt: this.createdAt
         .toISOString()
@@ -89,7 +89,20 @@ export default class Item {
       }
     });
 
-    return payload;
+    let image = null;
+    let file = null;
+
+    if (this.image && this.image.src instanceof File) {
+      image = this.image.src;
+      delete payload.image.src;
+    }
+
+    if (this.file && this.file.src instanceof File) {
+      file = this.file.src;
+      delete payload.file.src;
+    }
+
+    return { payload, image, file };
   }
 
   fromObject(object = {}) {
@@ -113,23 +126,19 @@ export default class Item {
   }
 
   getObject() {
-    let image = this.image;
-    let file = this.file;
+    const image = Object.assign({}, this.image);
+    const file = Object.assign({}, this.file);
 
-    if (image instanceof File) {
-      const src = URL.createObjectURL(image);
+    if (image && image.src instanceof File) {
+      const src = URL.createObjectURL(image.src);
       this._disposeList.push(() => URL.revokeObjectURL(src));
-      image = {
-        src
-      };
+      image.src = src;
     }
 
-    if (file instanceof File) {
-      const src = URL.createObjectURL(file);
+    if (file && file.src instanceof File) {
+      const src = URL.createObjectURL(file.src);
       this._disposeList.push(() => URL.revokeObjectURL(src));
-      file = {
-        src
-      };
+      file.src = src;
     }
 
     return {

@@ -71,7 +71,7 @@ class ApiSave extends Api {
 
   addItem(payload, image = null, file = null) {
     const body = new FormData();
-    body.append("data", JSON.stringify(payload));
+    body.append("payload", JSON.stringify(payload));
 
     if (image) {
       body.append("image", image);
@@ -141,56 +141,49 @@ class ApiSave extends Api {
     return Promise.all(list);
   }
 
-  updateItem(payload, oldPayload, onProgress) {
-    const addImage = payload.image instanceof File;
-    const addFile = payload.file instanceof File;
-    const removeImage = oldPayload.image && (!payload.image || addImage);
-    const removeFile = oldPayload.file && (!payload.file || addFile);
-
-    const list = [];
-
-    if (addImage && addFile) {
-      list.push(this.addFiles(payload.file, payload.image, onProgress));
-    } else if (addImage) {
-      list.push(this.addFile(payload.image, onProgress));
-    } else if (addFile) {
-      list.push(this.addFile(payload.file, onProgress));
-    }
-
-    if (removeImage) {
-      list.push(this.deleteFile(oldPayload.image.id));
-    }
-
-    if (removeFile) {
-      list.push(this.deleteFile(oldPayload.file.id));
-    }
-
-    return Promise.all(list).then(data => {
-      let file = removeFile
-        ? null
-        : (oldPayload.file && oldPayload.file.id) || null;
-      let image = removeImage
-        ? null
-        : (oldPayload.image && oldPayload.image.id) || null;
-
-      if (addImage && addFile) {
-        const [[newFile, newImage]] = data;
-        file = newFile.data.data.id;
-        image = newImage.data.data.id;
-      } else if (addImage) {
-        const [newImage] = data;
-        image = newImage.data.data.id;
-      } else if (addFile) {
-        const [newFile] = data;
-        file = newFile.data.data.id;
-      }
-
-      return this.directus.updateItem(
-        "items",
-        oldPayload.id,
-        Object.assign({}, payload, { file, image })
-      );
-    });
+  updateItem(id, payload, image, file) {
+    // const addImage = payload.image instanceof File;
+    // const addFile = payload.file instanceof File;
+    // const removeImage = oldPayload.image && (!payload.image || addImage);
+    // const removeFile = oldPayload.file && (!payload.file || addFile);
+    // const list = [];
+    // if (addImage && addFile) {
+    //   list.push(this.addFiles(payload.file, payload.image, onProgress));
+    // } else if (addImage) {
+    //   list.push(this.addFile(payload.image, onProgress));
+    // } else if (addFile) {
+    //   list.push(this.addFile(payload.file, onProgress));
+    // }
+    // if (removeImage) {
+    //   list.push(this.deleteFile(oldPayload.image.id));
+    // }
+    // if (removeFile) {
+    //   list.push(this.deleteFile(oldPayload.file.id));
+    // }
+    // return Promise.all(list).then(data => {
+    //   let file = removeFile
+    //     ? null
+    //     : (oldPayload.file && oldPayload.file.id) || null;
+    //   let image = removeImage
+    //     ? null
+    //     : (oldPayload.image && oldPayload.image.id) || null;
+    //   if (addImage && addFile) {
+    //     const [[newFile, newImage]] = data;
+    //     file = newFile.data.data.id;
+    //     image = newImage.data.data.id;
+    //   } else if (addImage) {
+    //     const [newImage] = data;
+    //     image = newImage.data.data.id;
+    //   } else if (addFile) {
+    //     const [newFile] = data;
+    //     file = newFile.data.data.id;
+    //   }
+    //   return this.directus.updateItem(
+    //     "items",
+    //     oldPayload.id,
+    //     Object.assign({}, payload, { file, image })
+    //   );
+    // });
   }
 }
 

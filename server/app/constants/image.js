@@ -9,7 +9,7 @@ module.exports.VALIDATOR = {
         bsonType: 'object',
         properties: {
           area: {
-            bsonType: 'double'
+            bsonType: 'number'
           },
           hexa: {
             bsonType: 'string'

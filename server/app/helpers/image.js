@@ -5,12 +5,10 @@ module.exports.validator = () => {
     required: ['width', 'height', 'src'],
     properties: {
       width: {
-        bsonType: 'int',
-        description: 'must be an integer'
+        bsonType: 'number'
       },
       height: {
-        bsonType: 'int',
-        description: 'must be an integer'
+        bsonType: 'number'
       },
       src: {
         bsonType: 'string'

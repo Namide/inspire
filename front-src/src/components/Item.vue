@@ -121,7 +121,7 @@ export default {
           b: (hex >> 0) & 0xff
         };
       };
-      const colors = this.item.colors.map(detail);
+      const colors = this.item.image.colors.map(detail);
       const colorsFallback = ["#FFFFFF", "#000000", "#555555", "#AAAAAA"];
       while (colors.length < 4) {
         colors.push(detail(colorsFallback.shift()));
@@ -164,8 +164,8 @@ export default {
       this.$set(
         this.itemStyle,
         "background-color",
-        this.item.colors && this.item.colors[0]
-          ? this.item.colors[0]
+        this.item.image && this.item.image.colors && this.item.image.colors[0]
+          ? this.item.image.colors[0]
           : "rgba(0,0,0,0)"
       );
     }

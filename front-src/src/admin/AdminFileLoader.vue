@@ -37,7 +37,7 @@
 export default {
   props: {
     image: { default: null },
-    colors: { type: Array, default: () => [] },
+    // colors: { type: Array, default: () => [] },
     onlyImg: { type: Boolean, default: false }
   },
 
@@ -52,23 +52,32 @@ export default {
     image: {
       immediate: true,
       handler(image, oldImage) {
-        if (oldImage instanceof File && this.src) {
+        if (oldImage && oldImage.src instanceof File && this.src) {
           URL.revokeObjectURL(this.src);
           this.src = "";
         }
-        if (image instanceof File) {
-          this.src = URL.createObjectURL(image);
-        } else if (image && image.src) {
-          this.src = image.src;
-        } else if (!image) {
+
+        if (!image) {
           this.src = "";
+        } else if (image.src instanceof File) {
+          this.src = URL.createObjectURL(image.src);
+        } else if (image.src) {
+          this.src = image.src;
         }
       }
     }
   },
 
+  computed: {
+    colors() {
+      return this.image && this.image.colors
+        ? this.image.colors.map(({ hexa }) => hexa)
+        : [];
+    }
+  },
+
   destroyed() {
-    if (this.image instanceof File && this.src) {
+    if (this.image && this.image.src instanceof File && this.src) {
       URL.revokeObjectURL(this.src);
       this.src = "";
     }

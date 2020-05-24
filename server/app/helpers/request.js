@@ -1,21 +1,18 @@
+// https://html.developreference.com/article/17026457/koa.js+streaming+response+from+remote+url
+module.exports = function (url, stream) {
 
-module.exports = function (url) {
   return new Promise((resolve, reject) => {
     if (url.indexOf('https') > -1) {
       const https = require('https')
-      https.get(url, resp => {
-        let data = ''
-        resp.on('data', (chunk) => data += chunk)
-        resp.on('end', () => resolve(data))
+      https.get(url, response => {
+        resolve(response)
       }).on('error', (err) => {
         reject(err)
       })
     } else if (url.indexOf('http') > -1) {
       const http = require('http')
-      http.get(url, resp => {
-        let data = ''
-        resp.on('data', (chunk) => data += chunk)
-        resp.on('end', () => resolve(data))
+      http.get(url, response => {
+        resolve(response)
       }).on('error', (err) => {
         reject(err)
       })

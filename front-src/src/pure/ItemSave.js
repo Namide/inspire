@@ -76,10 +76,17 @@ export default class ItemSave extends Item {
       .then(colors => {
         const accuracy = 4; // 4 * 4 * 4 => 64 colors
 
-        this.colors = colors.map(color => color.hex);
+        if (!this.image) {
+          this.image = {};
+        }
+
+        this.image.colors = colors.map(color => ({
+          area: Math.round(color.area * 100) / 100,
+          hexa: color.hex
+        }));
 
         // optimise test : http://glslsandbox.com/e#61168.1
-        this.colorsRound = [
+        this.image.colorsRound = [
           ...new Set(
             colors.map(({ red, green, blue }) => {
               return (
@@ -113,7 +120,7 @@ export default class ItemSave extends Item {
 
       this.title = title;
     }
-    this.image = file;
+    this.image = { src: file };
 
     const src = URL.createObjectURL(file);
     return this._extractColors(src).then(() => URL.revokeObjectURL(src));
@@ -132,7 +139,7 @@ export default class ItemSave extends Item {
 
       this.title = title;
     }
-    this.file = file;
+    this.file = { src: file };
 
     return Promise.resolve(file);
   }
@@ -194,8 +201,8 @@ export default class ItemSave extends Item {
     // this.types = []
     this.image = null;
     this.file = null;
-    this.colors = [];
-    this.colorsRound = [];
+    // this.colors = [];
+    // this.colorsRound = [];
     // this.content = null
     // this.input = null
 
@@ -206,7 +213,6 @@ export default class ItemSave extends Item {
     this.removeFile();
 
     const mimeData = getMimeData(file.type);
-    console.log(file);
     const types = mimeData ? [mimeData.type, TYPES.FILE] : [TYPES.FILE];
     this.types = types;
 
@@ -225,7 +231,7 @@ export default class ItemSave extends Item {
   }
 
   _setFile(file) {
-    this.file = file;
+    this.file = { src: file };
 
     return Promise.resolve(this);
   }

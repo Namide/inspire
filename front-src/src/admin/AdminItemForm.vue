@@ -4,10 +4,11 @@
 
     <div v-if="state === 0">
       <AdminFileLoader
-        v-if="input.image || input.file"
+        v-if="
+          (input.image && input.image.src) || (input.file && input.file.src)
+        "
         @change="fileChange"
         :image="input.image || input.file"
-        :colors="input.colors"
         :only-img="false"
       />
       <template v-else>
@@ -59,7 +60,6 @@
           <AdminFileLoader
             @change="fileChange"
             :image="input.image"
-            :colors="input.colors"
             :only-img="false"
           />
         </template>
@@ -213,7 +213,7 @@ export default {
       const item = new ItemSave();
       item.fromObject(this.item);
       apiSave
-        .deleteItem(item.getPayload())
+        .deleteItem(item.id)
         .then(() => this.$emit("cancel"))
         .catch(error => console.error(error))
         .finally(() => item.dispose());
@@ -229,19 +229,16 @@ export default {
     },
 
     save() {
-      const payload = this.itemSave.getPayload();
-      console.log(this.itemSave);
-      console.log(payload);
+      const { payload, image, file } = this.itemSave.getBody();
       if (this.create) {
-        apiSave.addItem(payload).catch(error => {
+        apiSave.addItem(payload, image, file).catch(error => {
           console.log(error);
         });
         this.cancel();
       } else {
         const oldItem = new ItemSave();
         oldItem.fromObject(this.item);
-
-        apiSave.updateItem(payload, oldItem.getPayload());
+        apiSave.updateItem(oldItem.id, payload, image, file);
 
         // .catch(error => {
         //   console.log(error)

@@ -82,7 +82,7 @@ module.exports.itemAdd = async (ctx) => {
   // const values = ctx.request.body
 
   try {
-    const payload = Object.assign(JSON.parse(ctx.request.body.data), { author: ObjectID(ctx.state.user._id) })
+    const payload = Object.assign(JSON.parse(ctx.request.body.payload), { author: ObjectID(ctx.state.user._id) })
     
     if (payload.createdAt) {
       payload.createdAt = new Date(payload.createdAt)
