@@ -164,7 +164,7 @@ export default {
             // this.logs.push('✅  id:' + itemData.id)
             // this.logs.push(this.resumeItem(item.getObject()))
 
-            const { payload, image, file } = item.getBody();
+            const { item: payload, image, file } = item.getBody();
             console.log("payload:", payload);
             return apiSave.addItem(payload, image, file);
           })

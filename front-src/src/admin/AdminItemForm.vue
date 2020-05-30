@@ -229,16 +229,16 @@ export default {
     },
 
     save() {
-      const { payload, image, file } = this.itemSave.getBody();
+      const { item, image, file } = this.itemSave.getBody();
       if (this.create) {
-        apiSave.addItem(payload, image, file).catch(error => {
+        apiSave.addItem(item, image, file).catch(error => {
           console.log(error);
         });
         this.cancel();
       } else {
         const oldItem = new ItemSave();
         oldItem.fromObject(this.item);
-        apiSave.updateItem(oldItem.id, payload, image, file);
+        apiSave.updateItem(oldItem.id, item, image, file);
 
         // .catch(error => {
         //   console.log(error)

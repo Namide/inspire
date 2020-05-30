@@ -69,9 +69,9 @@ class ApiSave extends Api {
   //   ]);
   // }
 
-  addItem(payload, image = null, file = null) {
+  addItem(item, image = null, file = null) {
     const body = new FormData();
-    body.append("payload", JSON.stringify(payload));
+    body.append("item", JSON.stringify(item));
 
     if (image) {
       body.append("image", image);

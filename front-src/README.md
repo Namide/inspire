@@ -1,5 +1,9 @@
 # front
 
+CSS layout:
+Read: https://dev.to/bholmesdev/flexbox-diehards-here-s-some-concrete-examples-of-when-css-grid-is-just-better-n7k
+Example: https://codepen.io/stacy/pen/xjRyda
+
 ## Project setup
 ```
 npm install

@@ -81,7 +81,6 @@ module.exports.groupAdd = async (ctx) => {
     if (file) {
       payload.image = JSON.parse(payload.image)
       payload.image.src = pathToSrc(file.path)
-      payload.image.mimetype = file.mimetype
     } else {
       delete payload.image
     }
@@ -138,7 +137,6 @@ module.exports.groupEdit = async (ctx) => {
 
       payload.image = JSON.parse(payload.image)
       payload.image.src = pathToSrc(file.path)
-      payload.image.mimetype = file.mimetype
     } else {
       delete payload.image
     }

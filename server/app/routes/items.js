@@ -82,37 +82,35 @@ module.exports.itemAdd = async (ctx) => {
   // const values = ctx.request.body
 
   try {
-    const payload = Object.assign(JSON.parse(ctx.request.body.payload), { author: ObjectID(ctx.state.user._id) })
+    const item = Object.assign(JSON.parse(ctx.request.body.item), { author: ObjectID(ctx.state.user._id) })
     
-    if (payload.createdAt) {
-      payload.createdAt = new Date(payload.createdAt)
+    if (item.createdAt) {
+      item.createdAt = new Date(item.createdAt)
     } else {
-      payload.createdAt = new Date()
+      item.createdAt = new Date()
     }
 
     const image = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'image')
     if (image) {
-      payload.image.src = pathToSrc(image.path)
-      payload.image.mimetype = image.mimetype
+      item.image.src = pathToSrc(image.path)
     } else {
-      delete payload.image
+      delete item.image
     }
 
     const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'file')
     if (file) {
-      payload.file.src = pathToSrc(file.path)
-      payload.file.mimetype = file.mimetype
+      item.file.src = pathToSrc(file.path)
     } else {
-      delete payload.file
+      delete item.file
     }
 
     // Remove other images
     removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'image' && fieldname !== 'file'))
-console.log(payload)
+
     const insert = await ctx.app.items
-      .insertOne(payload)
-    const item = insert.ops[0]
-    ctx.body = { item }
+      .insertOne(item)
+      
+    ctx.body = { item: insert.ops[0] }
   } catch (error) {
     // Remove images
     removeReadableStreams(...ctx.request.files)
@@ -152,7 +150,6 @@ module.exports.itemEdit = async (ctx) => {
 
       payload.image = JSON.parse(payload.image)
       payload.image.src = pathToSrc(image.path)
-      payload.image.mimetype = image.mimetype
     } else {
       delete payload.image
     }
@@ -165,7 +162,6 @@ module.exports.itemEdit = async (ctx) => {
 
       payload.file = JSON.parse(payload.file)
       payload.file.src = pathToSrc(file.path)
-      payload.file.mimetype = file.mimetype
     } else {
       delete payload.file
     }

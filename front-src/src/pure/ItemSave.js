@@ -1,6 +1,6 @@
 import Item from "@/pure/Item";
 import apiSave from "@/pure/apiSave";
-import extractColors from "extract-colors";
+import { extractColorsFromImage } from "extract-colors";
 import externalURL from "@/pure/externalURL.js";
 import { extractType, getMimeData } from "@/pure/contentHelpers.js";
 import marked from "marked";
@@ -71,14 +71,13 @@ export default class ItemSave extends Item {
     return Promise.resolve(this);
   }
 
-  _extractColors(src) {
-    return extractColors(src)
+  _extractData(src) {
+    const image = new Image();
+    image.src = src;
+
+    return extractColorsFromImage(image)
       .then(colors => {
         const accuracy = 4; // 4 * 4 * 4 => 64 colors
-
-        if (!this.image) {
-          this.image = {};
-        }
 
         this.image.colors = colors.map(color => ({
           area: Math.round(color.area * 100) / 100,
@@ -97,6 +96,11 @@ export default class ItemSave extends Item {
             })
           )
         ];
+      })
+      .then(() => {
+        this.image.width = image.width;
+        this.image.height = image.height;
+        this.image.type = image.mimeType;
       })
       .then(() => this);
   }
@@ -123,7 +127,7 @@ export default class ItemSave extends Item {
     this.image = { src: file };
 
     const src = URL.createObjectURL(file);
-    return this._extractColors(src).then(() => URL.revokeObjectURL(src));
+    return this._extractData(src).then(() => URL.revokeObjectURL(src));
   }
 
   _setVideo(file) {
@@ -216,17 +220,35 @@ export default class ItemSave extends Item {
     const types = mimeData ? [mimeData.type, TYPES.FILE] : [TYPES.FILE];
     this.types = types;
 
+    const getData = () => ({
+      type: file.type,
+      size: file.size,
+      name: file.name
+    });
+
     // Image
     if (types.indexOf(TYPES.IMAGE) > -1) {
-      return this._setImage(file).then(() => this);
+      return this._setImage(file)
+        .then(() => {
+          this.image = Object.assign({}, this.image, getData());
+        })
+        .then(() => this);
 
       // Video
     } else if (types.indexOf(TYPES.VIDEO) > -1) {
-      return this._setVideo(file).then(() => this);
+      return this._setVideo(file)
+        .then(() => {
+          this.file = Object.assign({}, this.file, getData());
+        })
+        .then(() => this);
 
       // File
     } else {
-      return this._setFile(file).then(() => this);
+      return this._setFile(file)
+        .then(() => {
+          this.file = Object.assign({}, this.file, getData());
+        })
+        .then(() => this);
     }
   }
 

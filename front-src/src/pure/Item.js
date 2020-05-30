@@ -63,7 +63,7 @@ export default class Item {
   }
 
   getBody() {
-    const payload = {
+    const item = {
       _id: this.id,
       visibility: this.visibility,
       title: this.title,
@@ -83,9 +83,9 @@ export default class Item {
         .replace(/T/, " ")
     };
 
-    Object.keys(payload).forEach(key => {
-      if (payload[key] === null) {
-        delete payload[key];
+    Object.keys(item).forEach(key => {
+      if (item[key] === null) {
+        delete item[key];
       }
     });
 
@@ -94,15 +94,15 @@ export default class Item {
 
     if (this.image && this.image.src instanceof File) {
       image = this.image.src;
-      delete payload.image.src;
+      delete item.image.src;
     }
 
     if (this.file && this.file.src instanceof File) {
       file = this.file.src;
-      delete payload.file.src;
+      delete item.file.src;
     }
 
-    return { payload, image, file };
+    return { item, image, file };
   }
 
   fromObject(object = {}) {
