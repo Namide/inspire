@@ -121,7 +121,8 @@ export default {
           b: (hex >> 0) & 0xff
         };
       };
-      const colors = this.item.image.colors.map(detail);
+
+      const colors = (this.item.image.colors || []).map(detail);
       const colorsFallback = ["#FFFFFF", "#000000", "#555555", "#AAAAAA"];
       while (colors.length < 4) {
         colors.push(detail(colorsFallback.shift()));

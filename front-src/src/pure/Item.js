@@ -6,11 +6,12 @@ import { VISIBILITY } from "../../../server/app/constants/permissions";
 
 const parseImagePayload = payload => {
   return {
-    id: payload.id,
-    // name: payload.name,
+    // id: payload.id,
+    name: payload.name,
     width: payload.width,
     height: payload.height,
     src: payload.src,
+    type: payload.type,
     // srcSet: payload.data.thumbnails
     //   .filter(thumb => thumb.width > 300 || thumb.height > 300)
     //   .map(thumb => "/api" + thumb.relative_url + " " + thumb.width + "w")
@@ -21,11 +22,11 @@ const parseImagePayload = payload => {
 
 const parseFilePayload = payload => {
   return {
-    id: payload.id,
-    name: payload.filename_download,
+    // id: payload.id,
+    name: payload.name,
     width: payload.width,
     height: payload.height,
-    src: "/api" + payload.data.url,
+    src: payload.src,
     type: payload.type
   };
 };
@@ -43,7 +44,7 @@ export default class Item {
   }
 
   fromPayload(json = {}) {
-    this.id = json.id || null;
+    this.id = json._id || null;
     this.visibility = json.visibility || VISIBILITY.PRIVATE;
     this.title = json.title || "";
     this.description = json.description || "";

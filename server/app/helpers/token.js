@@ -36,14 +36,22 @@ module.exports.blacklistToken = (ctx, authorization = ctx.headers.authorization)
 /**
  * @returns {{ua:string, ip:string, expo:number, user: { role:string, _id:string }}|null}
  */
-module.exports.getToken = (ctx, authorization = ctx.headers.authorization) => {
-  if (authorization) {
-    if (BLACKLIST.indexOf(authorization) > -1) {
+module.exports.getToken = (ctx) => {
+
+  let token = null
+
+  authorization = ctx.headers.authorization || ctx.query.token
+  if (ctx.headers.authorization && authorization.split(' ').length > 1) {
+    token = authorization.split(' ')[1]
+  } else if (ctx.query.token) {
+    token = ctx.query.token
+  }
+
+  if (token) {
+    if (BLACKLIST.indexOf(token) > -1) {
       ctx.throw(401, 'Falsified token')
       return null
     }
-
-    const token = authorization.split(' ')[1]
 
     try {
       const decoded = jwt.verify(token, CONFIG.jwt.secret)

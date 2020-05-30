@@ -44,10 +44,10 @@ export default {
   watch: {
     filter: {
       immediate: true,
-      handler(items) {
+      handler(filter) {
         this.loading = true;
         api
-          .getItems(items)
+          .getItems(filter)
           .then(items => {
             this.displayMode = "thumb";
             this.items = items;

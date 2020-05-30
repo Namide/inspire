@@ -4,6 +4,9 @@ const { getToken } = require('../helpers/token')
 const { ROLES, roleToVisibility } = require('../constants/permissions')
 // const ObjectID = require('mongodb').ObjectID
 
+const ALL_ROLES = [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR, ROLES.SUBSCRIBER, ROLES.GUEST]
+const SECOND_TEST = async (ctx, userID) => true
+
 /**
  * @param {string} _id
  * @param {string} role
@@ -22,7 +25,7 @@ const getUser = (_id, name, role) => {
  * @param {String[]} authorizedRoles Roles aways authorized
  * @param {Function} secondTest If previous roles failed, second test 'async (ctx, userID) => true'
  */
-module.exports = (authorizedRoles = [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR, ROLES.SUBSCRIBER, ROLES.GUEST], secondTest = async (ctx, userID) => true) => async (ctx, next) => {
+module.exports = (authorizedRoles = ALL_ROLES, secondTest = SECOND_TEST) => async (ctx, next) => {
   const { user } = getToken(ctx) || { user: { name: null, role: ROLES.GUEST, _id: null } }
   ctx.state.user = getUser(user._id, user.name, user.role)
 

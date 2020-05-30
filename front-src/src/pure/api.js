@@ -105,9 +105,21 @@ class Api {
 
     return fetch("/api/items", options)
       .then(response => response.json())
-      .then(({ items }) => items.map(Api.parseItem))
-      .then(console.log)
-      .catch(console.error);
+      .then(({ items }) =>
+        items
+          .map(item => {
+            if (item.image && item.image.src) {
+              item.image.src += "?token=" + this.token;
+            }
+            if (item.file && item.file.src) {
+              item.file.src += "?token=" + this.token;
+            }
+            return item;
+          })
+          .map(Api.parseItem)
+      );
+    // .then(console.log)
+    // .catch(console.error);
     // return this.directus
     //   .getItems("items", options)
     //   .then(({ data }) => data.map(Api.parseItem))
