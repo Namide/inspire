@@ -2,7 +2,7 @@
   <router-link :to="to" class="item" :class="classData" :style="itemStyle">
     <img
       v-if="item.image"
-      :src="item.image.src"
+      :src="addAuth(item.image.src)"
       :srcset="item.image.srcset"
       :width="item.image.width"
       :height="item.image.height"
@@ -121,8 +121,9 @@ export default {
           b: (hex >> 0) & 0xff
         };
       };
-
-      const colors = (this.item.image.colors || []).map(detail);
+      const colors = (this.item.image.colors || [])
+        .map(({ hexa }) => hexa)
+        .map(detail);
       const colorsFallback = ["#FFFFFF", "#000000", "#555555", "#AAAAAA"];
       while (colors.length < 4) {
         colors.push(detail(colorsFallback.shift()));

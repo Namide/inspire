@@ -12,6 +12,7 @@ const parseImagePayload = payload => {
     height: payload.height,
     src: payload.src,
     type: payload.type,
+    colors: payload.colors,
     // srcSet: payload.data.thumbnails
     //   .filter(thumb => thumb.width > 300 || thumb.height > 300)
     //   .map(thumb => "/api" + thumb.relative_url + " " + thumb.width + "w")

@@ -24,6 +24,8 @@ class Api {
       console.error(error.message);
     }
 
+    this.addAuth = this.addAuth.bind(this);
+
     this.init();
   }
 
@@ -34,6 +36,30 @@ class Api {
     }
 
     return Promise.resolve(payload);
+  }
+
+  addAuth(url) {
+    if (this.token) {
+      return url + "?token=" + this.token;
+    } else {
+      return url;
+    }
+  }
+
+  parseItem(payload) {
+    // if (this.token) {
+    //   if (payload.image && payload.image.src) {
+    //     payload.image.src += "?token=" + this.token;
+    //   }
+    //   if (payload.file && payload.file.src) {
+    //     payload.file.src += "?token=" + this.token;
+    //   }
+    // }
+
+    const item = new Item();
+    const object = item.fromPayload(payload).getObject();
+    item.dispose();
+    return object;
   }
 
   setMe() {}
@@ -89,6 +115,17 @@ class Api {
     return uid; // config.api.abs + '/files/' + uid
   }
 
+  getItem(id) {
+    const options = {
+      method: "get",
+      headers: this._createHeaders()
+    };
+
+    return fetch("/api/items/" + id, options)
+      .then(response => response.json())
+      .then(({ item }) => this.parseItem(item));
+  }
+
   getItems() {
     // const options = {
     //   filter: {
@@ -105,19 +142,7 @@ class Api {
 
     return fetch("/api/items", options)
       .then(response => response.json())
-      .then(({ items }) =>
-        items
-          .map(item => {
-            if (item.image && item.image.src) {
-              item.image.src += "?token=" + this.token;
-            }
-            if (item.file && item.file.src) {
-              item.file.src += "?token=" + this.token;
-            }
-            return item;
-          })
-          .map(Api.parseItem)
-      );
+      .then(({ items }) => items.map(payload => this.parseItem(payload)));
     // .then(console.log)
     // .catch(console.error);
     // return this.directus
@@ -166,23 +191,21 @@ class Api {
   // }
 
   getGroups(items, { limit = 100, offset = 0 } = {}) {
-    const options = {
-      // depth: 1,
-      limit,
-      offset,
-      fields: ["*", "image.*"]
-      /* filter: {
-        runtime: {
-          eq: 200
-          gt: 200
-        }
-      } */
-    };
-
-    return this.directus
-      .getItems("groups", options)
-      .then(({ data }) => data.map(Api.parseGroup));
-    // .catch(console.error)
+    // const options = {
+    //   // depth: 1,
+    //   limit,
+    //   offset,
+    //   fields: ["*", "image.*"]
+    //   /* filter: {
+    //     runtime: {
+    //       eq: 200
+    //       gt: 200
+    //     }
+    //   } */
+    // };
+    // return this.directus
+    //   .getItems("groups", options)
+    //   .then(({ data }) => data.map(Api.parseGroup));
   }
 
   // isLoggedIn() {
@@ -261,13 +284,6 @@ class Api {
     return body;
   }
 }
-
-Api.parseItem = payload => {
-  const item = new Item();
-  const object = item.fromPayload(payload).getObject();
-  item.dispose();
-  return object;
-};
 
 Api.parseGroup = payload => {
   return payload;

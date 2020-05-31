@@ -12,6 +12,13 @@ Vue.config.productionTip = false;
 //   .then(console.log)
 Vue.prototype.$state = api.$state;
 
+// injection d'une fonction pour l'option personnalisée `myOption`
+Vue.mixin({
+  methods: {
+    addAuth: api.addAuth
+  }
+});
+
 new Vue({
   data: {
     // Dynamise custom store

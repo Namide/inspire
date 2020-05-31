@@ -128,20 +128,38 @@ class ApiSave extends Api {
   //   return this.directus.api.delete("files/" + id);
   // }
 
-  deleteItem(payload) {
-    const list = [this.directus.deleteItem("items", payload.id)];
-    if (payload.file) {
-      list.push(this.deleteFile(payload.file.id));
-    }
+  deleteItem(id) {
+    const options = {
+      method: "delete",
+      headers: this._createHeaders()
+    };
 
-    if (payload.image) {
-      list.push(this.deleteFile(payload.image.id));
-    }
-
-    return Promise.all(list);
+    return fetch("/api/items/" + id, options).then(response => response.json());
   }
 
   updateItem(id, payload, image, file) {
+    const body = new FormData();
+    body.append("item", JSON.stringify(payload));
+
+    if (image) {
+      body.append("image", image);
+    }
+
+    if (file) {
+      body.append("file", file);
+    }
+
+    const options = {
+      method: "post",
+      headers: this._createHeaders(),
+      body
+    };
+
+    return fetch("/api/items/" + id, options)
+      .then(response => response.json())
+      .then(payload => this.parsePayload(payload))
+      .then(({ item }) => this.parseItem(item));
+
     // const addImage = payload.image instanceof File;
     // const addFile = payload.file instanceof File;
     // const removeImage = oldPayload.image && (!payload.image || addImage);

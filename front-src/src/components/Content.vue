@@ -7,7 +7,7 @@
 
     <img
       v-if="mainType === TYPES.IMAGE"
-      :src="item.image.src"
+      :src="addAuth(item.image.src)"
       :srcset="item.image.srcset"
       :width="item.image.width"
       :height="item.image.height"
@@ -15,7 +15,7 @@
       class="image"
     />
     <video v-else-if="mainType === TYPES.VIDEO" controls class="video">
-      <source :src="item.file.src" :type="item.file.type" />
+      <source :src="addAuth(item.file.src)" :type="item.file.type" />
     </video>
     <div v-else v-html="html" class="data">
       (Content here)

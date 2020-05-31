@@ -4,7 +4,7 @@
       v-if="isImg()"
       :width="data.width"
       :height="data.height"
-      :src="data.url"
+      :src="addAuth(data.url)"
       :alt="data.title"
     />
   </div>

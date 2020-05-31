@@ -22,7 +22,7 @@ const { uploaderGroup, uploaderItem, uploaderFileless } = require('./middleware/
 const { distant: distantRequest } = require('./routes/distant.js')
 const { userInit, userList, userAdd, userGet, userEdit, userDelete, userMe, signin, signout } = require('./routes/users.js')
 const { groupInit, groupList, groupAdd, groupDelete, groupEdit } = require('./routes/groups.js')
-const { itemInit, itemList, itemAdd, itemDelete, itemEdit } = require('./routes/items.js')
+const { itemInit, itemList, itemGet, itemAdd, itemDelete, itemEdit } = require('./routes/items.js')
 const { fileDisplay } = require('./routes/files.js')
 
 // --------------------------
@@ -161,6 +161,7 @@ const testSameItem = async (ctx, id) => {
   return item.author.toString() === id
 }
 router.get('/api/items', auth(), itemList)
+router.get('/api/items/:id([0-9a-f]{24})', auth(), itemGet)
 router.post('/api/items', auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR]), uploaderItem, itemAdd)
 router.post('/api/items/:id([0-9a-f]{24})', auth([ROLES.ADMIN, ROLES.EDITOR], testSameItem), uploaderItem, itemEdit)
 router.delete('/api/items/:id([0-9a-f]{24})', auth([ROLES.ADMIN, ROLES.EDITOR], testSameItem), itemDelete)

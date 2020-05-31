@@ -17,7 +17,7 @@
         :key="color"
       ></span>
     </div>
-    <img v-if="isImg && src !== ''" :src="src" class="file-img" />
+    <img v-if="isImg && src !== ''" :src="addAuth(src)" class="file-img" />
 
     <!-- <template v-else-if="colors">
       <div v-for="(data, key) of colors" :key="key + data">

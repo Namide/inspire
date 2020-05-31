@@ -83,11 +83,11 @@ export default {
         .finally(() => {
           this.loading = false;
         });
-    },
-    onItems({ data }) {
-      this.displayMode = "text"; // 'thumb' // text
-      this.$store.commit("updateItems", data);
     }
+    // onItems({ data }) {
+    //   this.displayMode = "text"; // 'thumb' // text
+    //   this.$store.commit("updateItems", data);
+    // }
   }
 };
 </script>

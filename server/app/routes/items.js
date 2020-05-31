@@ -57,6 +57,29 @@ module.exports.itemInit = async (db) => {
   return items
 }
 
+module.exports.itemGet = async (ctx) => {
+
+  const visibilities = ctx.state.user.visibilities
+  const author = ObjectID(ctx.state.user._id)
+  const id = ObjectID(ctx.params.id)
+
+  const item = await ctx.app.items
+    .findOne({
+      $or: [
+        { _id: id, author },
+        {
+          _id: id,
+          visibility: {
+            $regex: new RegExp(`^(${visibilities.join('|')})$`)
+          }
+        }
+      ]
+    })
+
+  ctx.body = { item }
+  return ctx
+}
+
 module.exports.itemList = async (ctx) => {
   const visibilities = ctx.state.user.visibilities
   const author = ObjectID(ctx.state.user._id)
@@ -171,7 +194,7 @@ module.exports.itemEdit = async (ctx) => {
 
     await ctx.app.items.updateOne(documentQuery, { $set: payload })
     const itemReturned = await ctx.app.items.findOne(documentQuery)
-    ctx.body = { items: [itemReturned] }
+    ctx.body = { item: itemReturned }
   } catch (error) {
     if (ctx.request.files) {
       removeReadableStreams(...ctx.request.files)

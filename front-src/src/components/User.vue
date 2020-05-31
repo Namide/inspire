@@ -14,7 +14,7 @@
 
     <img
       v-if="$state.user.userImage"
-      :src="$state.user.userImage.src"
+      :src="addAuth($state.user.userImage.src)"
       :width="$state.user.userImage.width"
       :height="$state.user.userImage.height"
       alt="avatar"
