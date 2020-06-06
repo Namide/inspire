@@ -1,6 +1,6 @@
 import Item from "@/pure/Item";
 import apiSave from "@/pure/apiSave";
-import { extractColorsFromImage } from "extract-colors";
+// import { extractColorsFromImage } from "extract-colors";
 import externalURL from "@/pure/externalURL.js";
 import { extractType, getMimeData } from "@/pure/contentHelpers.js";
 import marked from "marked";
@@ -71,39 +71,39 @@ export default class ItemSave extends Item {
     return Promise.resolve(this);
   }
 
-  _extractData(src) {
-    const image = new Image();
-    image.src = src;
+  // _extractData(src) {
+  //   const image = new Image();
+  //   image.src = src;
 
-    return extractColorsFromImage(image)
-      .then(colors => {
-        const accuracy = 4; // 4 * 4 * 4 => 64 colors
+  //   return extractColorsFromImage(image)
+  //     .then(colors => {
+  //       const accuracy = 4; // 4 * 4 * 4 => 64 colors
 
-        this.image.colors = colors.map(color => ({
-          area: Math.round(color.area * 100) / 100,
-          hexa: color.hex
-        }));
+  //       this.image.colors = colors.map(color => ({
+  //         area: Math.round(color.area * 100) / 100,
+  //         hexa: color.hex
+  //       }));
 
-        // optimise test : http://glslsandbox.com/e#61168.1
-        this.image.colorsRound = [
-          ...new Set(
-            colors.map(({ red, green, blue }) => {
-              return (
-                Math.round((red * (accuracy - 1)) / 255) * accuracy * accuracy +
-                Math.round((green * (accuracy - 1)) / 255) * accuracy +
-                Math.round((blue * (accuracy - 1)) / 255)
-              );
-            })
-          )
-        ];
-      })
-      .then(() => {
-        this.image.width = image.width;
-        this.image.height = image.height;
-        this.image.type = image.mimeType;
-      })
-      .then(() => this);
-  }
+  //       // optimise test : http://glslsandbox.com/e#61168.1
+  //       this.image.colorsRound = [
+  //         ...new Set(
+  //           colors.map(({ red, green, blue }) => {
+  //             return (
+  //               Math.round((red * (accuracy - 1)) / 255) * accuracy * accuracy +
+  //               Math.round((green * (accuracy - 1)) / 255) * accuracy +
+  //               Math.round((blue * (accuracy - 1)) / 255)
+  //             );
+  //           })
+  //         )
+  //       ];
+  //     })
+  //     .then(() => {
+  //       this.image.width = image.width;
+  //       this.image.height = image.height;
+  //       this.image.type = image.mimeType;
+  //     })
+  //     .then(() => this);
+  // }
 
   _setImageByURL(url) {
     return fetchUrl(url)
@@ -126,8 +126,9 @@ export default class ItemSave extends Item {
     }
     this.image = { src: file };
 
-    const src = URL.createObjectURL(file);
-    return this._extractData(src).then(() => URL.revokeObjectURL(src));
+    // const src = URL.createObjectURL(file);
+    // return this._extractData(src).then(() => URL.revokeObjectURL(src));
+    return Promise.resolve(this.image);
   }
 
   _setVideo(file) {

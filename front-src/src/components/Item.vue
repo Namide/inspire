@@ -122,7 +122,7 @@ export default {
         };
       };
       const colors = (this.item.image.colors || [])
-        .map(({ hexa }) => hexa)
+        .map(({ hex }) => hex)
         .map(detail);
       const colorsFallback = ["#FFFFFF", "#000000", "#555555", "#AAAAAA"];
       while (colors.length < 4) {

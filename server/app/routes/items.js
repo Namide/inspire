@@ -3,6 +3,7 @@ const { VISIBILITY } = require('../constants/permissions')
 const { TYPES } = require('../constants/items')
 const IMAGE = require('../constants/image')
 const { removeReadableStreams, removeFile, pathToSrc } = require('../helpers/files.js')
+const { extractData } = require('../helpers/image.js')
 
 module.exports.itemInit = async (db) => {
   const items = await db.createCollection('items', {
@@ -115,7 +116,8 @@ module.exports.itemAdd = async (ctx) => {
 
     const image = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'image')
     if (image) {
-      item.image.src = pathToSrc(image.path)
+      const properties = await extractData(image)
+      item.image = properties
     } else {
       delete item.image
     }
