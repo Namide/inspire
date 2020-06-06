@@ -15,49 +15,21 @@
 <script>
 // import apiGet from '../utils/apiGet'
 import Item from "@/components/Item.vue";
-import api from "@/pure/api";
 import Loader from "@/components/Loader.vue";
+import ItemsLoader from "@/mixins/ItemsLoader.js";
 
 export default {
+  mixins: [ItemsLoader],
+
   components: {
     Item,
     Loader
   },
 
-  props: {
-    filter: {
-      type: Array,
-      default() {
-        return [];
-      }
-    }
-  },
-
   data() {
     return {
-      displayMode: "thumb",
-      items: [],
-      loading: false
+      displayMode: "thumb"
     };
-  },
-
-  watch: {
-    filter: {
-      immediate: true,
-      handler(filter) {
-        this.loading = true;
-        api
-          .getItems(filter)
-          .then(items => {
-            this.displayMode = "thumb";
-            this.items = items;
-          })
-          .catch(console.error)
-          .finally(() => {
-            this.loading = false;
-          });
-      }
-    }
   },
 
   methods: {

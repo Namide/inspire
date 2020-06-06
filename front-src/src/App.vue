@@ -46,6 +46,7 @@ export default {
 
   created() {
     api.onError.add(this.displayError);
+    api.onRedirect.add(route => this.router.push(route));
     // api.login("damien@doussaud.fr", "Damien");
   },
 

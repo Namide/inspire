@@ -29,6 +29,18 @@ class Api {
     this.init();
   }
 
+  /**
+   * @param {Response} response
+   */
+  parseResponse(response) {
+    if (response.status === 401) {
+      this._disconnect();
+      this.onRedirect.dispatch({ name: "adminHome" });
+    }
+
+    return response.json();
+  }
+
   parsePayload(payload) {
     if (payload.error === true) {
       this.onError.dispatch(payload.message);
@@ -71,7 +83,7 @@ class Api {
     };
 
     fetch("/api", options)
-      .then(response => response.json())
+      .then(response => this.parseResponse(response))
       .then(payload => this.parsePayload(payload))
       .then(({ isLogged, version, serverTime, needInstall }) => {
         console.log({ isLogged, version, serverTime, needInstall });
@@ -100,7 +112,7 @@ class Api {
     };
 
     fetch("/api/users/me", options)
-      .then(response => response.json())
+      .then(response => this.parseResponse(response))
       .then(payload => this.parsePayload(payload))
       .then(({ user }) => this.setUser(user))
       .then(console.log)
@@ -218,6 +230,16 @@ class Api {
   //   });
   // }
 
+  _disconnect() {
+    try {
+      localStorage.removeItem("token");
+    } catch (error) {
+      console.error(error.message);
+    }
+    this.token = null;
+    this.setUser(Api.createDefaultUser());
+  }
+
   logout() {
     const options = {
       method: "post",
@@ -225,17 +247,9 @@ class Api {
     };
 
     return fetch("/api/signout", options)
-      .then(response => response.json())
+      .then(response => this.parseResponse(response))
       .then(payload => this.parsePayload(payload))
-      .then(data => {
-        try {
-          localStorage.removeItem("token");
-        } catch (error) {
-          console.error(error.message);
-        }
-        this.token = null;
-        this.setUser(Api.createDefaultUser());
-      })
+      .then(() => this._disconnect())
       .catch(console.error)
       .finally(() => {});
   }
@@ -248,7 +262,7 @@ class Api {
     };
 
     return fetch("/api/signin", options)
-      .then(response => response.json())
+      .then(response => this.parseResponse(response))
       .then(payload => this.parsePayload(payload))
       .then(({ user, token }) => {
         try {

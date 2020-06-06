@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :class="['size--' + size]">
     <input
       v-if="!src"
       type="file"
@@ -38,7 +38,11 @@ export default {
   props: {
     image: { default: null },
     // colors: { type: Array, default: () => [] },
-    onlyImg: { type: Boolean, default: false }
+    onlyImg: { type: Boolean, default: false },
+    size: {
+      type: String,
+      default: "normal"
+    }
   },
 
   data() {
@@ -132,4 +136,13 @@ export default {
 //   background-position: center
 //   background-size: contain
 //   background-color: #000
+
+.size--small
+  .file-img
+    max-width: 64px
+    max-height: 64px
+
+  .color
+    width: 8px
+    height: 8px
 </style>
