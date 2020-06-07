@@ -4,13 +4,14 @@
       <li
         v-for="(label, i) in labels"
         :key="label"
-        class="item"
         :class="{ 'is-selected': i === current }"
+        :style="{ background: i === current ? background : '' }"
+        class="item"
       >
         <button v-html="label" @click="current = i"></button>
       </li>
     </ul>
-    <div class="content">
+    <div class="content" :style="{ background }">
       <slot :name="labels[current]" />
     </div>
   </div>
@@ -24,6 +25,10 @@ export default {
       default() {
         return [];
       }
+    },
+    background: {
+      type: String,
+      default: "transparent"
     }
   },
 
@@ -61,8 +66,8 @@ $spacing: 1em
     display: block
     position: relative
 
-  &:before
-    width: $spacing
+  // &:before
+  //   width: $spacing
 
   &:after
     flex: 1
@@ -79,4 +84,6 @@ $spacing: 1em
 
 .content
   padding: $spacing
+  border-left: #888 1px solid
+  border-right: #888 1px solid
 </style>

@@ -59,7 +59,10 @@
             </template>
 
             <template v-else-if="cell.name === 'description'">
-              <textarea v-model="item[cell.name]"></textarea>
+              <InputTextarea
+                v-model="item[cell.name]"
+                placeholder="Description"
+              />
             </template>
 
             <template
@@ -69,7 +72,7 @@
                   cell.name === 'content'
               "
             >
-              <InputTextarea
+              <InputMarkdown
                 v-if="item['content']"
                 v-model="item['input']"
                 @input="val => updateContent(item, val)"
@@ -121,6 +124,7 @@ import { VISIBILITY } from "../../../server/app/constants/permissions";
 import AdminFileLoader from "@/admin/AdminFileLoader.vue";
 import { inputToContent } from "@/pure/ItemSave.js";
 import InputTextarea from "@/admin/InputTextarea.vue";
+import InputMarkdown from "@/admin/InputMarkdown.vue";
 
 export default {
   mixins: [ItemsLoader],
@@ -129,7 +133,8 @@ export default {
     AdminFileLoader,
     Loader,
     Tags,
-    InputTextarea
+    InputTextarea,
+    InputMarkdown
   },
 
   data() {
