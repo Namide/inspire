@@ -76,8 +76,8 @@ export default class Item {
       // colors_round: [...this.colorsRound],
       input: this.input,
       content: this.content,
-      file: this.file ? JSON.parse(JSON.stringify(this.file)) : null,
-      image: this.image ? JSON.parse(JSON.stringify(this.image)) : null,
+      // file: this.file ? JSON.parse(JSON.stringify(this.file)) : null,
+      // image: this.image ? JSON.parse(JSON.stringify(this.image)) : null,
       score: this.score || 0,
       createdAt: this.createdAt
         .toISOString()
@@ -96,12 +96,12 @@ export default class Item {
 
     if (this.image && this.image.src instanceof File) {
       image = this.image.src;
-      delete item.image.src;
+      // delete item.image.src;
     }
 
     if (this.file && this.file.src instanceof File) {
       file = this.file.src;
-      delete item.file.src;
+      // delete item.file.src;
     }
 
     return { item, image, file };
@@ -131,17 +131,19 @@ export default class Item {
     const image = this.image ? Object.assign({}, this.image) : null;
     const file = this.file ? Object.assign({}, this.file) : null;
 
-    if (image && image.src instanceof File) {
-      const src = URL.createObjectURL(image.src);
-      this._disposeList.push(() => URL.revokeObjectURL(src));
-      image.src = src;
-    }
+    // console.log("-*>", image && image.src);
 
-    if (file && file.src instanceof File) {
-      const src = URL.createObjectURL(file.src);
-      this._disposeList.push(() => URL.revokeObjectURL(src));
-      file.src = src;
-    }
+    // if (this.image && this.image.src instanceof File) {
+    //   const src = URL.createObjectURL(this.image.src);
+    //   this._disposeList.push(() => URL.revokeObjectURL(src));
+    //   image.src = src;
+    // }
+
+    // if (this.file && this.file.src instanceof File) {
+    //   const src = URL.createObjectURL(this.file.src);
+    //   this._disposeList.push(() => URL.revokeObjectURL(src));
+    //   file.src = src;
+    // }
 
     return {
       id: this.id,

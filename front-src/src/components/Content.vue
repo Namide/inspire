@@ -7,7 +7,7 @@
 
     <img
       v-if="mainType === TYPES.IMAGE"
-      :src="addAuth(item.image.src)"
+      :src="src"
       :srcset="item.image.srcset"
       :width="item.image.width"
       :height="item.image.height"
@@ -15,7 +15,7 @@
       class="image"
     />
     <video v-else-if="mainType === TYPES.VIDEO" controls class="video">
-      <source :src="addAuth(item.file.src)" :type="item.file.type" />
+      <source :src="src" :type="item.file.type" />
     </video>
     <div v-else v-html="html" class="data">
       (Content here)
@@ -35,8 +35,38 @@ export default {
 
   data() {
     return {
-      TYPES: JSON.parse(JSON.stringify(TYPES))
+      TYPES: JSON.parse(JSON.stringify(TYPES)),
+      src: ""
     };
+  },
+
+  destroyed() {
+    if (this._toBeDestroyed) {
+      this._toBeDestroyed.forEach(call => call());
+      delete this._toBeDestroyed;
+    }
+  },
+
+  watch: {
+    item: {
+      immediate: true,
+      handler(item) {
+        const srcOrFile =
+          (item.image && item.image.src) || (item.file && item.file.src) || "";
+
+        if (srcOrFile instanceof File) {
+          const src = URL.createObjectURL(srcOrFile);
+          console.log(src);
+          if (!this._toBeDestroyed) {
+            this._toBeDestroyed = [];
+          }
+          this._toBeDestroyed.push(() => URL.revokeObjectURL(src));
+          this.src = src;
+        } else {
+          this.src = this.addAuth(srcOrFile);
+        }
+      }
+    }
   },
 
   computed: {

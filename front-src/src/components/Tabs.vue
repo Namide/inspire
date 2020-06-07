@@ -11,7 +11,7 @@
         <button v-html="label" @click="current = i"></button>
       </li>
     </ul>
-    <div class="content" :style="{ background }">
+    <div class="tabs-content" :style="{ background }">
       <slot :name="labels[current]" />
     </div>
   </div>
@@ -82,7 +82,7 @@ $spacing: 1em
   border-bottom: #888 1px solid
   margin: 1em 0
 
-.content
+.tabs-content
   padding: $spacing
   border-left: #888 1px solid
   border-right: #888 1px solid

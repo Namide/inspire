@@ -2,7 +2,7 @@
   <div>
     <Loader v-if="loading" />
     <template v-else>
-      <div>
+      <div v-if="hideCells.length">
         <span>Disabled cells: </span>
         <span v-for="cell of hideCells" :key="cell.name">
           <label :for="cell.label" v-html="cell.label"></label>
@@ -13,7 +13,7 @@
           />
         </span>
       </div>
-      <table>
+      <table class="main-table">
         <tr>
           <td v-for="cell of cells" :key="cell.name">
             <label :for="cell.label" v-html="cell.label"></label>
@@ -194,6 +194,9 @@ export default {
 
 <style lang="sass" scoped>
 @import "../style/settings.sass"
+
+.main-table
+  width: 100%
 
 .items
 

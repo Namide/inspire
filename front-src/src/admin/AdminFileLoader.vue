@@ -17,7 +17,13 @@
         :key="color"
       ></span>
     </div>
-    <img v-if="isImg && src !== ''" :src="addAuth(src)" class="file-img" />
+    <img
+      v-if="isImg && src !== ''"
+      :src="src"
+      :width="image.width"
+      :height="image.height"
+      class="file-img"
+    />
 
     <!-- <template v-else-if="colors">
       <div v-for="(data, key) of colors" :key="key + data">
@@ -66,7 +72,7 @@ export default {
         } else if (image.src instanceof File) {
           this.src = URL.createObjectURL(image.src);
         } else if (image.src) {
-          this.src = image.src;
+          this.src = this.addAuth(image.src);
         }
       }
     }

@@ -13,9 +13,8 @@
       />
       <template v-else>
         <InputTextarea
+          v-model="input.input"
           @submit="validContent"
-          :value="input.input"
-          @change="val => $set(input, 'input', val)"
           placeholder="Content (URL, markdown, HTML, embed...)"
         />
         <!-- <Content :json="contentJson"></Content> -->

@@ -35,10 +35,6 @@ const responseToFile = (response, url = response.url) => {
   });
 };
 
-const inputToContent = input => marked(input);
-
-export { inputToContent };
-
 export default class ItemSave extends Item {
   /**
    * @param {String} input
@@ -69,7 +65,7 @@ export default class ItemSave extends Item {
     } else if (type === TYPES.EMBED) {
       this.content = this.input;
     } else {
-      this.content = inputToContent(this.input);
+      this.content = marked(this.input);
     }
 
     return Promise.resolve(this);
@@ -128,6 +124,7 @@ export default class ItemSave extends Item {
 
       this.title = title;
     }
+
     this.image = { src: file };
 
     // const src = URL.createObjectURL(file);
