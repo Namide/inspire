@@ -31,14 +31,13 @@ export default {
 
     modelValue(modelValue) {
       if (modelValue !== this.value) {
-        this.$emit("change", modelValue);
+        this.$emit("input", modelValue);
         this.resizeContentRaw();
       }
     }
 
     // state(state)
     // {
-
     //     if (state !== STATE.INITIAL) {
     //         window.addEventListener('keyup', this.keyUp)
     //         window.addEventListener('resize', this.resizeContentRaw)

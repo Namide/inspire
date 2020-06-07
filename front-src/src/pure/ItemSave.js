@@ -35,6 +35,10 @@ const responseToFile = (response, url = response.url) => {
   });
 };
 
+const inputToContent = input => marked(input);
+
+export { inputToContent };
+
 export default class ItemSave extends Item {
   /**
    * @param {String} input
@@ -65,7 +69,7 @@ export default class ItemSave extends Item {
     } else if (type === TYPES.EMBED) {
       this.content = this.input;
     } else {
-      this.content = marked(this.input);
+      this.content = inputToContent(this.input);
     }
 
     return Promise.resolve(this);
@@ -81,7 +85,7 @@ export default class ItemSave extends Item {
 
   //       this.image.colors = colors.map(color => ({
   //         area: Math.round(color.area * 100) / 100,
-  //         hexa: color.hex
+  //         hex: color.hex
   //       }));
 
   //       // optimise test : http://glslsandbox.com/e#61168.1

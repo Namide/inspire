@@ -47,14 +47,14 @@ export default class Item {
   fromPayload(json = {}) {
     this.id = json._id || null;
     this.visibility = json.visibility || VISIBILITY.PRIVATE;
-    this.title = json.title || "";
-    this.description = json.description || "";
+    this.title = json.title || null;
+    this.description = json.description || null;
     this.types = json.types || [];
     this.tags = json.tags || [];
     // this.colors = json.colors || [];
     // this.colorsRound = json.colors_round || [];
-    this.content = json.content || "";
-    this.input = json.input || "";
+    this.content = json.content || null;
+    this.input = json.input || null;
     this.createdAt = new Date(json.createdAt || Date.now());
     this.file = json.file ? parseFilePayload(json.file) : null;
     this.score = json.score || 0;
@@ -128,8 +128,8 @@ export default class Item {
   }
 
   getObject() {
-    const image = Object.assign({}, this.image);
-    const file = Object.assign({}, this.file);
+    const image = this.image ? Object.assign({}, this.image) : null;
+    const file = this.file ? Object.assign({}, this.file) : null;
 
     if (image && image.src instanceof File) {
       const src = URL.createObjectURL(image.src);

@@ -66,9 +66,8 @@
 
         <template slot="Initial">
           <InputTextarea
+            v-model="input.input"
             @submit="validContent"
-            :value="input.input"
-            @change="val => (input.input = val)"
             placeholder="Content (URL, markdown, HTML, embed...)"
           />
         </template>
@@ -107,7 +106,7 @@ import apiSave from "@/pure/apiSave";
 import AdminFileLoader from "@/admin/AdminFileLoader.vue";
 import Tags from "@/components/Tags";
 import Content from "@/components/Content.vue";
-import InputTextarea from "@/components/InputTextarea.vue";
+import InputTextarea from "@/admin/InputTextarea.vue";
 import ItemSave from "@/pure/ItemSave";
 import Tabs from "@/components/Tabs";
 import { VISIBILITY } from "../../../server/app/constants/permissions";

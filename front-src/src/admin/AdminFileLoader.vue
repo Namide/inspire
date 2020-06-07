@@ -75,7 +75,7 @@ export default {
   computed: {
     colors() {
       return this.image && this.image.colors
-        ? this.image.colors.map(({ hexa }) => hexa)
+        ? this.image.colors.map(({ hex }) => hex)
         : [];
     }
   },
