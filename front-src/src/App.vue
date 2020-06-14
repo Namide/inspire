@@ -10,28 +10,37 @@
     <nav class="nav">
       <router-link :to="{ name: 'items' }" class="link">Items</router-link>
       <router-link :to="{ name: 'adminItems' }" class="link">Admin</router-link>
-      <router-link :to="{ name: 'groups' }" class="link">Groups</router-link>
+      <!-- <router-link :to="{ name: 'groups' }" class="link">Groups</router-link> -->
       <router-link :to="{ name: 'adminImport' }" class="link"
         >Import</router-link
       >
     </nav>
 
-    <router-view />
+    <router-view v-if="!authRequired || $state.isLogged" />
 
     <ModalItem />
+
+    <!-- Modal connect (auto display if auth required) -->
+    <Modal :is-open="authRequired && !$state.isLogged" @close="() => 1">
+      <Connect @close="() => 1" />
+    </Modal>
   </main>
 </template>
 
 <script>
 import api from "@/pure/api";
 import ModalItem from "@/components/ModalItem.vue";
+import Modal from "@/components/Modal.vue";
+import Connect from "@/components/Connect.vue";
 
 const User = () => import(/* webpackChunkName: "admin" */ "@/components/User");
 
 export default {
   components: {
     User,
-    ModalItem
+    ModalItem,
+    Modal,
+    Connect
   },
 
   data() {

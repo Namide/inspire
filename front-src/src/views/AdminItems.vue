@@ -8,7 +8,7 @@
 
     <!-- <Loader v-if="loading" /> -->
 
-    <ItemsTable :filter="filter"></ItemsTable>
+    <ItemsTable :filter="filter" @editItem="edit"></ItemsTable>
     <!-- <PartAdminItem
       v-else
       v-for="item of items"
@@ -18,9 +18,11 @@
 
     <!-- Modal -->
 
+    <!-- Edit item (create or edit) -->
     <Modal :is-open="isModalOpen" @close="isModalOpen = false">
       <AdminItemForm
-        :create="true"
+        :item="editItem"
+        :create="!editItem"
         @cancel="isModalOpen = false"
       ></AdminItemForm>
     </Modal>
@@ -41,56 +43,22 @@ export default {
     AdminItemForm,
     Modal,
     Tags
-    // Loader
   },
-
-  // props: {
-  //   filterTypes: {
-  //     type: Array,
-  //     default() {
-  //       return [];
-  //     }
-  //   },
-  //   filterTags: {
-  //     type: Array,
-  //     default() {
-  //       return [];
-  //     }
-  //   }
-  // },
 
   data() {
     return {
       isModalOpen: false,
-      filter: []
-      // displayMode: "thumb",
-      // items: [],
-      // loading: false
+      filter: [],
+      editItem: null
     };
+  },
+
+  methods: {
+    edit(item) {
+      this.editItem = item;
+      this.isModalOpen = true;
+    }
   }
-
-  // created() {
-  //   this.filter();
-  // },
-
-  // methods: {
-  //   filter(items = []) {
-  //     this.loading = true;
-  //     apiSave
-  //       .getItems(items)
-  //       .then(items => {
-  //         this.items = items;
-  //       })
-  //       .catch(console.error)
-  //       .finally(() => {
-  //         this.loading = false;
-  //       });
-  //   }
-  // onItems({ data }) {
-  //   this.displayMode = "text"; // 'thumb' // text
-  //   this.$store.commit("updateItems", data);
-  // }
-  // }
 };
 </script>
 

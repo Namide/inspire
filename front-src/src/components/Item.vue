@@ -121,7 +121,10 @@ export default {
           b: (hex >> 0) & 0xff
         };
       };
-      const colors = (this.item.image.colors || [])
+      const colors = (
+        (this.item && this.item.image && this.item.image.colors) ||
+        []
+      )
         .map(({ hex }) => hex)
         .map(detail);
       const colorsFallback = ["#FFFFFF", "#000000", "#555555", "#AAAAAA"];

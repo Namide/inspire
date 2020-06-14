@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="items-table">
     <Loader v-if="loading" />
     <template v-else>
       <div v-if="hideCells.length">
@@ -109,6 +109,9 @@
               {{ item[cell.name] }}
             </template>
           </td>
+          <td>
+            <button @click="$emit('editItem', item)">Edit</button>
+          </td>
         </tr>
       </table>
     </template>
@@ -194,6 +197,10 @@ export default {
 
 <style lang="sass" scoped>
 @import "../style/settings.sass"
+
+.items-table
+  width: 100%
+  overflow: auto
 
 .main-table
   width: 100%

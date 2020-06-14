@@ -52,7 +52,7 @@
 
       <Tabs :labels="['Content', 'Thumb', 'Initial']">
         <template slot="Content">
-          <Content v-if="input" :item="input" />
+          <EditContent v-if="input" :item="input" />
         </template>
 
         <template slot="Thumb">
@@ -104,7 +104,7 @@ import apiSave from "@/pure/apiSave";
 // import api from '../pure/api'
 import AdminFileLoader from "@/admin/AdminFileLoader.vue";
 import Tags from "@/components/Tags";
-import Content from "@/components/Content.vue";
+import EditContent from "@/admin/EditContent.vue";
 import InputTextarea from "@/admin/InputTextarea.vue";
 import ItemSave from "@/pure/ItemSave";
 import Tabs from "@/components/Tabs";
@@ -115,7 +115,7 @@ import { VISIBILITY } from "../../../server/app/constants/permissions";
 export default {
   components: {
     AdminFileLoader,
-    Content,
+    EditContent,
     InputTextarea,
     Tags,
     Tabs
