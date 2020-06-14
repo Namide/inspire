@@ -1,5 +1,5 @@
 node_modules
 config.json
 public/*
-server/groups/*
-server/items/*
+server/upload/groups/*
+server/upload/items/*
