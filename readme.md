@@ -72,3 +72,18 @@ Users has many roles, this is the list of those ones:
 - `public/` Frontend static files (build)
 - `src/` Frontend sources (you can rebuild from it)
 - `upload/` User upload files
+
+
+## Roadmap
+
+- `60%` Items list page
+- `40%` Item page
+- `0%` Groups list page
+- `0%` Group page (items list)
+- `50%` Admin login
+- `50%` Admin logout
+- `60%` Admin items edit list (table display)
+- `30%` Admin item edit list
+- `0%` Admin user list
+- `0%` API thumb images
+- `20%` API cookie login
