@@ -55,7 +55,17 @@
             </template>
 
             <template v-else-if="cell.name === 'title'">
-              <input type="text" v-model="item[cell.name]" />
+              <input
+                type="text"
+                v-model="item[cell.name]"
+                @blur="
+                  save({
+                    label: cell.name,
+                    itemID: item.id,
+                    value: item[cell.name]
+                  })
+                "
+              />
             </template>
 
             <template v-else-if="cell.name === 'description'">
@@ -119,7 +129,7 @@
 </template>
 
 <script>
-// import apiGet from '../utils/apiGet'
+import apiSave from "@/pure/apiSave";
 import Loader from "@/components/Loader.vue";
 import ItemsLoader from "@/mixins/ItemsLoader.js";
 import Tags from "@/components/Tags.vue";
@@ -128,6 +138,7 @@ import AdminFileLoader from "@/admin/AdminFileLoader.vue";
 import { inputToContent } from "@/pure/ItemSave.js";
 import InputTextarea from "@/admin/InputTextarea.vue";
 import InputMarkdown from "@/admin/InputMarkdown.vue";
+import tasksManager from "@/pure/tasksManager";
 
 export default {
   mixins: [ItemsLoader],
@@ -175,6 +186,17 @@ export default {
   },
 
   methods: {
+    save({ label, itemID, value }) {
+      const process = () => {
+        apiSave.updateItem(itemID, { [label]: value });
+      };
+      tasksManager.add({
+        title: "Update",
+        description: label + " of " + itemID,
+        process
+      });
+    },
+
     updateContent(item, value) {
       this.$set(item, "input", value);
       this.$set(item, "content", inputToContent(value));

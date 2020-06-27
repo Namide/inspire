@@ -124,6 +124,8 @@ module.exports.itemAdd = async (ctx) => {
 
     const file = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'file')
     if (file) {
+      const properties = await extractData(file)
+      item.file = properties
       item.file.src = pathToSrc(file.path)
     } else {
       delete item.file
@@ -150,22 +152,17 @@ module.exports.itemAdd = async (ctx) => {
 
 module.exports.itemEdit = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
-  const item = ctx.state.field
-  const payload = ctx.request.body
-
+  const item = ctx.state.field || await ctx.app.items.findOne({ _id: ObjectID(ctx.params.id) })
+  
   if (!item) {
     ctx.throw(404, 'Item not found')
     return ctx
   }
-
+  
   try {
+    const payload = JSON.parse(ctx.request.body.item)
+
     delete payload.author
-    if (payload.types) {
-      payload.types = payload.types.split(',')
-    }
-    if (payload.tags) {
-      payload.tags = payload.tags.split(',')
-    }
 
     const image = ctx.request.files && ctx.request.files.find(({ fieldname }) => fieldname === 'image')
     if (image) {
@@ -173,7 +170,8 @@ module.exports.itemEdit = async (ctx) => {
         removeFile(item.image.src)
       }
 
-      payload.image = JSON.parse(payload.image)
+      const properties = await extractData(image)
+      payload.image = properties
       payload.image.src = pathToSrc(image.path)
     } else {
       delete payload.image
@@ -185,7 +183,8 @@ module.exports.itemEdit = async (ctx) => {
         removeFile(item.file.src)
       }
 
-      payload.file = JSON.parse(payload.file)
+      const properties = await extractData(file)
+      payload.file = properties
       payload.file.src = pathToSrc(file.path)
     } else {
       delete payload.file
@@ -193,7 +192,7 @@ module.exports.itemEdit = async (ctx) => {
 
     // Remove other images
     removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'image' && fieldname !== 'file'))
-
+console.log(documentQuery, { $set: payload })
     await ctx.app.items.updateOne(documentQuery, { $set: payload })
     const itemReturned = await ctx.app.items.findOne(documentQuery)
     ctx.body = { item: itemReturned }
@@ -213,7 +212,7 @@ module.exports.itemEdit = async (ctx) => {
 
 module.exports.itemDelete = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
-  const item = ctx.state.field
+  const item = ctx.state.field || await ctx.app.items.findOne({ _id: ObjectID(ctx.params.id) })
 
   if (!item) {
     ctx.throw(404, 'Item not found')

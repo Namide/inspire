@@ -19,6 +19,7 @@
     <router-view v-if="!authRequired || $state.isLogged" />
 
     <ModalItem />
+    <Tasks />
 
     <!-- Modal connect (auto display if auth required) -->
     <Modal :is-open="authRequired && !$state.isLogged" @close="() => 1">
@@ -34,13 +35,15 @@ import Modal from "@/components/Modal.vue";
 import Connect from "@/components/Connect.vue";
 
 const User = () => import(/* webpackChunkName: "admin" */ "@/components/User");
+const Tasks = () => import(/* webpackChunkName: "admin" */ "@/admin/Tasks");
 
 export default {
   components: {
     User,
     ModalItem,
     Modal,
-    Connect
+    Connect,
+    Tasks
   },
 
   data() {
