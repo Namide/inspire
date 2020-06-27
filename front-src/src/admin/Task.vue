@@ -1,7 +1,7 @@
 <template>
   <div class="task">
     <strong>{{ title }}</strong>
-    <p>{{ description }}</p>
+    <p v-if="description">{{ description }}</p>
     <button @click="valid">Valid</button>
     <button @click="cancel">Cancel</button>
   </div>

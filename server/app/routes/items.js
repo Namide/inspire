@@ -192,7 +192,7 @@ module.exports.itemEdit = async (ctx) => {
 
     // Remove other images
     removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'image' && fieldname !== 'file'))
-console.log(documentQuery, { $set: payload })
+
     await ctx.app.items.updateOne(documentQuery, { $set: payload })
     const itemReturned = await ctx.app.items.findOne(documentQuery)
     ctx.body = { item: itemReturned }

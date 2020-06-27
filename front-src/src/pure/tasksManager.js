@@ -49,9 +49,17 @@ class TasksManager {
     }
   }
 
-  add({ title, description, process }) {
+  add({ title, description, process, uid = null }) {
+    if (uid) {
+      const old = this.$tasks.list.find(task => task.uid === uid);
+      if (old) {
+        this.remove(old.id);
+      }
+    }
+
     const task = {
       id: ++this._id,
+      uid,
       title,
       description,
       process,

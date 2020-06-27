@@ -65,6 +65,8 @@
                     value: item[cell.name]
                   })
                 "
+                class="editable"
+                :class="cellClass[item.id + '.' + cell.name]"
               />
             </template>
 
@@ -168,7 +170,8 @@ export default {
       visibilities: Object.values(VISIBILITY).map(value => ({
         value,
         label: value[0].toUpperCase() + value.slice(1)
-      }))
+      })),
+      cellClass: {}
     };
   },
 
@@ -187,12 +190,28 @@ export default {
 
   methods: {
     save({ label, itemID, value }) {
+      const uid = itemID + "." + label;
+      this.$set(this.cellClass, uid, "is-saving");
+
       const process = () => {
-        apiSave.updateItem(itemID, { [label]: value });
+        apiSave
+          .updateItem(itemID, { [label]: value })
+          .then(() => {
+            this.$set(this.cellClass, uid, "is-saved");
+          })
+          .catch(() => {
+            this.$set(this.cellClass, uid, "is-error");
+          });
       };
+      const title = "Update " + label;
+      const description =
+        String(value).length > 30
+          ? String(value).substring(0, 27) + "..."
+          : String(value);
       tasksManager.add({
-        title: "Update",
-        description: label + " of " + itemID,
+        uid: "item.update." + uid,
+        title,
+        description,
         process
       });
     },
@@ -234,4 +253,16 @@ export default {
     content: ", "
   &:last-child:after
     display: none
+
+.editable
+  border: 2px grey solid
+
+  &.is-saving
+    border-color: yellow
+
+  &.is-saved
+    border-color: green
+
+  &.is-error
+    border-color: red
 </style>
