@@ -16,7 +16,18 @@
       </template>
 
       <template v-else-if="cellName === 'visibility'">
-        <select v-model="itemInput[cellName]">
+        <select
+          v-model="itemInput[cellName]"
+          @change="
+            save({
+              label: cellName,
+              itemID: itemInput.id,
+              value: itemInput[cellName]
+            })
+          "
+          class="editable"
+          :class="'is-' + itemInput.tableItemState[cellName]"
+        >
           <option
             :value="visibility.value"
             :key="visibility.value"
@@ -55,6 +66,15 @@
         <InputTextarea
           v-model="itemInput[cellName]"
           placeholder="Description"
+          @blur.native="
+            save({
+              label: cellName,
+              itemID: itemInput.id,
+              value: itemInput[cellName]
+            })
+          "
+          class="editable"
+          :class="'is-' + itemInput.tableItemState[cellName]"
         />
       </template>
 
@@ -93,6 +113,15 @@
           max="5"
           step="0.1"
           v-model="itemInput[cellName]"
+          @blur="
+            save({
+              label: cellName,
+              itemID: itemInput.id,
+              value: Number(itemInput[cellName])
+            })
+          "
+          class="editable"
+          :class="'is-' + itemInput.tableItemState[cellName]"
         />
       </template>
 
