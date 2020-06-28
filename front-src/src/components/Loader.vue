@@ -1,23 +1,39 @@
 <template>
-  <div class="loader">
+  <div class="loader" :class="'size-' + size">
     <div class="item"></div>
   </div>
 </template>
 
 <script>
-export default {};
+export default {
+  props: {
+    size: {
+      default: "large"
+    }
+  }
+};
 </script>
 
 <style lang="sass" scoped>
-.loader
-  padding: 20vh
 
 .item
   margin: 0 auto
-  width: 50px
-  height: 50px
   animation: 0.5s rotate linear infinite
   background: #F07
+
+.size-large
+  &.loader
+    padding: 20vh
+
+  .item
+    width: 50px
+    height: 50px
+
+.size-small
+  .item
+    width: 16px
+    height: 16px
+
 
 @keyframes rotate
   from

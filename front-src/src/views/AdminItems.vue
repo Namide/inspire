@@ -8,7 +8,7 @@
 
     <!-- <Loader v-if="loading" /> -->
 
-    <ItemsTable :filter="filter" @editItem="edit"></ItemsTable>
+    <TableItems :filter="filter" @editItem="edit"></TableItems>
     <!-- <PartAdminItem
       v-else
       v-for="item of items"
@@ -31,7 +31,7 @@
 
 <script>
 import Tags from "@/components/Tags.vue";
-import ItemsTable from "@/admin/ItemsTable.vue";
+import TableItems from "@/admin/TableItems.vue";
 import AdminItemForm from "@/admin/AdminItemForm.vue";
 import Modal from "@/components/Modal.vue";
 // import apiSave from "@/pure/apiSave";
@@ -39,7 +39,7 @@ import Modal from "@/components/Modal.vue";
 
 export default {
   components: {
-    ItemsTable,
+    TableItems,
     AdminItemForm,
     Modal,
     Tags

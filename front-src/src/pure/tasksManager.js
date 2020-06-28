@@ -34,6 +34,14 @@ class TasksManager {
     return this.$tasks.list.find(task => task.id === id);
   }
 
+  cancel(id) {
+    const task = this.get(id);
+    if (task) {
+      task.cancel();
+      this.remove(id);
+    }
+  }
+
   remove(id) {
     const i = this.$tasks.list.findIndex(task => task.id === id);
     if (i > -1) {
@@ -49,7 +57,7 @@ class TasksManager {
     }
   }
 
-  add({ title, description, process, uid = null }) {
+  add({ title, description, process, cancel, uid = null }) {
     if (uid) {
       const old = this.$tasks.list.find(task => task.uid === uid);
       if (old) {
@@ -63,6 +71,7 @@ class TasksManager {
       title,
       description,
       process,
+      cancel,
       restSec: Math.floor(this.cancelTime / 1000),
       cancelTime: Date.now() + this.cancelTime
     };

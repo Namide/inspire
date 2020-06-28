@@ -27,7 +27,7 @@ export default {
     },
 
     cancel() {
-      tasksManager.remove(this.id);
+      tasksManager.cancel(this.id);
     }
   }
 };
