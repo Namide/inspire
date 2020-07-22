@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { TYPES } from "../../app/constants/items"; // Mount with Docker from server
+import { TYPES } from "../../../web/app/constants/items";
 import { inputToContent } from "@/pure/ItemSave.js";
 import InputMarkdown from "@/admin/InputMarkdown.vue";
 

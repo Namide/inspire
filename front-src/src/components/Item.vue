@@ -50,7 +50,7 @@
 import Play from "@/components/Play.vue";
 import Cube from "@/components/Cube.vue";
 import TagsDisplay from "@/components/TagsDisplay.vue";
-import { TYPES } from "../../app/constants/items.js"; // Mount with Docker from server
+import { TYPES } from "../../../web/app/constants/items.js";
 // import api from '@/pure/api'
 
 const getPgcd = (a, b) => {

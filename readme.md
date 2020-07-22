@@ -4,7 +4,7 @@ Tool to collect and storage or embed datas (URL, images, scripts, files, videos)
 
 ## Requirements
 
-Module browser:
+Browser scope:
 - Microsoft Edge (last version)
 - Chrome (last version)
 - Firefox (last version)
@@ -14,30 +14,25 @@ Module browser:
 
 ## Install
 
-(Nodejs)[https://nodejs.org/] required
+[Docker](https://www.docker.com/) required
 
 ```bash
-# back-end install
-cd server
-npm install
+# Install server dependencies
+docker run -ti --rm -v $(pwd)/web:/usr/src/app -w /usr/src/app node npm install
 
-# front-end install
-cd front-src
-npm install
+# Install frontend dependencies
+docker run -ti --rm -v $(pwd)/front-src:/usr/src/app -w /usr/src/app node npm install
 ```
 
 
 ## Run dev server
 
 ```bash
-# Install server dependencies
-docker run -v $(pwd)/web:/usr/src/app -w /usr/src/app node npm install
-
-# Install frontend dependencies (if you need modify frontend)
-docker run -v $(pwd)/front-src:/usr/src/app -w /usr/src/app node npm install
-
 # Run development environment
 docker-compose -f ./docker/dev/docker-compose.yml up
+
+# Build frontend sources to /web/public directory
+docker run -ti --rm -v $(pwd):/usr/src/app -w /usr/src/app/front-src node npm run build
 ```
 
 

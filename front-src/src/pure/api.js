@@ -2,7 +2,7 @@
 
 import Signal from "./Signal";
 import Item from "./Item";
-const { ROLES } = require("../../app/constants/permissions.js"); // Mount with Docker from server
+const { ROLES } = require("../../../web/app/constants/permissions.js");
 
 // import { itemsToFilter } from "@/pure/tagHelpers";
 

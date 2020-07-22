@@ -1,5 +1,5 @@
 import mimeTypes from "@/data/mime-types.json";
-import { TYPES } from "../../app/constants/items"; // Mount with Docker from server
+import { TYPES } from "../../../web/app/constants/items";
 
 export const extractType = raw => {
   // https://mathiasbynens.be/demo/url-regex

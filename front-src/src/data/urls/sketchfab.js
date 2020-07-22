@@ -1,4 +1,4 @@
-import { TYPES } from "../../../app/constants/items"; // Mount with Docker from server
+import { TYPES } from "../../../../web/app/constants/items";
 
 export default [
   {

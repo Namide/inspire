@@ -108,7 +108,7 @@ import EditContent from "@/admin/EditContent.vue";
 import InputTextarea from "@/admin/InputTextarea.vue";
 import ItemSave from "@/pure/ItemSave";
 import Tabs from "@/components/Tabs";
-import { VISIBILITY } from "../../app/constants/permissions"; // Mount with Docker from server
+import { VISIBILITY } from "../../../web/app/constants/permissions";
 
 // const copy = obj => JSON.parse(JSON.stringify(obj))
 
