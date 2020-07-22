@@ -4,9 +4,10 @@ module.exports = {
   devServer: {
     proxy: {
       "/api": {
-        target: "http://inspire-server-dev:8082",
+        target: "http://inspire-server-dev:3000",
         // pathRewrite: { '^/api': '' },
-        changeOrigin: true
+        // changeOrigin: true,
+        secure: false
       }
     }
   },
