@@ -4,7 +4,7 @@ module.exports = {
   devServer: {
     proxy: {
       "/api": {
-        target: "http://localhost:3000",
+        target: "http://inspire-server-dev:8082",
         // pathRewrite: { '^/api': '' },
         changeOrigin: true
       }

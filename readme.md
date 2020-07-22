@@ -30,25 +30,22 @@ npm install
 ## Run dev server
 
 ```bash
+# Install server dependencies
+docker run -v $(pwd)/web:/usr/src/app -w /usr/src/app node npm install
+
+# Install frontend dependencies (if you need modify frontend)
+docker run -v $(pwd)/front-src:/usr/src/app -w /usr/src/app node npm install
+
 # Run development environment
 docker-compose -f ./docker/dev/docker-compose.yml up
-
-# back-end run database
-docker-compose -f ./server/docker-compose.yml up
-
-# back-end run dev server
-npm --prefix ./server/ run dev
-
-# front-end run dev server
-npm --prefix ./front-src/ run serve
 ```
 
 
 ## Dev URL
 
-- [Front-end](http://localhost:8080/)
-- [API](http://localhost:3000/api)
-- [DB admin](http://192.168.99.100:8081/db/inspire)
+- [Front-end](http://localhost:8081/)
+- [API](http://localhost:8082/api)
+- [DB admin](http://localhost:8082/db/inspire)
 
 
 ## Users roles

@@ -5,7 +5,7 @@
     "userPassword": "password",
     "auth": "DEFAULT",
     "name": "inspire",
-    "host": "localhost",
+    "host": "inspire-db",
     "port": "27017"
   },
   "jwt": {

@@ -139,7 +139,7 @@
 import apiSave from "@/pure/apiSave";
 import Loader from "@/components/Loader.vue";
 import Tags from "@/components/Tags.vue";
-import { VISIBILITY } from "../../../server/app/constants/permissions";
+import { VISIBILITY } from "../../app/constants/permissions"; // Mount with Docker from server
 import AdminFileLoader from "@/admin/AdminFileLoader.vue";
 import { inputToContent } from "@/pure/ItemSave.js";
 import InputTextarea from "@/admin/InputTextarea.vue";

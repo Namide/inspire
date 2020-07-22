@@ -1,6 +1,6 @@
 // import api from '@/pure/api'
 
-import { VISIBILITY } from "../../../server/app/constants/permissions";
+import { VISIBILITY } from "../../app/constants/permissions"; // Mount with Docker from server
 
 // const getToday = () => new Date(Date.now()).toJSON().split('.')[0]
 

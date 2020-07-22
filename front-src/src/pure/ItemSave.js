@@ -5,7 +5,7 @@ import externalURL from "@/pure/externalURL.js";
 import { extractType, getMimeData } from "@/pure/contentHelpers.js";
 import marked from "marked";
 // https://css-tricks.com/choosing-right-markdown-parser/#article-header-id-0
-import { TYPES } from "../../../server/app/constants/items";
+import { TYPES } from "../../app/constants/items"; // Mount with Docker from server
 
 /**
  * @param {String} url
