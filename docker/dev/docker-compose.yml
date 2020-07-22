@@ -1,0 +1,66 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  inspire-db:
+    image: mongo
+    container_name: inspire-mongo
+    restart: always
+    ports:
+      - 27017:27017
+    volumes: 
+      # - ./db:/data/db
+      - inspire-db-dev:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: damien
+      MONGO_INITDB_ROOT_PASSWORD: password
+
+  inspire-db-admin:
+    image: mongo-express
+    container_name: inspire-mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_OPTIONS_EDITORTHEME: ambiance
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_AUTH_DATABASE: inspire
+      ME_CONFIG_MONGODB_ADMINUSERNAME: damien
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+
+  inspire-api:
+    # image: node:alpine
+    build: 
+      context: ../..
+      dockerfile: docker/dev/server/Dockerfile
+    container_name: server
+    restart: always
+    # env_file: .env
+    # environment:
+    #   - MONGO_USERNAME=$MONGO_USERNAME
+    #   - MONGO_PASSWORD=$MONGO_PASSWORD
+    #   - MONGO_HOSTNAME=db
+    #   - MONGO_PORT=$MONGO_PORT
+    #   - MONGO_DB=$MONGO_DB 
+    ports:
+      - 9081:8080
+    volumes:
+      - ./server:/home/node/app
+    #   - node_modules:/home/node/app/node_modules
+    # networks:
+    #   - app-network
+    command: "npm run dev"
+    # command: npm run dev # ./wait-for.sh db:27017 -- /home/node/app/node_modules/.bin/nodemon app.js
+
+volumes:
+  inspire-db-dev:
+
+  # mongo-express:
+  #   image: mongo-express
+  #   restart: always
+  #   ports:
+  #     - 8081:8081
+  #   environment:
+  #     ME_CONFIG_MONGODB_ADMINUSERNAME: root
+  #     ME_CONFIG_MONGODB_ADMINPASSWORD: example

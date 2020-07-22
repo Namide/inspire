@@ -30,6 +30,9 @@ npm install
 ## Run dev server
 
 ```bash
+# Run development environment
+docker-compose -f ./docker/dev/docker-compose.yml up
+
 # back-end run database
 docker-compose -f ./server/docker-compose.yml up
 
