@@ -30,7 +30,12 @@ docker run -ti --rm -v $(pwd)/front-src:/usr/src/app -w /usr/src/app node npm in
 ```bash
 # Run development environment
 docker-compose -f ./docker/dev/docker-compose.yml up
+```
 
+
+## Build front-end sources
+
+```bash
 # Build frontend sources to /web/public directory
 docker run -ti --rm -v $(pwd):/usr/src/app -w /usr/src/app/front-src node npm run build
 ```
