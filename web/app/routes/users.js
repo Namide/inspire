@@ -2,6 +2,7 @@ const { getToken, setToken, blacklistToken } = require('../helpers/token.js')
 const bcrypt = require('bcryptjs')
 const ObjectID = require('mongodb').ObjectID
 const { ROLES } = require('../constants/permissions')
+const hooks = require('../event/hooks.js')
 
 // const RULES = {
 //   name: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/,
@@ -15,7 +16,12 @@ const displayUser = user => {
   return user
 }
 
-module.exports.userInit = async (db) => {
+// hooks.initDb.addOnce((db) => {
+
+// })
+
+// Initialize
+hooks.onInitDb.addOnce(async (db, app) => {
   const users = await db.createCollection('users', {
     validator: {
       $jsonSchema: {
@@ -62,12 +68,13 @@ module.exports.userInit = async (db) => {
     }
   })
 
-  // const users = db.collection('users');
+  app.collections.users = users;
 
   users.createIndex({ email: 1 }, { unique: true })
   users.createIndex({ name: 1 }, { unique: true })
+
   return users
-}
+})
 
 module.exports.signout = async (ctx) => {
   blacklistToken(ctx)
@@ -81,7 +88,7 @@ module.exports.signout = async (ctx) => {
 
 module.exports.signin = async (ctx) => {
   const { email, password } = ctx.request.body
-  const user = await ctx.app.users.findOne({ email })
+  const user = await ctx.app.collections.users.findOne({ email })
 
   if (user && bcrypt.compareSync(password, user.password)) {
     ctx.body = {
@@ -103,7 +110,7 @@ module.exports.userMe = async (ctx) => {
   const token = getToken(ctx)
 
   if (token) {
-    const user = await ctx.app.users.findOne({ _id: ObjectID(token.user._id) })
+    const user = await ctx.app.collections.users.findOne({ _id: ObjectID(token.user._id) })
 
     if (user) {
       ctx.body = {
@@ -136,7 +143,7 @@ module.exports.userGet = async (ctx) => {
       return ctx.throw(401, 'Unauthorized')
     }
 
-    const user = await ctx.app.users.findOne({ _id: ObjectID(ctx.params.id) })
+    const user = await ctx.app.collections.users.findOne({ _id: ObjectID(ctx.params.id) })
 
     if (user) {
       ctx.body = {
@@ -164,9 +171,9 @@ module.exports.userEdit = async (ctx) => {
     values.password = hash
   }
 
-  await ctx.app.users.updateOne(documentQuery, { $set: values })
+  await ctx.app.collections.users.updateOne(documentQuery, { $set: values })
 
-  const user = await ctx.app.users.findOne(documentQuery)
+  const user = await ctx.app.collections.users.findOne(documentQuery)
   ctx.body = {
     user: displayUser(user)
   }
@@ -176,7 +183,7 @@ module.exports.userEdit = async (ctx) => {
 
 module.exports.userDelete = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
-  await ctx.app.users.deleteOne(documentQuery)
+  await ctx.app.collections.users.deleteOne(documentQuery)
 
   ctx.body = {
     success: true,
@@ -193,7 +200,7 @@ module.exports.userList = async (ctx) => {
       return ctx.throw(401, 'Unauthorized')
     }
 
-    const list = await ctx.app.users
+    const list = await ctx.app.collections.users
       .find({})
       .toArray()
 
@@ -208,7 +215,7 @@ module.exports.userAdd = async (ctx) => {
   const hash = bcrypt.hashSync(password || '', salt)
 
   try {
-    const insert = await ctx.app.users
+    const insert = await ctx.app.collections.users
       .insertOne({ name, password: hash, role, email })
     const user = insert.ops[0]
     ctx.body = {

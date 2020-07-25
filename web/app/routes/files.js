@@ -10,7 +10,7 @@ module.exports.fileDisplay = async (ctx) => {
   const author = ctx.state.user._id ? ObjectID(ctx.state.user._id) : '0'
   const visibilities = ctx.state.user.visibilities
 
-  const item = await ctx.app[type]
+  const item = await ctx.app.collections[type]
     .findOne({
       $and: [
         {

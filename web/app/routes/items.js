@@ -4,8 +4,10 @@ const { TYPES } = require('../constants/items')
 const IMAGE = require('../constants/image')
 const { removeReadableStreams, removeFile, pathToSrc } = require('../helpers/files.js')
 const { extractData } = require('../helpers/image.js')
+const hooks = require('../event/hooks.js')
 
-module.exports.itemInit = async (db) => {
+// Initialize
+hooks.onInitDb.addOnce(async (db, app) => {
   const items = await db.createCollection('items', {
     validator: {
       $jsonSchema: {
@@ -55,8 +57,10 @@ module.exports.itemInit = async (db) => {
     }
   })
 
+  app.collections.items = items;
+
   return items
-}
+})
 
 module.exports.itemGet = async (ctx) => {
 
@@ -64,7 +68,7 @@ module.exports.itemGet = async (ctx) => {
   const author = ObjectID(ctx.state.user._id)
   const id = ObjectID(ctx.params.id)
 
-  const item = await ctx.app.items
+  const item = await ctx.app.collections.items
     .findOne({
       $or: [
         { _id: id, author },
@@ -85,7 +89,7 @@ module.exports.itemList = async (ctx) => {
   const visibilities = ctx.state.user.visibilities
   const author = ObjectID(ctx.state.user._id)
 
-  const items = await ctx.app.items
+  const items = await ctx.app.collections.items
     .find({
       $or: [
         { author },
@@ -134,7 +138,7 @@ module.exports.itemAdd = async (ctx) => {
     // Remove other images
     removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'image' && fieldname !== 'file'))
 
-    const insert = await ctx.app.items
+    const insert = await ctx.app.collections.items
       .insertOne(item)
       
     ctx.body = { item: insert.ops[0] }
@@ -152,7 +156,7 @@ module.exports.itemAdd = async (ctx) => {
 
 module.exports.itemEdit = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
-  const item = ctx.state.field || await ctx.app.items.findOne({ _id: ObjectID(ctx.params.id) })
+  const item = ctx.state.field || await ctx.app.collections.items.findOne({ _id: ObjectID(ctx.params.id) })
   
   if (!item) {
     ctx.throw(404, 'Item not found')
@@ -193,8 +197,8 @@ module.exports.itemEdit = async (ctx) => {
     // Remove other images
     removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'image' && fieldname !== 'file'))
 
-    await ctx.app.items.updateOne(documentQuery, { $set: payload })
-    const itemReturned = await ctx.app.items.findOne(documentQuery)
+    await ctx.app.collections.items.updateOne(documentQuery, { $set: payload })
+    const itemReturned = await ctx.app.collections.items.findOne(documentQuery)
     ctx.body = { item: itemReturned }
   } catch (error) {
     if (ctx.request.files) {
@@ -212,7 +216,7 @@ module.exports.itemEdit = async (ctx) => {
 
 module.exports.itemDelete = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
-  const item = ctx.state.field || await ctx.app.items.findOne({ _id: ObjectID(ctx.params.id) })
+  const item = ctx.state.field || await ctx.app.collections.items.findOne({ _id: ObjectID(ctx.params.id) })
 
   if (!item) {
     ctx.throw(404, 'Item not found')
@@ -227,7 +231,7 @@ module.exports.itemDelete = async (ctx) => {
     removeFile(item.file.src)
   }
 
-  await ctx.app.items.deleteOne(documentQuery)
+  await ctx.app.collections.items.deleteOne(documentQuery)
 
   ctx.body = {
     success: true,

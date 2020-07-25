@@ -2,8 +2,10 @@ const ObjectID = require('mongodb').ObjectID
 const { VISIBILITY } = require('../constants/permissions')
 const IMAGE = require('../constants/image')
 const { removeReadableStreams, removeFile, pathToSrc } = require('../helpers/files.js')
+const hooks = require('../event/hooks.js')
 
-module.exports.groupInit = async (db) => {
+// Initialize
+hooks.onInitDb.addOnce(async (db, app) => {
   const groups = await db.createCollection('groups', {
     validator: {
       $jsonSchema: {
@@ -45,14 +47,17 @@ module.exports.groupInit = async (db) => {
 
   // const groups = db.collection('groups');
   // groups.createIndex({ 'filter': 1 }, { unique: true });
+
+  app.collections.groups = groups;
+
   return groups
-}
+})
 
 module.exports.groupList = async (ctx) => {
   const visibilities = ctx.state.user.visibilities
   const author = ObjectID(ctx.state.user._id)
 
-  const groups = await ctx.app.groups
+  const groups = await ctx.app.collections.groups
     .find({
       $or: [
         { author },
@@ -90,7 +95,7 @@ module.exports.groupAdd = async (ctx) => {
       removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'image'))
     }
 
-    const insert = await ctx.app.groups
+    const insert = await ctx.app.collections.groups
       .insertOne(payload)
     const groups = [insert.ops[0]]
     ctx.body = { groups }
@@ -146,8 +151,8 @@ module.exports.groupEdit = async (ctx) => {
       removeReadableStreams(...ctx.request.files.filter(({ fieldname }) => fieldname !== 'image'))
     }
 
-    await ctx.app.groups.updateOne(documentQuery, { $set: payload })
-    const groupReturned = await ctx.app.groups.findOne(documentQuery)
+    await ctx.app.collections.groups.updateOne(documentQuery, { $set: payload })
+    const groupReturned = await ctx.app.collections.groups.findOne(documentQuery)
     ctx.body = { groups: [groupReturned] }
   } catch (error) {
     if (ctx.request.files) {
@@ -176,7 +181,7 @@ module.exports.groupDelete = async (ctx) => {
     removeFile(group.image.src)
   }
 
-  await ctx.app.groups.deleteOne(documentQuery)
+  await ctx.app.collections.groups.deleteOne(documentQuery)
 
   ctx.body = {
     success: true,

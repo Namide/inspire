@@ -85,8 +85,8 @@ class Api {
     fetch("/api", options)
       .then(response => this.parseResponse(response))
       .then(payload => this.parsePayload(payload))
-      .then(({ isLogged, version, serverTime, needInstall }) => {
-        console.log({ isLogged, version, serverTime, needInstall });
+      .then(({ version, serverTime, isLogged = false, needInstall = false, needAdmin = false }) => {
+        console.log({ version, serverTime, isLogged, needInstall, needAdmin });
         this.$state = Object.assign(this.$state, { isLogged });
         if (isLogged) {
           this.updateMe();
