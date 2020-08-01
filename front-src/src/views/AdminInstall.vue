@@ -2,9 +2,9 @@
   <div>
     <h2>Install {{ $route.params.type }}</h2>
 
-    <div v-if="isDatabase" class="connect">
-      <div class="form">
-        <label for="userName">userName</label>
+    <div v-if="isDatabase">
+      <form class="form">
+        <label>userName</label>
         <input
           type="text"
           name="userName"
@@ -12,23 +12,23 @@
           placeholder="userName"
         />
 
-        <label for="userPassword">userPassword</label>
+        <label>userPassword</label>
         <input
           type="password"
           v-model="database.userPassword"
           placeholder="userPassword"
         />
 
-        <label for="databaseAuth">databaseAuth</label>
+        <label>databaseAuth</label>
         <input type="text" v-model="database.auth" placeholder="databaseAuth" />
 
-        <label for="databaseName">databaseName</label>
+        <label>databaseName</label>
         <input type="text" v-model="database.name" placeholder="databaseName" />
 
-        <label for="databaseHost">databaseHost</label>
+        <label>databaseHost</label>
         <input type="text" v-model="database.host" placeholder="databaseHost" />
 
-        <label for="databasePort">databasePort</label>
+        <label>databasePort</label>
         <input
           type="number"
           v-model="database.port"
@@ -43,14 +43,51 @@
         </div>
 
         <button @click="testDatabase">Test</button>
-        <button @click="connectDatabase">Connect</button>
-      </div>
+        <button @click="connectDatabase">Install</button>
+      </form>
+    </div>
+
+    <div v-else-if="isAdmin">
+      <form class="form">
+        <label>name</label>
+        <input
+          type="text"
+          name="name"
+          v-model="admin.name"
+          placeholder="name"
+        />
+
+        <label>email</label>
+        <input
+          type="email"
+          email="email"
+          v-model="admin.email"
+          placeholder="email"
+        />
+
+        <label>password</label>
+        <input
+          type="password"
+          v-model="admin.password"
+          placeholder="password"
+        />
+
+        <div v-if="error" class="error">
+          <span v-html="error"></span>
+        </div>
+        <div v-if="success" class="success">
+          <span v-html="success"></span>
+        </div>
+
+        <button @click="addAdmin">Register</button>
+      </form>
     </div>
   </div>
 </template>
 
 <script>
 import api from "@/pure/apiSave";
+const { ROLES } = require("../../../web/app/constants/permissions.js");
 
 export default {
   components: {},
@@ -68,6 +105,11 @@ export default {
         name: "inspire",
         host: "inspire-db",
         port: "27017",
+      },
+      admin: {
+        name: "",
+        email: "",
+        password: "",
       },
     };
   },
@@ -94,8 +136,15 @@ export default {
       this.error = "";
       this.success = "";
       api
-        .login(this.mail, this.pass)
-        .then((user) => this.$emit("close"))
+        .databaseConnect(this.database)
+        .catch((error) => (this.error = error.message));
+    },
+    addAdmin() {
+      this.error = "";
+      this.success = "";
+      api
+        .addUser(Object.assign({ role: ROLES.ADMIN }, this.admin))
+        .then((user) => this.$router.push({ name: "admin" }))
         .catch((error) => (this.error = error.message));
     },
   },
@@ -105,6 +154,10 @@ export default {
 <style lang="sass" scoped>
 .error
   color: red
+  margin-top: 1em
+
+.success
+  color: green
   margin-top: 1em
 
 .form
@@ -124,5 +177,5 @@ export default {
     padding: 0.3em
 
   button
-    margin-top: 1em
+    margin: 1em
 </style>

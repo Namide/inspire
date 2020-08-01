@@ -45,7 +45,7 @@ docker run -ti --rm -v $(pwd):/usr/src/app -w /usr/src/app/front-src node npm ru
 
 - [Front-end](http://localhost:8081/)
 - [API](http://localhost:8082/api)
-- [DB admin](http://localhost:8082/db/inspire)
+- [DB admin](http://localhost:8083/db/inspire)
 
 
 ## Users roles

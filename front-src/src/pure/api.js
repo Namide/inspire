@@ -78,7 +78,7 @@ class Api {
   parseResponse(response) {
     if (response.status === 401) {
       this._disconnect();
-      this.onRedirect.dispatch({ name: "adminHome" });
+      this.onRedirect.dispatch({ name: "admin" });
     }
 
     return response.json();

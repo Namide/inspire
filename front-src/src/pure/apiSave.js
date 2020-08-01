@@ -69,6 +69,25 @@ class ApiSave extends Api {
   //   ]);
   // }
 
+  addUser({ name, email, password, role }) {
+    const body = new FormData();
+    body.append("name", name);
+    body.append("email", email);
+    body.append("password", password);
+    body.append("role", role);
+
+    const options = {
+      method: "post",
+      headers: this._createHeaders(),
+      body,
+    };
+
+    return fetch("/api/users", options)
+      .then((response) => response.json())
+      .then((payload) => this.parsePayload(payload))
+      .then(({ user }) => user);
+  }
+
   addItem(item, image = null, file = null) {
     const body = new FormData();
     body.append("item", JSON.stringify(item));
@@ -140,12 +159,36 @@ class ApiSave extends Api {
 
     return fetch("/api/database/test", options)
       .then((response) => response.json())
-      .then((payload) => {
-        console.log(payload);
-        if (payload.success) {
+      .then((json) => {
+        if (json.success) {
           return true;
         } else {
-          throw new Error(payload.message);
+          throw new Error(json.message);
+        }
+      });
+  }
+
+  databaseConnect({ userName, userPassword, auth, name, host, port }) {
+    const payload = {
+      database: { userName, userPassword, auth, name, host, port },
+    };
+    const options = {
+      method: "post",
+      headers: this._createHeaders({ isJson: true }),
+      body: JSON.stringify(payload),
+    };
+
+    return fetch("/api/database/install", options)
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.success) {
+          this.onRedirect.dispatch({
+            name: "adminInstall",
+            params: { type: "admin" },
+          });
+          return true;
+        } else {
+          throw new Error(json.message);
         }
       });
   }

@@ -40,7 +40,7 @@ const routes = [
     ],
   },
   {
-    name: "adminHome",
+    name: "admin",
     path: "/admin",
     component: PageHome,
     meta: {
