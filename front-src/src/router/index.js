@@ -13,39 +13,39 @@ const routes = [
     path: "/",
     component: PageHome,
     meta: {
-      auth: false
-    }
+      auth: false,
+    },
   },
   {
     name: "items",
     path: "/item/:itemID?",
     component: PageItems,
     meta: {
-      auth: false
-    }
+      auth: false,
+    },
   },
   {
     name: "groups",
     path: "/group",
     component: PageGroups,
     meta: {
-      auth: false
+      auth: false,
     },
     children: [
       {
         name: "group",
         path: ":id/:itemID?",
-        component: PageGroup
-      }
-    ]
+        component: PageGroup,
+      },
+    ],
   },
   {
     name: "adminHome",
     path: "/admin",
     component: PageHome,
     meta: {
-      auth: true
-    }
+      auth: true,
+    },
   },
   {
     name: "adminItems",
@@ -53,32 +53,42 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "admin" */ "@/views/AdminItems"),
     meta: {
-      auth: true
-    }
+      auth: true,
+    },
   },
   {
     name: "adminBoards",
     path: "/admin/group",
     component: PageGroups,
     meta: {
-      auth: true
-    }
+      auth: true,
+    },
   },
   {
     name: "adminImport",
     path: "/admin/import",
     component: () =>
-      import(/* webpackChunkName: "import" */ "@/views/AdminImport"),
+      import(/* webpackChunkName: "admin" */ "@/views/AdminInstall"),
     meta: {
-      auth: true
-    }
-  }
+      auth: true,
+    },
+  },
+
+  {
+    name: "adminInstall",
+    path: "/admin/install/:type(database|admin)",
+    component: () =>
+      import(/* webpackChunkName: "import" */ "@/views/AdminInstall"),
+    meta: {
+      auth: false,
+    },
+  },
 ];
 
 const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
-  routes
+  routes,
 });
 
 export default router;

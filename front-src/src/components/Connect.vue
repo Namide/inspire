@@ -21,7 +21,7 @@ export default {
     return {
       mail: "",
       pass: "",
-      error: ""
+      error: "",
     };
   },
 
@@ -30,10 +30,10 @@ export default {
       this.error = "";
       api
         .login(this.mail, this.pass)
-        .then(user => this.$emit("close"))
-        .catch(error => (this.error = error.message));
-    }
-  }
+        .then((user) => this.$emit("close"))
+        .catch((error) => (this.error = error.message));
+    },
+  },
 };
 </script>
 

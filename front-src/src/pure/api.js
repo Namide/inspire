@@ -14,7 +14,7 @@ class Api {
 
     this.$state = {
       isLogged: false,
-      user: Api.createDefaultUser()
+      user: Api.createDefaultUser(),
     };
 
     try {
@@ -25,8 +25,51 @@ class Api {
     }
 
     this.addAuth = this.addAuth.bind(this);
+  }
 
-    this.init();
+  init() {
+    const options = {
+      method: "get",
+      headers: this._createHeaders(),
+    };
+
+    return fetch("/api", options)
+      .then((response) => this.parseResponse(response))
+      .then((payload) => this.parsePayload(payload))
+      .then(
+        ({
+          version,
+          serverTime,
+          isLogged = false,
+          needDatabase = false,
+          needAdmin = false,
+        }) => {
+          console.log({
+            version,
+            serverTime,
+            isLogged,
+            needDatabase,
+            needAdmin,
+          });
+          this.$state = Object.assign(this.$state, { isLogged });
+          if (isLogged) {
+            this.updateMe();
+          }
+          if (needDatabase) {
+            this.onRedirect.dispatch({
+              name: "adminInstall",
+              params: { type: "database" },
+            });
+          }
+          if (needAdmin) {
+            this.onRedirect.dispatch({
+              name: "adminInstall",
+              params: { type: "admin" },
+            });
+          }
+        }
+      )
+      .catch((error) => this.onError.dispatch(error.message));
   }
 
   /**
@@ -76,44 +119,22 @@ class Api {
 
   setMe() {}
 
-  init() {
-    const options = {
-      method: "get",
-      headers: this._createHeaders()
-    };
-
-    fetch("/api", options)
-      .then(response => this.parseResponse(response))
-      .then(payload => this.parsePayload(payload))
-      .then(({ version, serverTime, isLogged = false, needInstall = false, needAdmin = false }) => {
-        console.log({ version, serverTime, isLogged, needInstall, needAdmin });
-        this.$state = Object.assign(this.$state, { isLogged });
-        if (isLogged) {
-          this.updateMe();
-        }
-        if (needInstall) {
-          this.onRedirect.dispatch({ name: "install" });
-        }
-      })
-      .catch(console.error);
-  }
-
   setUser({ email, name, role, _id }) {
     this.$state = Object.assign(this.$state, {
       user: { email, name, role, id: _id },
-      isLogged: role !== ROLES.GUEST
+      isLogged: role !== ROLES.GUEST,
     });
   }
 
   updateMe() {
     const options = {
       method: "get",
-      headers: this._createHeaders()
+      headers: this._createHeaders(),
     };
 
     fetch("/api/users/me", options)
-      .then(response => this.parseResponse(response))
-      .then(payload => this.parsePayload(payload))
+      .then((response) => this.parseResponse(response))
+      .then((payload) => this.parsePayload(payload))
       .then(({ user }) => this.setUser(user))
       .then(console.log)
       .catch(console.error);
@@ -130,11 +151,11 @@ class Api {
   getItem(id) {
     const options = {
       method: "get",
-      headers: this._createHeaders()
+      headers: this._createHeaders(),
     };
 
     return fetch("/api/items/" + id, options)
-      .then(response => response.json())
+      .then((response) => response.json())
       .then(({ item }) => this.parseItem(item));
   }
 
@@ -149,12 +170,12 @@ class Api {
     // };
     const options = {
       method: "get",
-      headers: this._createHeaders()
+      headers: this._createHeaders(),
     };
 
     return fetch("/api/items", options)
-      .then(response => response.json())
-      .then(({ items }) => items.map(payload => this.parseItem(payload)));
+      .then((response) => response.json())
+      .then(({ items }) => items.map((payload) => this.parseItem(payload)));
     // .then(console.log)
     // .catch(console.error);
     // return this.directus
@@ -243,12 +264,12 @@ class Api {
   logout() {
     const options = {
       method: "post",
-      headers: this._createHeaders(false)
+      headers: this._createHeaders(),
     };
 
     return fetch("/api/signout", options)
-      .then(response => this.parseResponse(response))
-      .then(payload => this.parsePayload(payload))
+      .then((response) => this.parseResponse(response))
+      .then((payload) => this.parsePayload(payload))
       .then(() => this._disconnect())
       .catch(console.error)
       .finally(() => {});
@@ -257,13 +278,13 @@ class Api {
   login(email, password) {
     const options = {
       method: "post",
-      headers: this._createHeaders(false),
-      body: this._createBody({ email, password })
+      headers: this._createHeaders(),
+      body: this._createBody({ email, password }),
     };
 
     return fetch("/api/signin", options)
-      .then(response => this.parseResponse(response))
-      .then(payload => this.parsePayload(payload))
+      .then((response) => this.parseResponse(response))
+      .then((payload) => this.parsePayload(payload))
       .then(({ user, token }) => {
         try {
           localStorage.setItem("token", token);
@@ -277,10 +298,14 @@ class Api {
     // .catch(console.error);
   }
 
-  _createHeaders(isGet = true) {
+  _createHeaders({ isJson = false } = {}) {
     const headers = new Headers({
       // isGetMethod ? 'application/json' : 'multipart/form-data'
     });
+
+    if (isJson) {
+      headers.append("Content-Type", "application/json");
+    }
 
     if (this.token) {
       headers.append("Authorization", "Bearer " + this.token);
@@ -299,7 +324,7 @@ class Api {
   }
 }
 
-Api.parseGroup = payload => {
+Api.parseGroup = (payload) => {
   return payload;
 };
 
@@ -307,7 +332,7 @@ Api.createDefaultUser = () => ({
   name: null,
   email: null,
   id: null,
-  role: ROLES.GUEST
+  role: ROLES.GUEST,
 });
 
 const api = new Api();

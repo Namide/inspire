@@ -60,25 +60,28 @@ app.use(Static('./public'))
 //         DATABASE
 // --------------------------
 const initDb = async () => {
-  return require('./middleware/mongo.js')(app)
-    .then(async db => {
-      await hooks.onInitDbBefore.dispatch(db, app)
-      app.collections = {}
-      // db.command( { listCollections: 1 } )
-      //   .then(data => console.log(data.cursor.firstBatch));
-      console.log('DB connected')
-      await hooks.onInitDb.dispatch(db, app)
-      await hooks.onInitDbAfter.dispatch(db, app)
-
-      return true
-    })
-    .catch(error => console.log('DB connection error:', error.message))
+  try {
+    const CONFIG = require('../config.json')  
+    const { connect } = require('./helpers/database')  
+    const { db } = await connect(CONFIG.db)
+  
+    await hooks.onInitDbBefore.dispatch(db, app)
+    app.collections = {}
+    // db.command( { listCollections: 1 } )
+    //   .then(data => console.log(data.cursor.firstBatch));
+    console.log('DB connected')
+    await hooks.onInitDb.dispatch(db, app)
+    await hooks.onInitDbAfter.dispatch(db, app)
+  
+    return true
+  } catch (error) {
+    console.log('DB connection error:', error.message)
+    return false
+  }
 }
 require('./middleware/ratelimit.js')(app)
 
-if (CONFIG.db) {
-  initDb()
-} else {
+if (!CONFIG.db || !initDb()) {
   hooks.onConfigureDbAfter.dispatch(initDb)
 }
 
@@ -86,6 +89,7 @@ if (CONFIG.db) {
 //          ROUTES
 // --------------------------
 require('./routes/api.js')
+require('./routes/install.js')
 require('./routes/distant.js')
 require('./routes/users.js')
 require('./routes/groups.js')

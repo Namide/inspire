@@ -19,7 +19,7 @@ class ApiSave extends Api {
 
     const options = {
       method: "get",
-      headers: this._createHeaders()
+      headers: this._createHeaders(),
     };
 
     const url = encodeURIComponent(link);
@@ -84,12 +84,12 @@ class ApiSave extends Api {
     const options = {
       method: "post",
       headers: this._createHeaders(),
-      body
+      body,
     };
 
     return fetch("/api/items", options)
-      .then(response => response.json())
-      .then(payload => this.parsePayload(payload))
+      .then((response) => response.json())
+      .then((payload) => this.parsePayload(payload))
       .then(({ item }) => Api.parseItem(item));
 
     // delete payload.id;
@@ -128,13 +128,37 @@ class ApiSave extends Api {
   //   return this.directus.api.delete("files/" + id);
   // }
 
+  databaseTest({ userName, userPassword, auth, name, host, port }) {
+    const payload = {
+      database: { userName, userPassword, auth, name, host, port },
+    };
+    const options = {
+      method: "post",
+      headers: this._createHeaders({ isJson: true }),
+      body: JSON.stringify(payload),
+    };
+
+    return fetch("/api/database/test", options)
+      .then((response) => response.json())
+      .then((payload) => {
+        console.log(payload);
+        if (payload.success) {
+          return true;
+        } else {
+          throw new Error(payload.message);
+        }
+      });
+  }
+
   deleteItem(id) {
     const options = {
       method: "delete",
-      headers: this._createHeaders()
+      headers: this._createHeaders(),
     };
 
-    return fetch("/api/items/" + id, options).then(response => response.json());
+    return fetch("/api/items/" + id, options).then((response) =>
+      response.json()
+    );
   }
 
   updateItem(id, payload, image, file) {
@@ -152,12 +176,12 @@ class ApiSave extends Api {
     const options = {
       method: "post",
       headers: this._createHeaders(),
-      body
+      body,
     };
 
     return fetch("/api/items/" + id, options)
-      .then(response => response.json())
-      .then(payload => this.parsePayload(payload))
+      .then((response) => response.json())
+      .then((payload) => this.parsePayload(payload))
       .then(({ item }) => this.parseItem(item));
 
     // const addImage = payload.image instanceof File;

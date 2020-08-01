@@ -7,14 +7,7 @@
       <User :adminPage="authRequired" />
     </header>
 
-    <nav class="nav">
-      <router-link :to="{ name: 'items' }" class="link">Items</router-link>
-      <router-link :to="{ name: 'adminItems' }" class="link">Admin</router-link>
-      <!-- <router-link :to="{ name: 'groups' }" class="link">Groups</router-link> -->
-      <router-link :to="{ name: 'adminImport' }" class="link"
-        >Import</router-link
-      >
-    </nav>
+    <Menu />
 
     <router-view v-if="!authRequired || $state.isLogged" />
 
@@ -33,6 +26,7 @@ import api from "@/pure/api";
 import ModalItem from "@/components/ModalItem.vue";
 import Modal from "@/components/Modal.vue";
 import Connect from "@/components/Connect.vue";
+import Menu from "@/components/Menu.vue";
 
 const User = () => import(/* webpackChunkName: "admin" */ "@/components/User");
 const Tasks = () => import(/* webpackChunkName: "admin" */ "@/admin/Tasks");
@@ -43,7 +37,8 @@ export default {
     ModalItem,
     Modal,
     Connect,
-    Tasks
+    Tasks,
+    Menu,
   },
 
   data() {
@@ -53,12 +48,22 @@ export default {
   computed: {
     authRequired() {
       return this.$route.meta.auth;
-    }
+    },
   },
 
   created() {
     api.onError.add(this.displayError);
-    api.onRedirect.add(route => this.router.push(route));
+    api.onRedirect.add((route) => {
+      if (
+        !route ||
+        JSON.stringify(route.name) !== JSON.stringify(this.$route.name)
+      ) {
+        console.log("redirect", route);
+        this.$router.push(route);
+      }
+    });
+    api.init();
+
     // api.login("damien@doussaud.fr", "Damien");
   },
 
@@ -69,8 +74,9 @@ export default {
 
   methods: {
     displayError(message) {
-      alert(message);
-    }
+      // alert(message);
+      console.error(message);
+    },
 
     // setLogged(data) {
     //   console.log(data);
@@ -82,7 +88,7 @@ export default {
     //   const user = data ? getUser(data) : null;
     //   this.$store.commit("user", user);
     // }
-  }
+  },
 };
 </script>
 
@@ -99,17 +105,4 @@ export default {
   text-transform: uppercase
   margin-right: auto
   text-decoration: none
-
-.nav
-  text-align: center
-  margin: $margin-sm * 3 0
-
-.link
-  display: inline-block
-  margin: 0
-  padding: $margin-sm / 4 $margin-sm
-
-  &.router-link-active
-    background: #F07
-    color: #FFF
 </style>
