@@ -1,8 +1,13 @@
+const { router } = require('../helpers/core')
+const auth = require('../middleware/auth')
 const ObjectID = require('mongodb').ObjectID
 const { VISIBILITY } = require('../constants/permissions')
 const IMAGE = require('../constants/image')
 const { removeReadableStreams, removeFile, pathToSrc } = require('../helpers/files.js')
 const hooks = require('../event/hooks.js')
+const checkDb = require('../middleware/checkDb')
+const { uploaderGroup } = require('../middleware/upload')
+const { ROLES } = require('../constants/permissions')
 
 // Initialize
 hooks.onInitDb.addOnce(async (db, app) => {
@@ -48,12 +53,12 @@ hooks.onInitDb.addOnce(async (db, app) => {
   // const groups = db.collection('groups');
   // groups.createIndex({ 'filter': 1 }, { unique: true });
 
-  app.collections.groups = groups;
+  app.collections.groups = groups
 
   return groups
 })
 
-module.exports.groupList = async (ctx) => {
+const groupList = async (ctx) => {
   const visibilities = ctx.state.user.visibilities
   const author = ObjectID(ctx.state.user._id)
 
@@ -74,7 +79,7 @@ module.exports.groupList = async (ctx) => {
   return ctx
 }
 
-module.exports.groupAdd = async (ctx) => {
+const groupAdd = async (ctx) => {
   const values = ctx.request.body
 
   try {
@@ -114,7 +119,7 @@ module.exports.groupAdd = async (ctx) => {
   return ctx
 }
 
-module.exports.groupEdit = async (ctx) => {
+const groupEdit = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
   const group = ctx.state.field
   const payload = ctx.request.body
@@ -168,7 +173,7 @@ module.exports.groupEdit = async (ctx) => {
   return ctx
 }
 
-module.exports.groupDelete = async (ctx) => {
+const groupDelete = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
   const group = ctx.state.field
 
@@ -190,3 +195,14 @@ module.exports.groupDelete = async (ctx) => {
 
   return ctx
 }
+
+const testSameGroup = async (ctx, id) => {
+  const group = await ctx.app.collections.groups.findOne({ _id: ObjectID(ctx.params.id) })
+  ctx.state.field = group
+  return group.author.toString() === id
+}
+
+router.get('/api/groups', checkDb, auth(), groupList)
+router.post('/api/groups', checkDb, auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR]), uploaderGroup, groupAdd)
+router.post('/api/groups/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN, ROLES.EDITOR], testSameGroup), uploaderGroup, groupEdit)
+router.delete('/api/groups/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN, ROLES.EDITOR], testSameGroup), groupDelete)

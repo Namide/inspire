@@ -1,6 +1,9 @@
+const { router } = require('../helpers/core')
+const auth = require('../middleware/auth')
 const request = require('../helpers/request')
+const { ROLES } = require('../constants/permissions')
 
-module.exports.distant = async (ctx) => {
+const distant = async (ctx) => {
   try {
     const response = await request(decodeURIComponent(ctx.params.url))
     ctx.body = response
@@ -25,3 +28,5 @@ module.exports.distant = async (ctx) => {
     ctx.body = { error: true, message: error.message }
   }
 }
+
+router.get('/api/distant/:url', auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR]), distant)

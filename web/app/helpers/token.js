@@ -1,5 +1,4 @@
 const CONFIG = require('../../config.json')
-// const { ROLES } = require('../constants/permissions')
 const jwt = require('jsonwebtoken')
 
 const JWT_OPTIONS = {

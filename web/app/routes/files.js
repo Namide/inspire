@@ -1,9 +1,11 @@
+const { router } = require('../helpers/core')
+const auth = require('../middleware/auth')
 const ObjectID = require('mongodb').ObjectID
 const { downloadFile } = require('../helpers/files.js')
 
 const BASE_URL = '/api/files'
 
-module.exports.fileDisplay = async (ctx) => {
+const fileDisplay = async (ctx) => {
   const type = ctx.params.type
   const id = ctx.params.id
   const src = `${BASE_URL}/${type}/${id}`
@@ -39,3 +41,5 @@ module.exports.fileDisplay = async (ctx) => {
   // ctx.body = { groups }
   return ctx
 }
+
+router.get('/api/files/:type(groups|users|items)/:id', auth(), fileDisplay)

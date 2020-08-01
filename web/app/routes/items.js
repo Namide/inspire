@@ -1,3 +1,5 @@
+const { router } = require('../helpers/core')
+const auth = require('../middleware/auth')
 const ObjectID = require('mongodb').ObjectID
 const { VISIBILITY } = require('../constants/permissions')
 const { TYPES } = require('../constants/items')
@@ -5,6 +7,9 @@ const IMAGE = require('../constants/image')
 const { removeReadableStreams, removeFile, pathToSrc } = require('../helpers/files.js')
 const { extractData } = require('../helpers/image.js')
 const hooks = require('../event/hooks.js')
+const checkDb = require('../middleware/checkDb')
+const { uploaderItem } = require('../middleware/upload')
+const { ROLES } = require('../constants/permissions')
 
 // Initialize
 hooks.onInitDb.addOnce(async (db, app) => {
@@ -57,13 +62,12 @@ hooks.onInitDb.addOnce(async (db, app) => {
     }
   })
 
-  app.collections.items = items;
+  app.collections.items = items
 
   return items
 })
 
-module.exports.itemGet = async (ctx) => {
-
+const itemGet = async (ctx) => {
   const visibilities = ctx.state.user.visibilities
   const author = ObjectID(ctx.state.user._id)
   const id = ObjectID(ctx.params.id)
@@ -85,7 +89,7 @@ module.exports.itemGet = async (ctx) => {
   return ctx
 }
 
-module.exports.itemList = async (ctx) => {
+const itemList = async (ctx) => {
   const visibilities = ctx.state.user.visibilities
   const author = ObjectID(ctx.state.user._id)
 
@@ -106,12 +110,12 @@ module.exports.itemList = async (ctx) => {
   return ctx
 }
 
-module.exports.itemAdd = async (ctx) => {
+const itemAdd = async (ctx) => {
   // const values = ctx.request.body
 
   try {
     const item = Object.assign(JSON.parse(ctx.request.body.item), { author: ObjectID(ctx.state.user._id) })
-    
+
     if (item.createdAt) {
       item.createdAt = new Date(item.createdAt)
     } else {
@@ -140,7 +144,7 @@ module.exports.itemAdd = async (ctx) => {
 
     const insert = await ctx.app.collections.items
       .insertOne(item)
-      
+
     ctx.body = { item: insert.ops[0] }
   } catch (error) {
     // Remove images
@@ -154,15 +158,15 @@ module.exports.itemAdd = async (ctx) => {
   return ctx
 }
 
-module.exports.itemEdit = async (ctx) => {
+const itemEdit = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
   const item = ctx.state.field || await ctx.app.collections.items.findOne({ _id: ObjectID(ctx.params.id) })
-  
+
   if (!item) {
     ctx.throw(404, 'Item not found')
     return ctx
   }
-  
+
   try {
     const payload = JSON.parse(ctx.request.body.item)
 
@@ -214,7 +218,7 @@ module.exports.itemEdit = async (ctx) => {
   return ctx
 }
 
-module.exports.itemDelete = async (ctx) => {
+const itemDelete = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
   const item = ctx.state.field || await ctx.app.collections.items.findOne({ _id: ObjectID(ctx.params.id) })
 
@@ -240,3 +244,15 @@ module.exports.itemDelete = async (ctx) => {
 
   return ctx
 }
+
+const testSameItem = async (ctx, id) => {
+  const item = await ctx.app.collections.items.findOne({ _id: ObjectID(ctx.params.id) })
+  ctx.state.field = item
+  return item.author.toString() === id
+}
+
+router.get('/api/items', checkDb, auth(), itemList)
+router.get('/api/items/:id([0-9a-f]{24})', checkDb, auth(), itemGet)
+router.post('/api/items', checkDb, auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR]), uploaderItem, itemAdd)
+router.post('/api/items/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN, ROLES.EDITOR], testSameItem), uploaderItem, itemEdit)
+router.delete('/api/items/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN, ROLES.EDITOR], testSameItem), itemDelete)

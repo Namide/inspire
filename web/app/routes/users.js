@@ -1,8 +1,12 @@
+const { router } = require('../helpers/core')
+const auth = require('../middleware/auth')
 const { getToken, setToken, blacklistToken } = require('../helpers/token.js')
 const bcrypt = require('bcryptjs')
 const ObjectID = require('mongodb').ObjectID
 const { ROLES } = require('../constants/permissions')
 const hooks = require('../event/hooks.js')
+const checkDb = require('../middleware/checkDb')
+const { uploaderFileless } = require('../middleware/upload')
 
 // const RULES = {
 //   name: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/,
@@ -68,7 +72,7 @@ hooks.onInitDb.addOnce(async (db, app) => {
     }
   })
 
-  app.collections.users = users;
+  app.collections.users = users
 
   users.createIndex({ email: 1 }, { unique: true })
   users.createIndex({ name: 1 }, { unique: true })
@@ -76,7 +80,7 @@ hooks.onInitDb.addOnce(async (db, app) => {
   return users
 })
 
-module.exports.signout = async (ctx) => {
+const signout = async (ctx) => {
   blacklistToken(ctx)
   ctx.body = {
     success: true,
@@ -86,7 +90,7 @@ module.exports.signout = async (ctx) => {
   return ctx
 }
 
-module.exports.signin = async (ctx) => {
+const signin = async (ctx) => {
   const { email, password } = ctx.request.body
   const user = await ctx.app.collections.users.findOne({ email })
 
@@ -106,7 +110,7 @@ module.exports.signin = async (ctx) => {
   return ctx
 }
 
-module.exports.userMe = async (ctx) => {
+const userMe = async (ctx) => {
   const token = getToken(ctx)
 
   if (token) {
@@ -134,7 +138,7 @@ module.exports.userMe = async (ctx) => {
   return ctx
 }
 
-module.exports.userGet = async (ctx) => {
+const userGet = async (ctx) => {
   const token = getToken(ctx)
 
   if (token) {
@@ -161,7 +165,7 @@ module.exports.userGet = async (ctx) => {
   return ctx
 }
 
-module.exports.userEdit = async (ctx) => {
+const userEdit = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
   const values = ctx.request.body
 
@@ -181,7 +185,7 @@ module.exports.userEdit = async (ctx) => {
   return ctx
 }
 
-module.exports.userDelete = async (ctx) => {
+const userDelete = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
   await ctx.app.collections.users.deleteOne(documentQuery)
 
@@ -193,7 +197,7 @@ module.exports.userDelete = async (ctx) => {
   return ctx
 }
 
-module.exports.userList = async (ctx) => {
+const userList = async (ctx) => {
   const token = getToken(ctx)
   if (token) {
     if (token.user.role !== ROLES.ADMIN) {
@@ -209,7 +213,7 @@ module.exports.userList = async (ctx) => {
   }
 }
 
-module.exports.userAdd = async (ctx) => {
+const userAdd = async (ctx) => {
   const { name, password, role, email } = ctx.request.body
   const salt = bcrypt.genSaltSync()
   const hash = bcrypt.hashSync(password || '', salt)
@@ -231,3 +235,26 @@ module.exports.userAdd = async (ctx) => {
 
   return ctx
 }
+
+const testSameUser = async (ctx, id) => {
+  const user = await ctx.app.collections.users.findOne({ _id: ObjectID(ctx.params.id) })
+  ctx.state.field = user
+  return user._id.toString() === id
+}
+// Authorize admin creation if 0 user in collection
+const testInstall = async (ctx, id) => {
+  const count = await ctx.app.collections.users.countDocuments()
+  if (count < 1) {
+    ctx.request.body.role = ROLES.ADMIN
+  }
+  return count < 1
+}
+
+router.get('/api/users', checkDb, auth([ROLES.ADMIN]), userList)
+router.get('/api/users/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN], testSameUser), userGet)
+router.post('/api/users', checkDb, auth([ROLES.ADMIN], testInstall), uploaderFileless, userAdd)
+router.post('/api/users/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN], testSameUser), uploaderFileless, userEdit)
+router.get('/api/users/me', checkDb, auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR, ROLES.SUBSCRIBER], testSameUser), userMe)
+router.post('/api/signin', checkDb, uploaderFileless, signin)
+router.post('/api/signout', checkDb, uploaderFileless, signout)
+router.delete('/api/users/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN], testSameUser), userDelete)
