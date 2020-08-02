@@ -1,8 +1,5 @@
-// const CONFIG = require('../../config.json')
-// const jwt = require('jsonwebtoken')
 const { getToken } = require('../helpers/token')
 const { ROLES, roleToVisibility } = require('../constants/permissions')
-// const ObjectID = require('mongodb').ObjectID
 
 const ALL_ROLES = [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR, ROLES.SUBSCRIBER, ROLES.GUEST]
 const SECOND_TEST = async (ctx, userID) => true

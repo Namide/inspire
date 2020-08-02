@@ -1,5 +1,5 @@
-const CONFIG = require('../../config.json')
 const jwt = require('jsonwebtoken')
+const { getConfig } = require('./config')
 
 const JWT_OPTIONS = {
   // expiresIn: 1000 * 60 * 60 * 24
@@ -20,7 +20,7 @@ module.exports.setToken = (ctx, user) => {
     }
   }
 
-  return jwt.sign(payload, CONFIG.jwt.secret, JWT_OPTIONS)
+  return jwt.sign(payload, getConfig().jwt.secret, JWT_OPTIONS)
 }
 
 module.exports.blacklistToken = (ctx, authorization = ctx.headers.authorization) => {
@@ -33,13 +33,13 @@ module.exports.blacklistToken = (ctx, authorization = ctx.headers.authorization)
 }
 
 /**
- * @returns {{ua:string, ip:string, expo:number, user: { role:string, _id:string }}|null}
+ * @returns {{ua:string, ip:string, expo:number, user: { role:string, _id:string }}
+ull}
  */
 module.exports.getToken = (ctx) => {
-
   let token = null
 
-  authorization = ctx.headers.authorization || ctx.query.token
+  const authorization = ctx.headers.authorization || ctx.query.token
   if (ctx.headers.authorization && authorization.split(' ').length > 1) {
     token = authorization.split(' ')[1]
   } else if (ctx.query.token) {
@@ -53,7 +53,7 @@ module.exports.getToken = (ctx) => {
     }
 
     try {
-      const decoded = jwt.verify(token, CONFIG.jwt.secret)
+      const decoded = jwt.verify(token, getConfig().jwt.secret)
       const ua = ctx.request.headers['user-agent']
       const ip = ctx.request.ip
 

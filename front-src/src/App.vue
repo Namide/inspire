@@ -9,6 +9,8 @@
 
     <Menu />
 
+    {{ $state }}
+
     <router-view v-if="!authRequired || $state.isLogged" />
 
     <ModalItem />
@@ -51,17 +53,36 @@ export default {
     },
   },
 
+  watch: {
+    "$state.needDatabase": {
+      immediate: true,
+      handler(needDatabase) {
+        console.log("on", "$state.needDatabase", needDatabase);
+        if (needDatabase) {
+          this.redirect({
+            name: "adminInstall",
+            params: { type: "database" },
+          });
+        }
+      },
+    },
+    "$state.needAdmin": {
+      immediate: true,
+      handler(needAdmin) {
+        console.log("on", "$state.needAdmin", needAdmin);
+        if (needAdmin) {
+          this.redirect({
+            name: "adminInstall",
+            params: { type: "user" },
+          });
+        }
+      },
+    },
+  },
+
   created() {
     api.onError.add(this.displayError);
-    api.onRedirect.add((route) => {
-      if (
-        !route ||
-        JSON.stringify(route.name) !== JSON.stringify(this.$route.name)
-      ) {
-        console.log("redirect", route);
-        this.$router.push(route);
-      }
-    });
+    api.onRedirect.add(this.redirect);
     api.init();
 
     // api.login("damien@doussaud.fr", "Damien");
@@ -73,6 +94,15 @@ export default {
   },
 
   methods: {
+    redirect(route) {
+      if (
+        !route ||
+        JSON.stringify(route.name) !== JSON.stringify(this.$route.name)
+      ) {
+        this.$router.push(route);
+      }
+    },
+
     displayError(message) {
       // alert(message);
       console.error(message);

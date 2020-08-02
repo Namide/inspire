@@ -17,16 +17,16 @@ Vue.prototype.$tasks = tasksManager.$tasks;
 // injection d'une fonction pour l'option personnalisée `myOption`
 Vue.mixin({
   methods: {
-    addAuth: api.addAuth
-  }
+    addAuth: api.addAuth,
+  },
 });
 
 new Vue({
   data: {
     // Dynamise global data
     $state: api.$state,
-    $tasks: tasksManager.$tasks
+    $tasks: tasksManager.$tasks,
   },
   router,
-  render: h => h(App)
+  render: (h) => h(App),
 }).$mount("#app");

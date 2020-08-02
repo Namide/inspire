@@ -3,7 +3,7 @@
     <h2>Install {{ $route.params.type }}</h2>
 
     <div v-if="isDatabase">
-      <form class="form">
+      <div class="form">
         <label>userName</label>
         <input
           type="text"
@@ -44,11 +44,11 @@
 
         <button @click="testDatabase">Test</button>
         <button @click="connectDatabase">Install</button>
-      </form>
+      </div>
     </div>
 
     <div v-else-if="isAdmin">
-      <form class="form">
+      <div class="form">
         <label>name</label>
         <input
           type="text"
@@ -80,7 +80,7 @@
         </div>
 
         <button @click="addAdmin">Register</button>
-      </form>
+      </div>
     </div>
   </div>
 </template>
@@ -119,7 +119,30 @@ export default {
       return this.$route.params.type === "database";
     },
     isAdmin() {
-      return this.$route.params.type === "admin";
+      return this.$route.params.type === "user";
+    },
+  },
+
+  watch: {
+    "$state.needDatabase": {
+      immediate: true,
+      handler(needDatabase) {
+        if (!needDatabase) {
+          this.$router.push({
+            name: "home",
+          });
+        }
+      },
+    },
+    "$state.needAdmin": {
+      immediate: true,
+      handler(needAdmin) {
+        if (!needAdmin) {
+          this.$router.push({
+            name: "home",
+          });
+        }
+      },
     },
   },
 
@@ -144,7 +167,6 @@ export default {
       this.success = "";
       api
         .addUser(Object.assign({ role: ROLES.ADMIN }, this.admin))
-        .then((user) => this.$router.push({ name: "admin" }))
         .catch((error) => (this.error = error.message));
     },
   },

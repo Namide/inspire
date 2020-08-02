@@ -182,10 +182,7 @@ class ApiSave extends Api {
       .then((response) => response.json())
       .then((json) => {
         if (json.success) {
-          this.onRedirect.dispatch({
-            name: "adminInstall",
-            params: { type: "admin" },
-          });
+          this.init();
           return true;
         } else {
           throw new Error(json.message);

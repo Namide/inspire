@@ -76,7 +76,7 @@ const routes = [
 
   {
     name: "adminInstall",
-    path: "/admin/install/:type(database|admin)",
+    path: "/admin/install/:type(database|user)",
     component: () =>
       import(/* webpackChunkName: "import" */ "@/views/AdminInstall"),
     meta: {

@@ -5,7 +5,6 @@ module.exports = {
   onBeforeStart: new Signal(),
   onAfterStart: new Signal(),
 
-  onConfigureDb: new Signal(),
   onConfigureDbBefore: new Signal(),
   onConfigureDbAfter: new Signal(),
 

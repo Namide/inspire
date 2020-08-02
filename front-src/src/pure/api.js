@@ -1,5 +1,6 @@
 // import config from '../../config'
 
+import Vue from "vue";
 import Signal from "./Signal";
 import Item from "./Item";
 const { ROLES } = require("../../../web/app/constants/permissions.js");
@@ -51,21 +52,29 @@ class Api {
             needDatabase,
             needAdmin,
           });
-          this.$state = Object.assign(this.$state, { isLogged });
+
+          // this.$state = Object.assign(this.$state, {
+          //   version,
+          //   serverTime,
+          //   isLogged,
+          //   needDatabase,
+          //   needAdmin,
+          // });
+
+          const data = {
+            version,
+            serverTime,
+            isLogged,
+            needDatabase,
+            needAdmin,
+          };
+
+          Object.keys(data).forEach((key) => {
+            Vue.set(this.$state, key, data[key]);
+          });
+
           if (isLogged) {
             this.updateMe();
-          }
-          if (needDatabase) {
-            this.onRedirect.dispatch({
-              name: "adminInstall",
-              params: { type: "database" },
-            });
-          }
-          if (needAdmin) {
-            this.onRedirect.dispatch({
-              name: "adminInstall",
-              params: { type: "admin" },
-            });
           }
         }
       )
@@ -120,10 +129,8 @@ class Api {
   setMe() {}
 
   setUser({ email, name, role, _id }) {
-    this.$state = Object.assign(this.$state, {
-      user: { email, name, role, id: _id },
-      isLogged: role !== ROLES.GUEST,
-    });
+    Vue.set(this.$state, "user", { email, name, role, id: _id });
+    Vue.set(this.$state, "isLogged", role !== ROLES.GUEST);
   }
 
   updateMe() {

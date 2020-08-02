@@ -14,14 +14,8 @@ const errorHandler = require('./middleware/errorHandler')
 const responseTime = require('./middleware/responseTime')
 
 // --------------------------
-//         CONSTANTS
-// --------------------------
-const CONFIG = require('../config.json')
-
-// --------------------------
 //         HELPERS
 // --------------------------
-const ObjectID = require('mongodb').ObjectID
 const zlib = require('zlib')
 const hooks = require('./event/hooks')
 
@@ -29,6 +23,7 @@ const hooks = require('./event/hooks')
 //         INIT APP
 // --------------------------
 const { app, router } = require('./helpers/core')
+const { getConfig } = require('./helpers/config')
 
 app.use(errorHandler)
 app.use(responseTime)
@@ -61,10 +56,9 @@ app.use(Static('./public'))
 // --------------------------
 const initDb = async () => {
   try {
-    const CONFIG = require('../config.json')  
-    const { connect } = require('./helpers/database')  
-    const { db } = await connect(CONFIG.db)
-  
+    const { connect } = require('./helpers/database')
+    const { db } = await connect(getConfig().db)
+
     await hooks.onInitDbBefore.dispatch(db, app)
     app.collections = {}
     // db.command( { listCollections: 1 } )
@@ -72,7 +66,7 @@ const initDb = async () => {
     console.log('DB connected')
     await hooks.onInitDb.dispatch(db, app)
     await hooks.onInitDbAfter.dispatch(db, app)
-  
+
     return true
   } catch (error) {
     console.log('DB connection error:', error.message)
@@ -81,7 +75,7 @@ const initDb = async () => {
 }
 require('./middleware/ratelimit.js')(app)
 
-if (!CONFIG.db || !initDb()) {
+if (!getConfig().db || !initDb()) {
   hooks.onConfigureDbAfter.dispatch(initDb)
 }
 
@@ -102,4 +96,4 @@ require('./routes/files.js')
 app
   .use(router.routes())
   .use(router.allowedMethods())
-  .listen(CONFIG.server.port)
+  .listen(getConfig().server.port)

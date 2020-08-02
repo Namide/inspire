@@ -1,21 +1,21 @@
 module.exports = {
-  outputDir: '../web/public',
+  outputDir: "../web/public",
 
   devServer: {
     proxy: {
       "/api": {
-        target: "http://inspire-server-dev:3000",
+        target: "http://inspire-server-dev:80",
         // pathRewrite: { '^/api': '' },
         // changeOrigin: true,
-        secure: false
-      }
-    }
+        secure: false,
+      },
+    },
   },
 
   pwa: {
     themeColor: "#FF0077",
-    msTileColor: "#FFFFFF"
+    msTileColor: "#FFFFFF",
   },
 
-  productionSourceMap: false
+  productionSourceMap: false,
 };

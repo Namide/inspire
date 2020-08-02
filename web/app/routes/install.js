@@ -1,6 +1,7 @@
 const { router } = require('../helpers/core')
 const { connect } = require('../helpers/database')
 const hooks = require('../event/hooks')
+const { addToConfigFile } = require('../helpers/config')
 
 const testDatabaseConnect = async (data) => {
   const { db, client } = await connect(data)
@@ -23,19 +24,9 @@ router.post('/api/database/install', async (ctx) => {
     if (success) {
       try {
         await hooks.onConfigureDbBefore.dispatch()
-        const path = require('path')
-        const fileName = path.resolve(__dirname, '../../config.json')
-        const fs = require('fs');
-        const str = fs.readFileSync(fileName);
-        const json = JSON.parse(str);
-        json.db = payload
-
-        await hooks.onConfigureDb.dispatch()
-
-        fs.writeFileSync(fileName, JSON.stringify(json, null, 2))
-
+        addToConfigFile({ db: payload })
         await hooks.onConfigureDbAfter.dispatch()
-        
+
         ctx.body = {
           success: true
         }
