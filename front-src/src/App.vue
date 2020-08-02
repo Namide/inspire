@@ -83,6 +83,7 @@ export default {
   created() {
     api.onError.add(this.displayError);
     api.onRedirect.add(this.redirect);
+    api.onStateChange.add((state) => (this.$state = state));
     api.init();
 
     // api.login("damien@doussaud.fr", "Damien");

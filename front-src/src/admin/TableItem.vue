@@ -10,7 +10,7 @@
       <template v-if="cellName === 'tags'">
         <Tags
           :filter="itemInput[cellName] || []"
-          @change="val => (itemInput[cellName] = val)"
+          @change="(val) => (itemInput[cellName] = val)"
           placeholder="Tags (separated by comas)"
         />
       </template>
@@ -22,7 +22,7 @@
             save({
               label: cellName,
               itemID: itemInput.id,
-              value: itemInput[cellName]
+              value: itemInput[cellName],
             })
           "
           class="editable"
@@ -54,7 +54,7 @@
             save({
               label: cellName,
               itemID: itemInput.id,
-              value: itemInput[cellName]
+              value: itemInput[cellName],
             })
           "
           class="editable"
@@ -70,7 +70,7 @@
             save({
               label: cellName,
               itemID: itemInput.id,
-              value: itemInput[cellName]
+              value: itemInput[cellName],
             })
           "
           class="editable"
@@ -86,20 +86,20 @@
         <InputMarkdown
           v-if="itemInput['content']"
           v-model="itemInput['input']"
-          @input="val => updateContent(itemInput, val)"
-          @submit="val => updateContent(itemInput, val)"
+          @input="(val) => updateContent(itemInput, val)"
+          @submit="(val) => updateContent(itemInput, val)"
           placeholder="Content (URL, markdown, HTML, embed...)"
         />
         <AdminFileLoader
           v-else-if="itemInput['file']"
-          @change="file => fileChange(itemInput, cellName, file)"
+          @change="(file) => fileChange(itemInput, cellName, file)"
           :image="itemInput['file']"
           :only-img="false"
           size="small"
         />
         <AdminFileLoader
           v-else-if="itemInput['image']"
-          @change="file => fileChange(itemInput, cellName, file)"
+          @change="(file) => fileChange(itemInput, cellName, file)"
           :image="itemInput['image']"
           :only-img="true"
           :size="'small'"
@@ -117,7 +117,7 @@
             save({
               label: cellName,
               itemID: itemInput.id,
-              value: Number(itemInput[cellName])
+              value: Number(itemInput[cellName]),
             })
           "
           class="editable"
@@ -150,7 +150,7 @@ const STATES = {
   DEFAULT: "default",
   SAVING: "saving",
   SAVED: "saved",
-  ERROR: "error"
+  ERROR: "error",
 };
 
 export default {
@@ -159,29 +159,29 @@ export default {
     Loader,
     Tags,
     InputTextarea,
-    InputMarkdown
+    InputMarkdown,
   },
 
   props: {
     cellsVisible: {
       type: Array,
-      required: true
+      required: true,
     },
     item: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data() {
     return {
       STATES,
-      visibilities: Object.values(VISIBILITY).map(value => ({
+      visibilities: Object.values(VISIBILITY).map((value) => ({
         value,
-        label: value[0].toUpperCase() + value.slice(1)
+        label: value[0].toUpperCase() + value.slice(1),
       })),
       // state: {},
-      itemInput: {}
+      itemInput: {},
     };
   },
 
@@ -193,8 +193,8 @@ export default {
           JSON.parse(JSON.stringify(val))
         );
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
 
   methods: {
@@ -233,7 +233,7 @@ export default {
         title,
         description,
         process,
-        cancel
+        cancel,
       });
     },
 
@@ -244,16 +244,16 @@ export default {
 
     fileChange(object, label, file = null) {
       if (file) {
-        this.itemSave.updateByFile(file).then(itemSave => {
+        this.itemSave.updateByFile(file).then((itemSave) => {
           this.$set(object, label, itemSave.getObject());
         });
       } else {
-        this.itemSave.removeFile().then(itemSave => {
+        this.itemSave.removeFile().then((itemSave) => {
           this.$set(object, label, itemSave.getObject());
         });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

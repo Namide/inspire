@@ -30,22 +30,12 @@ app.use(responseTime)
 app.use(BodyParser())
 app.use(logger())
 app.use(compress({
-  // filter (content_type) {
-  //   return /text/i.test(content_type)
-  // },
   threshold: 2048,
   gzip: { flush: zlib.Z_SYNC_FLUSH },
   deflate: { flush: zlib.Z_SYNC_FLUSH },
   br: false // disable brotli
 }))
 app.use(Static('./public'))
-// app.use(async (ctx, next) => {
-//   if (ctx.request.url === '/test') {
-//     ctx.serve()
-//   } else {
-//     await next()
-//   }
-// })
 
 // Security
 // https://nodesource.com/blog/Express-Koa-Hapi

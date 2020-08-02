@@ -1,6 +1,4 @@
 // import config from '../../config'
-
-import Vue from "vue";
 import Signal from "./Signal";
 import Item from "./Item";
 const { ROLES } = require("../../../web/app/constants/permissions.js");
@@ -12,10 +10,14 @@ class Api {
     // this.onLogin = new Signal();
     this.onError = new Signal();
     this.onRedirect = new Signal();
+    this.onStateChange = new Signal();
 
-    this.$state = {
+    this.state = {
       isLogged: false,
       user: Api.createDefaultUser(),
+      serverTime: Date.now(),
+      needDatabase: false,
+      needAdmin: false,
     };
 
     try {
@@ -53,7 +55,7 @@ class Api {
             needAdmin,
           });
 
-          // this.$state = Object.assign(this.$state, {
+          // this.state = Object.assign(this.state, {
           //   version,
           //   serverTime,
           //   isLogged,
@@ -69,9 +71,8 @@ class Api {
             needAdmin,
           };
 
-          Object.keys(data).forEach((key) => {
-            Vue.set(this.$state, key, data[key]);
-          });
+          this.state = Object.assign({}, this.state, data);
+          this.onStateChange.dispatch(this.state);
 
           if (isLogged) {
             this.updateMe();
@@ -96,10 +97,10 @@ class Api {
   parsePayload(payload) {
     if (payload.error === true) {
       this.onError.dispatch(payload.message);
-      return Promise.reject(new Error(payload.message));
+      throw new Error(payload.message);
     }
 
-    return Promise.resolve(payload);
+    return payload;
   }
 
   addAuth(url) {
@@ -129,8 +130,12 @@ class Api {
   setMe() {}
 
   setUser({ email, name, role, _id }) {
-    Vue.set(this.$state, "user", { email, name, role, id: _id });
-    Vue.set(this.$state, "isLogged", role !== ROLES.GUEST);
+    const data = {
+      user: { email, name, role, id: _id },
+      isLogged: role !== ROLES.GUEST,
+    };
+    this.state = Object.assign({}, this.state, data);
+    this.onStateChange.dispatch(this.state);
   }
 
   updateMe() {
@@ -182,6 +187,7 @@ class Api {
 
     return fetch("/api/items", options)
       .then((response) => response.json())
+      .then((payload) => this.parsePayload(payload))
       .then(({ items }) => items.map((payload) => this.parseItem(payload)));
     // .then(console.log)
     // .catch(console.error);

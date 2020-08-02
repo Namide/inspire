@@ -11,7 +11,7 @@ Vue.config.productionTip = false;
 
 // fetch('/api/inspire/items/items')
 //   .then(console.log)
-Vue.prototype.$state = api.$state;
+Vue.prototype.$state = api.state;
 Vue.prototype.$tasks = tasksManager.$tasks;
 
 // injection d'une fonction pour l'option personnalisée `myOption`
@@ -24,7 +24,7 @@ Vue.mixin({
 new Vue({
   data: {
     // Dynamise global data
-    $state: api.$state,
+    $state: api.state,
     $tasks: tasksManager.$tasks,
   },
   router,

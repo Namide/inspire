@@ -6,13 +6,13 @@ export default {
       type: Array,
       default() {
         return [];
-      }
-    }
+      },
+    },
   },
   data() {
     return {
       items: [],
-      loading: false
+      loading: false,
     };
   },
   watch: {
@@ -22,14 +22,14 @@ export default {
         this.loading = true;
         api
           .getItems(filter)
-          .then(items => {
+          .then((items) => {
             this.items = items;
           })
           .catch(console.error)
           .finally(() => {
             this.loading = false;
           });
-      }
-    }
-  }
+      },
+    },
+  },
 };
