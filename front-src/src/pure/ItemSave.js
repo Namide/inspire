@@ -1,5 +1,5 @@
 import Item from "@/pure/Item";
-import apiSave from "@/pure/apiSave";
+import api from "@/pure/api";
 // import { extractColorsFromImage } from "extract-colors";
 import externalURL from "@/pure/externalURL.js";
 import { extractType, getMimeData } from "@/pure/contentHelpers.js";
@@ -11,8 +11,8 @@ import { TYPES } from "../../../web/app/constants/items";
  * @param {String} url
  * @returns {Promise<Object>}
  */
-const fetchUrl = url => {
-  return apiSave.getDistantLink(url).then(response => {
+const fetchUrl = (url) => {
+  return api.getDistantLink(url).then((response) => {
     if (response.ok) {
       return response;
     } else {
@@ -22,7 +22,7 @@ const fetchUrl = url => {
 };
 
 const responseToFile = (response, url = response.url) => {
-  return response.blob().then(blob => {
+  return response.blob().then((blob) => {
     const mimeData = getMimeData(blob.type);
     const fileName =
       url.substring(url.lastIndexOf("/") + 1).split(/#|\?/)[0] ||
@@ -30,7 +30,7 @@ const responseToFile = (response, url = response.url) => {
 
     return new File([blob], fileName, {
       type: blob.type,
-      lastModified: blob.lastModified
+      lastModified: blob.lastModified,
     });
   });
 };
@@ -107,8 +107,8 @@ export default class ItemSave extends Item {
 
   _setImageByURL(url) {
     return fetchUrl(url)
-      .then(response => responseToFile(response, url))
-      .then(file => this._setImage(file));
+      .then((response) => responseToFile(response, url))
+      .then((file) => this._setImage(file));
   }
 
   _setImage(file) {
@@ -164,12 +164,12 @@ export default class ItemSave extends Item {
   // }
 
   _updateByLink(url) {
-    return fetchUrl(url).then(response => {
+    return fetchUrl(url).then((response) => {
       const contentType = response.headers.get("content-type");
 
       // HTML
       if (contentType.indexOf("text/html") > -1) {
-        return response.text().then(text => {
+        return response.text().then((text) => {
           const parser = new DOMParser();
           const doc = parser.parseFromString(text, "text/html");
           return this._analyseHtml(url, doc);
@@ -177,7 +177,7 @@ export default class ItemSave extends Item {
 
         // FILE
       } else {
-        return response.blob().then(blob => {
+        return response.blob().then((blob) => {
           const mimeData = getMimeData(blob.type);
           const fileName =
             url.substring(url.lastIndexOf("/") + 1).split(/#|\?/)[0] ||
@@ -186,7 +186,7 @@ export default class ItemSave extends Item {
           return this.updateByFile(
             new File([blob], fileName, {
               type: blob.type,
-              lastModified: blob.lastModified
+              lastModified: blob.lastModified,
             })
           );
         });
@@ -225,7 +225,7 @@ export default class ItemSave extends Item {
     const getData = () => ({
       type: file.type,
       size: file.size,
-      name: file.name
+      name: file.name,
     });
 
     // Image
@@ -266,8 +266,8 @@ export default class ItemSave extends Item {
     return (
       externalURL(url, doc)
         // Know URL
-        .then(object => {
-          Object.keys(object).forEach(label => {
+        .then((object) => {
+          Object.keys(object).forEach((label) => {
             this[label] = object[label];
           });
 

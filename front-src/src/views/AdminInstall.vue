@@ -86,7 +86,7 @@
 </template>
 
 <script>
-import api from "@/pure/apiSave";
+import api from "@/pure/api";
 const { ROLES } = require("../../../web/app/constants/permissions.js");
 
 export default {
@@ -124,22 +124,23 @@ export default {
   },
 
   watch: {
-    "$state.needDatabase": {
+    $state: {
       immediate: true,
-      handler(needDatabase) {
-        if (!needDatabase) {
+      deep: true,
+      handler(state) {
+        if (!state.needDatabase && !state.needAdmin) {
           this.$router.push({
             name: "home",
           });
-        }
-      },
-    },
-    "$state.needAdmin": {
-      immediate: true,
-      handler(needAdmin) {
-        if (!needAdmin) {
-          this.$router.push({
-            name: "home",
+        } else if (state.needDatabase) {
+          this.redirect({
+            name: "adminInstall",
+            params: { type: "database" },
+          });
+        } else if (state.needAdmin) {
+          this.redirect({
+            name: "adminInstall",
+            params: { type: "user" },
           });
         }
       },

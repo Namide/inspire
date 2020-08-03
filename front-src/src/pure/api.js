@@ -27,6 +27,8 @@ class Api {
       console.error(error.message);
     }
 
+    this.init = this.init.bind(this);
+
     this.addAuth = this.addAuth.bind(this);
   }
 
@@ -35,7 +37,6 @@ class Api {
       method: "get",
       headers: this._createHeaders(),
     };
-
     return fetch("/api", options)
       .then((response) => this.parseResponse(response))
       .then((payload) => this.parsePayload(payload))
@@ -55,14 +56,6 @@ class Api {
             needAdmin,
           });
 
-          // this.state = Object.assign(this.state, {
-          //   version,
-          //   serverTime,
-          //   isLogged,
-          //   needDatabase,
-          //   needAdmin,
-          // });
-
           const data = {
             version,
             serverTime,
@@ -80,6 +73,21 @@ class Api {
         }
       )
       .catch((error) => this.onError.dispatch(error.message));
+  }
+
+  /**
+   * @param {String} link
+   * @returns {Promise}
+   */
+  getDistantLink(link) {
+    const options = {
+      method: "get",
+      headers: this._createHeaders(),
+    };
+
+    const url = encodeURIComponent(link);
+
+    return fetch("/api/distant/" + url, options);
   }
 
   /**
@@ -263,6 +271,127 @@ class Api {
   //     }
   //   });
   // }
+
+  addUser({ name, email, password, role }) {
+    const body = new FormData();
+    body.append("name", name);
+    body.append("email", email);
+    body.append("password", password);
+    body.append("role", role);
+
+    const options = {
+      method: "post",
+      headers: this._createHeaders(),
+      body,
+    };
+
+    return fetch("/api/users", options)
+      .then((response) => response.json())
+      .then((payload) => this.parsePayload(payload))
+      .then(({ user }) => user);
+  }
+
+  addItem(item, image = null, file = null) {
+    const body = new FormData();
+    body.append("item", JSON.stringify(item));
+
+    if (image) {
+      body.append("image", image);
+    }
+
+    if (file) {
+      body.append("file", file);
+    }
+
+    const options = {
+      method: "post",
+      headers: this._createHeaders(),
+      body,
+    };
+
+    return fetch("/api/items", options)
+      .then((response) => response.json())
+      .then((payload) => this.parsePayload(payload))
+      .then(({ item }) => Api.parseItem(item));
+  }
+
+  databaseTest({ userName, userPassword, auth, name, host, port }) {
+    const payload = {
+      database: { userName, userPassword, auth, name, host, port },
+    };
+    const options = {
+      method: "post",
+      headers: this._createHeaders({ isJson: true }),
+      body: JSON.stringify(payload),
+    };
+
+    return fetch("/api/database/test", options)
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.success) {
+          return true;
+        } else {
+          throw new Error(json.message);
+        }
+      });
+  }
+
+  databaseConnect({ userName, userPassword, auth, name, host, port }) {
+    const payload = {
+      database: { userName, userPassword, auth, name, host, port },
+    };
+    const options = {
+      method: "post",
+      headers: this._createHeaders({ isJson: true }),
+      body: JSON.stringify(payload),
+    };
+
+    return fetch("/api/database/install", options)
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.success) {
+          return this.init();
+        } else {
+          throw new Error(json.message);
+        }
+      })
+      .then(() => true);
+  }
+
+  deleteItem(id) {
+    const options = {
+      method: "delete",
+      headers: this._createHeaders(),
+    };
+
+    return fetch("/api/items/" + id, options).then((response) =>
+      response.json()
+    );
+  }
+
+  updateItem(id, payload, image, file) {
+    const body = new FormData();
+    body.append("item", JSON.stringify(payload));
+
+    if (image) {
+      body.append("image", image);
+    }
+
+    if (file) {
+      body.append("file", file);
+    }
+
+    const options = {
+      method: "post",
+      headers: this._createHeaders(),
+      body,
+    };
+
+    return fetch("/api/items/" + id, options)
+      .then((response) => response.json())
+      .then((payload) => this.parsePayload(payload))
+      .then(({ item }) => this.parseItem(item));
+  }
 
   _disconnect() {
     try {

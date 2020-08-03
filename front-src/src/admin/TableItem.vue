@@ -136,7 +136,7 @@
 </template>
 
 <script>
-import apiSave from "@/pure/apiSave";
+import api from "@/pure/api";
 import Loader from "@/components/Loader.vue";
 import Tags from "@/components/Tags.vue";
 import { VISIBILITY } from "../../../web/app/constants/permissions";
@@ -208,7 +208,7 @@ export default {
       this.$set(this.itemInput.tableItemState, label, STATES.SAVING);
 
       const process = () => {
-        apiSave
+        api
           .updateItem(itemID, { [label]: value })
           .then(() => {
             this.$set(this.itemInput.tableItemState, label, STATES.SAVED);

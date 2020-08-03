@@ -34,6 +34,8 @@ const User = () => import(/* webpackChunkName: "admin" */ "@/components/User");
 const Tasks = () => import(/* webpackChunkName: "admin" */ "@/admin/Tasks");
 
 export default {
+  name: "App",
+
   components: {
     User,
     ModalItem,
@@ -41,10 +43,6 @@ export default {
     Connect,
     Tasks,
     Menu,
-  },
-
-  data() {
-    return {};
   },
 
   computed: {
@@ -83,10 +81,7 @@ export default {
   created() {
     api.onError.add(this.displayError);
     api.onRedirect.add(this.redirect);
-    api.onStateChange.add((state) => (this.$state = state));
     api.init();
-
-    // api.login("damien@doussaud.fr", "Damien");
   },
 
   destroyed() {
@@ -95,30 +90,10 @@ export default {
   },
 
   methods: {
-    redirect(route) {
-      if (
-        !route ||
-        JSON.stringify(route.name) !== JSON.stringify(this.$route.name)
-      ) {
-        this.$router.push(route);
-      }
-    },
-
     displayError(message) {
       // alert(message);
       console.error(message);
     },
-
-    // setLogged(data) {
-    //   console.log(data);
-    //   const getUser = data => ({
-    //     nick: data.firstName + " " + data.lastName,
-    //     image: data.avatar
-    //   });
-
-    //   const user = data ? getUser(data) : null;
-    //   this.$store.commit("user", user);
-    // }
   },
 };
 </script>

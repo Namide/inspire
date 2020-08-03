@@ -34,9 +34,9 @@
 
 <script>
 import Papa from "papaparse";
-// import apiSave from '@/pure/apiSave.js'
+// import api from '@/pure/api.js'
 import ItemSave from "@/pure/ItemSave";
-import apiSave from "@/pure/apiSave";
+import api from "@/pure/api";
 
 export default {
   data() {
@@ -48,7 +48,7 @@ export default {
       errors: [],
       total: 0,
       ready: 0,
-      logs: []
+      logs: [],
     };
   },
 
@@ -59,7 +59,7 @@ export default {
     lastLogs() {
       return this.logs.map((text, key) => ({ text, key }));
       // .filter((_, i) => i > this.logs.length - 10)
-    }
+    },
   },
 
   components: {},
@@ -83,7 +83,7 @@ export default {
             for (let i = 0; i < parallels; i++) {
               this.runProcess(list);
             }
-          }
+          },
         });
       }
     },
@@ -166,13 +166,13 @@ export default {
 
             const { item: payload, image, file } = item.getBody();
             console.log("payload:", payload);
-            return apiSave.addItem(payload, image, file);
+            return api.addItem(payload, image, file);
           })
-          .then(data => {
+          .then((data) => {
             console.log("data:", data);
             this.ready++;
           })
-          .catch(error => {
+          .catch((error) => {
             this.errors.push(itemData);
             this.logs.push("🔺  id:" + itemData.id + " " + error.message);
             this.logs.push(this.resumeItem(item.getObject()));
@@ -216,8 +216,8 @@ export default {
       }
       str += "---------------------";
       return str;
-    }
-  }
+    },
+  },
 };
 </script>
 

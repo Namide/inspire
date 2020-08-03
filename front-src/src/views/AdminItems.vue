@@ -34,22 +34,20 @@ import Tags from "@/components/Tags.vue";
 import TableItems from "@/admin/TableItems.vue";
 import AdminItemForm from "@/admin/AdminItemForm.vue";
 import Modal from "@/components/Modal.vue";
-// import apiSave from "@/pure/apiSave";
-// import Loader from "@/components/Loader.vue";
 
 export default {
   components: {
     TableItems,
     AdminItemForm,
     Modal,
-    Tags
+    Tags,
   },
 
   data() {
     return {
       isModalOpen: false,
       filter: [],
-      editItem: null
+      editItem: null,
     };
   },
 
@@ -57,8 +55,8 @@ export default {
     edit(item) {
       this.editItem = item;
       this.isModalOpen = true;
-    }
-  }
+    },
+  },
 };
 </script>
 

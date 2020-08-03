@@ -31,12 +31,12 @@
       />
       <InputTextarea
         :value="input.description"
-        @change="val => $set(input, 'description', val)"
+        @change="(val) => $set(input, 'description', val)"
         placeholder="Description"
       />
       <Tags
         :tags="input.tags ? input.tags : []"
-        @change="val => (input.tags = val)"
+        @change="(val) => (input.tags = val)"
         placeholder="Tags (separated by comas)"
       />
 
@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import apiSave from "@/pure/apiSave";
+import api from "@/pure/api";
 // import api from '../pure/api'
 import AdminFileLoader from "@/admin/AdminFileLoader.vue";
 import Tags from "@/components/Tags";
@@ -118,7 +118,7 @@ export default {
     EditContent,
     InputTextarea,
     Tags,
-    Tabs
+    Tabs,
   },
 
   props: {
@@ -126,23 +126,23 @@ export default {
       type: Object,
       default() {
         return {};
-      }
+      },
     },
     create: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data() {
     return {
       isFile: false,
       input: null,
-      visibilities: Object.values(VISIBILITY).map(value => ({
+      visibilities: Object.values(VISIBILITY).map((value) => ({
         value,
-        label: value[0].toUpperCase() + value.slice(1)
+        label: value[0].toUpperCase() + value.slice(1),
       })),
-      state: 0
+      state: 0,
     };
   },
 
@@ -170,7 +170,7 @@ export default {
     },
     "input.input"(val) {
       this.itemSave.input = val;
-    }
+    },
   },
 
   computed: {},
@@ -210,10 +210,10 @@ export default {
     deleteItem() {
       const item = new ItemSave();
       item.fromObject(this.item);
-      apiSave
+      api
         .deleteItem(item.id)
         .then(() => this.$emit("cancel"))
-        .catch(error => console.error(error))
+        .catch((error) => console.error(error))
         .finally(() => item.dispose());
 
       // this.$store.dispatch('deleteItem', { id: this.item.id })
@@ -229,14 +229,14 @@ export default {
     save() {
       const { item, image, file } = this.itemSave.getBody();
       if (this.create) {
-        apiSave.addItem(item, image, file).catch(error => {
+        api.addItem(item, image, file).catch((error) => {
           console.log(error);
         });
         this.cancel();
       } else {
         const oldItem = new ItemSave();
         oldItem.fromObject(this.item);
-        apiSave.updateItem(oldItem.id, item, image, file);
+        api.updateItem(oldItem.id, item, image, file);
 
         // .catch(error => {
         //   console.log(error)
@@ -267,56 +267,18 @@ export default {
 
     fileChange(file) {
       if (file) {
-        this.itemSave.updateByFile(file).then(itemSave => {
+        this.itemSave.updateByFile(file).then((itemSave) => {
           this.input = itemSave.getObject();
           // console.log(itemSave)
         });
       } else {
-        this.itemSave.removeFile().then(itemSave => {
+        this.itemSave.removeFile().then((itemSave) => {
           this.input = itemSave.getObject();
           // console.log(itemSave)
         });
       }
-
-      /* if (!file) {
-        this.content = null
-        this.contentFormat = []
-        this._modified.file = null
-        this._modified.content = null
-        this._modified.contentFormat = []
-      }
-
-      const contentFormat = ['file', ...file.type.split('/').map(type => type.toLowerCase())]
-      const content = {
-        name: file.name,
-        size: file.size,
-        type: file.type
-      }
-
-      this.contentFormat = copy(contentFormat)
-      this.content = copy(content)
-      this._modified.contentFormat = contentFormat
-      this._modified.content = content
-      this._modified.file = file
-
-      // this.file = file
-      // this._modified.content_file = file
-
-      const types = file.type ? file.type.split('/') : []
-      if (types.length > 0 && this.types.indexOf(types[0]) < 0) { this.types.push(types[0]) }
-
-      if (file.name && file.name !== '' && this.title === '') {
-        const arr = file.name.trim().split('.')
-        arr.pop()
-
-        const title = arr.join(' ')
-          .split('_').join(' ')
-          .split('-').join(' ')
-
-        if (title.length > 0) { this.title = title.charAt(0).toUpperCase() + title.slice(1) }
-      } */
-    }
-  }
+    },
+  },
 };
 </script>
 

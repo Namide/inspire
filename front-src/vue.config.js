@@ -6,7 +6,8 @@ module.exports = {
       "/api": {
         target: "http://inspire-server-dev:80",
         // pathRewrite: { '^/api': '' },
-        // changeOrigin: true,
+        // changeOrigin: true,,
+        changeOrigin: true,
         secure: false,
       },
     },

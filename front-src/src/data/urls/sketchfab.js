@@ -3,43 +3,40 @@ import { TYPES } from "../../../../web/app/constants/items";
 export default [
   {
     regexList: [/sketchfab\.com\/3d-models\/\w+/i],
-    process: (url, { apiSave }) => {
-      return new Promise(resolve => {
-        const id = url.pathname
-          .split("/")[2]
-          .split("-")
-          .pop();
+    process: (url, { api }) => {
+      return new Promise((resolve) => {
+        const id = url.pathname.split("/")[2].split("-").pop();
         const dataURL = new URL("https://sketchfab.com/oembed");
         dataURL.searchParams.set("url", url.href);
 
-        apiSave
+        api
           .getDistantLink(dataURL.href)
-          .then(response => {
+          .then((response) => {
             if (response.ok) {
               return response.json();
             } else {
               throw new Error("Link not found");
             }
           })
-          .then(json => {
+          .then((json) => {
             resolve({
               title: json.title,
               description: json.description,
               types: [TYPES.EMBED, TYPES.THREE_D],
               tags: [TYPES.THREE_D, json.author_name],
               image: json.thumbnail_url,
-              content: `<iframe width="${json.width}" height="${json.height}" src="https://sketchfab.com/models/${id}/embed?camera=0" frameborder="0" allow="autoplay; fullscreen; vr" allowfullscreen></iframe>`
+              content: `<iframe width="${json.width}" height="${json.height}" src="https://sketchfab.com/models/${id}/embed?camera=0" frameborder="0" allow="autoplay; fullscreen; vr" allowfullscreen></iframe>`,
             });
           })
-          .catch(error => {
+          .catch((error) => {
             console.error("sketchfab error: " + error.message);
             resolve({
               types: [TYPES.EMBED, TYPES.THREE_D],
               tags: [TYPES.THREE_D],
-              content: `<iframe src="https://sketchfab.com/models/${id}/embed?camera=0" width="640" height="480" frameborder="0" allow="autoplay; fullscreen; vr" allowfullscreen></iframe>`
+              content: `<iframe src="https://sketchfab.com/models/${id}/embed?camera=0" width="640" height="480" frameborder="0" allow="autoplay; fullscreen; vr" allowfullscreen></iframe>`,
             });
           });
       });
-    }
-  }
+    },
+  },
 ];
