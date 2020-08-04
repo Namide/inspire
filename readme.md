@@ -76,6 +76,7 @@ Users has many roles, this is the list of those ones:
 
 ## Roadmap
 
+- `70%` Install from frontend
 - `60%` Items list page
 - `40%` Item page
 - `0%` Groups list page
