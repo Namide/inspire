@@ -1,7 +1,7 @@
 <template>
   <div class="connect">
     <div>
-      <input type="text" v-model="mail" placeholder="login" />
+      <input type="email" v-model="mail" placeholder="email" />
       <input type="password" v-model="pass" placeholder="password" />
       <button @click="login">Signin</button>
     </div>
