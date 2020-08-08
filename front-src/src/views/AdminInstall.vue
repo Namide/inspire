@@ -160,7 +160,7 @@ export default {
       this.error = "";
       this.success = "";
       api
-        .databaseConnect(this.database)
+        .installDatabase(this.database)
         .catch((error) => (this.error = error.message));
     },
     addAdmin() {

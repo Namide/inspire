@@ -20,6 +20,10 @@ const displayUser = user => {
   return user
 }
 
+const addUser = (ctx, user) => {
+
+}
+
 // hooks.initDb.addOnce((db) => {
 
 // })
@@ -258,3 +262,5 @@ router.get('/api/users/me', checkDb, auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTH
 router.post('/api/signin', checkDb, uploaderFileless, signin)
 router.post('/api/signout', checkDb, uploaderFileless, signout)
 router.delete('/api/users/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN], testSameUser), userDelete)
+
+exports.add = userAdd

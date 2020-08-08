@@ -106,15 +106,6 @@ class Api {
   }
 
   parseItem(payload) {
-    // if (this.token) {
-    //   if (payload.image && payload.image.src) {
-    //     payload.image.src += "?token=" + this.token;
-    //   }
-    //   if (payload.file && payload.file.src) {
-    //     payload.file.src += "?token=" + this.token;
-    //   }
-    // }
-
     const item = new Item();
     const object = item.fromPayload(payload).getObject();
     item.dispose();
@@ -165,14 +156,6 @@ class Api {
   }
 
   getItems() {
-    // const options = {
-    //   filter: {
-    //     id: {
-    //       eq: id
-    //     }
-    //   },
-    //   fields: ["*", "image.*", "file.*"]
-    // };
     const options = {
       method: "get",
       headers: this._createHeaders(),
@@ -182,80 +165,9 @@ class Api {
       .then((response) => response.json())
       .then((payload) => this.parsePayload(payload))
       .then(({ items }) => items.map((payload) => this.parseItem(payload)));
-    // .then(console.log)
-    // .catch(console.error);
-    // return this.directus
-    //   .getItems("items", options)
-    //   .then(({ data }) => data.map(Api.parseItem))
-    //   .then(data => data[0])
-    //   .catch(console.error);
   }
 
-  // getItems(items, { limit = 100, offset = 0 } = {}) {
-  //   const { tags, noTags, types, noTypes } = itemsToFilter(items);
-  //   const options = {
-  //     // depth: 1,
-  //     limit,
-  //     offset,
-  //     filter: {
-  //       tags: {},
-  //       types: {}
-  //     },
-  //     fields: ["*", "image.*", "file.*"]
-  //     /* filter: {
-  //       runtime: {
-  //         eq: 200
-  //         gt: 200
-  //       }
-  //     } */
-  //   };
-
-  //   if (tags.length > 0) {
-  //     options.filter.tags.contains = tags.join(",");
-  //   }
-  //   if (noTags.length > 0) {
-  //     options.filter.tags.ncontains = noTags.join(",");
-  //   }
-  //   if (types.length > 0) {
-  //     options.filter.types.contains = types.join(",");
-  //   }
-  //   if (noTypes.length > 0) {
-  //     options.filter.types.ncontains = noTypes; // noTypes.join(',')
-  //   }
-
-  //   return this.directus
-  //     .getItems("items", options)
-  //     .then(({ data }) => data.map(Api.parseItem))
-  //     .catch(console.error);
-  // }
-
-  getGroups(items, { limit = 100, offset = 0 } = {}) {
-    // const options = {
-    //   // depth: 1,
-    //   limit,
-    //   offset,
-    //   fields: ["*", "image.*"]
-    //   /* filter: {
-    //     runtime: {
-    //       eq: 200
-    //       gt: 200
-    //     }
-    //   } */
-    // };
-    // return this.directus
-    //   .getItems("groups", options)
-    //   .then(({ data }) => data.map(Api.parseGroup));
-  }
-
-  // isLoggedIn() {
-  //   return this.directus.isLoggedIn().then(data => {
-  //     if (data === true) {
-  //       this.getMe().then(data => this.onLogin.dispatch(data));
-  //     } else {
-  //       this.onLogin.dispatch(false);
-  //     }
-  //   });
-  // }
+  getGroups(items, { limit = 100, offset = 0 } = {}) {}
 
   addUser({ name, email, password, role }) {
     const body = new FormData();
@@ -321,7 +233,7 @@ class Api {
       });
   }
 
-  databaseConnect({ userName, userPassword, auth, name, host, port }) {
+  installDatabase({ userName, userPassword, auth, name, host, port }) {
     const payload = {
       database: { userName, userPassword, auth, name, host, port },
     };
@@ -333,6 +245,7 @@ class Api {
 
     return fetch("/api/database/install", options)
       .then((response) => response.json())
+      .then((payload) => this.parsePayload(payload))
       .then((json) => {
         if (json.success) {
           return this._updateState(json.global);
@@ -341,6 +254,32 @@ class Api {
         }
       })
       .then(() => true);
+  }
+
+  installUser({ name, email, password, role }) {
+    const body = new FormData();
+    body.append("name", name);
+    body.append("email", email);
+    body.append("password", password);
+    body.append("role", role);
+
+    const options = {
+      method: "post",
+      headers: this._createHeaders(),
+      body,
+    };
+
+    return fetch("/api/install/admin", options)
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.success) {
+          return this._updateState(json.global);
+        } else {
+          throw new Error(json.message);
+        }
+      })
+      .then((payload) => this.parsePayload(payload))
+      .then(({ user }) => user);
   }
 
   deleteItem(id) {

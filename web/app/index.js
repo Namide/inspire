@@ -66,7 +66,7 @@ const initDb = async () => {
 require('./middleware/ratelimit.js')(app)
 
 if (!getConfig().db || !initDb()) {
-  hooks.onConfigureDbAfter.dispatch(initDb)
+  hooks.onInstallDbAfter.addOnce(initDb)
 }
 
 // --------------------------

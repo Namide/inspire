@@ -24,9 +24,9 @@ Vue.mixin({
     addAuth: api.addAuth,
     redirect(route) {
       if (
-        !route ||
-        (route.name !== this.$route.name &&
-          JSON.stringify(route.params) !== JSON.stringify(this.$route.params))
+        !this.$route ||
+        route.name !== this.$route.name ||
+        JSON.stringify(route.params) !== JSON.stringify(this.$route.params)
       ) {
         this.$router.push(route);
       }

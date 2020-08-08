@@ -1,18 +1,19 @@
 class Signal {
-  constructor() {
+  constructor (name = 'signal') {
+    this.name = name
     this._list = []
     this._onceList = []
   }
 
-  add(...callbacks) {
+  add (...callbacks) {
     this._list.push(...callbacks)
   }
 
-  addOnce(...callbacks) {
+  addOnce (...callbacks) {
     this._onceList.push(...callbacks)
   }
 
-  remove(...callbacks) {
+  remove (...callbacks) {
     callbacks.forEach(callback => {
       const i = this._list.indexOf(callback)
       if (i > -1) {
@@ -27,12 +28,13 @@ class Signal {
     })
   }
 
-  removeAll() {
+  removeAll () {
     this._list = []
     this._onceList = []
   }
 
-  dispatch(...data) {
+  async dispatch (...data) {
+    console.log(this.name, 'dispatch')
     const all = [...this._list, ...this._onceList]
     this._onceList = []
     return Promise.all(all.map(callback => callback(...data)))

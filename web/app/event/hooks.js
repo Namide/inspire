@@ -1,14 +1,17 @@
 const Signal = require('./Signal.js')
 
 module.exports = {
-  onStart: new Signal(),
-  onBeforeStart: new Signal(),
-  onAfterStart: new Signal(),
+  onStart: new Signal('onStart'),
+  onBeforeStart: new Signal('onBeforeStart'),
+  onAfterStart: new Signal('onAfterStart'),
 
-  onConfigureDbBefore: new Signal(),
-  onConfigureDbAfter: new Signal(),
+  onInstallDbBefore: new Signal('onInstallDbBefore'),
+  onInstallDbAfter: new Signal('onInstallDbAfter'),
 
-  onInitDb: new Signal(),
-  onInitDbBefore: new Signal(),
-  onInitDbAfter: new Signal()
+  onInstallAdminBefore: new Signal('onInstallAdminBefore'),
+  onInstallAdminAfter: new Signal('onInstallAdminAfter'),
+
+  onInitDb: new Signal('onInitDb'),
+  onInitDbBefore: new Signal('onInitDbBefore'),
+  onInitDbAfter: new Signal('onInitDbAfter')
 }

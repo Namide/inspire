@@ -2,6 +2,7 @@ const { router } = require('../helpers/core')
 const { connect } = require('../helpers/database')
 const hooks = require('../event/hooks')
 const { addToConfigFile } = require('../helpers/config')
+const { add } = require('./users')
 
 const testDatabaseConnect = async (data) => {
   const { db, client } = await connect(data)
@@ -23,21 +24,27 @@ router.post('/api/database/install', async (ctx) => {
 
     if (success) {
       try {
-        await hooks.onConfigureDbBefore.dispatch()
+        await hooks.onInstallDbBefore.dispatch()
         addToConfigFile({ db: payload })
 
         const { getData } = require('../helpers/global.js')
-        const global = await getData(ctx)
 
-        await hooks.onConfigureDbAfter.dispatch()
+        hooks.onInitDbAfter.addOnce(async () => {
+          const global = await getData(ctx)
+          global.needDatabase = false
+          ctx.body = {
+            success: true,
+            global
+          }
+        })
 
-        ctx.body = {
-          success: true,
-          global
-        }
+        await hooks.onInstallDbAfter.dispatch()
+
+        // wait hooks.onInstallDbAfter.dispatch for db install
       } catch (error) {
         const { getData } = require('../helpers/global.js')
         const global = await getData(ctx)
+
         ctx.body = {
           error: true,
           message: error.message,
@@ -50,6 +57,37 @@ router.post('/api/database/install', async (ctx) => {
       data.error = true
       data.message = 'Can not connect to database'
       ctx.body = data
+    }
+  }
+})
+
+router.post('/api/install/admin', async (ctx) => {
+  if (!ctx.app.collections.users) {
+    return ctx.throw(404, 'Need install database')
+  }
+
+  const count = await ctx.app.collections.users.countDocuments()
+  if (count > 0) {
+    ctx.throw(404, 'Admin already set')
+  } else {
+    try {
+      await hooks.onInstallAdminBefore.dispatch()
+
+      if (add(ctx)) {
+        const { getData } = require('../helpers/global.js')
+        const global = await getData(ctx)
+        ctx.body.global = global
+      }
+
+      await hooks.onInstallAdminAfter.dispatch()
+    } catch (error) {
+      const { getData } = require('../helpers/global.js')
+      const global = await getData(ctx)
+      ctx.body = {
+        error: true,
+        message: error.message,
+        global
+      }
     }
   }
 })
