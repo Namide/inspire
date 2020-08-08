@@ -29,7 +29,6 @@ class Api {
     }
 
     this.init = this.init.bind(this);
-
     this.addAuth = this.addAuth.bind(this);
   }
 

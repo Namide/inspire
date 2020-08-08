@@ -53,7 +53,6 @@ export default {
     "$state.needDatabase": {
       immediate: true,
       handler(needDatabase) {
-        console.log("on", "$state.needDatabase", needDatabase);
         if (needDatabase) {
           this.redirect({
             name: "adminInstall",
@@ -65,7 +64,6 @@ export default {
     "$state.needAdmin": {
       immediate: true,
       handler(needAdmin) {
-        console.log("on", "$state.needAdmin", needAdmin);
         if (needAdmin) {
           this.redirect({
             name: "adminInstall",

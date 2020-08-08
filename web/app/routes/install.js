@@ -3,6 +3,8 @@ const { connect } = require('../helpers/database')
 const hooks = require('../event/hooks')
 const { addToConfigFile } = require('../helpers/config')
 const { add } = require('./users')
+const checkDb = require('../middleware/checkDb')
+const { uploaderFileless } = require('../middleware/upload')
 
 const testDatabaseConnect = async (data) => {
   const { db, client } = await connect(data)
@@ -60,11 +62,7 @@ router.post('/api/database/install', async (ctx) => {
   }
 })
 
-router.post('/api/install/admin', async (ctx) => {
-  if (!ctx.app.collections.users) {
-    return ctx.throw(404, 'Need install database')
-  }
-
+router.post('/api/install/admin', checkDb, uploaderFileless, async (ctx) => {
   const count = await ctx.app.collections.users.countDocuments()
   if (count > 0) {
     ctx.throw(404, 'Admin already set')
@@ -72,14 +70,17 @@ router.post('/api/install/admin', async (ctx) => {
     try {
       await hooks.onInstallAdminBefore.dispatch()
 
-      if (add(ctx)) {
-        const { getData } = require('../helpers/global.js')
-        const global = await getData(ctx)
-        ctx.body.success = true
-        ctx.body.global = global
+      const user = await add(ctx)
+      const { getData } = require('../helpers/global.js')
+      const global = await getData(ctx)
+      global.needAdmin = false
+      ctx.body = {
+        user,
+        success: true,
+        global
       }
 
-      await hooks.onInstallAdminAfter.dispatch()
+      await hooks.onInstallAdminAfter.dispatch(user)
     } catch (error) {
       const { getData } = require('../helpers/global.js')
       const global = await getData(ctx)

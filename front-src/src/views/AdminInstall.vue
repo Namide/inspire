@@ -130,17 +130,7 @@ export default {
       handler(state) {
         if (!state.needDatabase && !state.needAdmin) {
           this.$router.push({
-            name: "home",
-          });
-        } else if (state.needDatabase) {
-          this.redirect({
-            name: "adminInstall",
-            params: { type: "database" },
-          });
-        } else if (state.needAdmin) {
-          this.redirect({
-            name: "adminInstall",
-            params: { type: "user" },
+            name: "admin",
           });
         }
       },
@@ -167,7 +157,7 @@ export default {
       this.error = "";
       this.success = "";
       api
-        .addUser(Object.assign({ role: ROLES.ADMIN }, this.admin))
+        .installUser(Object.assign({ role: ROLES.ADMIN }, this.admin))
         .catch((error) => (this.error = error.message));
     },
   },

@@ -217,17 +217,22 @@ const userList = async (ctx) => {
   }
 }
 
-const userAdd = async (ctx) => {
+const add = async ctx => {
   const { name, password, role, email } = ctx.request.body
   const salt = bcrypt.genSaltSync()
   const hash = bcrypt.hashSync(password || '', salt)
+  console.log({ name, password: hash, role, email })
+  const insert = await ctx.app.collections.users
+    .insertOne({ name, password: hash, role, email })
+  const user = insert.ops[0]
+  return displayUser(user)
+}
 
+const userAdd = async (ctx) => {
   try {
-    const insert = await ctx.app.collections.users
-      .insertOne({ name, password: hash, role, email })
-    const user = insert.ops[0]
+    const user = await add(ctx)
     ctx.body = {
-      user: displayUser(user)
+      user
     }
   } catch (error) {
     ctx.body = {
@@ -263,4 +268,4 @@ router.post('/api/signin', checkDb, uploaderFileless, signin)
 router.post('/api/signout', checkDb, uploaderFileless, signout)
 router.delete('/api/users/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN], testSameUser), userDelete)
 
-exports.add = userAdd
+exports.add = add
