@@ -38,9 +38,8 @@ router.post('/api/database/install', async (ctx) => {
           }
         })
 
-        await hooks.onInstallDbAfter.dispatch()
-
         // wait hooks.onInstallDbAfter.dispatch for db install
+        await hooks.onInstallDbAfter.dispatch()
       } catch (error) {
         const { getData } = require('../helpers/global.js')
         const global = await getData(ctx)
@@ -76,6 +75,7 @@ router.post('/api/install/admin', async (ctx) => {
       if (add(ctx)) {
         const { getData } = require('../helpers/global.js')
         const global = await getData(ctx)
+        ctx.body.success = true
         ctx.body.global = global
       }
 

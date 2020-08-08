@@ -9,8 +9,6 @@
 
     <Menu />
 
-    {{ $state }}
-
     <router-view v-if="!authRequired || $state.isLogged" />
 
     <ModalItem />
