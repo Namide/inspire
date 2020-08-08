@@ -25,22 +25,31 @@ router.post('/api/database/install', async (ctx) => {
       try {
         await hooks.onConfigureDbBefore.dispatch()
         addToConfigFile({ db: payload })
+
+        const { getData } = require('../helpers/global.js')
+        const global = await getData(ctx)
+
         await hooks.onConfigureDbAfter.dispatch()
 
         ctx.body = {
-          success: true
+          success: true,
+          global
         }
       } catch (error) {
+        const { getData } = require('../helpers/global.js')
+        const global = await getData(ctx)
         ctx.body = {
           error: true,
-          message: error.message
+          message: error.message,
+          global
         }
       }
     } else {
-      ctx.body = {
-        error: true,
-        message: 'Can not connect to database'
-      }
+      const { getData } = require('../helpers/global.js')
+      const data = await getData(ctx)
+      data.error = true
+      data.message = 'Can not connect to database'
+      ctx.body = data
     }
   }
 })

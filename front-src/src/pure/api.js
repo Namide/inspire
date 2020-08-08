@@ -13,9 +13,10 @@ class Api {
     this.onStateChange = new Signal();
 
     this.state = {
+      version: null,
+      serverTime: Date.now(),
       isLogged: false,
       user: Api.createDefaultUser(),
-      serverTime: Date.now(),
       needDatabase: false,
       needAdmin: false,
     };
@@ -40,39 +41,24 @@ class Api {
     return fetch("/api", options)
       .then((response) => this.parseResponse(response))
       .then((payload) => this.parsePayload(payload))
-      .then(
-        ({
-          version,
-          serverTime,
-          isLogged = false,
-          needDatabase = false,
-          needAdmin = false,
-        }) => {
-          console.log({
-            version,
-            serverTime,
-            isLogged,
-            needDatabase,
-            needAdmin,
-          });
-
-          const data = {
-            version,
-            serverTime,
-            isLogged,
-            needDatabase,
-            needAdmin,
-          };
-
-          this.state = Object.assign({}, this.state, data);
-          this.onStateChange.dispatch(this.state);
-
-          if (isLogged) {
-            this.updateMe();
-          }
-        }
-      )
+      .then(({ global }) => {
+        console.log(global);
+        this._updateState(global);
+      })
       .catch((error) => this.onError.dispatch(error.message));
+  }
+
+  _updateState(data) {
+    const oldState = JSON.parse(JSON.stringify(this.state));
+    const newState = Object.assign({}, this.state, data);
+    this.state = JSON.parse(JSON.stringify(newState));
+    this.onStateChange.dispatch(newState, oldState);
+
+    if (newState.isLogged && !oldState.isLogged) {
+      this.updateMe();
+    }
+
+    return newState;
   }
 
   /**
@@ -142,8 +128,7 @@ class Api {
       user: { email, name, role, id: _id },
       isLogged: role !== ROLES.GUEST,
     };
-    this.state = Object.assign({}, this.state, data);
-    this.onStateChange.dispatch(this.state);
+    this._updateState(data);
   }
 
   updateMe() {
@@ -350,7 +335,7 @@ class Api {
       .then((response) => response.json())
       .then((json) => {
         if (json.success) {
-          return this.init();
+          return this._updateState(json.global);
         } else {
           throw new Error(json.message);
         }

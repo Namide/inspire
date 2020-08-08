@@ -1,23 +1,13 @@
 const { router } = require('../helpers/core')
-const { ROLES } = require('../constants/permissions')
 
 router.get('/api', async (ctx) => {
   const { version } = require('../../package.json')
+  const { getData } = require('../helpers/global.js')
+  const global = await getData(ctx)
 
-  const payload = {
+  ctx.body = {
+    name: 'Inspire API',
     version,
-    serverTime: new Date(),
-    isLogged: ctx.state.user && ctx.state.user.role !== ROLES.GUEST
+    global
   }
-
-  if (ctx.app.collections && ctx.app.collections.users) {
-    const userCount = await ctx.app.collections.users.countDocuments()
-    if (userCount < 1) {
-      payload.needAdmin = true
-    }
-  } else {
-    payload.needDatabase = true
-  }
-
-  ctx.body = payload
 })
