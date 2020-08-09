@@ -25,6 +25,8 @@ const hooks = require('./event/hooks')
 const { app, router } = require('./helpers/core')
 const { getConfig } = require('./helpers/config')
 
+app.keys = getConfig().cookie.keys
+
 app.use(errorHandler)
 app.use(responseTime)
 app.use(BodyParser())

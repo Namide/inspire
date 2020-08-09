@@ -14,7 +14,6 @@
     "bcryptjs": "^2.4.3",
     "canvas": "^2.6.1",
     "extract-colors": "^1.1.4",
-    "jsonwebtoken": "^8.5.1",
     "koa": "^2.13.0",
     "koa-bodyparser": "^4.3.0",
     "koa-busboy": "^1.2.0",

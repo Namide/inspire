@@ -10,7 +10,10 @@
     "host": "inspire-db",
     "port": "27017"
   },
-  "jwt": {
-    "secret": "1nSpIre-yep"
+  "cookie": {
+    "keys": [
+      "secret key 1",
+      "secret key 2"
+    ]
   }
 }

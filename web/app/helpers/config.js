@@ -25,13 +25,16 @@ const initConfigFile = () => {
   const fs = require('fs')
   const path = require('path')
   const fileName = path.resolve(__dirname, CONFIG_FILENAME)
-  const secret = (Math.random() * 0xFFFFFFFFFFFFFF).toString(16)
+  const generateSecret = () => (Math.random() * 0xFFFFFFFFFFFFFF).toString(16)
   const json = {
     server: {
       port: 80
     },
-    jwt: {
-      secret
+    cookie: {
+      keys: [
+        generateSecret(),
+        generateSecret()
+      ]
     }
   }
 

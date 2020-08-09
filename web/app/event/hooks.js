@@ -1,6 +1,6 @@
 const Signal = require('./Signal.js')
 
-module.exports = {
+const hooks = {
   onStart: new Signal('onStart'),
   onBeforeStart: new Signal('onBeforeStart'),
   onAfterStart: new Signal('onAfterStart'),
@@ -13,5 +13,16 @@ module.exports = {
 
   onInitDb: new Signal('onInitDb'),
   onInitDbBefore: new Signal('onInitDbBefore'),
-  onInitDbAfter: new Signal('onInitDbAfter')
+  onInitDbAfter: new Signal('onInitDbAfter'),
+
+  editUsersDocumentShema: new Signal('editUsersDocumentShema')
 }
+
+module.exports = hooks
+
+// setInterval(() => {
+//   console.log('debug Signal:')
+//   for (var key in hooks) {
+//     hooks[key].log()
+//   }
+// }, 1000)

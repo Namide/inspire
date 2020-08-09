@@ -87,5 +87,5 @@ Users has many roles, this is the list of those ones:
 - `30%` Admin item edit list
 - `0%` Admin user list
 - `0%` API thumb images
-- `20%` API cookie login
+- `80%` API cookie login
 - `0%` Design

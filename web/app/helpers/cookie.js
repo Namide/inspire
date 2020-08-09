@@ -1,14 +1,23 @@
-const jwt = require('jsonwebtoken')
-const { getConfig } = require('./config')
-
-const JWT_OPTIONS = {
-  // expiresIn: 1000 * 60 * 60 * 24
+module.exports.getCookie = ctx => {
+  return ctx.cookies.get('auth', { signed: true }) || null
 }
 
-const DURATION = (24 * 60 * 60) // 24 hour
-const BLACKLIST = []
+module.exports.setCookie = (ctx, cookie, expires) => {
+  ctx.cookies.set('auth', cookie, {
+    expires,
+    maxAge: expires.getTime() - Date.now(),
+    signed: true,
+    // secure: true,
+    httpOnly: true
+  })
+}
 
-module.exports.setToken = (ctx, user) => {
+/*
+module.exports.getUser = (ctx) => {
+
+}
+
+module.exports.setCookie = (ctx, user) => {
   const payload = {
     ua: ctx.request.headers['user-agent'],
     ip: ctx.request.ip,
@@ -23,20 +32,7 @@ module.exports.setToken = (ctx, user) => {
   return jwt.sign(payload, getConfig().jwt.secret, JWT_OPTIONS)
 }
 
-module.exports.blacklistToken = (ctx, authorization = ctx.headers.authorization) => {
-  if (authorization) {
-    BLACKLIST.push(authorization)
-    setTimeout(() => {
-      BLACKLIST.shift()
-    }, DURATION * 1000)
-  }
-}
-
-/**
- * @returns {{ua:string, ip:string, expo:number, user: { role:string, _id:string }}
-ull}
- */
-module.exports.getToken = (ctx) => {
+module.exports.getCookie = (ctx) => {
   let token = null
 
   const authorization = ctx.headers.authorization || ctx.query.token
@@ -71,3 +67,4 @@ module.exports.getToken = (ctx) => {
 
   return null
 }
+*/

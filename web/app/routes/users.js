@@ -1,12 +1,12 @@
 const { router } = require('../helpers/core')
 const auth = require('../middleware/auth')
-const { getToken, setToken, blacklistToken } = require('../helpers/token.js')
 const bcrypt = require('bcryptjs')
 const ObjectID = require('mongodb').ObjectID
 const { ROLES } = require('../constants/permissions')
 const hooks = require('../event/hooks.js')
 const checkDb = require('../middleware/checkDb')
 const { uploaderFileless } = require('../middleware/upload')
+const { createSession, checkSessionDate } = require('../helpers/session')
 
 // const RULES = {
 //   name: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/,
@@ -20,17 +20,13 @@ const displayUser = user => {
   return user
 }
 
-const addUser = (ctx, user) => {
-
-}
-
 // hooks.initDb.addOnce((db) => {
 
 // })
 
 // Initialize
 hooks.onInitDb.addOnce(async (db, app) => {
-  const users = await db.createCollection('users', {
+  const documentShema = {
     validator: {
       $jsonSchema: {
         bsonType: 'object',
@@ -53,20 +49,6 @@ hooks.onInitDb.addOnce(async (db, app) => {
             description: 'Must be a valid email',
             pattern: '^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*$'
           }
-          // address: {
-          //   bsonType: 'object',
-          //   required: ['city'],
-          //   properties: {
-          //     street: {
-          //       bsonType: 'string',
-          //       description: 'must be a string if the field exists'
-          //     },
-          //     city: {
-          //       bsonType: 'string',
-          //       'description': 'must be a string and is required'
-          //     }
-          //   }
-          // }
         }
       }
       // $or: [
@@ -74,7 +56,11 @@ hooks.onInitDb.addOnce(async (db, app) => {
       //   { email: { $regex: /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ } }
       // ]
     }
-  })
+  }
+
+  await hooks.editUsersDocumentShema.dispatch(documentShema)
+
+  const users = await db.createCollection('users', documentShema)
 
   app.collections.users = users
 
@@ -85,7 +71,9 @@ hooks.onInitDb.addOnce(async (db, app) => {
 })
 
 const signout = async (ctx) => {
-  blacklistToken(ctx)
+  // TODO
+
+  // blacklistToken(ctx)
   ctx.body = {
     success: true,
     message: 'Signout'
@@ -99,9 +87,16 @@ const signin = async (ctx) => {
   const user = await ctx.app.collections.users.findOne({ email })
 
   if (user && bcrypt.compareSync(password, user.password)) {
+    const session = createSession(ctx)
+    const sessions = (user.sessions || [])
+      .filter(checkSessionDate)
+    sessions.push(session)
+
+    const documentQuery = { _id: ObjectID(user._id) }
+    await ctx.app.collections.users.updateOne(documentQuery, { $set: { sessions } })
+
     ctx.body = {
-      user: displayUser(user),
-      token: setToken(ctx, user)
+      user: displayUser(user)
     }
   } else {
     ctx.status = ctx.status = 401
@@ -115,6 +110,19 @@ const signin = async (ctx) => {
 }
 
 const userMe = async (ctx) => {
+  if (ctx.state.user) {
+    ctx.body = {
+      user: displayUser(ctx.state.user)
+    }
+  } else {
+    ctx.status = 404
+    ctx.body = {
+      error: true,
+      message: 'User not found'
+    }
+  }
+
+  /*
   const token = getToken(ctx)
 
   if (token) {
@@ -137,13 +145,13 @@ const userMe = async (ctx) => {
       error: true,
       message: 'User not found'
     }
-  }
+  } */
 
   return ctx
 }
 
 const userGet = async (ctx) => {
-  const token = getToken(ctx)
+  const token = getToken(ctx) TODO
 
   if (token) {
     if (token.user.role !== ROLES.ADMIN &&
@@ -202,7 +210,7 @@ const userDelete = async (ctx) => {
 }
 
 const userList = async (ctx) => {
-  const token = getToken(ctx)
+  const token = getToken(ctx) // TODO
   if (token) {
     if (token.user.role !== ROLES.ADMIN) {
       return ctx.throw(401, 'Unauthorized')
@@ -247,8 +255,11 @@ const userAdd = async (ctx) => {
 
 const testSameUser = async (ctx, id) => {
   const user = await ctx.app.collections.users.findOne({ _id: ObjectID(ctx.params.id) })
-  ctx.state.field = user
-  return user._id.toString() === id
+  if (user) {
+    ctx.state.field = user
+    return user._id.toString() === id
+  }
+  return false
 }
 // Authorize admin creation if 0 user in collection
 const testInstall = async (ctx, id) => {

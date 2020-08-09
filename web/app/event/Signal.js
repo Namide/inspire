@@ -39,6 +39,18 @@ class Signal {
     this._onceList = []
     return Promise.all(all.map(callback => callback(...data)))
   }
+
+  log () {
+    if (this._list.length || this._onceList.length) {
+      console.log('Signal', this.name)
+      if (this._list.length) {
+        console.log('  - repeat', this._list.length)
+      }
+      if (this._onceList.length) {
+        console.log('  - once  ', this._onceList.length)
+      }
+    }
+  }
 }
 
 module.exports = Signal
