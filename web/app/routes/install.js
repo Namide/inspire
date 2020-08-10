@@ -5,6 +5,7 @@ const { addToConfigFile } = require('../helpers/config')
 const { add } = require('./users')
 const checkDb = require('../middleware/checkDb')
 const { uploaderFileless } = require('../middleware/upload')
+const auth = require('../middleware/auth')
 
 const testDatabaseConnect = async (data) => {
   const { db, client } = await connect(data)
@@ -17,7 +18,7 @@ const testDatabaseConnect = async (data) => {
   return false
 }
 
-router.post('/api/database/install', async (ctx) => {
+router.post('/api/database/install', auth(), async (ctx) => {
   if (ctx.app.collections) {
     ctx.throw(404, 'Database already installed')
   } else {
@@ -62,7 +63,7 @@ router.post('/api/database/install', async (ctx) => {
   }
 })
 
-router.post('/api/install/admin', checkDb, uploaderFileless, async (ctx) => {
+router.post('/api/install/admin', checkDb, auth(), uploaderFileless, async (ctx) => {
   const count = await ctx.app.collections.users.countDocuments()
   if (count > 0) {
     ctx.throw(404, 'Admin already set')

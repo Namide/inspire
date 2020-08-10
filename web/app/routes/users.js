@@ -6,7 +6,8 @@ const { ROLES } = require('../constants/permissions')
 const hooks = require('../event/hooks.js')
 const checkDb = require('../middleware/checkDb')
 const { uploaderFileless } = require('../middleware/upload')
-const { createSession, checkSessionDate } = require('../helpers/session')
+const { createSession } = require('../helpers/session')
+const { removeCookie, getCookie } = require('../helpers/cookie')
 
 // const RULES = {
 //   name: /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/,
@@ -71,9 +72,20 @@ hooks.onInitDb.addOnce(async (db, app) => {
 })
 
 const signout = async (ctx) => {
-  // TODO
+  const cookie = getCookie(ctx)
+  const user = await ctx.app.collections.users
+    .findOne({ sessions: { $elemMatch: { cookie: ObjectID(cookie) } } })
 
-  // blacklistToken(ctx)
+  removeCookie(ctx)
+
+  if (user) {
+    const sessions = (user.sessions || [])
+      .filter(session => session.cookie.toString() !== cookie)
+
+    const documentQuery = { _id: ObjectID(user._id) }
+    await ctx.app.collections.users.updateOne(documentQuery, { $set: { sessions } })
+  }
+
   ctx.body = {
     success: true,
     message: 'Signout'
@@ -88,12 +100,9 @@ const signin = async (ctx) => {
 
   if (user && bcrypt.compareSync(password, user.password)) {
     const session = createSession(ctx)
-    const sessions = (user.sessions || [])
-      .filter(checkSessionDate)
-    sessions.push(session)
-
     const documentQuery = { _id: ObjectID(user._id) }
-    await ctx.app.collections.users.updateOne(documentQuery, { $set: { sessions } })
+    await ctx.app.collections.users.updateOne(documentQuery, { $pull: { sessions: { expires: { $lte: new Date() } } } })
+    await ctx.app.collections.users.updateOne(documentQuery, { $push: { sessions: session } })
 
     ctx.body = {
       user: displayUser(user)
@@ -122,55 +131,24 @@ const userMe = async (ctx) => {
     }
   }
 
-  /*
-  const token = getToken(ctx)
+  return ctx
+}
 
-  if (token) {
-    const user = await ctx.app.collections.users.findOne({ _id: ObjectID(token.user._id) })
+const userGet = async (ctx) => {
+  let user = ctx.state.field
+  if (!user) {
+    user = await ctx.app.collections.users.findOne({ _id: ObjectID(ctx.params.id) })
+  }
 
-    if (user) {
-      ctx.body = {
-        user: displayUser(user)
-      }
-    } else {
-      ctx.status = 404
-      ctx.body = {
-        error: true,
-        message: 'User not found'
-      }
+  if (user) {
+    ctx.body = {
+      user: displayUser(user)
     }
   } else {
     ctx.status = 404
     ctx.body = {
       error: true,
       message: 'User not found'
-    }
-  } */
-
-  return ctx
-}
-
-const userGet = async (ctx) => {
-  const token = getToken(ctx) TODO
-
-  if (token) {
-    if (token.user.role !== ROLES.ADMIN &&
-      token.user._id !== ctx.params.id) {
-      return ctx.throw(401, 'Unauthorized')
-    }
-
-    const user = await ctx.app.collections.users.findOne({ _id: ObjectID(ctx.params.id) })
-
-    if (user) {
-      ctx.body = {
-        user: displayUser(user)
-      }
-    } else {
-      ctx.status = 404
-      ctx.body = {
-        error: true,
-        message: 'User not found'
-      }
     }
   }
 
@@ -210,19 +188,12 @@ const userDelete = async (ctx) => {
 }
 
 const userList = async (ctx) => {
-  const token = getToken(ctx) // TODO
-  if (token) {
-    if (token.user.role !== ROLES.ADMIN) {
-      return ctx.throw(401, 'Unauthorized')
-    }
+  const list = await ctx.app.collections.users
+    .find({})
+    .toArray()
 
-    const list = await ctx.app.collections.users
-      .find({})
-      .toArray()
-
-    ctx.body = { users: list.map(displayUser) }
-    return ctx
-  }
+  ctx.body = { users: list.map(displayUser) }
+  return ctx
 }
 
 const add = async ctx => {
@@ -272,7 +243,7 @@ const testInstall = async (ctx, id) => {
 
 router.get('/api/users', checkDb, auth([ROLES.ADMIN]), userList)
 router.get('/api/users/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN], testSameUser), userGet)
-router.post('/api/users', checkDb, auth([ROLES.ADMIN], testInstall), uploaderFileless, userAdd)
+router.post('/api/users', checkDb, auth([ROLES.ADMIN]), uploaderFileless, userAdd)
 router.post('/api/users/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN], testSameUser), uploaderFileless, userEdit)
 router.get('/api/users/me', checkDb, auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR, ROLES.SUBSCRIBER], testSameUser), userMe)
 router.post('/api/signin', checkDb, uploaderFileless, signin)

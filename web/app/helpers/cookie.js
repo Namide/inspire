@@ -2,6 +2,10 @@ module.exports.getCookie = ctx => {
   return ctx.cookies.get('auth', { signed: true }) || null
 }
 
+module.exports.removeCookie = (ctx) => {
+  ctx.cookies.set('auth', '')
+}
+
 module.exports.setCookie = (ctx, cookie, expires) => {
   ctx.cookies.set('auth', cookie, {
     expires,
