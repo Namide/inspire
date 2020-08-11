@@ -4,7 +4,7 @@
       v-if="isImg()"
       :width="data.width"
       :height="data.height"
-      :src="addAuth(data.url)"
+      :src="data.url"
       :alt="data.title"
     />
   </div>
@@ -15,7 +15,7 @@ export default {
   components: {},
 
   props: {
-    data: { type: Object }
+    data: { type: Object },
   },
 
   created() {},
@@ -23,8 +23,8 @@ export default {
   methods: {
     isImg() {
       return this.data.type === "image/jpeg";
-    }
-  }
+    },
+  },
 };
 </script>
 

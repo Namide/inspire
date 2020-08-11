@@ -21,7 +21,6 @@ Vue.mixin({
     },
   },
   methods: {
-    addAuth: api.addAuth,
     redirect(route) {
       if (
         !this.$route ||

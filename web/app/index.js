@@ -25,7 +25,10 @@ const hooks = require('./event/hooks')
 const { app, router } = require('./helpers/core')
 const { getConfig } = require('./helpers/config')
 
+console.log('--------')
+console.log(app.env)
 app.keys = getConfig().cookie.keys
+app.proxy = true // to enable IP
 
 app.use(errorHandler)
 app.use(responseTime)

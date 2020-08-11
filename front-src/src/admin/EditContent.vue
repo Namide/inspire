@@ -23,8 +23,8 @@
     <InputMarkdown
       v-else
       v-model="item.content"
-      @input="val => updateContent(item, val)"
-      @submit="val => updateContent(item, val)"
+      @input="(val) => updateContent(item, val)"
+      @submit="(val) => updateContent(item, val)"
       placeholder="Content (URL, markdown, HTML, embed...)"
     />
   </div>
@@ -40,20 +40,20 @@ export default {
 
   props: {
     item: {
-      type: Object
-    }
+      type: Object,
+    },
   },
 
   data() {
     return {
       TYPES: JSON.parse(JSON.stringify(TYPES)),
-      src: ""
+      src: "",
     };
   },
 
   destroyed() {
     if (this._toBeDestroyed) {
-      this._toBeDestroyed.forEach(call => call());
+      this._toBeDestroyed.forEach((call) => call());
       delete this._toBeDestroyed;
     }
   },
@@ -74,10 +74,10 @@ export default {
           this._toBeDestroyed.push(() => URL.revokeObjectURL(src));
           this.src = src;
         } else {
-          this.src = this.addAuth(srcOrFile);
+          this.src = srcOrFile;
         }
-      }
-    }
+      },
+    },
   },
 
   computed: {
@@ -121,15 +121,15 @@ export default {
       }
 
       return "";
-    }
+    },
   },
 
   methods: {
     updateContent(item, value) {
       this.$set(item, "input", value);
       this.$set(item, "content", inputToContent(value));
-    }
-  }
+    },
+  },
 };
 </script>
 

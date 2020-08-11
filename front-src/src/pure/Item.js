@@ -4,7 +4,7 @@ import { VISIBILITY } from "../../../web/app/constants/permissions";
 
 // const getToday = () => new Date(Date.now()).toJSON().split('.')[0]
 
-const parseImagePayload = payload => {
+const parseImagePayload = (payload) => {
   return {
     // id: payload.id,
     name: payload.name,
@@ -17,18 +17,18 @@ const parseImagePayload = payload => {
     //   .filter(thumb => thumb.width > 300 || thumb.height > 300)
     //   .map(thumb => "/api" + thumb.relative_url + " " + thumb.width + "w")
     //   .join(", "),
-    alt: payload.description || payload.title
+    alt: payload.description || payload.title,
   };
 };
 
-const parseFilePayload = payload => {
+const parseFilePayload = (payload) => {
   return {
     // id: payload.id,
     name: payload.name,
     width: payload.width,
     height: payload.height,
     src: payload.src,
-    type: payload.type
+    type: payload.type,
   };
 };
 
@@ -39,7 +39,7 @@ export default class Item {
   }
 
   dispose() {
-    this._disposeList.forEach(callback => callback());
+    this._disposeList.forEach((callback) => callback());
     this._disposeList = [];
     this.fromPayload();
   }
@@ -82,10 +82,10 @@ export default class Item {
       createdAt: this.createdAt
         .toISOString()
         .replace(/\.[0-9]{3}[A-Z]$/, "")
-        .replace(/T/, " ")
+        .replace(/T/, " "),
     };
 
-    Object.keys(item).forEach(key => {
+    Object.keys(item).forEach((key) => {
       if (item[key] === null) {
         delete item[key];
       }
@@ -162,7 +162,7 @@ export default class Item {
       createdAt: this.createdAt
         .toISOString()
         .replace(/:[0-9]{2}\.[0-9]{3}[A-Z]$/, ""),
-      author: this.author
+      author: this.author,
     };
   }
 }

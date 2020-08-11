@@ -11,7 +11,7 @@ module.exports.setCookie = (ctx, cookie, expires) => {
     expires,
     maxAge: expires.getTime() - Date.now(),
     signed: true,
-    // secure: true,
+    secure: ctx.app.env !== 'development',
     httpOnly: true
   })
 }

@@ -232,14 +232,6 @@ const testSameUser = async (ctx, id) => {
   }
   return false
 }
-// Authorize admin creation if 0 user in collection
-const testInstall = async (ctx, id) => {
-  const count = await ctx.app.collections.users.countDocuments()
-  if (count < 1) {
-    ctx.request.body.role = ROLES.ADMIN
-  }
-  return count < 1
-}
 
 router.get('/api/users', checkDb, auth([ROLES.ADMIN]), userList)
 router.get('/api/users/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN], testSameUser), userGet)

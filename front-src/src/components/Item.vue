@@ -2,7 +2,7 @@
   <router-link :to="to" class="item" :class="classData" :style="itemStyle">
     <img
       v-if="item.image"
-      :src="addAuth(item.image.src)"
+      :src="item.image.src"
       :srcset="item.image.srcset"
       :width="item.image.width"
       :height="item.image.height"
@@ -67,12 +67,12 @@ export default {
   components: {
     Play,
     Cube,
-    TagsDisplay
+    TagsDisplay,
   },
 
   props: {
     item: { type: Object },
-    displayMode: { type: String, default: "text" }
+    displayMode: { type: String, default: "text" },
   },
 
   data() {
@@ -84,7 +84,7 @@ export default {
       isThumbLoaded: false,
       // href: false,
       w: 1,
-      h: 1
+      h: 1,
     };
   },
 
@@ -112,13 +112,13 @@ export default {
     colors() {
       const dist = (a, b) =>
         Math.abs(a.r - b.r) + Math.abs(a.g - b.g) + Math.abs(a.b - b.b);
-      const detail = color => {
+      const detail = (color) => {
         const hex = Number("0x" + color.substring(1));
         return {
           hex: color,
           r: (hex >> 16) & 0xff,
           g: (hex >> 8) & 0xff,
-          b: (hex >> 0) & 0xff
+          b: (hex >> 0) & 0xff,
         };
       };
       const colors = (
@@ -142,7 +142,7 @@ export default {
       const d = colors.pop();
 
       return [a, c, b, d];
-    }
+    },
   },
 
   created() {
@@ -194,7 +194,7 @@ export default {
       const options = {
         root: null,
         rootMargin: "0px",
-        threshold: [0, 1]
+        threshold: [0, 1],
       };
 
       this._observer = new IntersectionObserver(this.onInOut, options);
@@ -231,8 +231,8 @@ export default {
       h *= mult;
 
       this.classData.push("w" + w, "h" + h);
-    }
-  }
+    },
+  },
 };
 </script>
 

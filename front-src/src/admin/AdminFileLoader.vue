@@ -47,14 +47,14 @@ export default {
     onlyImg: { type: Boolean, default: false },
     size: {
       type: String,
-      default: "normal"
-    }
+      default: "normal",
+    },
   },
 
   data() {
     return {
       isImg: true,
-      src: ""
+      src: "",
     };
   },
 
@@ -72,10 +72,10 @@ export default {
         } else if (image.src instanceof File) {
           this.src = URL.createObjectURL(image.src);
         } else if (image.src) {
-          this.src = this.addAuth(image.src);
+          this.src = image.src;
         }
-      }
-    }
+      },
+    },
   },
 
   computed: {
@@ -83,7 +83,7 @@ export default {
       return this.image && this.image.colors
         ? this.image.colors.map(({ hex }) => hex)
         : [];
-    }
+    },
   },
 
   destroyed() {
@@ -105,7 +105,7 @@ export default {
 
     deleteFile() {
       this.$emit("change", null);
-    }
+    },
 
     // imgViewer (file) {
     //   if (file.size > 1e9) {
@@ -119,7 +119,7 @@ export default {
     //   })
     //   reader.readAsDataURL(file)
     // }
-  }
+  },
 };
 </script>
 

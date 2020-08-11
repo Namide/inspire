@@ -21,15 +21,7 @@ class Api {
       needAdmin: false,
     };
 
-    try {
-      this.token = localStorage.getItem("token") || null;
-    } catch (error) {
-      this.token = null;
-      console.error(error.message);
-    }
-
     this.init = this.init.bind(this);
-    this.addAuth = this.addAuth.bind(this);
   }
 
   init() {
@@ -94,14 +86,6 @@ class Api {
     }
 
     return payload;
-  }
-
-  addAuth(url) {
-    if (this.token) {
-      return url + "?token=" + this.token;
-    } else {
-      return url;
-    }
   }
 
   parseItem(payload) {
@@ -317,12 +301,6 @@ class Api {
   }
 
   _disconnect() {
-    try {
-      localStorage.removeItem("token");
-    } catch (error) {
-      console.error(error.message);
-    }
-    this.token = null;
     this.setUser(Api.createDefaultUser());
   }
 
@@ -350,13 +328,7 @@ class Api {
     return fetch("/api/signin", options)
       .then((response) => this.parseResponse(response))
       .then((payload) => this.parsePayload(payload))
-      .then(({ user, token }) => {
-        try {
-          localStorage.setItem("token", token);
-        } catch (error) {
-          console.error(error.message);
-        }
-        this.token = token;
+      .then(({ user }) => {
         this.setUser(user);
         return user;
       });
@@ -370,11 +342,6 @@ class Api {
 
     if (isJson) {
       headers.append("Content-Type", "application/json");
-    }
-
-    if (this.token) {
-      headers.append("Authorization", "Bearer " + this.token);
-      // headers.append("Content-Type", undefined); // "multipart/form-data");
     }
 
     return headers;

@@ -29,20 +29,20 @@ import { TYPES } from "../../../web/app/constants/items";
 export default {
   props: {
     item: {
-      type: Object
-    }
+      type: Object,
+    },
   },
 
   data() {
     return {
       TYPES: JSON.parse(JSON.stringify(TYPES)),
-      src: ""
+      src: "",
     };
   },
 
   destroyed() {
     if (this._toBeDestroyed) {
-      this._toBeDestroyed.forEach(call => call());
+      this._toBeDestroyed.forEach((call) => call());
       delete this._toBeDestroyed;
     }
   },
@@ -63,10 +63,10 @@ export default {
           this._toBeDestroyed.push(() => URL.revokeObjectURL(src));
           this.src = src;
         } else {
-          this.src = this.addAuth(srcOrFile);
+          this.src = srcOrFile;
         }
-      }
-    }
+      },
+    },
   },
 
   computed: {
@@ -128,8 +128,8 @@ export default {
       }
 
       return "";
-    }
-  }
+    },
+  },
 };
 </script>
 

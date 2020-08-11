@@ -14,7 +14,7 @@
 
     <img
       v-if="$state.user.userImage"
-      :src="addAuth($state.user.userImage.src)"
+      :src="$state.user.userImage.src"
       :width="$state.user.userImage.width"
       :height="$state.user.userImage.height"
       alt="avatar"
@@ -31,27 +31,27 @@ import Connect from "@/components/Connect.vue";
 export default {
   components: {
     Modal,
-    Connect
+    Connect,
   },
 
   props: {
     adminPage: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data() {
     return {
-      isModalConnectOpen: false
+      isModalConnectOpen: false,
     };
   },
 
   methods: {
     logout() {
       api.logout();
-    }
-  }
+    },
+  },
 };
 </script>
 

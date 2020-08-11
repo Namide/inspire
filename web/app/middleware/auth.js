@@ -43,6 +43,7 @@ module.exports = (authorizedRoles = ALL_ROLES, secondTest = SECOND_TEST) => asyn
 
     if (user) {
       const session = user.sessions.find(session => session.cookie.toString() === cookie)
+      console.log(session)
       if (session && checkSession(ctx, session)) {
         user.visibilities = roleToVisibility(user.role)
         ctx.state.user = user
