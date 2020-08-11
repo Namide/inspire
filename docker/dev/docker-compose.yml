@@ -4,7 +4,7 @@ version: '3.1'
 services:
 
   inspire-db:
-    image: mongo
+    image: mongo:4.4
     container_name: inspire-mongo
     restart: always
     ports:
@@ -17,7 +17,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
 
   inspire-db-admin:
-    image: mongo-express
+    image: mongo-express:0.54
     container_name: inspire-mongo-express
     restart: always
     ports:
@@ -30,7 +30,7 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: password
 
   inspire-server-dev:
-    image: node
+    image: node:14.7-slim
     container_name: inspire-server-dev
     restart: always
     ports:
@@ -41,7 +41,7 @@ services:
     command: "npm run dev"
 
   inspire-frontend-dev:
-    image: node
+    image: node:14.7-slim
     container_name: inspire-frontend-dev
     restart: always
     ports:

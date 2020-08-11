@@ -18,10 +18,10 @@ Browser scope:
 
 ```bash
 # Install server dependencies
-docker run -ti --rm -v $(pwd)/web:/usr/src/app -w /usr/src/app node npm install
+docker run -ti --rm -v $(pwd)/web:/usr/src/app -w /usr/src/app node:14.7-slim npm install
 
 # Install frontend dependencies
-docker run -ti --rm -v $(pwd)/front-src:/usr/src/app -w /usr/src/app node npm install
+docker run -ti --rm -v $(pwd)/front-src:/usr/src/app -w /usr/src/app node:14.7-slim npm install
 ```
 
 
@@ -37,7 +37,7 @@ docker-compose -f ./docker/dev/docker-compose.yml up
 
 ```bash
 # Build frontend sources to /web/public directory
-docker run -ti --rm -v $(pwd):/usr/src/app -w /usr/src/app/front-src node npm run build
+docker run -ti --rm -v $(pwd):/usr/src/app -w /usr/src/app/front-src node:14.7-slim npm run build
 ```
 
 
