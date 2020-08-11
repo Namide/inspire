@@ -37,13 +37,16 @@ const getUser = (_id, name, role) => {
  */
 module.exports = (authorizedRoles = ALL_ROLES, secondTest = SECOND_TEST) => async (ctx, next) => {
   const cookie = getCookie(ctx)
-  const user = await ctx.app.collections.users.findOne({ sessions: { $elemMatch: { cookie: ObjectID(cookie) } } })
 
-  if (user) {
-    const session = user.sessions.find(session => session.cookie.toString() === cookie)
-    if (session && checkSession(ctx, session)) {
-      user.visibilities = roleToVisibility(user.role)
-      ctx.state.user = user
+  if (ctx.app.collections && ctx.app.collections.users) {
+    const user = await ctx.app.collections.users.findOne({ sessions: { $elemMatch: { cookie: ObjectID(cookie) } } })
+
+    if (user) {
+      const session = user.sessions.find(session => session.cookie.toString() === cookie)
+      if (session && checkSession(ctx, session)) {
+        user.visibilities = roleToVisibility(user.role)
+        ctx.state.user = user
+      }
     }
   }
 
