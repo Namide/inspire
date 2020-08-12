@@ -1,7 +1,7 @@
 const { setCookie } = require('./cookie')
+const { getConfig } = require('./config')
 
 const ObjectID = require('mongodb').ObjectID
-const DURATION = (24 * 60 * 60 * 1000) // 24 hour
 
 module.exports.getSessionDocumentShema = () => {
   return {
@@ -35,11 +35,13 @@ module.exports.checkSession = (ctx, { cookie, userAgent, ip, expires }) => {
     expires.getTime() > Date.now()
 }
 
-module.exports.createSession = (ctx, duration = DURATION) => {
+module.exports.createSession = (ctx, duration = null) => {
+  const maxAge = duration === null ? getConfig().cookie.ageHours * 60 * 60 * 1000 : duration
+
   const cookie = ObjectID()
   const userAgent = ctx.request.headers['user-agent']
   const ip = ctx.request.ip
-  const expires = new Date(Date.now() + duration)
+  const expires = new Date(Date.now() + maxAge)
 
   setCookie(ctx, cookie, expires)
 

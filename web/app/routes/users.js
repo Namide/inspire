@@ -72,19 +72,15 @@ hooks.onInitDb.addOnce(async (db, app) => {
 })
 
 const signout = async (ctx) => {
-  const cookie = getCookie(ctx)
-  const user = await ctx.app.collections.users
-    .findOne({ sessions: { $elemMatch: { cookie: ObjectID(cookie) } } })
+  if (ctx.state.user && ctx.app.collections && ctx.app.collections.users) {
+    const documentQuery = { _id: ObjectID(ctx.state.user._id) }
+    console.log(documentQuery)
+    const cookie = getCookie(ctx)
+    console.log(cookie)
+    await ctx.app.collections.users.updateOne(documentQuery, { $pull: { sessions: { cookie: ObjectID(cookie) } } })
+  }
 
   removeCookie(ctx)
-
-  if (user) {
-    const sessions = (user.sessions || [])
-      .filter(session => session.cookie.toString() !== cookie)
-
-    const documentQuery = { _id: ObjectID(user._id) }
-    await ctx.app.collections.users.updateOne(documentQuery, { $set: { sessions } })
-  }
 
   ctx.body = {
     success: true,
@@ -239,7 +235,7 @@ router.post('/api/users', checkDb, auth([ROLES.ADMIN]), uploaderFileless, userAd
 router.post('/api/users/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN], testSameUser), uploaderFileless, userEdit)
 router.get('/api/users/me', checkDb, auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR, ROLES.SUBSCRIBER], testSameUser), userMe)
 router.post('/api/signin', checkDb, uploaderFileless, signin)
-router.post('/api/signout', checkDb, uploaderFileless, signout)
+router.post('/api/signout', checkDb, auth(), uploaderFileless, signout)
 router.delete('/api/users/:id([0-9a-f]{24})', checkDb, auth([ROLES.ADMIN], testSameUser), userDelete)
 
 exports.add = add

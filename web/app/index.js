@@ -25,8 +25,6 @@ const hooks = require('./event/hooks')
 const { app, router } = require('./helpers/core')
 const { getConfig } = require('./helpers/config')
 
-console.log('--------')
-console.log(app.env)
 app.keys = getConfig().cookie.keys
 app.proxy = true // to enable IP
 
@@ -88,6 +86,7 @@ require('./routes/files.js')
 // --------------------------
 //           RUN
 // --------------------------
+
 app
   .use(router.routes())
   .use(router.allowedMethods())

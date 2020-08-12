@@ -34,7 +34,8 @@ const initConfigFile = () => {
       keys: [
         generateSecret(),
         generateSecret()
-      ]
+      ],
+      ageHours: 24
     }
   }
 
