@@ -4,9 +4,8 @@ module.exports = {
   devServer: {
     proxy: {
       "/api": {
-        target: "http://inspire-server-dev:80",
-        // pathRewrite: { '^/api': '' },
-        // changeOrigin: true,,
+        target: "http://inspire-server-dev:80", // Docker proxy
+        // target: "http://localhost:80", // Local proxy
         changeOrigin: true,
         secure: false,
       },
