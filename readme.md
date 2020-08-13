@@ -12,9 +12,14 @@ Browser scope:
 - ~~Internet Explorer~~
 
 
-## Install
+## Setup
+
+### Docker
 
 [Docker](https://www.docker.com/) required
+
+
+#### Install
 
 ```bash
 # Install server dependencies
@@ -25,7 +30,7 @@ docker run -ti --rm -v $(pwd)/front-src:/usr/src/app -w /usr/src/app node:14.7-s
 ```
 
 
-## Run dev server
+#### Run dev server
 
 ```bash
 # Run development environment
@@ -33,7 +38,7 @@ docker-compose -f ./docker/dev/docker-compose.yml up
 ```
 
 
-## Build front-end sources
+#### Build front-end sources
 
 ```bash
 # Build frontend sources to /web/public directory
@@ -41,11 +46,52 @@ docker run -ti --rm -v $(pwd):/usr/src/app -w /usr/src/app/front-src node:14.7-s
 ```
 
 
+### Local
+
+- [Node js](https://nodejs.org/) required
+- MongoDB ready to use
+
+
+#### Install
+
+```bash
+# Install server dependencies
+npm install # from the web directory
+
+# Install frontend dependencies
+npm install # from the front-src directory
+```
+
+
+#### Run dev server
+
+Update the proxy API path:
+1. Open the file `front-src/vue.config.js`
+2. Replace `devServer.proxy["/api"].target = "http://inspire-server-dev:80"` by `devServer.proxy["/api"].target = "http://localhost:80"`
+
+```bash
+# Run backend development environment
+npm run dev --prefix web
+
+# Run frontend development environment
+npm run serve --prefix front-src
+```
+
+
+
+#### Build front-end sources
+
+```bash
+# Build frontend sources to /web/public directory
+npm run serve --prefix front-src
+```
+
+
 ## Dev URL
 
 - [Front-end](http://localhost:8081/)
 - [API](http://localhost:8082/api)
-- [DB admin](http://localhost:8083/db/inspire)
+- [DB admin](http://localhost:8083/db/inspire) if you use Docker
 
 
 ## Users roles
