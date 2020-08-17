@@ -68,7 +68,7 @@ const routes = [
     name: "adminImport",
     path: "/admin/import",
     component: () =>
-      import(/* webpackChunkName: "admin" */ "@/views/AdminInstall"),
+      import(/* webpackChunkName: "admin" */ "@/views/AdminImport"),
     meta: {
       auth: true,
     },

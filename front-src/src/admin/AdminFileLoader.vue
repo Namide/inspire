@@ -147,6 +147,7 @@ export default {
   .file-img
     max-width: 64px
     max-height: 64px
+    object-fit: contain
 
   .color
     width: 8px

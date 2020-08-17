@@ -1,5 +1,6 @@
 <template>
   <div>
+    <input type="text" placeholder="Images base URL" v-model="filesBasePath" />
     <input
       type="file"
       @change="filesChange($event.target.files)"
@@ -45,6 +46,7 @@ export default {
       restTime: "",
       endTime: null,
       ended: false,
+      filesBasePath: "http://inspire.namide.com/import-files/",
       errors: [],
       total: 0,
       ready: 0,
@@ -125,8 +127,7 @@ export default {
 
         if (itemData.input) {
           if (itemData.input.indexOf("img/") === 0) {
-            const input =
-              "http://inspire.namide.com/import-files/" + itemData.input;
+            const input = this.filesBasePath + itemData.input;
             promise = item.updateByInput(input);
           } else {
             const input = itemData.input;
