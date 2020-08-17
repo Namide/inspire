@@ -14,6 +14,11 @@ Browser scope:
 
 ## Setup
 
+You can choose between 2 setup to serve local dev servers:
+- Docker (Frontend + API + MongoDB)
+- NPM (Frontend + API, need additional MongoDB)
+
+
 ### Docker
 
 [Docker](https://www.docker.com/) required
@@ -46,7 +51,14 @@ docker run -ti --rm -v $(pwd):/usr/src/app -w /usr/src/app/front-src node:14.7-s
 ```
 
 
-### Local
+#### URL
+
+- [Front-end](http://localhost:8081/)
+- [API](http://localhost:8082/api)
+- [DB admin](http://localhost:8083/db/inspire)
+
+
+### NPM
 
 - [Node js](https://nodejs.org/) required
 - MongoDB ready to use
@@ -83,15 +95,14 @@ npm run serve --prefix front-src
 
 ```bash
 # Build frontend sources to /web/public directory
-npm run serve --prefix front-src
+npm run build --prefix front-src
 ```
 
 
-## Dev URL
+#### URL
 
-- [Front-end](http://localhost:8081/)
-- [API](http://localhost:8082/api)
-- [DB admin](http://localhost:8083/db/inspire) if you use Docker
+- [Front-end](http://localhost:8080/)
+- [API](http://localhost/api)
 
 
 ## Users roles
