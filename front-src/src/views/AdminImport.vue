@@ -36,7 +36,7 @@
 <script>
 import Papa from "papaparse";
 // import api from '@/pure/api.js'
-import ItemSave from "@/pure/ItemSave";
+import ItemSave from "@/pure/item-save";
 import api from "@/pure/api";
 
 export default {

@@ -90,7 +90,7 @@ const updateItemByInput = (item, input) => {
   item.types = [type];
   if (type === TYPES.URL) {
     item.content = "";
-    return updateItemByLink(item.input);
+    return updateItemByLink(item, item.input);
   } else if (type === TYPES.EMBED) {
     item.content = item.input;
   } else {
@@ -232,8 +232,46 @@ const analyseItemHtml = (item, link, doc) => {
   );
 };
 
+const itemToBody = (item) => {
+  const data = {
+    _id: item.id,
+    visibility: item.visibility,
+    title: item.title,
+    description: item.description,
+    types: [...item.types],
+    tags: [...item.tags],
+    input: item.input,
+    content: item.content,
+    score: item.score || 0,
+    createdAt: item.createdAt
+      .toISOString()
+      .replace(/\.[0-9]{3}[A-Z]$/, "")
+      .replace(/T/, " "),
+  };
+
+  Object.keys(data).forEach((key) => {
+    if (data[key] === null) {
+      delete data[key];
+    }
+  });
+
+  let image = null;
+  let file = null;
+
+  if (item.image && item.image.src instanceof File) {
+    image = item.image.src;
+  }
+
+  if (item.file && item.file.src instanceof File) {
+    file = item.file.src;
+  }
+
+  return { item: data, image, file };
+};
+
 export default {
   setItemInput,
+  itemToBody,
   updateItemByInput,
   removeItemFile,
   updateItemByFile,

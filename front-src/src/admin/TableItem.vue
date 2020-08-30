@@ -141,7 +141,8 @@ import Loader from "@/components/Loader.vue";
 import Tags from "@/components/Tags.vue";
 import { VISIBILITY } from "../../../web/app/constants/permissions";
 import AdminFileLoader from "@/admin/AdminFileLoader.vue";
-import { inputToContent } from "@/pure/ItemSave.js";
+import ItemSave from "@/pure/item-save.js";
+import Item from "@/pure/item.js";
 import InputTextarea from "@/admin/InputTextarea.vue";
 import InputMarkdown from "@/admin/InputMarkdown.vue";
 import tasksManager from "@/pure/tasksManager";
@@ -237,18 +238,21 @@ export default {
       });
     },
 
-    updateContent(item, value) {
+    async updateContent(item, value) {
       this.$set(item, "input", value);
-      this.$set(item, "content", inputToContent(value));
+
+      const newItem = await ItemSave.updateItemByInput(item, value);
+      const content = Item.itemToObject(newItem);
+      this.$set(item, "content", content);
     },
 
     fileChange(object, label, file = null) {
       if (file) {
-        this.itemSave.updateByFile(file).then((itemSave) => {
+        ItemSave.updateItemByFile(this.itemSave, file).then((itemSave) => {
           this.$set(object, label, itemSave.getObject());
         });
       } else {
-        this.itemSave.removeFile().then((itemSave) => {
+        ItemSave.removeItemFile(this.itemSave).then((itemSave) => {
           this.$set(object, label, itemSave.getObject());
         });
       }

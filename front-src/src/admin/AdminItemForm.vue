@@ -106,7 +106,8 @@ import AdminFileLoader from "@/admin/AdminFileLoader.vue";
 import Tags from "@/components/Tags";
 import EditContent from "@/admin/EditContent.vue";
 import InputTextarea from "@/admin/InputTextarea.vue";
-import ItemSave from "@/pure/ItemSave";
+import Item from "@/pure/item";
+import ItemSave from "@/pure/item-save";
 import Tabs from "@/components/Tabs";
 import { VISIBILITY } from "../../../web/app/constants/permissions";
 
@@ -178,14 +179,14 @@ export default {
   created() {
     // this.itemContent = new ItemContent()
 
-    this.itemSave = new ItemSave();
+    this.itemSave = Item.createItem();
 
     if (!this.create) {
-      this.itemSave.fromObject(this.item);
+      this.itemSave = Item.itemFromObject(this.itemSave);
       this.state = 1;
     }
 
-    this.input = this.itemSave.getObject();
+    this.input = Item.itemToObject(this.itemSave);
     this.inputFile = null;
 
     window.addEventListener("keyup", this.keyUp);
@@ -193,13 +194,12 @@ export default {
 
   destroyed() {
     window.removeEventListener("keyup", this.keyUp);
-    this.itemSave.dispose();
   },
 
   methods: {
     validContent() {
-      this.itemSave.updateByInput(this.input.input).then(() => {
-        this.input = this.itemSave.getObject();
+      ItemSave.updateItemByInput(this.itemSave, this.input.input).then(() => {
+        this.input = Item.itemToObject(this.itemSave);
         this.isFile =
           this.input.types.indexOf("image") > -1 ||
           this.input.types.indexOf("file") > -1;
@@ -208,54 +208,30 @@ export default {
     },
 
     deleteItem() {
-      const item = new ItemSave();
-      item.fromObject(this.item);
+      const item = ItemSave.itemFromObject(this.itemSave);
+
       api
         .deleteItem(item.id)
         .then(() => this.$emit("cancel"))
-        .catch((error) => console.error(error))
-        .finally(() => item.dispose());
-
-      // this.$store.dispatch('deleteItem', { id: this.item.id })
-      /* api.deleteItem(data =>
-      {
-          if (data.success)
-              this.$store.commit('deleteItem', data.data.uid)
-
-          this.cancel()
-      }, this.item.uid) */
+        .catch((error) => console.error(error));
     },
 
     save() {
-      const { item, image, file } = this.itemSave.getBody();
+      const { item, image, file } = ItemSave.itemToBody(this.itemSave);
       if (this.create) {
         api.addItem(item, image, file).catch((error) => {
           console.log(error);
         });
         this.cancel();
       } else {
-        const oldItem = new ItemSave();
-        oldItem.fromObject(this.item);
+        const oldItem = ItemSave.itemToObject(this.itemSave);
         api.updateItem(oldItem.id, item, image, file);
 
-        // .catch(error => {
-        //   console.log(error)
-        // })
         this.cancel();
       }
-
-      /* if (this.create) {
-        this.$store.dispatch('addItem', { item: data })
-        this.cancel()
-      } else {
-        this.$store.dispatch('updateItem', { uid: this.item.uid, data: data })
-        this.cancel()
-      } */
     },
 
     cancel() {
-      // this.init()
-      // this.$nextTick(this.close)
       this.$emit("cancel");
     },
 
@@ -267,14 +243,12 @@ export default {
 
     fileChange(file) {
       if (file) {
-        this.itemSave.updateByFile(file).then((itemSave) => {
+        ItemSave.updateItemByFile(this.itemSave, file).then((itemSave) => {
           this.input = itemSave.getObject();
-          // console.log(itemSave)
         });
       } else {
-        this.itemSave.removeFile().then((itemSave) => {
+        ItemSave.removeItemFile(this.itemSave).then((itemSave) => {
           this.input = itemSave.getObject();
-          // console.log(itemSave)
         });
       }
     },

@@ -32,7 +32,7 @@
 
 <script>
 import { TYPES } from "../../../web/app/constants/items";
-import { inputToContent } from "@/pure/ItemSave.js";
+import ItemSave from "@/pure/item-save.js";
 import InputMarkdown from "@/admin/InputMarkdown.vue";
 
 export default {
@@ -127,7 +127,7 @@ export default {
   methods: {
     updateContent(item, value) {
       this.$set(item, "input", value);
-      this.$set(item, "content", inputToContent(value));
+      this.$set(item, "content", ItemSave.itemToBody(value));
     },
   },
 };

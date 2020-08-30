@@ -44,41 +44,8 @@ const itemFromPayload = (payload) => {
   };
 };
 
-const itemToBody = (item) => {
-  const data = {
-    _id: item.id,
-    visibility: item.visibility,
-    title: item.title,
-    description: item.description,
-    types: [...item.types],
-    tags: [...item.tags],
-    input: item.input,
-    content: item.content,
-    score: item.score || 0,
-    createdAt: item.createdAt
-      .toISOString()
-      .replace(/\.[0-9]{3}[A-Z]$/, "")
-      .replace(/T/, " "),
-  };
-
-  Object.keys(data).forEach((key) => {
-    if (data[key] === null) {
-      delete data[key];
-    }
-  });
-
-  let image = null;
-  let file = null;
-
-  if (item.image && item.image.src instanceof File) {
-    image = item.image.src;
-  }
-
-  if (item.file && item.file.src instanceof File) {
-    file = item.file.src;
-  }
-
-  return { item: data, image, file };
+const createItem = () => {
+  return itemFromPayload({});
 };
 
 const itemFromObject = (object) => {
@@ -123,8 +90,8 @@ const itemToObject = (item) => {
 };
 
 export default {
+  createItem,
   itemFromPayload,
-  itemToBody,
   itemFromObject,
   itemToObject,
 };

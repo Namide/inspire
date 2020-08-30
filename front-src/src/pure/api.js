@@ -1,6 +1,6 @@
 // import config from '../../config'
 import Signal from "./Signal";
-import Item from "./Item";
+import Item from "./item";
 const { ROLES } = require("../../../web/app/constants/permissions.js");
 
 // import { itemsToFilter } from "@/pure/tagHelpers";
@@ -89,10 +89,7 @@ class Api {
   }
 
   parseItem(payload) {
-    const item = new Item();
-    const object = item.fromPayload(payload).getObject();
-    item.dispose();
-    return object;
+    return Item.itemToObject(Item.itemFromPayload(payload));
   }
 
   setMe() {}
