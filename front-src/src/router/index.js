@@ -73,7 +73,15 @@ const routes = [
       auth: true,
     },
   },
-
+  {
+    name: "adminUsers",
+    path: "/admin/users",
+    component: () =>
+      import(/* webpackChunkName: "admin" */ "@/views/AdminUsers"),
+    meta: {
+      auth: true,
+    },
+  },
   {
     name: "adminInstall",
     path: "/admin/install/:type(database|user)",

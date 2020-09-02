@@ -94,7 +94,7 @@ class Api {
 
   setMe() {}
 
-  setUser({ email, name, role, _id }) {
+  _setUser({ email, name, role, _id }) {
     const data = {
       user: { email, name, role, id: _id },
       isLogged: role !== ROLES.GUEST,
@@ -111,7 +111,7 @@ class Api {
     fetch("/api/users/me", options)
       .then((response) => this.parseResponse(response))
       .then((payload) => this.parsePayload(payload))
-      .then(({ user }) => this.setUser(user))
+      .then(({ user }) => this._setUser(user))
       .then(console.log)
       .catch(console.error);
   }
@@ -145,6 +145,18 @@ class Api {
       .then((response) => response.json())
       .then((payload) => this.parsePayload(payload))
       .then(({ items }) => items.map((payload) => this.parseItem(payload)));
+  }
+
+  getUsers() {
+    const options = {
+      method: "get",
+      headers: this._createHeaders(),
+    };
+
+    return fetch("/api/users", options)
+      .then((response) => response.json())
+      .then((payload) => this.parsePayload(payload))
+      .then(({ users }) => users);
   }
 
   getGroups(items, { limit = 100, offset = 0 } = {}) {}
@@ -273,6 +285,22 @@ class Api {
     );
   }
 
+  updateUser(id, payload) {
+    const body = new FormData();
+    body.append("user", JSON.stringify(payload));
+
+    const options = {
+      method: "post",
+      headers: this._createHeaders(),
+      body,
+    };
+
+    return fetch("/api/users/" + id, options)
+      .then((response) => response.json())
+      .then((payload) => this.parsePayload(payload))
+      .then(({ user }) => user);
+  }
+
   updateItem(id, payload, image, file) {
     const body = new FormData();
     body.append("item", JSON.stringify(payload));
@@ -298,7 +326,7 @@ class Api {
   }
 
   _disconnect() {
-    this.setUser(Api.createDefaultUser());
+    this._setUser(Api.createDefaultUser());
   }
 
   logout() {
@@ -326,7 +354,7 @@ class Api {
       .then((response) => this.parseResponse(response))
       .then((payload) => this.parsePayload(payload))
       .then(({ user }) => {
-        this.setUser(user);
+        this._setUser(user);
         return user;
       });
     // .catch(console.error);

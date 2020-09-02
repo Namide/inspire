@@ -2,6 +2,7 @@
   <nav class="nav">
     <router-link :to="{ name: 'items' }" class="link">Items</router-link>
     <router-link :to="{ name: 'adminItems' }" class="link">Admin</router-link>
+    <router-link :to="{ name: 'adminUsers' }" class="link">Users</router-link>
     <!-- <router-link :to="{ name: 'groups' }" class="link">Groups</router-link> -->
     <router-link :to="{ name: 'adminImport' }" class="link">Import</router-link>
   </nav>

@@ -24,23 +24,23 @@ import Tabs from "@/components/Tabs";
 export default {
   components: {
     InputTextarea,
-    Tabs
+    Tabs,
   },
 
   props: {
-    value: { type: String }
+    value: { type: String },
   },
 
   data() {
     return {
-      modelValue: null
+      modelValue: null,
     };
   },
 
   computed: {
     render() {
       return marked(this.modelValue);
-    }
+    },
   },
 
   watch: {
@@ -54,7 +54,7 @@ export default {
       if (modelValue !== this.value) {
         this.$emit("input", modelValue);
       }
-    }
+    },
   },
 
   created() {
@@ -64,8 +64,8 @@ export default {
   methods: {
     submit() {
       this.$emit("submit", this.modelValue);
-    }
-  }
+    },
+  },
 };
 </script>
 
