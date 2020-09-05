@@ -29,15 +29,6 @@
         </select>
       </template>
 
-      <!-- <template v-else-if="cellName === 'types'">
-        <span
-          v-for="type of userInput[cellName]"
-          v-html="type"
-          :key="userInput.id + '.' + cellName + '.' + type"
-          class="type"
-        ></span>
-      </template> -->
-
       <template v-else>
         <input
           type="text"
@@ -53,73 +44,6 @@
           :class="'is-' + userInput.tableItemState[cellName]"
         />
       </template>
-
-      <!-- <template v-else-if="cellName === 'description'">
-        <InputTextarea
-          v-model="userInput[cellName]"
-          placeholder="Description"
-          @blur.native="
-            save({
-              label: cellName,
-              userID: userInput.id,
-              value: userInput[cellName],
-            })
-          "
-          class="editable"
-          :class="'is-' + userInput.tableItemState[cellName]"
-        />
-      </template>
-
-      <template
-        v-else-if="
-          cellName === 'image' || cellName === 'file' || cellName === 'content'
-        "
-      >
-        <InputMarkdown
-          v-if="userInput['content']"
-          v-model="userInput['input']"
-          @input="(val) => updateContent(userInput, val)"
-          @submit="(val) => updateContent(userInput, val)"
-          placeholder="Content (URL, markdown, HTML, embed...)"
-        />
-        <AdminFileLoader
-          v-else-if="userInput['file']"
-          @change="(file) => fileChange(userInput, cellName, file)"
-          :image="userInput['file']"
-          :only-img="false"
-          size="small"
-        />
-        <AdminFileLoader
-          v-else-if="userInput['image']"
-          @change="(file) => fileChange(userInput, cellName, file)"
-          :image="userInput['image']"
-          :only-img="true"
-          :size="'small'"
-        />
-      </template>
-
-      <template v-else-if="cellName === 'score'">
-        <input
-          type="number"
-          min="0"
-          max="5"
-          step="0.1"
-          v-model="userInput[cellName]"
-          @blur="
-            save({
-              label: cellName,
-              userID: userInput.id,
-              value: Number(userInput[cellName]),
-            })
-          "
-          class="editable"
-          :class="'is-' + userInput.tableItemState[cellName]"
-        />
-      </template>
-
-      <template v-else>
-        {{ userInput[cellName] }}
-      </template> -->
     </td>
     <td>
       <button @click="save('edit-user', userInput)">Edit</button>
@@ -130,13 +54,6 @@
 <script>
 import api from "@/pure/api";
 import Loader from "@/components/Loader.vue";
-// import Tags from "@/components/Tags.vue";
-// import { VISIBILITY } from "../../../web/app/constants/permissions";
-// import AdminFileLoader from "@/admin/AdminFileLoader.vue";
-// import ItemSave from "@/pure/user-save.js";
-// import Item from "@/pure/user.js";
-// import InputTextarea from "@/admin/InputTextarea.vue";
-// import InputMarkdown from "@/admin/InputMarkdown.vue";
 import tasksManager from "@/pure/tasksManager";
 
 const { ROLES } = require("../../../web/app/constants/permissions.js");
@@ -204,10 +121,9 @@ export default {
       const oldState = this.userInput.tableItemState.label;
 
       this.$set(this.userInput.tableItemState, label, STATES.SAVING);
-
       const process = () => {
         api
-          .updateItem(userID, { [label]: value })
+          .updateUser(userID, { [label]: value })
           .then(() => {
             this.$set(this.userInput.tableItemState, label, STATES.SAVED);
           })

@@ -17,8 +17,12 @@ const { removeCookie, getCookie } = require('../helpers/cookie')
 // }
 
 const displayUser = user => {
-  delete user.password
-  return user
+  return {
+    _id: user._id,
+    email: user.email,
+    name: user.name,
+    role: user.role
+  }
 }
 
 // hooks.initDb.addOnce((db) => {
@@ -153,7 +157,7 @@ const userGet = async (ctx) => {
 
 const userEdit = async (ctx) => {
   const documentQuery = { _id: ObjectID(ctx.params.id) }
-  const values = ctx.request.body
+  const values = JSON.parse(ctx.request.body.user)
 
   if (values.password) {
     const salt = bcrypt.genSaltSync()
@@ -161,6 +165,8 @@ const userEdit = async (ctx) => {
     values.password = hash
   }
 
+  console.log(documentQuery)
+  console.log(values)
   await ctx.app.collections.users.updateOne(documentQuery, { $set: values })
 
   const user = await ctx.app.collections.users.findOne(documentQuery)

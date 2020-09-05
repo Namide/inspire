@@ -92,6 +92,15 @@ class Api {
     return Item.itemToObject(Item.itemFromPayload(payload));
   }
 
+  parseUser(payload) {
+    return {
+      email: payload.email,
+      name: payload.name,
+      role: payload.role,
+      id: payload._id,
+    };
+  }
+
   setMe() {}
 
   _setUser({ email, name, role, _id }) {
@@ -111,7 +120,8 @@ class Api {
     fetch("/api/users/me", options)
       .then((response) => this.parseResponse(response))
       .then((payload) => this.parsePayload(payload))
-      .then(({ user }) => this._setUser(user))
+      .then(({ user }) => this.parseUser(user))
+      .then((user) => this._setUser(user))
       .then(console.log)
       .catch(console.error);
   }
@@ -156,7 +166,7 @@ class Api {
     return fetch("/api/users", options)
       .then((response) => response.json())
       .then((payload) => this.parsePayload(payload))
-      .then(({ users }) => users);
+      .then(({ users }) => users.map((payload) => this.parseUser(payload)));
   }
 
   getGroups(items, { limit = 100, offset = 0 } = {}) {}
@@ -177,7 +187,7 @@ class Api {
     return fetch("/api/users", options)
       .then((response) => response.json())
       .then((payload) => this.parsePayload(payload))
-      .then(({ user }) => user);
+      .then(({ user }) => this.parseUser(user));
   }
 
   addItem(item, image = null, file = null) {
@@ -271,7 +281,7 @@ class Api {
         }
       })
       .then((payload) => this.parsePayload(payload))
-      .then(({ user }) => user);
+      .then(({ user }) => this.parseUser(user));
   }
 
   deleteItem(id) {
@@ -298,7 +308,7 @@ class Api {
     return fetch("/api/users/" + id, options)
       .then((response) => response.json())
       .then((payload) => this.parsePayload(payload))
-      .then(({ user }) => user);
+      .then(({ user }) => this.parseUser(user));
   }
 
   updateItem(id, payload, image, file) {
